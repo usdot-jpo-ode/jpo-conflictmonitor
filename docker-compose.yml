@@ -1,0 +1,11 @@
+version: '3'
+services:
+  conflictmonitor:
+    build: .
+    image: jpo-conflictmonitor:latest
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
