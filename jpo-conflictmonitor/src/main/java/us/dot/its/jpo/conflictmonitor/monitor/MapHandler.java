@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.LaneConnection;
 import us.dot.its.jpo.ode.model.OdeMapData;
 import us.dot.its.jpo.ode.model.OdeMapMetadata;
@@ -60,7 +61,7 @@ public class MapHandler extends AbstractSubscriberProcessor<String, String> {
 			System.out.println("Received New Map Message");
 
 			OdeMapData map = deserializeMap(consumedData);
-			extractConnections(map);
+			extractIntersections(map);
 
 		} catch (Exception e) {
 			logger.error("Failed to convert received data to GeoJSON: ", e);
@@ -68,62 +69,14 @@ public class MapHandler extends AbstractSubscriberProcessor<String, String> {
 		return null;
 	}
 
-	public void extractConnections(OdeMapData map) {
+	public void extractIntersections(OdeMapData map) {
 		OdeMapPayload payload = (OdeMapPayload) map.getPayload();
 		J2735MAP payloadMap = payload.getMap();
 		List<J2735IntersectionGeometry> intersections = payloadMap.getIntersections().getIntersections();
 
 		for (J2735IntersectionGeometry intersection : intersections) {
-			List<J2735GenericLane> lanes = intersection.getLaneSet().getLaneSet();
-
-			Map<Integer, Integer> laneLookup = new HashMap<Integer, Integer>();
-			for (int i = 0; i < lanes.size(); i++) {
-				laneLookup.put(lanes.get(i).getLaneID(), i);
-			}
-
-			ArrayList<LaneConnection> laneConnections = new ArrayList<>();
-
-			for (J2735GenericLane lane : lanes) {
-				J2735ConnectsToList connectsTo = lane.getConnectsTo();
-				if (connectsTo != null) {
-					List<J2735Connection> connections = connectsTo.getConnectsTo();
-
-					for (J2735Connection connection: connections) {
-
-						int connectingLaneID = connection.getConnectingLane().getLane();
-						int signalGroup = 0;
-						if (connection.getSignalGroup() != null) {
-							signalGroup = connection.getSignalGroup();
-						}
-
-						laneConnections.add(new LaneConnection(lane, lanes.get(laneLookup.get(connectingLaneID)), signalGroup, 25));
-
-					}
-				}
-
-			}
-
-			System.out.println(laneConnections.size());
-			WKTWriter writer = new WKTWriter(2);
-			String wtkOut = "wtk\n";
-			writer.setFormatted(true);
-			for (int j = 0; j < laneConnections.size(); j++) {
-				for (int k = j; k < laneConnections.size(); k++) {
-					// laneConnections.get(j).detectConflict(laneConnections.get(k));
-
-				}
-				// System.out.println("Path");
-				wtkOut += "\"" + writer.writeFormatted(laneConnections.get(j).getIngressPath()) + "\"\n";
-				wtkOut += "\"" + writer.writeFormatted(laneConnections.get(j).getConnectingPath()) + "\"\n";
-				wtkOut += "\"" + writer.writeFormatted(laneConnections.get(j).getEgressPath()) + "\"\n";
-
-				// laneConnections.get(j).printConnectingPath();
-			}
-
-			System.out.println(wtkOut);
-
+			Intersection conflictIntersection = new Intersection(intersection);
 		}
-
 	}
 
 	public OdeMapData deserializeMap(String mapString) {

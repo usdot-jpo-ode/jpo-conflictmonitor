@@ -7,7 +7,9 @@
     <version>2.5.0</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
+  <groupId>usdot.jpo.ode</groupId>
   <artifactId>jpo-conflictmanager</artifactId>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>jpo-conflictmanager</name>
   <url>http://maven.apache.org</url>
@@ -15,9 +17,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <geotools.version>29-SNAPSHOT</geotools.version>
     <maven.deploy.skip>true</maven.deploy.skip>
-    
+    <description>Detects Intersection Message Conflicts from messaged passed by the ODE</description>
+    <java.version>11</java.version>
   </properties>
-  <description>Detects Intersection Message Conflicts from messaged passed by the ODE</description>
   <dependencies>
     <!-- Spring Boot Dependencies -->
     <dependency>
@@ -84,6 +86,11 @@
       <version>1.0.10-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>usdot.jpo.ode</groupId>
+      <artifactId>jpo-geojsonconverter</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
@@ -99,14 +106,7 @@
       <artifactId>gt-swing</artifactId>
       <version>${geotools.version}</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/colt/colt
-    <dependency>
-        <groupId>colt</groupId>
-        <artifactId>colt</artifactId>
-        <version>1.2.0</version>
-    </dependency> -->
 
-    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
 <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
     <dependency>
         <groupId>org.apache.commons</groupId>
