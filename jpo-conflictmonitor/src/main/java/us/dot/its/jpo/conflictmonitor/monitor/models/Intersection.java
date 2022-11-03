@@ -8,6 +8,7 @@ import java.util.Map;
 import org.locationtech.jts.io.WKTWriter;
 
 import us.dot.its.jpo.ode.plugin.j2735.J2735IntersectionGeometry;
+import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
 import us.dot.its.jpo.ode.plugin.j2735.J2735ConnectsToList;
 import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
@@ -23,11 +24,13 @@ public class Intersection {
 
         extractConnections();
         String wkt = getConnectionsAsWKT();
-        System.out.println(wkt);
+        //System.out.println(wkt);
+        getPathAsLatLong();
     }
 
     public void extractConnections() {
         List<J2735GenericLane> lanes = this.intersectionGeometry.getLaneSet().getLaneSet();
+        OdePosition3D reference = this.intersectionGeometry.getRefPoint();
 
         Map<Integer, Integer> laneLookup = new HashMap<Integer, Integer>();
         for (int i = 0; i < lanes.size(); i++) {
@@ -46,9 +49,9 @@ public class Intersection {
                     if (connection.getSignalGroup() != null) {
                         signalGroup = connection.getSignalGroup();
                     }
-
+                    
                     this.laneConnections.add(
-                            new LaneConnection(lane, lanes.get(laneLookup.get(connectingLaneID)), signalGroup, 25));
+                            new LaneConnection(reference, lane, lanes.get(laneLookup.get(connectingLaneID)), signalGroup, 25));
 
                 }
             }
@@ -70,6 +73,13 @@ public class Intersection {
         }
 
         return wtkOut;
+    }
+
+    public void getPathAsLatLong(){
+        for(LaneConnection connection: this.laneConnections){
+            connection.printLineStringLatLongAsCSV(connection.getIngressPath());
+            break;
+        }
     }
 
 }

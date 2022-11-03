@@ -23,11 +23,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
+import org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +43,15 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.thymeleaf.util.StringUtils;
+import us.dot.its.jpo.conflictmonitor.AlwaysContinueProductionExceptionHandler;
 
+import kafka.producer.ProducerConfig;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
 import us.dot.its.jpo.ode.plugin.OdePlugin;
 import us.dot.its.jpo.ode.util.CommonUtils;
+
 
 @ConfigurationProperties("geojson")
 @PropertySource("classpath:application.properties")
@@ -149,6 +157,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicOdeSpatRxJson = "topic.OdeSpatRxJson";
    private String kafkaTopicFilteredOdeSpatJson = "topic.FilteredOdeSpatJson";
    private String kafkaTopicOdeRawEncodedSPATJson = "topic.OdeRawEncodedSPATJson";
+   private String kafkaTopicSpatGeoJson = "spatgeojson-geojson-joined-repartition";//"topic.SpatGeoJson";
    private int spatReceiverPort = 44910;
    private int spatBufferSize = 1000;
 
@@ -247,6 +256,42 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       logger.info("Disabled Topics: {}", asList);
       kafkaTopicsDisabledSet.addAll(asList);
    }
+
+   public Properties createStreamProperties(String name) {
+      Properties streamProps = new Properties();
+      streamProps.put(StreamsConfig.APPLICATION_ID_CONFIG, name);
+
+      streamProps.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
+
+      streamProps.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
+          LogAndContinueExceptionHandler.class.getName());
+
+      streamProps.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
+          LogAndSkipOnInvalidTimestamp.class.getName());
+
+      streamProps.put(StreamsConfig.DEFAULT_PRODUCTION_EXCEPTION_HANDLER_CLASS_CONFIG,
+          AlwaysContinueProductionExceptionHandler.class.getName());
+         
+
+      streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 2);
+
+      streamProps.put(StreamsConfig.producerPrefix("acks"), "all");
+
+      // Reduce cache buffering per topology to 1MB
+      streamProps.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 1 * 1024 * 1024L);
+
+      // Decrease default commit interval. Default for 'at least once' mode of 30000ms
+      // is too slow.
+      streamProps.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 100);
+
+      // All the keys are Strings in this app
+      streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+
+      // Configure the state store location
+      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
+      //streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
+      return streamProps;
+  }
 
    
    public String getVersion() {
@@ -811,6 +856,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 	public void setKafkaTopicFilteredOdeSpatJson(String kafkaTopicFilteredOdeSpatJson) {
 		this.kafkaTopicFilteredOdeSpatJson = kafkaTopicFilteredOdeSpatJson;
 	}
+
+   public String getKafkaTopicSpatGeoJson() {
+      return kafkaTopicSpatGeoJson;
+   }
+
+   public void setKafkaTopicSpatGeoJson(String kafkaTopicSpatGeoJson) {
+      this.kafkaTopicSpatGeoJson = kafkaTopicSpatGeoJson;
+   }
 
 
 	public String getKafkaTopicOdeRawEncodedBSMJson() {
