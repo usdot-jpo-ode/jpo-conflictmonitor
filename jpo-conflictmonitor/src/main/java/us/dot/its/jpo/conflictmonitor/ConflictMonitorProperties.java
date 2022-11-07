@@ -134,8 +134,15 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicOdeBsmDuringEventPojo = "topic.OdeBsmDuringEventPojo";
    private String kafkaTopicFilteredOdeBsmJson = "topic.FilteredOdeBsmJson";
    private String kafkaTopicOdeRawEncodedBSMJson = "topic.OdeRawEncodedBSMJson";
+   private String kafkaTopicCmBsmEvent = "topic.CMBsmEvents";
+
+
    private int bsmReceiverPort = 46800;
    private int bsmBufferSize = 500;
+
+
+   
+
 
    // TIM
    private String kafkaTopicOdeTimJson = "topic.OdeTimJson";
@@ -288,7 +295,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
+      //streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
       //streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
   }
@@ -614,6 +621,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicOdeBsmJson(String kafkaTopicOdeBsmJson) {
       this.kafkaTopicOdeBsmJson = kafkaTopicOdeBsmJson;
+   }
+
+   public String getKafkaTopicCmBsmEvent() {
+      return kafkaTopicCmBsmEvent;
+   }
+
+   public void setKafkaTopicCmBsmEvent(String kafkaTopicCmBsmEvent) {
+      this.kafkaTopicCmBsmEvent = kafkaTopicCmBsmEvent;
    }
 
    public String getKafkaTopicAsn1DecoderInput() {

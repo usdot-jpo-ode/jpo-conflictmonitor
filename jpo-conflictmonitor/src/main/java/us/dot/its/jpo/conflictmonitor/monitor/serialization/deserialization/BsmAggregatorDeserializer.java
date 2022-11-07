@@ -4,7 +4,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.processors.BsmAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.model.OdeBsmPayload;
@@ -30,14 +30,12 @@ public class BsmAggregatorDeserializer implements Deserializer<BsmAggregator> {
         }
         try {
             JsonNode actualObj = mapper.readTree(data);
-            //System.out.println(actualObj);
             
 
             BsmAggregator aggregator =  new BsmAggregator();
-            ArrayList<OdeBsmData> bsmList = new ArrayList();
+            //TreeSet<OdeBsmData> bsmList = new TreeSet();
+            JsonNode bsmListNode = actualObj.get("bsms");
 
-            JsonNode bsmListNode = actualObj.get("bsmList");
-            
             for(JsonNode bsm: bsmListNode){
                 JsonNode metadataNode = bsm.get("metadata");
                 String metadataString = metadataNode.toString();
@@ -50,10 +48,10 @@ public class BsmAggregatorDeserializer implements Deserializer<BsmAggregator> {
 
                 OdeBsmData newBsm = new OdeBsmData(metadataObject, mapPayload);
 
-                bsmList.add(newBsm);
+                aggregator.addWithoutDeletion(newBsm);
             }
 
-            aggregator.setBsmList(bsmList);
+            //aggregator.setBsmList(bsmList);
 
             return aggregator;
         } catch (IOException e) {
