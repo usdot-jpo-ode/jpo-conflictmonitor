@@ -5,7 +5,6 @@ import java.awt.geom.Point2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.TransformException;
 
 public class CoordinateConversion {
@@ -40,7 +39,7 @@ public class CoordinateConversion {
             geoCalc.setStartingPosition(new DirectPosition2D(0,0));
             geoCalc.setDestinationPosition(new DirectPosition2D(offsetX, offsetY));
         } catch (TransformException e) {
-            // TODO Auto-generated catch block
+            System.out.println("Failed to offset in Geodeteic Calculator");
             e.printStackTrace();
         }
         

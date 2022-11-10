@@ -2,38 +2,17 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Initializer;
-import org.apache.kafka.streams.kstream.Joined;
-import org.apache.kafka.streams.kstream.KGroupedStream;
-import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.SessionWindows;
-import org.apache.kafka.streams.kstream.Suppressed;
-import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Printed;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-// import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.geojson.map.MapFeatureCollection;
-import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeature;
 import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeatureCollection;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 
 
 public class ConflictTopology {

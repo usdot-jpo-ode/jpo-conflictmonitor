@@ -43,9 +43,6 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.thymeleaf.util.StringUtils;
-import us.dot.its.jpo.conflictmonitor.AlwaysContinueProductionExceptionHandler;
-
-import kafka.producer.ProducerConfig;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;

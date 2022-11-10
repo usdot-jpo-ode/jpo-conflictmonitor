@@ -11,6 +11,7 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
@@ -30,17 +31,30 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
 
     @Override
     public void process(String key, OdeBsmData value) {
-
         // Key the BSM's based upon vehicle ID.
         key = key + "_" + ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
         ValueAndTimestamp<BsmEvent> record = stateStore.get(key);
+        
         if (record != null) {
-
             BsmEvent event = record.value();
-            event.setEndingBsm(value);
+            long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
+
+            // If the new record is older than the last start bsm. Use the last start bsm instead.
+            if(newRecTime < BsmTimestampExtractor.getBsmTimestamp(event.getStartingBsm())){
+                // If there is no ending BSM make the previous start bsm the end bsm 
+                if(event.getEndingBsm() == null){
+                    event.setEndingBsm(event.getStartingBsm());
+                }
+                event.setStartingBsm(value);
+            }else if(event.getEndingBsm() == null || newRecTime > BsmTimestampExtractor.getBsmTimestamp(event.getEndingBsm())){
+                // If the new record is more recent than the old record
+                event.setEndingBsm(value);
+            }
+            event.setEndingBsmTimestamp(context().timestamp());
             stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
         } else {
             BsmEvent event = new BsmEvent(value);
+            event.setStartingBsmTimestamp(context.timestamp());
             stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
         }
     }

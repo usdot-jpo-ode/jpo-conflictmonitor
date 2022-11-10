@@ -1,14 +1,13 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.ode.util.JsonUtils;
 
 public class BsmEvent {
-    public OdeBsmData startingBsm;
-    public OdeBsmData endingBsm;
-
-    public BsmEvent(){
-
-    }
+    private OdeBsmData startingBsm;
+    private OdeBsmData endingBsm;
+    private Long startingBsmTimestamp;
+    private Long endingBsmTimestamp;
 
     public BsmEvent(OdeBsmData startingBsm){
         this.startingBsm = startingBsm;
@@ -33,5 +32,24 @@ public class BsmEvent {
 
     public void setEndingBsm(OdeBsmData endingBsm) {
         this.endingBsm = endingBsm;
+    }
+
+    public String toString(){
+        return JsonUtils.toJson(this, false);
+    }
+
+    public void setStartingBsmTimestamp(Long startingBsmTimestamp){
+        this.startingBsmTimestamp = startingBsmTimestamp;
+    }
+
+    public Long getStartingBsmTimestamp(){
+        return startingBsmTimestamp;
+    }
+
+    public void setEndingBsmTimestamp(Long endingBsmTimestamp){
+        this.endingBsmTimestamp = endingBsmTimestamp;
+    }
+    public Long getEndingBsmTimestamp(){
+        return endingBsmTimestamp;
     }
 }

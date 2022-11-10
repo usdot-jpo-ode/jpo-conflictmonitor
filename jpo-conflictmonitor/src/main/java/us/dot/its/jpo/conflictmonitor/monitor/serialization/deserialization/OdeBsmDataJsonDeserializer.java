@@ -26,25 +26,26 @@ public class OdeBsmDataJsonDeserializer implements Deserializer<OdeBsmData> {
 
     @Override
     public OdeBsmData deserialize(String topic, byte[] data) {
-        if (data == null) {
+        if (data == null || data.length < 100) {
             return null;
         }
         try {
             JsonNode actualObj = mapper.readTree(data);
 
-            // // Deserialize the metadata
+            // // // Deserialize the metadata
             JsonNode metadataNode = actualObj.get("metadata");
             String metadataString = metadataNode.toString();
             OdeBsmMetadata metadataObject = (OdeBsmMetadata) JsonUtils.fromJson(metadataString, OdeBsmMetadata.class);
+
 
             // // Deserialize the payload
             JsonNode payloadNode = actualObj.get("payload");
             String payloadString = payloadNode.toString();
             OdeBsmPayload mapPayload = (OdeBsmPayload) JsonUtils.fromJson(payloadString, OdeBsmPayload.class);
-
             OdeBsmData returnData = new OdeBsmData(metadataObject, mapPayload);
             return returnData;
         } catch (IOException e) {
+            System.out.println("BSM Deserialization Failed");
             String errMsg = String.format("Exception deserializing for topic %s: %s", topic, e.getMessage());
             logger.error(errMsg, e);
             throw new RuntimeException(errMsg, e);

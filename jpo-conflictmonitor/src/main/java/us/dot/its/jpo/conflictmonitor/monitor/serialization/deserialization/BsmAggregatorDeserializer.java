@@ -2,8 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;

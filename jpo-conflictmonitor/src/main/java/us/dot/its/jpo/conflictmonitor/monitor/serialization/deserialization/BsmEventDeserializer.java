@@ -22,17 +22,22 @@ public class BsmEventDeserializer implements Deserializer<BsmEvent> {
 
     @Override
     public BsmEvent deserialize(String topic, byte[] data) {
+        
         if (data == null) {
             return null;
         }
         try {
+            
             JsonNode actualObj = mapper.readTree(data);
+            
 
             JsonNode startingBsmNode = actualObj.get("startingBsm");
             JsonNode endingBsmNode = actualObj.get("endingBsm");
 
             OdeBsmData startingBsm = null;
             OdeBsmData endingBsm = null;
+
+
 
             // // Deserialize the metadata
             JsonNode metadataNode = startingBsmNode.get("metadata");
@@ -63,8 +68,19 @@ public class BsmEventDeserializer implements Deserializer<BsmEvent> {
     
                 endingBsm = new OdeBsmData(metadataObject, mapPayload);
             }
+
+            Long startingTimestamp = actualObj.get("startingBsmTimestamp").asLong();
+            Long endingTimestamp = actualObj.get("endingBsmTimestamp").asLong();
+
             
             BsmEvent returnData = new BsmEvent(startingBsm, endingBsm);
+            if(startingTimestamp != null){
+                returnData.setStartingBsmTimestamp(startingTimestamp);
+            }
+            if(endingTimestamp != null){
+                returnData.setEndingBsmTimestamp(endingTimestamp);
+            }
+            
             return returnData;
         } catch (IOException e) {
             String errMsg = String.format("Exception deserializing for topic %s: %s", topic, e.getMessage());

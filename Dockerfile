@@ -13,6 +13,9 @@ COPY ./jpo-ode/jpo-ode-core/src ./jpo-ode/jpo-ode-core/src/
 COPY ./jpo-ode/jpo-ode-svcs/pom.xml ./jpo-ode/jpo-ode-svcs/
 COPY ./jpo-ode/jpo-ode-svcs/src ./jpo-ode/jpo-ode-svcs/src
 
+COPY ./jpo-geojsonconverter/jpo-geojsonconverter/pom.xml ./jpo-geojsonconverter/
+COPY ./jpo-geojsonconverter/jpo-geojsonconverter/src ./jpo-geojsonconverter/src
+
 COPY ./jpo-conflictmonitor/pom.xml ./jpo-conflictmonitor/
 COPY ./jpo-conflictmonitor/src ./jpo-conflictmonitor/src
 
@@ -20,10 +23,13 @@ WORKDIR /home/jpo-ode
 
 RUN mvn install -DskipTests
 
+WORKDIR /home/jpo-geojsonconverter
+
+RUN mvn clean install -DskipTests
+
 WORKDIR /home/jpo-conflictmonitor
 
 RUN mvn clean package -DskipTests
-
 FROM openjdk:11-jre-slim
 
 WORKDIR /home

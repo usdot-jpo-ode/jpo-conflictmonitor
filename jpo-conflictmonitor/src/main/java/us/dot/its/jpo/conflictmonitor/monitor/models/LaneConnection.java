@@ -6,28 +6,17 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.renderer.style.PointStyle2D;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.operation.TransformException;
-
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeOffsetPointXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Node_XY;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
-import us.dot.its.jpo.ode.util.GeoUtils;
-import org.geotools.referencing.datum.DefaultEllipsoid;
-
-import java.awt.geom.Point2D;
-import java.awt.Point;
 
 public class LaneConnection {
     private OdePosition3D referencePoint;

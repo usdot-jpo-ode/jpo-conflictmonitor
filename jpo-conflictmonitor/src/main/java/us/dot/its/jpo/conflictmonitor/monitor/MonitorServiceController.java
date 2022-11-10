@@ -1,26 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
-import java.time.Duration;
-
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.StoreBuilder;
-import org.apache.kafka.streams.state.Stores;
-import org.apache.kafka.streams.state.TimestampedKeyValueStore;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.wrapper.MessageConsumer;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service
@@ -46,6 +39,9 @@ public class MonitorServiceController {
         // mapJsonConsumer.setName("MapJsonToGeoJsonConsumer");
         // mapConverter.start(mapJsonConsumer, conflictMonitorProps.getKafkaTopicOdeMapTxPojo());
 
+        String bsmStoreName = "BsmWindowStore";
+        String spatStoreName = "SpatWindowStore";
+        String mapStoreName = "MapWindowStore";
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
@@ -60,11 +56,40 @@ public class MonitorServiceController {
             // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             // streams.start();
 
+            // BSM Topology sends a message every time a vehicle drives through the intersection. 
             Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("conflictmonitor"));
+            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            streams.start(); 
+
+
+            // the message ingest topology tracks and stores incoming messages for further processing
+            topology = MessageIngestTopology.build(
+                conflictMonitorProps.getKafkaTopicOdeBsmJson(),
+                bsmStoreName,
+                conflictMonitorProps.getKafkaTopicSpatGeoJson(),
+                spatStoreName,
+                conflictMonitorProps.getKafkaTopicMapGeoJson(),
+                mapStoreName
+            );
+            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start();
 
+            
+            Thread.sleep(5000);
+            
+            ReadOnlyWindowStore<String, OdeBsmData> windowStore =
+                streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
+
+
+            // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), windowStore);
+            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            streams.start();
+
+            
 
             // // SPaT
             // logger.info("Creating the SPaT geoJSON Kafka-Streams topology");

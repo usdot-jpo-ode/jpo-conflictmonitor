@@ -13,7 +13,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 public class BsmEventTopology {
     
     // Tracks when a new stream of BSMS arrives through the system. Once the stream of BSM's ends, emits an event containing the start and end BSM's in the chain.
-    
     public static Topology build(String inputTopic, String outputTopic) {
         Topology bsmEventBuilder = new Topology();
 
