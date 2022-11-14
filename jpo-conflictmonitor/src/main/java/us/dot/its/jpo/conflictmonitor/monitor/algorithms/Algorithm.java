@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 
 import org.apache.kafka.common.serialization.Serde;
 
