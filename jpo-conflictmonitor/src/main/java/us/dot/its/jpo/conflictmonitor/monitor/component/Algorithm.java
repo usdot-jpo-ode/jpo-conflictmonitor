@@ -8,17 +8,11 @@ import org.apache.kafka.common.serialization.Serde;
  */
 public interface Algorithm<TParameters> {
 
-    /**
-     * Set configuration parameters for the algorithm
-     * 
-     * @param parameters
-     */
-    void setParameters(TParameters parameters);
 
     /**
-     * Initializes the algorithm
+     * Initializes the algorithm with parameters
      */
-    void initialize();
+    void initialize(TParameters parameters);
 
     /**
      * Starts running the algorithm to process messages

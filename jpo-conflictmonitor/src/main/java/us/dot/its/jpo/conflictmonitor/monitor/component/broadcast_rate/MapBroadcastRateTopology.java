@@ -6,11 +6,7 @@ import org.springframework.stereotype.Component;
 @Component("defaultMapBroadcastRateAlgorithm")
 public class MapBroadcastRateTopology implements MapBroadcastRateAlgorithm {
 
-    @Override
-    public void initialize() {
-        // TODO Auto-generated method stub
-        
-    }
+   
     
     @Override
     public void start() {
@@ -19,7 +15,7 @@ public class MapBroadcastRateTopology implements MapBroadcastRateAlgorithm {
     }
 
     @Override
-    public void setParameters(BroadcastRateParameters parameters) {
+    public void initialize(BroadcastRateParameters parameters) {
         // TODO Auto-generated method stub
         
     }
