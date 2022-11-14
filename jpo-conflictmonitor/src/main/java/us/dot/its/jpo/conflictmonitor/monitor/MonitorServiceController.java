@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
-import us.dot.its.jpo.conflictmonitor.monitor.broadcast_rate.BroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.broadcast_rate.MapBroadcastRateAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.broadcast_rate.MapBroadcastRateAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.MapBroadcastRateAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.MapBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;

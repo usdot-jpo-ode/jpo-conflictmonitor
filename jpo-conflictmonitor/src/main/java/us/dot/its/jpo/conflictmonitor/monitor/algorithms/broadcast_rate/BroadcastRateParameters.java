@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate;
 
 import java.util.Objects;
 
