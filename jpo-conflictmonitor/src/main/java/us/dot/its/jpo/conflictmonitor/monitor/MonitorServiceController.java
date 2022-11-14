@@ -7,9 +7,14 @@ import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.component.broadcast_rate.BroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.component.broadcast_rate.MapBroadcastRateAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.component.broadcast_rate.MapBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
@@ -24,9 +29,28 @@ public class MonitorServiceController {
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
     org.apache.kafka.common.serialization.Serdes bas;
 
+    
+    private String mapBroadcastRateAlgorithmName;
+
+    @Value("${map.broadcast.rate.algorithm}")
+    public void setMapBroadcastRateAlgorithmName(String mapBroadcastRateAlgorithmName) {
+        this.mapBroadcastRateAlgorithmName = mapBroadcastRateAlgorithmName;
+    }
+
+    public String getMapBroadcastRateAlgorithmName() {
+        return mapBroadcastRateAlgorithmName;
+    }
+
+
     @Autowired
-    public MonitorServiceController(ConflictMonitorProperties conflictMonitorProps) {
-        super();
+    @Qualifier("defaultMapBroadcastRateParameters")
+    private BroadcastRateParameters mapBroadcastRateParameters;
+
+    
+    @Autowired
+    public MonitorServiceController(ConflictMonitorProperties conflictMonitorProps,
+        MapBroadcastRateAlgorithmFactory mapBroadcastRateAlgorithmFactory) {
+        
 
         // logger.info("Starting {}", this.getClass().getSimpleName());
 
@@ -55,6 +79,14 @@ public class MonitorServiceController {
             // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("conflictmonitor"));
             // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             // streams.start();
+
+            // MapBroadcastRate Topology
+            // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
+            MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(mapBroadcastRateAlgorithmName);
+            mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
+            mapBroadcastRateAlgorithm.initialize();
+            mapBroadcastRateAlgorithm.start();
+
 
             // BSM Topology sends a message every time a vehicle drives through the intersection. 
             Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());

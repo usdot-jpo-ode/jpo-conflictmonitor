@@ -59,6 +59,76 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    @Autowired
    private Environment env;
 
+   @Value("{map.broadcast.rate.algorithm}")
+   private String mapBroadcastRateAlgorithm;
+
+   public String getMapBroadcastRateAlgorithm() {
+      return this.mapBroadcastRateAlgorithm;
+   }
+
+   public void setMapBroadcastRateAlgorithm(String mapBroadcastRateAlgorithm) {
+      this.mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithm;
+   }
+
+   public Boolean isVerboseJson() {
+      return this.verboseJson;
+   }
+   public void setHostId(String hostId) {
+      this.hostId = hostId;
+   }
+   public void setUploadLocations(List<Path> uploadLocations) {
+      this.uploadLocations = uploadLocations;
+   }
+
+   public int getSecuritySvcsPort() {
+      return this.securitySvcsPort;
+   }
+
+   public void setSecuritySvcsPort(int securitySvcsPort) {
+      this.securitySvcsPort = securitySvcsPort;
+   }
+
+   public String getSecuritySvcsSignatureEndpoint() {
+      return this.securitySvcsSignatureEndpoint;
+   }
+
+   public void setSecuritySvcsSignatureEndpoint(String securitySvcsSignatureEndpoint) {
+      this.securitySvcsSignatureEndpoint = securitySvcsSignatureEndpoint;
+   }
+
+   public String getUploadLocationObuLogLog() {
+      return this.uploadLocationObuLogLog;
+   }
+
+   public void setUploadLocationObuLogLog(String uploadLocationObuLogLog) {
+      this.uploadLocationObuLogLog = uploadLocationObuLogLog;
+   }
+
+   public String getDdsCasPass() {
+      return this.ddsCasPass;
+   }
+
+   public void setDdsCasPass(String ddsCasPass) {
+      this.ddsCasPass = ddsCasPass;
+   }
+
+   public boolean isDepositSdwMessagesOverWebsocket() {
+      return this.depositSdwMessagesOverWebsocket;
+   }
+
+   public boolean getDepositSdwMessagesOverWebsocket() {
+      return this.depositSdwMessagesOverWebsocket;
+   }
+
+
+   public BuildProperties getBuildProperties() {
+      return this.buildProperties;
+   }
+
+   public void setBuildProperties(BuildProperties buildProperties) {
+      this.buildProperties = buildProperties;
+   }
+
    /*
     * General Properties
     */
@@ -72,6 +142,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private int importProcessorBufferSize = OdePlugin.INPUT_STREAM_BUFFER_SIZE;
    private String hostId;
    private List<Path> uploadLocations = new ArrayList<>();
+
 
    /*
     * RSU Properties

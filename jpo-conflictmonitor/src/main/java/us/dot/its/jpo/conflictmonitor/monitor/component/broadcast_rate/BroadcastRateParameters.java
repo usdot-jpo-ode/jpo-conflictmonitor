@@ -7,12 +7,12 @@ import java.util.Objects;
  */
 public class BroadcastRateParameters {
     
-    private String inputTopicName;
-    private String outputTopicName;
-    int rollingPeriodDurationSeconds = 10;
-    int outputIntervalSeconds = 5;
-    int broadcastRateLowerBound = 90;
-    int broadcastRateUpperBound = 110;
+    String inputTopicName;
+    String outputTopicName;
+    int rollingPeriodSeconds;
+    int outputIntervalSeconds;
+    int lowerBound;
+    int upperBound;
 
 
     public String getInputTopicName() {
@@ -31,12 +31,12 @@ public class BroadcastRateParameters {
         this.outputTopicName = outputTopicName;
     }
 
-    public int getRollingPeriodDurationSeconds() {
-        return this.rollingPeriodDurationSeconds;
+    public int getRollingPeriodSeconds() {
+        return this.rollingPeriodSeconds;
     }
 
-    public void setRollingPeriodDurationSeconds(int rollingPeriodDurationSeconds) {
-        this.rollingPeriodDurationSeconds = rollingPeriodDurationSeconds;
+    public void setRollingPeriodSeconds(int rollingPeriodDurationSeconds) {
+        this.rollingPeriodSeconds = rollingPeriodDurationSeconds;
     }
 
     public int getOutputIntervalSeconds() {
@@ -47,20 +47,20 @@ public class BroadcastRateParameters {
         this.outputIntervalSeconds = outputIntervalSeconds;
     }
 
-    public int getBroadcastRateLowerBound() {
-        return this.broadcastRateLowerBound;
+    public int getLowerBound() {
+        return this.lowerBound;
     }
 
-    public void setBroadcastRateLowerBound(int broadcastRateLowerBound) {
-        this.broadcastRateLowerBound = broadcastRateLowerBound;
+    public void setLowerBound(int broadcastRateLowerBound) {
+        this.lowerBound = broadcastRateLowerBound;
     }
 
-    public int getBroadcastRateUpperBound() {
-        return this.broadcastRateUpperBound;
+    public int getUpperBound() {
+        return this.upperBound;
     }
 
-    public void setBroadcastRateUpperBound(int broadcastRateUpperBound) {
-        this.broadcastRateUpperBound = broadcastRateUpperBound;
+    public void setUpperBound(int broadcastRateUpperBound) {
+        this.upperBound = broadcastRateUpperBound;
     }
 
 
@@ -72,12 +72,12 @@ public class BroadcastRateParameters {
             return false;
         }
         BroadcastRateParameters broadcastRateParameters = (BroadcastRateParameters) o;
-        return Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputTopicName, broadcastRateParameters.outputTopicName) && rollingPeriodDurationSeconds == broadcastRateParameters.rollingPeriodDurationSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && broadcastRateLowerBound == broadcastRateParameters.broadcastRateLowerBound && broadcastRateUpperBound == broadcastRateParameters.broadcastRateUpperBound;
+        return Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputTopicName, broadcastRateParameters.outputTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(inputTopicName, outputTopicName, rollingPeriodDurationSeconds, outputIntervalSeconds, broadcastRateLowerBound, broadcastRateUpperBound);
+        return Objects.hash(inputTopicName, outputTopicName, rollingPeriodSeconds, outputIntervalSeconds, lowerBound, upperBound);
     }
 
 
@@ -86,10 +86,10 @@ public class BroadcastRateParameters {
         return "{" +
             " inputTopicName='" + getInputTopicName() + "'" +
             ", outputTopicName='" + getOutputTopicName() + "'" +
-            ", rollingPeriodDurationSeconds='" + getRollingPeriodDurationSeconds() + "'" +
+            ", rollingPeriodDurationSeconds='" + getRollingPeriodSeconds() + "'" +
             ", outputIntervalSeconds='" + getOutputIntervalSeconds() + "'" +
-            ", broadcastRateLowerBound='" + getBroadcastRateLowerBound() + "'" +
-            ", broadcastRateUpperBound='" + getBroadcastRateUpperBound() + "'" +
+            ", broadcastRateLowerBound='" + getLowerBound() + "'" +
+            ", broadcastRateUpperBound='" + getUpperBound() + "'" +
             "}";
     }
 
