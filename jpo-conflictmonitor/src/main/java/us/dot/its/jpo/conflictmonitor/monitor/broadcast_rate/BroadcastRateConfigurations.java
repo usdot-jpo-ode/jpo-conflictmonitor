@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.component.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.broadcast_rate;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

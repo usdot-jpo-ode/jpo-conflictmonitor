@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.component;
+package us.dot.its.jpo.conflictmonitor.monitor;
 
 import org.apache.kafka.common.serialization.Serde;
 

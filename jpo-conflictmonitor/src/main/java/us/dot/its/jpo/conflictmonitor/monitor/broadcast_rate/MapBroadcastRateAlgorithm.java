@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.component.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.broadcast_rate;
 
 
 public interface MapBroadcastRateAlgorithm
