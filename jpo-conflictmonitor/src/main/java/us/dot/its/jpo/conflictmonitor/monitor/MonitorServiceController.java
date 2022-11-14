@@ -78,8 +78,7 @@ public class MonitorServiceController {
             // MapBroadcastRate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
             MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
-            mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
-            mapBroadcastRateAlgorithm.initialize();
+            mapBroadcastRateAlgorithm.initialize(mapBroadcastRateParameters);
             mapBroadcastRateAlgorithm.start();
 
 
