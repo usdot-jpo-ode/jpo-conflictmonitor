@@ -4,9 +4,8 @@ import org.apache.kafka.streams.Topology;
 
 public interface BroadcastRateTopology {
 
-    void setConfigurationParameters(BroadcastRateParameters params);
     
-    Topology createTopology();
+    Topology build(BroadcastRateParameters params);
 
  
 }
