@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
@@ -32,11 +31,7 @@ public class MonitorServiceController {
     
     private String mapBroadcastRateAlgorithmName;
 
-    @Value("${map.broadcast.rate.algorithm}")
-    public void setMapBroadcastRateAlgorithmName(String mapBroadcastRateAlgorithmName) {
-        this.mapBroadcastRateAlgorithmName = mapBroadcastRateAlgorithmName;
-    }
-
+    
     public String getMapBroadcastRateAlgorithmName() {
         return mapBroadcastRateAlgorithmName;
     }
@@ -82,7 +77,7 @@ public class MonitorServiceController {
 
             // MapBroadcastRate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(mapBroadcastRateAlgorithmName);
+            MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
             mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
             mapBroadcastRateAlgorithm.initialize();
             mapBroadcastRateAlgorithm.start();
