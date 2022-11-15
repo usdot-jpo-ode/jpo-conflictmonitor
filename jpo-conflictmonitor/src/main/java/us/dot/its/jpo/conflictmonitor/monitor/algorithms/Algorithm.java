@@ -31,10 +31,8 @@ public interface Algorithm<TParameters> {
      * This can be called if the algorithm's configuration parameters need to be changed
      * and the algorithm restarted.
      * <p>
-     * This method should not indefinitely block the caller.
+     * This method should run synchronously so that the algorithm is stopped when it returns.
      * 
-     * @return A completable future that indicates when the algorithm has stopped.  
-     * Callers should wait for completion before calling {@link start} again.
      */
-    CompletableFuture<Void> stop();
+    void stop();
 }
