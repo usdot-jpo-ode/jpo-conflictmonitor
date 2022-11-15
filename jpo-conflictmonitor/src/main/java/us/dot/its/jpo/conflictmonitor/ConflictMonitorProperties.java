@@ -61,6 +61,11 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    
    private String mapBroadcastRateAlgorithm = "defaultMapBroadcastRateAlgorithm";
+   private String mapBroadcastRateParameters = "defaultMapBroadcastRateParameters";
+   private String spatBroadcastRateAlgorithm = "defaultSpatBroadcastRateAlgorighm";
+   private String spatBroadcastRateParameters = "defaultSpatBroadcastRateParameters";
+
+   
    
    public String getMapBroadcastRateParameters() {
       return this.mapBroadcastRateParameters;
@@ -70,10 +75,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    public void setMapBroadcastRateParameters(String mapBroadcastRateParameters) {
       this.mapBroadcastRateParameters = mapBroadcastRateParameters;
    }
-
-   
-   
-   private String mapBroadcastRateParameters = "defaultMapBroadcastRateParameters";
    
    public String getMapBroadcastRateAlgorithm() {
       return this.mapBroadcastRateAlgorithm;
@@ -83,6 +84,25 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    public void setMapBroadcastRateAlgorithm(String mapBroadcastRateAlgorithm) {
       this.mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithm;
    }
+   
+   public String getSpatBroadcastRateAlgorithm() {
+      return this.spatBroadcastRateAlgorithm;
+   }
+
+   @Value("{spat.broadcast.rate.algorithm}")
+   public void setSpatBroadcastRateAlgorithm(String spatBroadcastRateAlgorithm) {
+      this.spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithm;
+   }
+
+   public String getSpatBroadcastRateParameters() {
+      return this.spatBroadcastRateParameters;
+   }
+
+   @Value("{spat.broadcast.rate.parameters}")
+   public void setSpatBroadcastRateParameters(String spatBroadcastRateParameters) {
+      this.spatBroadcastRateParameters = spatBroadcastRateParameters;
+   }
+
 
 
    public Boolean isVerboseJson() {

@@ -20,7 +20,7 @@ public interface Algorithm<TParameters> {
      /**
      * Starts running the algorithm to process messages
      * <p>
-     * The algorithm should run in the background so that this method does not blockt the caller.
+     * The algorithm should run in the background so that this method does not block the caller.
      * 
      */
     void start();
@@ -31,7 +31,8 @@ public interface Algorithm<TParameters> {
      * This can be called if the algorithm's configuration parameters need to be changed
      * and the algorithm restarted.
      * <p>
-     * This method should run synchronously so that the algorithm is stopped when it returns.
+     * This method should run synchronously so that the algorithm is stopped when it returns. It may block the
+     * caller, but should not block indefinitely.
      * 
      */
     void stop();
