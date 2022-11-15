@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Configuration parameters for Broadcast Rate algorithms
  */
-public class BroadcastRateParameters {
+public abstract class BroadcastRateParameters {
     
     String inputTopicName;
     String outputTopicName;

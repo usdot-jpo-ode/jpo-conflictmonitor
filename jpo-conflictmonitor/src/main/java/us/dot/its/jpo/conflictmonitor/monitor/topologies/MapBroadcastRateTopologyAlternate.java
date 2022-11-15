@@ -8,10 +8,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.MapBroad
 @Component("alternateMapBroadcastRateAlgorithm")
 public class MapBroadcastRateTopologyAlternate implements MapBroadcastRateAlgorithm {
 
-    
-
     @Override
-    public void initialize(BroadcastRateParameters parameters) {
+    public void setParameters(BroadcastRateParameters parameters) {
         // TODO Auto-generated method stub
         
     }
@@ -21,5 +19,9 @@ public class MapBroadcastRateTopologyAlternate implements MapBroadcastRateAlgori
         // TODO Auto-generated method stub
         
     }
+
+    
+
+    
     
 }

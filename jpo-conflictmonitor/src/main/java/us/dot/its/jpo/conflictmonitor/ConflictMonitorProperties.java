@@ -59,16 +59,31 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    @Autowired
    private Environment env;
 
+   
+   private String mapBroadcastRateAlgorithm = "defaultMapBroadcastRateAlgorithm";
+   
+   public String getMapBroadcastRateParameters() {
+      return this.mapBroadcastRateParameters;
+   }
+   
    @Value("{map.broadcast.rate.algorithm}")
-   private String mapBroadcastRateAlgorithm;
+   public void setMapBroadcastRateParameters(String mapBroadcastRateParameters) {
+      this.mapBroadcastRateParameters = mapBroadcastRateParameters;
+   }
 
+   
+   
+   private String mapBroadcastRateParameters = "defaultMapBroadcastRateParameters";
+   
    public String getMapBroadcastRateAlgorithm() {
       return this.mapBroadcastRateAlgorithm;
    }
-
+   
+   @Value("{map.broadcast.rate.properties}")
    public void setMapBroadcastRateAlgorithm(String mapBroadcastRateAlgorithm) {
       this.mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithm;
    }
+
 
    public Boolean isVerboseJson() {
       return this.verboseJson;
