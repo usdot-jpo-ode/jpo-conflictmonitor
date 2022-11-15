@@ -11,9 +11,14 @@ import org.springframework.stereotype.Controller;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.MapBroadcastRateAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.MapBroadcastRateAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.MapBroadcastRateParametersFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParametersFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParametersFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
@@ -34,6 +39,12 @@ public class MonitorServiceController {
 
     @Autowired
     private MapBroadcastRateParametersFactory mapBroadcastRateParametersFactory;
+
+    @Autowired
+    private SpatBroadcastRateAlgorithmFactory spatBroadcastRateAlgorithmFactory;
+
+    @Autowired
+    private SpatBroadcastRateParametersFactory spatBroadcastRateParametersFactory;
 
     
  
@@ -73,9 +84,18 @@ public class MonitorServiceController {
             // MapBroadcastRate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
             MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
-            BroadcastRateParameters mapBroadcastRateParameters = mapBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
+            MapBroadcastRateParameters mapBroadcastRateParameters = mapBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
             mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
             mapBroadcastRateAlgorithm.start();
+
+            // SpatBroadcastRate Topology
+            // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
+            SpatBroadcastRateAlgorithm spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getSpatBroadcastRateAlgorithm());
+            SpatBroadcastRateParameters spatBroadcastRateParameters = spatBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getSpatBroadcastRateParameters());
+            spatBroadcastRateAlgorithm.setParameters(spatBroadcastRateParameters);
+            spatBroadcastRateAlgorithm.start();
+
+
 
 
             // BSM Topology sends a message every time a vehicle drives through the intersection. 

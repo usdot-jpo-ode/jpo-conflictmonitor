@@ -1,7 +1,8 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map;
+
 
 public interface MapBroadcastRateParametersFactory {
     
-    BroadcastRateParameters getParameters(String algorithmName);
+    MapBroadcastRateParameters getParameters(String configurationName);
 
 }
