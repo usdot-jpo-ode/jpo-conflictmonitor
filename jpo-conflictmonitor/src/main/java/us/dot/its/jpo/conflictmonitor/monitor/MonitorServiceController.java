@@ -86,13 +86,15 @@ public class MonitorServiceController {
             MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
             MapBroadcastRateParameters mapBroadcastRateParameters = mapBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
             mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapBroadcastRateAlgorithm::stop));
             mapBroadcastRateAlgorithm.start();
 
             // SpatBroadcastRate Topology
-            // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
+            // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
             SpatBroadcastRateAlgorithm spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getSpatBroadcastRateAlgorithm());
             SpatBroadcastRateParameters spatBroadcastRateParameters = spatBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getSpatBroadcastRateParameters());
             spatBroadcastRateAlgorithm.setParameters(spatBroadcastRateParameters);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatBroadcastRateAlgorithm::stop));
             spatBroadcastRateAlgorithm.start();
 
 
