@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
 
 /**
  * Configuration defining {@link FactoryBeans}s for locating Broadcast Rate algorithms.
@@ -14,14 +15,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.Spa
 @Configuration
 public class BroadcastRateAlgorithms {
     
-    @Bean("mapBroadcastRateAlgorithmFactory")
+    @Bean(MAP_BROADCAST_RATE_ALGORITHM_FACTORY)
     public FactoryBean<?> mapServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(MapBroadcastRateAlgorithmFactory.class);
         return factoryBean;
     }
 
-    @Bean("spatBroadcastRateAlgorithmFactory")
+    @Bean(SPAT_BROADCAST_RATE_ALGORITHM_FACTORY)
     public FactoryBean<?> spatServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SpatBroadcastRateAlgorithmFactory.class);

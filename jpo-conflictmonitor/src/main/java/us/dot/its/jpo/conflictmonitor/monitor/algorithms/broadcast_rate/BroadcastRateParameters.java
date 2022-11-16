@@ -1,18 +1,49 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate;
 
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * Configuration parameters for Broadcast Rate algorithms
  */
 public abstract class BroadcastRateParameters {
     
+    Properties streamsProperties;
+
     String inputTopicName;
-    String outputTopicName;
+    String outputCountTopicName;
+    String outputEventTopicName;
     int rollingPeriodSeconds;
     int outputIntervalSeconds;
     int lowerBound;
     int upperBound;
+    
+
+    public Properties getStreamsProperties() {
+        return this.streamsProperties;
+    }
+
+    public void setStreamsProperties(Properties streamsProperties) {
+        this.streamsProperties = streamsProperties;
+    }
+
+
+    public String getOutputCountTopicName() {
+        return this.outputCountTopicName;
+    }
+
+    public void setOutputCountTopicName(String outputCountTopicName) {
+        this.outputCountTopicName = outputCountTopicName;
+    }
+
+    public String getOutputEventTopicName() {
+        return this.outputEventTopicName;
+    }
+
+    public void setOutputEventTopicName(String outputEventTopicName) {
+        this.outputEventTopicName = outputEventTopicName;
+    }
+    
 
 
     public String getInputTopicName() {
@@ -23,13 +54,7 @@ public abstract class BroadcastRateParameters {
         this.inputTopicName = inputTopicName;
     }
 
-    public String getOutputTopicName() {
-        return this.outputTopicName;
-    }
-
-    public void setOutputTopicName(String outputTopicName) {
-        this.outputTopicName = outputTopicName;
-    }
+   
 
     public int getRollingPeriodSeconds() {
         return this.rollingPeriodSeconds;
@@ -64,6 +89,8 @@ public abstract class BroadcastRateParameters {
     }
 
 
+
+
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -72,26 +99,29 @@ public abstract class BroadcastRateParameters {
             return false;
         }
         BroadcastRateParameters broadcastRateParameters = (BroadcastRateParameters) o;
-        return Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputTopicName, broadcastRateParameters.outputTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound;
+        return Objects.equals(streamsProperties, broadcastRateParameters.streamsProperties) && Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputCountTopicName, broadcastRateParameters.outputCountTopicName) && Objects.equals(outputEventTopicName, broadcastRateParameters.outputEventTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(inputTopicName, outputTopicName, rollingPeriodSeconds, outputIntervalSeconds, lowerBound, upperBound);
+        return Objects.hash(streamsProperties, inputTopicName, outputCountTopicName, outputEventTopicName, rollingPeriodSeconds, outputIntervalSeconds, lowerBound, upperBound);
     }
 
 
     @Override
     public String toString() {
         return "{" +
-            " inputTopicName='" + getInputTopicName() + "'" +
-            ", outputTopicName='" + getOutputTopicName() + "'" +
-            ", rollingPeriodDurationSeconds='" + getRollingPeriodSeconds() + "'" +
+            " streamsProperties='" + getStreamsProperties() + "'" +
+            ", inputTopicName='" + getInputTopicName() + "'" +
+            ", outputCountTopicName='" + getOutputCountTopicName() + "'" +
+            ", outputEventTopicName='" + getOutputEventTopicName() + "'" +
+            ", rollingPeriodSeconds='" + getRollingPeriodSeconds() + "'" +
             ", outputIntervalSeconds='" + getOutputIntervalSeconds() + "'" +
-            ", broadcastRateLowerBound='" + getLowerBound() + "'" +
-            ", broadcastRateUpperBound='" + getUpperBound() + "'" +
+            ", lowerBound='" + getLowerBound() + "'" +
+            ", upperBound='" + getUpperBound() + "'" +
             "}";
     }
-
+    
+    
 
 }

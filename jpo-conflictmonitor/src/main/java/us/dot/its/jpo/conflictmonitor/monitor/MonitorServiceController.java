@@ -34,17 +34,15 @@ public class MonitorServiceController {
     org.apache.kafka.common.serialization.Serdes bas;
 
    
-    @Autowired
-    private MapBroadcastRateAlgorithmFactory mapBroadcastRateAlgorithmFactory;
+    
+    // private MapBroadcastRateAlgorithmFactory mapBroadcastRateAlgorithmFactory;
 
-    @Autowired
-    private MapBroadcastRateParametersFactory mapBroadcastRateParametersFactory;
+    // @Autowired
+    // public void setMapBroadcastRateAlgorithmFactory(MapBroadcastRateAlgorithmFactory factory) {
+    //     this.mapBroadcastRateAlgorithmFactory = factory;
+    // }
 
-    @Autowired
-    private SpatBroadcastRateAlgorithmFactory spatBroadcastRateAlgorithmFactory;
-
-    @Autowired
-    private SpatBroadcastRateParametersFactory spatBroadcastRateParametersFactory;
+    
 
     
  
@@ -73,75 +71,68 @@ public class MonitorServiceController {
             // Topology topology;
             // KafkaStreams streams;
 
-            // // MAP
-            // logger.info("Creating the MAP geoJSON Kafka-Streams topology");
-            // topology = ConflictTopology.build(conflictMonitorProps.getKafkaTopicMapGeoJson(), conflictMonitorProps.getKafkaTopicSpatGeoJson());
-            // System.out.println("Topology Description " + topology.describe());
-            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("conflictmonitor"));
-            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            // streams.start();
+            
 
             // MapBroadcastRate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
-            MapBroadcastRateParameters mapBroadcastRateParameters = mapBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
+            MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = 
+                conflictMonitorProps.getMapBroadcastRateAlgorithmFactory()
+                    .getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
+            MapBroadcastRateParameters mapBroadcastRateParameters = 
+                conflictMonitorProps.getMapBroadcastRateParametersFactory()
+                    .getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
+            mapBroadcastRateParameters.setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
             mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
             Runtime.getRuntime().addShutdownHook(new Thread(mapBroadcastRateAlgorithm::stop));
             mapBroadcastRateAlgorithm.start();
 
             // SpatBroadcastRate Topology
             // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
-            SpatBroadcastRateAlgorithm spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getSpatBroadcastRateAlgorithm());
-            SpatBroadcastRateParameters spatBroadcastRateParameters = spatBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getSpatBroadcastRateParameters());
-            spatBroadcastRateAlgorithm.setParameters(spatBroadcastRateParameters);
-            Runtime.getRuntime().addShutdownHook(new Thread(spatBroadcastRateAlgorithm::stop));
-            spatBroadcastRateAlgorithm.start();
+            // SpatBroadcastRateAlgorithm spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getSpatBroadcastRateAlgorithm());
+            // SpatBroadcastRateParameters spatBroadcastRateParameters = spatBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getSpatBroadcastRateParameters());
+            // spatBroadcastRateAlgorithm.setParameters(spatBroadcastRateParameters);
+            // Runtime.getRuntime().addShutdownHook(new Thread(spatBroadcastRateAlgorithm::stop));
+            // spatBroadcastRateAlgorithm.start();
 
 
 
 
             // BSM Topology sends a message every time a vehicle drives through the intersection. 
-            Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start(); 
+            // Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
+            // KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
+            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            // streams.start(); 
 
 
             // the message ingest topology tracks and stores incoming messages for further processing
-            topology = MessageIngestTopology.build(
-                conflictMonitorProps.getKafkaTopicOdeBsmJson(),
-                bsmStoreName,
-                conflictMonitorProps.getKafkaTopicSpatGeoJson(),
-                spatStoreName,
-                conflictMonitorProps.getKafkaTopicMapGeoJson(),
-                mapStoreName
-            );
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
-
-            
-            Thread.sleep(5000);
-            
-            ReadOnlyWindowStore<String, OdeBsmData> windowStore =
-                streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
-
-
-            // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), windowStore);
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
-
-            
-
-            // // SPaT
-            // logger.info("Creating the SPaT geoJSON Kafka-Streams topology");
-            // topology = SpatTopology.build(geojsonProps.getKafkaTopicOdeSpatJson(), geojsonProps.getKafkaTopicSpatGeoJson(), geojsonProps.getKafkaTopicMapGeoJson());
-            // streams = new KafkaStreams(topology, geojsonProps.createStreamProperties("spatgeojson"));
+            // topology = MessageIngestTopology.build(
+            //     conflictMonitorProps.getKafkaTopicOdeBsmJson(),
+            //     bsmStoreName,
+            //     conflictMonitorProps.getKafkaTopicSpatGeoJson(),
+            //     spatStoreName,
+            //     conflictMonitorProps.getKafkaTopicMapGeoJson(),
+            //     mapStoreName
+            // );
+            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
             // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             // streams.start();
 
+            
+            // Thread.sleep(5000);
+            
+            // ReadOnlyWindowStore<String, OdeBsmData> windowStore =
+            //     streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
+
+
+            // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            // topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), windowStore);
+            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
+            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            // streams.start();
+
+            
+
+            
             logger.info("All geoJSON conversion services started!");
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);
