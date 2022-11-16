@@ -1,7 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 
-import java.util.concurrent.CompletableFuture;
-
 
 /**
  * General interface for an algorithm that can be configured, started, and stopped.
@@ -16,6 +14,7 @@ public interface Algorithm<TParameters> {
      * @param parameters The configuration parameters used by the algorithm.
      */
     void setParameters(TParameters parameters);
+    TParameters getParameters();
 
      /**
      * Starts running the algorithm to process messages

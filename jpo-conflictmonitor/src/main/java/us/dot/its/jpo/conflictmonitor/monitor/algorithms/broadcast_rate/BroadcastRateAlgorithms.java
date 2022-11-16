@@ -15,18 +15,20 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.B
 @Configuration
 public class BroadcastRateAlgorithms {
     
-    @Bean(MAP_BROADCAST_RATE_ALGORITHM_FACTORY)
+    @Bean
     public FactoryBean<?> mapServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(MapBroadcastRateAlgorithmFactory.class);
         return factoryBean;
     }
 
-    @Bean(SPAT_BROADCAST_RATE_ALGORITHM_FACTORY)
+    @Bean
     public FactoryBean<?> spatServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SpatBroadcastRateAlgorithmFactory.class);
         return factoryBean;
     }
+
+   
 
 }

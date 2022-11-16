@@ -17,14 +17,14 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.B
 @Configuration
 public class BroadcastRateConfigurations {
 
-    @Bean(MAP_BROADCAST_RATE_PARAMETERS_FACTORY) 
+    @Bean 
     public FactoryBean<?> mapAlgorithmFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(MapBroadcastRateParametersFactory.class);
         return factoryBean;
     }
 
-    @Bean(SPAT_BROADCAST_RATE_PARAMETERS_FACTORY)
+    @Bean
     public FactoryBean<?> spatAlgorithmFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SpatBroadcastRateParametersFactory.class);
@@ -34,48 +34,57 @@ public class BroadcastRateConfigurations {
     /**
      * @return Default MAP broadcast rate parameters per the requirements with 10 second wide, 5 second hopping window
      */
-    @Bean(DEFAULT_MAP_BROADCAST_RATE_PARAMETERS)
+    @Bean(DEFAULT)
     public MapBroadcastRateParameters defaultMapBroadcastRateParamaters() {
         var params = new MapBroadcastRateParameters();
         params.setInputTopicName("topic.OdeMapJson");
-        params.setOutputCountTopicName("topic.CmMapCounts");
         params.setOutputEventTopicName("topic.CmMapBroadcastRateEvents");
         params.setRollingPeriodSeconds(10);
         params.setOutputIntervalSeconds(5);
         params.setGracePeriodMilliseconds(100);
         params.setLowerBound(9);
         params.setUpperBound(11);
+        params.setDebug(false);
         return params;
     }
 
     /**
      * @return Alernate parameters with a tumbling window (output interval same as size of window)
      */
-    @Bean(ALTERNATE_MAP_BROADCAST_RATE_PARAMETERS)
+    @Bean(ALTERNATE)
     public MapBroadcastRateParameters alternateMapBroadcastRateParamaters() {
-        var params = new MapBroadcastRateParameters();
-        params.setInputTopicName("topic.OdeMapJson");
-        params.setOutputCountTopicName("topic.CmMapCounts");
-        params.setOutputEventTopicName("topic.CmMapBroadcastRateEvents");
-        params.setRollingPeriodSeconds(10);
-        params.setOutputIntervalSeconds(10);
-        params.setGracePeriodMilliseconds(100);
-        params.setLowerBound(9);
-        params.setUpperBound(11);
+        var params = defaultMapBroadcastRateParamaters();
+        params.setOutputIntervalSeconds(params.getRollingPeriodSeconds());
         return params;
     }
 
-    @Bean(DEFAULT_SPAT_BROADCAST_RATE_PARAMETERS)
+    @Bean(DEBUG)
+    public MapBroadcastRateParameters debugMapBroadcastRateParameters() {
+        var params = defaultMapBroadcastRateParamaters();
+        params.setDebug(true);
+        return params;
+    }
+
+
+
+    @Bean(DEFAULT)
     public SpatBroadcastRateParameters defaultSpatBroadcastRateParamaters() {
         var params = new SpatBroadcastRateParameters();
         params.setInputTopicName("topic.OdeSpatJson");
-        params.setOutputCountTopicName("topic.CmSpatCounts");
         params.setOutputEventTopicName("topic.CmSpatBroadcastRateEvents");
         params.setRollingPeriodSeconds(10);
         params.setOutputIntervalSeconds(5);
         params.setGracePeriodMilliseconds(100);
         params.setLowerBound(90);
         params.setUpperBound(110);
+        params.setDebug(false);
+        return params;
+    }
+
+    @Bean(DEBUG)
+    public SpatBroadcastRateParameters debugSpatBroadcastRateParameters() {
+        var params = defaultSpatBroadcastRateParamaters();
+        params.setDebug(true);
         return params;
     }
     

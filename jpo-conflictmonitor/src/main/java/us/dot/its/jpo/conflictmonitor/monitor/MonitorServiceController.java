@@ -15,6 +15,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapB
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParametersFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
@@ -75,16 +76,18 @@ public class MonitorServiceController {
 
             // MapBroadcastRate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            MapBroadcastRateAlgorithm mapBroadcastRateAlgorithm = 
+            MapBroadcastRateAlgorithm mapCountAlgo = 
                 conflictMonitorProps.getMapBroadcastRateAlgorithmFactory()
                     .getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
-            MapBroadcastRateParameters mapBroadcastRateParameters = 
+            MapBroadcastRateParameters mapCountParams = 
                 conflictMonitorProps.getMapBroadcastRateParametersFactory()
                     .getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
-            mapBroadcastRateParameters.setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
-            mapBroadcastRateAlgorithm.setParameters(mapBroadcastRateParameters);
-            Runtime.getRuntime().addShutdownHook(new Thread(mapBroadcastRateAlgorithm::stop));
-            mapBroadcastRateAlgorithm.start();
+            if (mapCountAlgo instanceof MapBroadcastRateStreamsAlgorithm) {
+                ((MapBroadcastRateStreamsAlgorithm)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
+            }
+            mapCountAlgo.setParameters(mapCountParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
+            mapCountAlgo.start();
 
             // SpatBroadcastRate Topology
             // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high

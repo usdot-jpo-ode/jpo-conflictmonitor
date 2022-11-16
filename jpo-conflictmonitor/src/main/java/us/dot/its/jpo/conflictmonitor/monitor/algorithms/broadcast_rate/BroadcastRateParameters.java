@@ -1,17 +1,14 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate;
 
 import java.util.Objects;
-import java.util.Properties;
+
 
 /**
  * Configuration parameters for Broadcast Rate algorithms
  */
 public abstract class BroadcastRateParameters {
     
-    Properties streamsProperties;
-
     String inputTopicName;
-    String outputCountTopicName;
     String outputEventTopicName;
 
     // Window parameters
@@ -19,27 +16,17 @@ public abstract class BroadcastRateParameters {
     int outputIntervalSeconds;
     int gracePeriodMilliseconds;
 
+    // Exclusive min and max to send events
     int lowerBound;
     int upperBound;
+
+    // Whether to log diagnostic information for debugging
+    boolean debug;
+
     
-
-    public Properties getStreamsProperties() {
-        return this.streamsProperties;
-    }
-
-    public void setStreamsProperties(Properties streamsProperties) {
-        this.streamsProperties = streamsProperties;
-    }
-
-
-    public String getOutputCountTopicName() {
-        return this.outputCountTopicName;
-    }
-
-    public void setOutputCountTopicName(String outputCountTopicName) {
-        this.outputCountTopicName = outputCountTopicName;
-    }
-
+   
+    
+    
     public String getOutputEventTopicName() {
         return this.outputEventTopicName;
     }
@@ -100,9 +87,16 @@ public abstract class BroadcastRateParameters {
         this.upperBound = broadcastRateUpperBound;
     }
 
+   
+    public boolean isDebug() {
+        return this.debug;
+    }
 
+     public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
 
-
+    
 
     @Override
     public boolean equals(Object o) {
@@ -112,30 +106,28 @@ public abstract class BroadcastRateParameters {
             return false;
         }
         BroadcastRateParameters broadcastRateParameters = (BroadcastRateParameters) o;
-        return Objects.equals(streamsProperties, broadcastRateParameters.streamsProperties) && Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputCountTopicName, broadcastRateParameters.outputCountTopicName) && Objects.equals(outputEventTopicName, broadcastRateParameters.outputEventTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && gracePeriodMilliseconds == broadcastRateParameters.gracePeriodMilliseconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound;
+        return Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputEventTopicName, broadcastRateParameters.outputEventTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && gracePeriodMilliseconds == broadcastRateParameters.gracePeriodMilliseconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound && debug == broadcastRateParameters.debug;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(streamsProperties, inputTopicName, outputCountTopicName, outputEventTopicName, rollingPeriodSeconds, outputIntervalSeconds, gracePeriodMilliseconds, lowerBound, upperBound);
+        return Objects.hash(inputTopicName, outputEventTopicName, rollingPeriodSeconds, outputIntervalSeconds, gracePeriodMilliseconds, lowerBound, upperBound, debug);
     }
-    
+
 
     @Override
     public String toString() {
         return "{" +
-            " streamsProperties='" + getStreamsProperties() + "'" +
-            ", inputTopicName='" + getInputTopicName() + "'" +
-            ", outputCountTopicName='" + getOutputCountTopicName() + "'" +
+            " inputTopicName='" + getInputTopicName() + "'" +
             ", outputEventTopicName='" + getOutputEventTopicName() + "'" +
             ", rollingPeriodSeconds='" + getRollingPeriodSeconds() + "'" +
             ", outputIntervalSeconds='" + getOutputIntervalSeconds() + "'" +
             ", gracePeriodMilliseconds='" + getGracePeriodMilliseconds() + "'" +
             ", lowerBound='" + getLowerBound() + "'" +
             ", upperBound='" + getUpperBound() + "'" +
+            ", debug='" + isDebug() + "'" +
             "}";
     }
-    
-    
+
 
 }
