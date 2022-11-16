@@ -13,8 +13,12 @@ public abstract class BroadcastRateParameters {
     String inputTopicName;
     String outputCountTopicName;
     String outputEventTopicName;
+
+    // Window parameters
     int rollingPeriodSeconds;
     int outputIntervalSeconds;
+    int gracePeriodMilliseconds;
+
     int lowerBound;
     int upperBound;
     
@@ -72,6 +76,14 @@ public abstract class BroadcastRateParameters {
         this.outputIntervalSeconds = outputIntervalSeconds;
     }
 
+    public int getGracePeriodMilliseconds() {
+        return this.gracePeriodMilliseconds;
+    }
+
+    public void setGracePeriodMilliseconds(int gracePeriodMilliseconds) {
+        this.gracePeriodMilliseconds = gracePeriodMilliseconds;
+    }
+
     public int getLowerBound() {
         return this.lowerBound;
     }
@@ -91,6 +103,7 @@ public abstract class BroadcastRateParameters {
 
 
 
+
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -99,14 +112,14 @@ public abstract class BroadcastRateParameters {
             return false;
         }
         BroadcastRateParameters broadcastRateParameters = (BroadcastRateParameters) o;
-        return Objects.equals(streamsProperties, broadcastRateParameters.streamsProperties) && Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputCountTopicName, broadcastRateParameters.outputCountTopicName) && Objects.equals(outputEventTopicName, broadcastRateParameters.outputEventTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound;
+        return Objects.equals(streamsProperties, broadcastRateParameters.streamsProperties) && Objects.equals(inputTopicName, broadcastRateParameters.inputTopicName) && Objects.equals(outputCountTopicName, broadcastRateParameters.outputCountTopicName) && Objects.equals(outputEventTopicName, broadcastRateParameters.outputEventTopicName) && rollingPeriodSeconds == broadcastRateParameters.rollingPeriodSeconds && outputIntervalSeconds == broadcastRateParameters.outputIntervalSeconds && gracePeriodMilliseconds == broadcastRateParameters.gracePeriodMilliseconds && lowerBound == broadcastRateParameters.lowerBound && upperBound == broadcastRateParameters.upperBound;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(streamsProperties, inputTopicName, outputCountTopicName, outputEventTopicName, rollingPeriodSeconds, outputIntervalSeconds, lowerBound, upperBound);
+        return Objects.hash(streamsProperties, inputTopicName, outputCountTopicName, outputEventTopicName, rollingPeriodSeconds, outputIntervalSeconds, gracePeriodMilliseconds, lowerBound, upperBound);
     }
-
+    
 
     @Override
     public String toString() {
@@ -117,6 +130,7 @@ public abstract class BroadcastRateParameters {
             ", outputEventTopicName='" + getOutputEventTopicName() + "'" +
             ", rollingPeriodSeconds='" + getRollingPeriodSeconds() + "'" +
             ", outputIntervalSeconds='" + getOutputIntervalSeconds() + "'" +
+            ", gracePeriodMilliseconds='" + getGracePeriodMilliseconds() + "'" +
             ", lowerBound='" + getLowerBound() + "'" +
             ", upperBound='" + getUpperBound() + "'" +
             "}";

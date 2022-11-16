@@ -42,6 +42,7 @@ public class BroadcastRateConfigurations {
         params.setOutputEventTopicName("topic.CmMapBroadcastRateEvents");
         params.setRollingPeriodSeconds(10);
         params.setOutputIntervalSeconds(5);
+        params.setGracePeriodMilliseconds(100);
         params.setLowerBound(9);
         params.setUpperBound(11);
         return params;
@@ -58,6 +59,7 @@ public class BroadcastRateConfigurations {
         params.setOutputEventTopicName("topic.CmMapBroadcastRateEvents");
         params.setRollingPeriodSeconds(10);
         params.setOutputIntervalSeconds(10);
+        params.setGracePeriodMilliseconds(100);
         params.setLowerBound(9);
         params.setUpperBound(11);
         return params;
@@ -71,6 +73,7 @@ public class BroadcastRateConfigurations {
         params.setOutputEventTopicName("topic.CmSpatBroadcastRateEvents");
         params.setRollingPeriodSeconds(10);
         params.setOutputIntervalSeconds(5);
+        params.setGracePeriodMilliseconds(100);
         params.setLowerBound(90);
         params.setUpperBound(110);
         return params;
