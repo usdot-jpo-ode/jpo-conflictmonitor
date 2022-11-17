@@ -110,37 +110,37 @@ public class MonitorServiceController {
 
 
             // BSM Topology sends a message every time a vehicle drives through the intersection. 
-            // Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-            // KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
-            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            // streams.start(); 
+            Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
+            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            streams.start(); 
 
 
             // the message ingest topology tracks and stores incoming messages for further processing
-            // topology = MessageIngestTopology.build(
-            //     conflictMonitorProps.getKafkaTopicOdeBsmJson(),
-            //     bsmStoreName,
-            //     conflictMonitorProps.getKafkaTopicSpatGeoJson(),
-            //     spatStoreName,
-            //     conflictMonitorProps.getKafkaTopicMapGeoJson(),
-            //     mapStoreName
-            // );
-            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
-            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            // streams.start();
+            topology = MessageIngestTopology.build(
+                conflictMonitorProps.getKafkaTopicOdeBsmJson(),
+                bsmStoreName,
+                conflictMonitorProps.getKafkaTopicSpatGeoJson(),
+                spatStoreName,
+                conflictMonitorProps.getKafkaTopicMapGeoJson(),
+                mapStoreName
+            );
+            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            streams.start();
 
             
-            // Thread.sleep(5000);
+            Thread.sleep(5000);
             
-            // ReadOnlyWindowStore<String, OdeBsmData> windowStore =
-            //     streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
+            ReadOnlyWindowStore<String, OdeBsmData> windowStore =
+                streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
 
 
             // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            // topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), windowStore);
-            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            // streams.start();
+            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), windowStore);
+            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            streams.start();
 
             
 
