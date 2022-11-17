@@ -12,7 +12,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Printed;
 
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeatureCollection;
+//import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeatureCollection;
 
 
 public class ConflictTopology {
@@ -24,13 +24,13 @@ public class ConflictTopology {
         
 
         // GeoJson Input Spat Stream
-        KStream<String, SpatFeatureCollection> geoJsonSpatStream = 
-            builder.stream(
-                spatGeoJsonTopic, 
-                Consumed.with(
-                    Serdes.String(), 
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.SpatGeoJson())
-                );
+        // KStream<String, SpatFeatureCollection> geoJsonSpatStream = 
+        //     builder.stream(
+        //         spatGeoJsonTopic, 
+        //         Consumed.with(
+        //             Serdes.String(), 
+        //             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.SpatGeoJson())
+        //         );
 
         //geoJsonSpatStream.print(Printed.toSysOut());
 
@@ -71,33 +71,33 @@ public class ConflictTopology {
 
 
         //
-        KStream<String, String> windowedStream = builder.stream(
-            "topic.OdeBsmJson",
-            Consumed.with(Serdes.String(), JsonSerdes.OdeBsm()))
-            .groupByKey()
-            .windowedBy(SessionWindows.with(Duration.ofSeconds(10)).grace(Duration.ofSeconds(5)))
-            // .aggregate(
-            //     bsmAggregatorInitializer,
-            //     currentBsmAdder,
-            //     Materialized.<String, BsmAggregator, KeyValueStore<Bytes, byte[]>>as("current-bsms")
-            //             .withKeySerde(Serdes.String())
-            //             .withValueSerde(JsonSerdes.BsmDataAggregator())
-            // )
+        // KStream<String, String> windowedStream = builder.stream(
+        //     "topic.OdeBsmJson",
+        //     Consumed.with(Serdes.String(), JsonSerdes.OdeBsm()))
+        //     .groupByKey()
+        //     .windowedBy(SessionWindows.with(Duration.ofSeconds(10)).grace(Duration.ofSeconds(5)))
+        //     // .aggregate(
+        //     //     bsmAggregatorInitializer,
+        //     //     currentBsmAdder,
+        //     //     Materialized.<String, BsmAggregator, KeyValueStore<Bytes, byte[]>>as("current-bsms")
+        //     //             .withKeySerde(Serdes.String())
+        //     //             .withValueSerde(JsonSerdes.BsmDataAggregator())
+        //     // )
             
-            .count()
-            //.suppress(Suppressed.untilWindowCloses(BufferConfig.unbounded().shutDownWhenFull()))
-            .toStream()
-            .map((windowedKey, count)->{
-                System.out.println("Count" + count);
-                //String start = timeFormatter.format(windowedKey.window().startTime());
-                //String end = timeFormatter.format(windowedKey.window().endTime());
-                //String sessionInfo = String.format("Session info started: %s ended: %s with count %s", start, end, count);
-                String sessionInfo = "StartTime" + windowedKey.window().startTime() +"EndTime: "+ windowedKey.window().endTime()+ " Count: " + count;
-                return KeyValue.pair(windowedKey.key(), sessionInfo);
-            })
-            ;
+        //     .count()
+        //     //.suppress(Suppressed.untilWindowCloses(BufferConfig.unbounded().shutDownWhenFull()))
+        //     .toStream()
+        //     .map((windowedKey, count)->{
+        //         System.out.println("Count" + count);
+        //         //String start = timeFormatter.format(windowedKey.window().startTime());
+        //         //String end = timeFormatter.format(windowedKey.window().endTime());
+        //         //String sessionInfo = String.format("Session info started: %s ended: %s with count %s", start, end, count);
+        //         String sessionInfo = "StartTime" + windowedKey.window().startTime() +"EndTime: "+ windowedKey.window().endTime()+ " Count: " + count;
+        //         return KeyValue.pair(windowedKey.key(), sessionInfo);
+        //     })
+        //     ;
 
-        windowedStream.print(Printed.toSysOut());
+        // windowedStream.print(Printed.toSysOut());
         
 
         //bsmtable.toStream().print(Printed.toSysOut());

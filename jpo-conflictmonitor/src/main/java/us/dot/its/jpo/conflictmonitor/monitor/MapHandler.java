@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
-import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.MapIntersection;
 import us.dot.its.jpo.ode.model.OdeMapData;
 import us.dot.its.jpo.ode.model.OdeMapMetadata;
 import us.dot.its.jpo.ode.model.OdeMapPayload;
@@ -54,7 +54,7 @@ public class MapHandler extends AbstractSubscriberProcessor<String, String> {
 		List<J2735IntersectionGeometry> intersections = payloadMap.getIntersections().getIntersections();
 
 		for (J2735IntersectionGeometry intersection : intersections) {
-			Intersection conflictIntersection = new Intersection(intersection);
+			MapIntersection conflictIntersection = new MapIntersection(intersection);
 		}
 	}
 

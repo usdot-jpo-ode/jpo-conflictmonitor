@@ -2,7 +2,9 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
@@ -67,7 +71,7 @@ public class MonitorServiceController {
             topology = MessageIngestTopology.build(
                 conflictMonitorProps.getKafkaTopicOdeBsmJson(),
                 bsmStoreName,
-                conflictMonitorProps.getKafkaTopicSpatGeoJson(),
+                conflictMonitorProps.getKafkaTopicProcessedSpat(),
                 spatStoreName,
                 conflictMonitorProps.getKafkaTopicMapGeoJson(),
                 mapStoreName
@@ -79,12 +83,18 @@ public class MonitorServiceController {
             
             Thread.sleep(5000);
             
-            ReadOnlyWindowStore<String, OdeBsmData> windowStore =
+            ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
                 streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
 
+            ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore =
+                streams.store(spatStoreName, QueryableStoreTypes.windowStore());
 
-            // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), windowStore);
+            ReadOnlyKeyValueStore<String, MapFeatureCollection> mapKeyValueStore =
+                streams.store(mapStoreName, QueryableStoreTypes.keyValueStore());
+
+
+            //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), bsmWindowStore, spatWindowStore, mapKeyValueStore);
             streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start();

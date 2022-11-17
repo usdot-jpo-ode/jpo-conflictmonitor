@@ -162,6 +162,10 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicFilteredOdeSpatJson = "topic.FilteredOdeSpatJson";
    private String kafkaTopicOdeRawEncodedSPATJson = "topic.OdeRawEncodedSPATJson";
    private String kafkaTopicSpatGeoJson = "spatgeojson-geojson-joined-repartition";//"topic.SpatGeoJson";
+   private String kafkaTopicProcessedSpat = "topic.ProcessedSpat";
+   
+
+
    private int spatReceiverPort = 44910;
    private int spatBufferSize = 1000;
 
@@ -210,6 +214,11 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String selfSigningPrivateKeyFilePath;
 
    private static final byte[] JPO_ODE_GROUP_ID = "jode".getBytes();
+
+
+   // Conflict Monitor Properties
+   
+
 
    @Autowired
    BuildProperties buildProperties;
@@ -292,7 +301,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      //streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
+      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
       //streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
   }
@@ -906,6 +915,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 	public void setKafkaTopicOdeRawEncodedSPATJson(String kafkaTopicOdeRawEncodedSPATJson) {
 		this.kafkaTopicOdeRawEncodedSPATJson = kafkaTopicOdeRawEncodedSPATJson;
 	}
+
+   public String getKafkaTopicProcessedSpat() {
+      return kafkaTopicProcessedSpat;
+   }
+
+   public void setKafkaTopicProcessedSpat(String kafkaTopicProcessedSpat) {
+      this.kafkaTopicProcessedSpat = kafkaTopicProcessedSpat;
+   }
 	
 	public String getKafkaTopicOdeRawEncodedMAPJson() {
 		return kafkaTopicOdeRawEncodedMAPJson;

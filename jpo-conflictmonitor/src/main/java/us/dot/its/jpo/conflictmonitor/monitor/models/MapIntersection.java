@@ -13,12 +13,12 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
 import us.dot.its.jpo.ode.plugin.j2735.J2735ConnectsToList;
 import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
 
-public class Intersection {
+public class MapIntersection {
 
     private J2735IntersectionGeometry intersectionGeometry;
     private ArrayList<LaneConnection> laneConnections = new ArrayList<>();
 
-    public Intersection(J2735IntersectionGeometry intersectionGeometry) {
+    public MapIntersection(J2735IntersectionGeometry intersectionGeometry) {
         this.intersectionGeometry = intersectionGeometry;
         this.laneConnections = new ArrayList<>();
 
