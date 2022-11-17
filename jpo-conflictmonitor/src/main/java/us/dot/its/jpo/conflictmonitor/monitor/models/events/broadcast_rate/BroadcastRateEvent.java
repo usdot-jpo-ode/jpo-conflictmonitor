@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate;
 
 import java.util.Objects;
 
@@ -8,14 +8,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod
  * Base class for a Broadcast Rate event to report counts of events during the processing time period.
  */
 public abstract class BroadcastRateEvent {
-
-    /**
-     * The Java type of messages being counted.  Override in derived class to define the specific type.
-     * 
-     * @return type of messages
-     */
-    public abstract Class<?> getMessageClass();
-    
+        
     private String topicName;
     private String sourceDeviceId;
     private ProcessingTimePeriod timePeriod;

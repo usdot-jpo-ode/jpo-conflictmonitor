@@ -11,6 +11,8 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.ZoneOffset;
+
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -29,8 +31,8 @@ import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.ode.model.OdeSpatMetadata;
-import us.dot.its.jpo.conflictmonitor.monitor.models.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 @Component(DEFAULT_SPAT_BROADCAST_RATE_ALGORITHM)
@@ -149,8 +151,8 @@ public class SpatBroadcastRateTopology implements SpatBroadcastRateStreamsAlgori
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
                 // Grab the timestamps from the time window
-                timePeriod.setBeginTimestamp(windowedKey.window().startTime().toEpochMilli());
-                timePeriod.setEndTimestamp(windowedKey.window().endTime().toEpochMilli());
+                timePeriod.setBeginTimestamp(windowedKey.window().startTime().atZone(ZoneOffset.UTC));
+                timePeriod.setEndTimestamp(windowedKey.window().endTime().atZone(ZoneOffset.UTC));
                 event.setTimePeriod(timePeriod);
                 event.setNumberOfMessages(counts != null ? counts.intValue() : -1);
 

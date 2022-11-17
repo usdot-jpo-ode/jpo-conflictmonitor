@@ -75,7 +75,7 @@ public class MonitorServiceController {
 
             
 
-            // MapBroadcastRate Topology
+            // Map Broadcast Rate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
             MapBroadcastRateAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapBroadcastRateAlgorithmFactory();
             MapBroadcastRateParametersFactory mapParamsFactory = conflictMonitorProps.getMapBroadcastRateParametersFactory();
@@ -91,7 +91,7 @@ public class MonitorServiceController {
             mapCountAlgo.start();
 
             
-            // SpatBroadcastRate Topology
+            // Spat Broadcast Rate Topology
             // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
             SpatBroadcastRateAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatBroadcastRateAlgorithmFactory();
             SpatBroadcastRateParametersFactory spatParamsFactory = conflictMonitorProps.getSpatBroadcastRateParametersFactory();

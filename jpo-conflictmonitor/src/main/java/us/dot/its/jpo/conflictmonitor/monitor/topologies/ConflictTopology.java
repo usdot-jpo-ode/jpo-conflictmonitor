@@ -12,7 +12,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Printed;
 
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeatureCollection;
+//import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeatureCollection;
 
 
 public class ConflictTopology {
@@ -24,13 +24,13 @@ public class ConflictTopology {
         
 
         // GeoJson Input Spat Stream
-        KStream<String, SpatFeatureCollection> geoJsonSpatStream = 
-            builder.stream(
-                spatGeoJsonTopic, 
-                Consumed.with(
-                    Serdes.String(), 
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.SpatGeoJson())
-                );
+        // KStream<String, SpatFeatureCollection> geoJsonSpatStream = 
+        //     builder.stream(
+        //         spatGeoJsonTopic, 
+        //         Consumed.with(
+        //             Serdes.String(), 
+        //             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.SpatGeoJson())
+        //         );
 
         //geoJsonSpatStream.print(Printed.toSysOut());
 

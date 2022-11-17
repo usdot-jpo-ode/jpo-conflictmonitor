@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -7,37 +8,38 @@ import java.util.Objects;
  */
 public class ProcessingTimePeriod {
     
-    private long beginTimestamp;
-    private long endTimestamp;
+    private ZonedDateTime beginTimestamp;
+    private ZonedDateTime endTimestamp;
 
 
     /**
      * @return The timestamp at the beginning of the processing period in epoch milliseconds
      */
-    public long getBeginTimestamp() {
+    public ZonedDateTime getBeginTimestamp() {
         return this.beginTimestamp;
     }
 
     /**
      * @param beginTimestamp Epoch milliseconds
      */
-    public void setBeginTimestamp(long beginTimestamp) {
+    public void setBeginTimestamp(ZonedDateTime beginTimestamp) {
         this.beginTimestamp = beginTimestamp;
     }
 
     /**
      * @return The timestamp at the end of the processing period in epoch milliseconds
      */
-    public long getEndTimestamp() {
+    public ZonedDateTime getEndTimestamp() {
         return this.endTimestamp;
     }
 
     /**
      * @param endTimestamp Epoch milliseconds
      */
-    public void setEndTimestamp(long endTimestamp) {
+    public void setEndTimestamp(ZonedDateTime endTimestamp) {
         this.endTimestamp = endTimestamp;
     }
+
 
 
     @Override
@@ -48,7 +50,7 @@ public class ProcessingTimePeriod {
             return false;
         }
         ProcessingTimePeriod processingTimePeriod = (ProcessingTimePeriod) o;
-        return beginTimestamp == processingTimePeriod.beginTimestamp && endTimestamp == processingTimePeriod.endTimestamp;
+        return Objects.equals(beginTimestamp, processingTimePeriod.beginTimestamp) && Objects.equals(endTimestamp, processingTimePeriod.endTimestamp);
     }
 
     @Override
@@ -64,6 +66,6 @@ public class ProcessingTimePeriod {
             ", endTimestamp='" + getEndTimestamp() + "'" +
             "}";
     }
-
+    
 
 }

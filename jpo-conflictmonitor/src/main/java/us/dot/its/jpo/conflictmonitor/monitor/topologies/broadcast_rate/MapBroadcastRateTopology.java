@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
 
 import java.time.Duration;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 
@@ -30,8 +31,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
 import us.dot.its.jpo.ode.model.OdeMapMetadata;
-import us.dot.its.jpo.conflictmonitor.monitor.models.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 
@@ -152,8 +153,8 @@ public class MapBroadcastRateTopology
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
                 // Grab the timestamps from the time window
-                timePeriod.setBeginTimestamp(windowedKey.window().startTime().toEpochMilli());
-                timePeriod.setEndTimestamp(windowedKey.window().endTime().toEpochMilli());
+                timePeriod.setBeginTimestamp(windowedKey.window().startTime().atZone(ZoneOffset.UTC));
+                timePeriod.setEndTimestamp(windowedKey.window().endTime().atZone(ZoneOffset.UTC));
                 event.setTimePeriod(timePeriod);
                 event.setNumberOfMessages(counts != null ? counts.intValue() : -1);
 
