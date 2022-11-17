@@ -2,6 +2,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate;
 
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Value;
+
 
 /**
  * Configuration parameters for Broadcast Rate algorithms
@@ -31,34 +33,39 @@ public abstract class BroadcastRateParameters {
         return this.outputEventTopicName;
     }
 
+    @Value("${outputEventTopicName}")
     public void setOutputEventTopicName(String outputEventTopicName) {
         this.outputEventTopicName = outputEventTopicName;
     }
     
 
-
+    
     public String getInputTopicName() {
         return this.inputTopicName;
     }
 
+    @Value("${inputTopicName}")
     public void setInputTopicName(String inputTopicName) {
         this.inputTopicName = inputTopicName;
     }
 
    
-
+    
     public int getRollingPeriodSeconds() {
         return this.rollingPeriodSeconds;
     }
 
+    @Value("${rollingPeriodSeconds}")
     public void setRollingPeriodSeconds(int rollingPeriodDurationSeconds) {
         this.rollingPeriodSeconds = rollingPeriodDurationSeconds;
     }
 
+    
     public int getOutputIntervalSeconds() {
         return this.outputIntervalSeconds;
     }
 
+    @Value("${outputIntervalSeconds}")
     public void setOutputIntervalSeconds(int outputIntervalSeconds) {
         this.outputIntervalSeconds = outputIntervalSeconds;
     }
@@ -67,6 +74,7 @@ public abstract class BroadcastRateParameters {
         return this.gracePeriodMilliseconds;
     }
 
+    @Value("${gracePeriodMilliseconds}")
     public void setGracePeriodMilliseconds(int gracePeriodMilliseconds) {
         this.gracePeriodMilliseconds = gracePeriodMilliseconds;
     }
@@ -75,14 +83,17 @@ public abstract class BroadcastRateParameters {
         return this.lowerBound;
     }
 
+    @Value("${lowerBound}")
     public void setLowerBound(int broadcastRateLowerBound) {
         this.lowerBound = broadcastRateLowerBound;
     }
 
+    
     public int getUpperBound() {
         return this.upperBound;
     }
 
+    @Value("${upperBound}")
     public void setUpperBound(int broadcastRateUpperBound) {
         this.upperBound = broadcastRateUpperBound;
     }
@@ -92,6 +103,7 @@ public abstract class BroadcastRateParameters {
         return this.debug;
     }
 
+    @Value("${debug}")
      public void setDebug(boolean debug) {
         this.debug = debug;
     }

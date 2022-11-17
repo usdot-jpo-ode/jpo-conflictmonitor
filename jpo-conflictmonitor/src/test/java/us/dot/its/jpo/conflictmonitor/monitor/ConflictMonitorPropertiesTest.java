@@ -28,10 +28,10 @@ public class ConflictMonitorPropertiesTest {
         assertThat(properties.getMapBroadcastRateAlgorithm(), anyOf(equalTo(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM), equalTo(ALTERNATE_MAP_BROADCAST_RATE_ALGORITHM)));
     }
 
-    @Test
-    public void testMapBroadcastRateParameters() {
-        assertThat(properties.getMapBroadcastRateParameters(), anyOf(equalTo(DEFAULT_MAP_BROADCAST_RATE_PARAMETERS), equalTo(DEBUG_MAP_BROADCAST_RATE_PARAMETERS)));
-    }
+    // @Test
+    // public void testMapBroadcastRateParameters() {
+    //     assertThat(properties.getMapBroadcastRateParameters(), anyOf(equalTo(DEFAULT_MAP_BROADCAST_RATE_PARAMETERS), equalTo(DEBUG_MAP_BROADCAST_RATE_PARAMETERS)));
+    // }
 
     @Test
     public void testSpatBroadcastRateAlgorithm() {

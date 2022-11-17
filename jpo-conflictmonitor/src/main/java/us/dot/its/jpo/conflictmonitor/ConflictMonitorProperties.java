@@ -45,9 +45,9 @@ import org.springframework.core.env.Environment;
 import org.thymeleaf.util.StringUtils;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParametersFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParametersFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -65,77 +65,62 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private Environment env;
 
    private MapBroadcastRateAlgorithmFactory mapBroadcastRateAlgorithmFactory;
-   private MapBroadcastRateParametersFactory mapBroadcastRateParametersFactory;
-   private SpatBroadcastRateAlgorithmFactory spatBroadcastRateAlgorithmFactory;
-   private SpatBroadcastRateParametersFactory spatBroadcastRateParametersFactory;
-
-    
+   private SpatBroadcastRateAlgorithmFactory spatBroadcastRateAlgorithmFactory;    
    private String mapBroadcastRateAlgorithm;
-   private String mapBroadcastRateParameters;
    private String spatBroadcastRateAlgorithm;
-   private String spatBroadcastRateParameters;
+   private SpatBroadcastRateParameters spatBroadcastRateParameters;
+   private MapBroadcastRateParameters mapBroadcastRateParameters;
+  
+
+   
+
+   @Autowired
+   public void setMapBroadcastRateParameters(MapBroadcastRateParameters mapBroadcastRateParameters) {
+      this.mapBroadcastRateParameters = mapBroadcastRateParameters;
+   }
+
+   @Autowired
+   public void setSpatBroadcastRateParameters(SpatBroadcastRateParameters spatBroadcastRateParameters) {
+      this.spatBroadcastRateParameters = spatBroadcastRateParameters;
+   }
 
 
    @Autowired
    public void setMapBroadcastRateAlgorithmFactory(MapBroadcastRateAlgorithmFactory factory) {
       this.mapBroadcastRateAlgorithmFactory = factory;
    } 
-
-   @Autowired
-   public void setMapBroadcastRateParametersFactory(MapBroadcastRateParametersFactory factory) {
-      this.mapBroadcastRateParametersFactory = factory;
-   }
+ 
 
    @Autowired
    public void setSpatBroadcastRateAlgorithmFactory(SpatBroadcastRateAlgorithmFactory factory) {
       this.spatBroadcastRateAlgorithmFactory = factory;
    }
 
-   @Autowired
-   public void setSpatBroadcastRateParametersFactory(SpatBroadcastRateParametersFactory factory) {
-      this.spatBroadcastRateParametersFactory = factory;
-   }
+  
 
    @Value("${map.broadcast.rate.algorithm}")
    public void setMapBroadcastRateAlgorithm(String mapBroadcastRateAlgorithm) {
       this.mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithm;
    }
 
-   @Value("${map.broadcast.rate.properties}")
-   public void setMapBroadcastRateParameters(String mapBroadcastRateParameters) {
-      this.mapBroadcastRateParameters = mapBroadcastRateParameters;
-   }
+
 
    @Value("${spat.broadcast.rate.algorithm}")
    public void setSpatBroadcastRateAlgorithm(String spatBroadcastRateAlgorithm) {
       this.spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithm;
    }
 
-   @Value("${spat.broadcast.rate.properties}")
-   public void setSpatBroadcastRateParameters(String spatBroadcastRateParameters) {
-      this.spatBroadcastRateParameters = spatBroadcastRateParameters;
-   }
 
    public MapBroadcastRateAlgorithmFactory getMapBroadcastRateAlgorithmFactory() {
       return mapBroadcastRateAlgorithmFactory;
    }
 
-   public MapBroadcastRateParametersFactory getMapBroadcastRateParametersFactory() {
-      return mapBroadcastRateParametersFactory;
-   }
+
 
    public SpatBroadcastRateAlgorithmFactory getSpatBroadcastRateAlgorithmFactory() {
       return spatBroadcastRateAlgorithmFactory;
    }
-   
-   public SpatBroadcastRateParametersFactory getSpatBroadcastRateParametersFactory() {
-      return spatBroadcastRateParametersFactory;
-   }
-
-   
-   public String getMapBroadcastRateParameters() {
-      return this.mapBroadcastRateParameters;
-   }
+  
    
    public String getMapBroadcastRateAlgorithm() {
       return this.mapBroadcastRateAlgorithm;
@@ -145,11 +130,13 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       return this.spatBroadcastRateAlgorithm;
    }
 
-   public String getSpatBroadcastRateParameters() {
+   public SpatBroadcastRateParameters getSpatBroadcastRateParameters() {
       return this.spatBroadcastRateParameters;
    }
 
-
+   public MapBroadcastRateParameters getMapBroadcastRateParameters() {
+      return this.mapBroadcastRateParameters;
+   }
 
 
 

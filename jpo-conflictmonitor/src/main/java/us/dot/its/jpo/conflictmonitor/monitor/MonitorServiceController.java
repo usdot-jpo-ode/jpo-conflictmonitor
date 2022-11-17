@@ -16,17 +16,15 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.Broadcas
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParametersFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParametersFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
+// import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+// import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
@@ -74,19 +72,16 @@ public class MonitorServiceController {
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
-            // Topology topology;
-            // KafkaStreams streams;
-
+            
             
 
             // Map Broadcast Rate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
             MapBroadcastRateAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapBroadcastRateAlgorithmFactory();
-            MapBroadcastRateParametersFactory mapParamsFactory = conflictMonitorProps.getMapBroadcastRateParametersFactory();
             String mapAlgo = conflictMonitorProps.getMapBroadcastRateAlgorithm();
-            String mapParams = conflictMonitorProps.getMapBroadcastRateParameters();
             MapBroadcastRateAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
-            MapBroadcastRateParameters mapCountParams = mapParamsFactory.getParameters(mapParams);
+            MapBroadcastRateParameters mapCountParams = conflictMonitorProps.getMapBroadcastRateParameters();
+            logger.info("Map params {}", mapCountParams);
             if (mapCountAlgo instanceof MapBroadcastRateStreamsAlgorithm) {
                 ((MapBroadcastRateStreamsAlgorithm)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
             }
@@ -98,11 +93,9 @@ public class MonitorServiceController {
             // Spat Broadcast Rate Topology
             // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
             SpatBroadcastRateAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatBroadcastRateAlgorithmFactory();
-            SpatBroadcastRateParametersFactory spatParamsFactory = conflictMonitorProps.getSpatBroadcastRateParametersFactory();
             String spatAlgo = conflictMonitorProps.getSpatBroadcastRateAlgorithm();
-            String spatParams = conflictMonitorProps.getSpatBroadcastRateParameters();
             SpatBroadcastRateAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
-            SpatBroadcastRateParameters spatCountParams = spatParamsFactory.getParameters(spatParams);
+            SpatBroadcastRateParameters spatCountParams = conflictMonitorProps.getSpatBroadcastRateParameters();
             if (spatCountAlgo instanceof SpatBroadcastRateStreamsAlgorithm) {
                 ((SpatBroadcastRateStreamsAlgorithm)spatCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatBroadcastRate"));
             }
@@ -113,49 +106,49 @@ public class MonitorServiceController {
 
 
 
-            // BSM Topology sends a message every time a vehicle drives through the intersection. 
-            Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start(); 
+            // // BSM Topology sends a message every time a vehicle drives through the intersection. 
+            // Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
+            // KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
+            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            // streams.start(); 
 
 
-            // the message ingest topology tracks and stores incoming messages for further processing
-            topology = MessageIngestTopology.build(
-                conflictMonitorProps.getKafkaTopicOdeBsmJson(),
-                bsmStoreName,
-                conflictMonitorProps.getKafkaTopicProcessedSpat(),
-                spatStoreName,
-                conflictMonitorProps.getKafkaTopicMapGeoJson(),
-                mapStoreName
-            );
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
-
-            
-            Thread.sleep(5000);
-            
-            ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
-                streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
-
-            ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore =
-                streams.store(spatStoreName, QueryableStoreTypes.windowStore());
-
-            ReadOnlyKeyValueStore<String, MapFeatureCollection> mapKeyValueStore =
-                streams.store(mapStoreName, QueryableStoreTypes.keyValueStore());
-
-
-            //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), bsmWindowStore, spatWindowStore, mapKeyValueStore);
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
+            // // the message ingest topology tracks and stores incoming messages for further processing
+            // topology = MessageIngestTopology.build(
+            //     conflictMonitorProps.getKafkaTopicOdeBsmJson(),
+            //     bsmStoreName,
+            //     conflictMonitorProps.getKafkaTopicProcessedSpat(),
+            //     spatStoreName,
+            //     conflictMonitorProps.getKafkaTopicMapGeoJson(),
+            //     mapStoreName
+            // );
+            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
+            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            // streams.start();
 
             
+            // Thread.sleep(5000);
+            
+            // ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
+            //     streams.store(bsmStoreName, QueryableStoreTypes.windowStore());
+
+            // ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore =
+            //     streams.store(spatStoreName, QueryableStoreTypes.windowStore());
+
+            // ReadOnlyKeyValueStore<String, MapFeatureCollection> mapKeyValueStore =
+            //     streams.store(mapStoreName, QueryableStoreTypes.keyValueStore());
+
+
+            // //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            // topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), bsmWindowStore, spatWindowStore, mapKeyValueStore);
+            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
+            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            // streams.start();
 
             
-            logger.info("All geoJSON conversion services started!");
+
+            
+            // logger.info("All geoJSON conversion services started!");
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);
         }
