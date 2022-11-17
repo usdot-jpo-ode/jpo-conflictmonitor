@@ -102,7 +102,7 @@ public class MapBroadcastRateTopology
                 Consumed.with(
                             Serdes.String(), 
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.OdeMap())
-                        //.withTimestampExtractor(new MapTimestampExtractor())
+                        .withTimestampExtractor(new MapTimestampExtractor())
             )
             .map((oldKey, oldValue) -> {
                 // Change key to RSU IP address and value to constant = 1
@@ -131,13 +131,13 @@ public class MapBroadcastRateTopology
             .toStream();
 
         if (parameters.isDebug()) {
-            countStream = countStream.peek((key, value) -> {
-                logger.info("Map Count {} {}", key, value);
+            countStream = countStream.peek((windowedKey, value) -> {
+                logger.info("Map Count {} {}", windowedKey, value);
             });
         }
 
         KStream<String, MapBroadcastRateEvent> eventStream = countStream            
-            .filter((key, value) -> {
+            .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
                     return (counts < parameters.getLowerBound() || counts > parameters.getUpperBound());

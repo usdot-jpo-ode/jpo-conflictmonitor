@@ -20,6 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.Spa
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParametersFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
@@ -76,12 +77,12 @@ public class MonitorServiceController {
 
             // MapBroadcastRate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            MapBroadcastRateAlgorithm mapCountAlgo = 
-                conflictMonitorProps.getMapBroadcastRateAlgorithmFactory()
-                    .getAlgorithm(conflictMonitorProps.getMapBroadcastRateAlgorithm());
-            MapBroadcastRateParameters mapCountParams = 
-                conflictMonitorProps.getMapBroadcastRateParametersFactory()
-                    .getParameters(conflictMonitorProps.getMapBroadcastRateParameters());
+            MapBroadcastRateAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapBroadcastRateAlgorithmFactory();
+            MapBroadcastRateParametersFactory mapParamsFactory = conflictMonitorProps.getMapBroadcastRateParametersFactory();
+            String mapAlgo = conflictMonitorProps.getMapBroadcastRateAlgorithm();
+            String mapParams = conflictMonitorProps.getMapBroadcastRateParameters();
+            MapBroadcastRateAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
+            MapBroadcastRateParameters mapCountParams = mapParamsFactory.getParameters(mapParams);
             if (mapCountAlgo instanceof MapBroadcastRateStreamsAlgorithm) {
                 ((MapBroadcastRateStreamsAlgorithm)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
             }
@@ -89,13 +90,21 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
             mapCountAlgo.start();
 
+            
             // SpatBroadcastRate Topology
             // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
-            // SpatBroadcastRateAlgorithm spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithmFactory.getAlgorithm(conflictMonitorProps.getSpatBroadcastRateAlgorithm());
-            // SpatBroadcastRateParameters spatBroadcastRateParameters = spatBroadcastRateParametersFactory.getParameters(conflictMonitorProps.getSpatBroadcastRateParameters());
-            // spatBroadcastRateAlgorithm.setParameters(spatBroadcastRateParameters);
-            // Runtime.getRuntime().addShutdownHook(new Thread(spatBroadcastRateAlgorithm::stop));
-            // spatBroadcastRateAlgorithm.start();
+            SpatBroadcastRateAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatBroadcastRateAlgorithmFactory();
+            SpatBroadcastRateParametersFactory spatParamsFactory = conflictMonitorProps.getSpatBroadcastRateParametersFactory();
+            String spatAlgo = conflictMonitorProps.getSpatBroadcastRateAlgorithm();
+            String spatParams = conflictMonitorProps.getSpatBroadcastRateParameters();
+            SpatBroadcastRateAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
+            SpatBroadcastRateParameters spatCountParams = spatParamsFactory.getParameters(spatParams);
+            if (spatCountAlgo instanceof SpatBroadcastRateStreamsAlgorithm) {
+                ((SpatBroadcastRateStreamsAlgorithm)spatCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatBroadcastRate"));
+            }
+            spatCountAlgo.setParameters(spatCountParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
+            spatCountAlgo.start();
 
 
 

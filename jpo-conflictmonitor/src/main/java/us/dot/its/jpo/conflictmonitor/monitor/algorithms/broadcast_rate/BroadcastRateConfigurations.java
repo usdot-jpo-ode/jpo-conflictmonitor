@@ -34,7 +34,7 @@ public class BroadcastRateConfigurations {
     /**
      * @return Default MAP broadcast rate parameters per the requirements with 10 second wide, 5 second hopping window
      */
-    @Bean(DEFAULT)
+    @Bean(DEFAULT_MAP_BROADCAST_RATE_PARAMETERS)
     public MapBroadcastRateParameters defaultMapBroadcastRateParamaters() {
         var params = new MapBroadcastRateParameters();
         params.setInputTopicName("topic.OdeMapJson");
@@ -48,17 +48,9 @@ public class BroadcastRateConfigurations {
         return params;
     }
 
-    /**
-     * @return Alernate parameters with a tumbling window (output interval same as size of window)
-     */
-    @Bean(ALTERNATE)
-    public MapBroadcastRateParameters alternateMapBroadcastRateParamaters() {
-        var params = defaultMapBroadcastRateParamaters();
-        params.setOutputIntervalSeconds(params.getRollingPeriodSeconds());
-        return params;
-    }
+ 
 
-    @Bean(DEBUG)
+    @Bean(DEBUG_MAP_BROADCAST_RATE_PARAMETERS)
     public MapBroadcastRateParameters debugMapBroadcastRateParameters() {
         var params = defaultMapBroadcastRateParamaters();
         params.setDebug(true);
@@ -67,7 +59,7 @@ public class BroadcastRateConfigurations {
 
 
 
-    @Bean(DEFAULT)
+    @Bean(DEFAULT_SPAT_BROADCAST_RATE_PARAMETERS)
     public SpatBroadcastRateParameters defaultSpatBroadcastRateParamaters() {
         var params = new SpatBroadcastRateParameters();
         params.setInputTopicName("topic.OdeSpatJson");
@@ -81,7 +73,7 @@ public class BroadcastRateConfigurations {
         return params;
     }
 
-    @Bean(DEBUG)
+    @Bean(DEBUG_SPAT_BROADCAST_RATE_PARAMETERS)
     public SpatBroadcastRateParameters debugSpatBroadcastRateParameters() {
         var params = defaultSpatBroadcastRateParamaters();
         params.setDebug(true);

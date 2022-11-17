@@ -30,7 +30,7 @@ public class ConflictMonitorPropertiesTest {
 
     @Test
     public void testMapBroadcastRateParameters() {
-        assertThat(properties.getMapBroadcastRateParameters(), equalTo(DEFAULT));
+        assertThat(properties.getMapBroadcastRateParameters(), equalTo(DEFAULT_MAP_BROADCAST_RATE_PARAMETERS));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class ConflictMonitorPropertiesTest {
 
     @Test
     public void testSpatBroadcastRateParameters() {
-        assertThat(properties.getSpatBroadcastRateParameters(), equalTo(DEFAULT));
+        assertThat(properties.getSpatBroadcastRateParameters(), equalTo(DEFAULT_SPAT_BROADCAST_RATE_PARAMETERS));
     }
     
 }
