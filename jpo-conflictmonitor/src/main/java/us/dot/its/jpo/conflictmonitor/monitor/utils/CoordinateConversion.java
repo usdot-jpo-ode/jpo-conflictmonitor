@@ -29,6 +29,21 @@ public class CoordinateConversion {
 
     }
 
+    public static double[] longLatToOffsetM(double lng, double lat, double refLong, double refLat){
+
+        GeodeticCalculator geoCalc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+        geoCalc.setStartingGeographicPoint(refLong, refLat);
+        geoCalc.setDestinationGeographicPoint(lng, lat);
+        double azimuth = geoCalc.getAzimuth();
+        double distance = geoCalc.getOrthodromicDistance();
+
+        double offsetX = distance * Math.cos(Math.toRadians(azimuth));
+        double offsetY = distance * Math.sin(Math.toRadians(azimuth));
+
+        double[] ret = {offsetX,offsetY};
+        return ret;
+    }
+
     public static double[] offsetMToLongLat2(double refLongitude, double refLatitude, double offsetX, double offsetY){
 
         double direction = Math.atan2(offsetX, offsetY);

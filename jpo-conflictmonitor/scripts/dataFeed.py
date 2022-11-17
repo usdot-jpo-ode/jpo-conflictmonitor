@@ -1,21 +1,42 @@
 
 
 from kafka import KafkaProducer
+from datetime import datetime
 import json
+
+intersection_ip = "10.11.81.12"
+intersection_id = "12111"
+broker = 'localhost:9092'
+
+
+bsm_topic = 'topic.OdeBsmJson'
+spat_topic = 'topic.OdeSpatJson'
+map_topic = 'topic.OdeMapJson'
+
+enable_bsms = True
+enable_spat = True
+enable_map = True
+stop_at = 100
 
 class MessageProducer:
     broker = ""
     topic = ""
     producer = None
 
-    def __init__(self, broker, topic):
+    def __init__(self, broker, topic, add_key = False):
         self.broker = broker
         self.topic = topic
-        self.producer = KafkaProducer(bootstrap_servers=self.broker,
-        key_serializer = lambda v: '172.19.0.1:12111'.encode('utf-8'),
-        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-        acks='all',
-        retries = 3)
+        if add_key:
+            self.producer = KafkaProducer(bootstrap_servers=self.broker,
+            key_serializer = lambda v: f'{intersection_ip}:{intersection_id}'.encode('utf-8'),
+            value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+            acks='all',
+            retries = 3)
+        else:
+            self.producer = KafkaProducer(bootstrap_servers=self.broker,
+            value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+            acks='all',
+            retries = 3)
 
     def send_msg(self, msg):
         print("sending message...")
@@ -29,17 +50,71 @@ class MessageProducer:
             return ex
 
 
-broker = 'localhost:9092'
-topic = 'topic.OdeBsmJson'
-message_producer = MessageProducer(broker,topic)
+def get_lines(filename):
+    with open(filename, 'r') as f:
+        return f.readlines()
 
-#data = {'name':'abc', 'email':'abc@example.com'}
-#resp = message_producer.send_msg(data)
-with open('10.11.81.12_BSMlist.csv') as bsms:
-    lines = bsms.readlines()
-    for line in lines:
-        bsm = json.loads(line)
 
-        resp = message_producer.send_msg(bsm)
+def modify_bsm_time(bsm , mod_time):
+    bsm['metadata']['recordGeneratedAt'] = mod_time.isoformat()+"Z"
+    return bsm
 
-print(resp)
+def modify_spat_time(spat, mod_time):
+    # year_start = datetime(mod_time.year,1,1)
+    # moy = int((mod_time - year_start)).seconds / 60)
+
+    minute_start = datetime(mod_time.year, mod_time.month, mod_time.day, mod_time.hour, mod_time.minute, 0)
+    msom = int((mod_time - minute_start).microseconds / 1000)
+
+
+
+    for record in spat['payload']['data']['intersectionStateList']['intersectionStatelist']:
+        record['timeStamp'] = msom
+
+
+    spat['metadata']['odeReceivedAt'] = mod_time.isoformat()+"Z"
+
+    print(spat)
+    return spat
+
+
+
+
+bsm_producer = MessageProducer(broker, bsm_topic)
+spat_producer = MessageProducer(broker, spat_topic)
+map_producer = MessageProducer(broker, map_topic)
+
+bsm_lines = get_lines('10.11.81.12_BSMlist.csv')
+spat_lines = get_lines('10.11.81.12_SPATlist.csv')
+map_lines = get_lines('10.11.81.12_MAPlist.csv')
+
+count = 0
+
+while count < max(len(spat_lines), len(bsm_lines)):
+    now = datetime.utcnow()
+    print(now)
+
+    if count < len(bsm_lines) and enable_bsms:
+        bsm = json.loads(bsm_lines[count])
+        bsm = modify_bsm_time(bsm, now)
+        resp = bsm_producer.send_msg(bsm)
+        print("Sending BSM")
+    
+    if count < len(spat_lines) and enable_spat:
+        spat = json.loads(spat_lines[count])
+        spat = modify_spat_time(spat, now)
+        resp = spat_producer.send_msg(spat)
+        print("Sending Spat")
+
+    if count < len(map_lines) and enable_map:
+        map_msg = json.loads(map_lines[count])
+        resp = map_producer.send_msg(map_msg)
+        print("Sending Map")
+    count +=1
+
+    if count >= stop_at:
+        break
+
+
+
+
