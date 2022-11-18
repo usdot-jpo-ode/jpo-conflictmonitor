@@ -28,10 +28,13 @@ public class ConflictMonitorPropertiesTest {
         assertThat(properties.getMapBroadcastRateAlgorithm(), anyOf(equalTo(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM), equalTo(ALTERNATE_MAP_BROADCAST_RATE_ALGORITHM)));
     }
 
-    // @Test
-    // public void testMapBroadcastRateParameters() {
-    //     assertThat(properties.getMapBroadcastRateParameters(), anyOf(equalTo(DEFAULT_MAP_BROADCAST_RATE_PARAMETERS), equalTo(DEBUG_MAP_BROADCAST_RATE_PARAMETERS)));
-    // }
+    @Test
+    public void testMapBroadcastRateParameters() {
+        var props = properties.getMapBroadcastRateParameters();
+        assertThat(props, notNullValue());
+        assertThat(props.getInputTopicName(), equalTo("topic.OdeMapJson"));
+        
+    }
 
     @Test
     public void testSpatBroadcastRateAlgorithm() {
@@ -40,7 +43,9 @@ public class ConflictMonitorPropertiesTest {
 
     @Test
     public void testSpatBroadcastRateParameters() {
-        assertThat(properties.getSpatBroadcastRateParameters(), anyOf(equalTo(DEFAULT_SPAT_BROADCAST_RATE_PARAMETERS), equalTo(DEBUG_SPAT_BROADCAST_RATE_PARAMETERS)));
+        var props = properties.getSpatBroadcastRateParameters();
+        assertThat(props, notNullValue());
+        assertThat(props.getInputTopicName(), equalTo("topic.OdeSpatJson"));
     }
     
 }

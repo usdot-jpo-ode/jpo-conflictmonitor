@@ -1,6 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
 
 public interface MapBroadcastRateAlgorithm
-        extends BroadcastRateAlgorithm<MapBroadcastRateParameters> {}
+        extends Algorithm<MapBroadcastRateParameters> {}
