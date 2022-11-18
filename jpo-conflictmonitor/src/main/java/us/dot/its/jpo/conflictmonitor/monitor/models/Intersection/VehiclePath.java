@@ -4,11 +4,15 @@ import org.geotools.geometry.GeometryBuilder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
+import org.locationtech.jts.io.WKTWriter;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 
@@ -35,21 +39,75 @@ public class VehiclePath {
         Coordinate[] vehicleCoords = new Coordinate[bsms.getBsms().size()];
         int index =0;
         for(OdeBsmData bsm : bsms.getBsms()){
-            OdePosition3D position = ((J2735BsmCoreData)bsm.getPayload().getData()).getPosition();
-            double[] shiftedPosition = CoordinateConversion.longLatToOffsetM(
+            
+            OdePosition3D position = ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getPosition();
+            double[] shiftedPosition = CoordinateConversion.longLatToOffsetCM(
                 position.getLongitude().doubleValue(),
                 position.getLatitude().doubleValue(),
                 this.intersection.getReferencePoint().getX(),
                 this.intersection.getReferencePoint().getY()
             );
-
+            
             vehicleCoords[index] = new Coordinate(shiftedPosition[0], shiftedPosition[1]);
+            System.out.println("BSM Time:" + bsm.getMetadata().getRecordGeneratedAt() + " offsetX :" +vehicleCoords[index].getX()+ " offsetY: "+vehicleCoords[index].getY());
             index++;
         }
         
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(vehicleCoords);
         this.pathPoints = new LineString(sequence, this.geometryFactory);
+        this.getIngressLane(); 
+    }
+
+    public int getIngressLane(){
+        double minDistance = Double.MAX_VALUE;
+        OdeBsmData matchingBsm = null;
+        StopLine bestStopLine = null; 
+
+        for(StopLine stop : intersection.getStopLines()){
+            if(this.pathPoints.isWithinDistance(stop.getCenterPoint(), 450)){
+                int index =0;
+                for(OdeBsmData bsm : this.bsms.getBsms()){
+                    Point p = this.pathPoints.getPointN(index);
+                    double vehicleHeading = ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getHeading().doubleValue();
+                    if(CircleMath.getAngularDistanceDegrees(vehicleHeading, stop.getHeading()) <= 20){
+                        double distance = p.distance(stop.getCenterPoint());
+                        if(distance < minDistance){
+                            matchingBsm = bsm;
+                            minDistance = distance;
+                            bestStopLine = stop;
+                        }
+                    }
+                    index++;
+                }
+            }
+        }
+
+        //if(bestStopLine != null){
+            System.out.println("Found Ingress Lane");
         
+            System.out.println("BSM: " + matchingBsm);
+            System.out.println("Stop Line: " + bestStopLine);
+            System.out.println("Distance: " + minDistance);
+            System.out.println("Reference Point: " + this.intersection.getReferencePoint());
+            System.out.println("Intersection WKT");
+
+            System.out.println(this.intersection.getIntersectionAsWkt());
+
+            System.out.println("Vehicle Path");
+            System.out.println(this.getVehiclePathAsWkt());
+        //} else{
+            //System.out.println("BSM Set did not cross intersection");
+        //}
+        
+
+
+        return 0;
+    }
+
+    
+
+    public int getEgressLane(){
+        return 0;
     }
 
     public LineString getPathPoints() {
@@ -83,10 +141,20 @@ public class VehiclePath {
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
+    
+    public String getVehiclePathAsWkt() {
+        WKTWriter writer = new WKTWriter(2);
+        String wtkOut = "wtk\n";
+        writer.setFormatted(true);
+        
+        wtkOut += "\"" + writer.writeFormatted(this.pathPoints) + "\"\n";
+
+        return wtkOut;
+    }
 
     @Override
     public String toString(){
-        return "Vehicle Path";
+        return "Vehicle Path: Points: " + this.pathPoints.getNumPoints();
     }
 
 }

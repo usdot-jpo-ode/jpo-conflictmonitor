@@ -8,6 +8,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTWriter;
 
 public class Intersection {
     
@@ -16,19 +17,6 @@ public class Intersection {
     private ArrayList<StopLine> stopLines;
     
     private Coordinate referencePoint;
-
-
-
-
-   
-
-
-
-    
-
-
-
-
 
     private int intersectionId;
 
@@ -122,8 +110,19 @@ public class Intersection {
         this.referencePoint = referencePoint;
     }
 
+    public String getIntersectionAsWkt() {
+        WKTWriter writer = new WKTWriter(2);
+        String wtkOut = "wtk\n";
+        writer.setFormatted(true);
+        for (Lane lane : this.ingressLanes) {
+            wtkOut += "\"" + writer.writeFormatted(lane.getPoints()) + "\"\n";
+        }
 
-
+        for (Lane lane : this.egressLanes) {
+            wtkOut += "\"" + writer.writeFormatted(lane.getPoints()) + "\"\n";
+        }
+        return wtkOut;
+    }
 
     @Override
     public String toString(){

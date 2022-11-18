@@ -136,12 +136,8 @@ public class IntersectionEventTopology {
                 System.out.println("Captured Spats: " + spats.getSpats().size());
                 if(map != null){
                     Intersection intersection = Intersection.fromMapFeatureCollection(map);
-                    for(StopLine line : intersection.getStopLines()){
-                        System.out.println(line);
-                    }
                     System.out.println(intersection);
                     VehiclePath path = new VehiclePath(bsms, intersection);
-                    System.out.println(path);
                 }else{
                     System.out.println("Map was Null");
                 }

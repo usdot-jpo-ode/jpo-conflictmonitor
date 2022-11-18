@@ -16,11 +16,11 @@ public class BsmAggregator {
             long t1 = BsmTimestampExtractor.getBsmTimestamp(bsm1);
             long t2 = BsmTimestampExtractor.getBsmTimestamp(bsm2);
             if (t2 < t1) {
-                return -1;
+                return 1;
             } else if (t2 == t1) {
                 return 0;
             } else {
-                return 1;
+                return -1;
             }
         }
     };
@@ -28,19 +28,6 @@ public class BsmAggregator {
     private TreeSet<OdeBsmData> bsms = new TreeSet<OdeBsmData>(bsmComparator);
     public BsmAggregator add(OdeBsmData newBsm) {
         bsms.add(newBsm);
-
-        // OdeBsmData mostRecentBSM = bsms.first();
-        // ZonedDateTime mostRecentTime = getBsmDateTime(mostRecentBSM);
-        // ZonedDateTime compareTime = mostRecentTime.minusSeconds(retainBsmSeconds);
-        // while (true){
-        //     OdeBsmData checkBsm = bsms.last();
-        //     if(getBsmDateTime(checkBsm).isBefore(compareTime)){
-        //         bsms.remove(checkBsm);
-        //     }else{
-        //         break;
-        //     }
-        // }
-
         return this;
     }
 

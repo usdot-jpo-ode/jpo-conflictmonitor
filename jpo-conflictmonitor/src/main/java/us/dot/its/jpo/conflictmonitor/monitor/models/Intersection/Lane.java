@@ -29,7 +29,7 @@ public class Lane {
         double[][] featureCoordinates = feature.getGeometry().getCoordinates();
         Coordinate[] coordinates = new Coordinate[featureCoordinates.length];
         for(int i=0; i< featureCoordinates.length; i++){
-            double[] shiftedCoordinate = CoordinateConversion.longLatToOffsetM(
+            double[] shiftedCoordinate = CoordinateConversion.longLatToOffsetCM(
                 featureCoordinates[i][0], 
                 featureCoordinates[i][1],
                 referencePoint.getX(),
