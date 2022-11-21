@@ -23,6 +23,13 @@ public class VehiclePath {
     private Intersection intersection;
     private GeometryFactory geometryFactory;
 
+    private Lane ingressLane;
+    private Lane egressLane;
+
+    private OdeBsmData ingressBsm;
+    private OdeBsmData egressBsm;
+
+
     
 
     public VehiclePath(BsmAggregator bsms, Intersection intersection){
@@ -49,19 +56,20 @@ public class VehiclePath {
             );
             
             vehicleCoords[index] = new Coordinate(shiftedPosition[0], shiftedPosition[1]);
-            System.out.println("BSM Time:" + bsm.getMetadata().getRecordGeneratedAt() + " offsetX :" +vehicleCoords[index].getX()+ " offsetY: "+vehicleCoords[index].getY());
+            //System.out.println("BSM Time:" + bsm.getMetadata().getRecordGeneratedAt() + " offsetX :" +vehicleCoords[index].getX()+ " offsetY: "+vehicleCoords[index].getY());
             index++;
         }
         
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(vehicleCoords);
         this.pathPoints = new LineString(sequence, this.geometryFactory);
-        this.getIngressLane(); 
+        this.calculateIngress(); 
     }
 
-    public int getIngressLane(){
+    public void calculateIngress(){
         double minDistance = Double.MAX_VALUE;
         OdeBsmData matchingBsm = null;
-        StopLine bestStopLine = null; 
+        StopLine bestStopLine = null;
+
 
         for(StopLine stop : intersection.getStopLines()){
             if(this.pathPoints.isWithinDistance(stop.getCenterPoint(), 450)){
@@ -82,26 +90,13 @@ public class VehiclePath {
             }
         }
 
-        //if(bestStopLine != null){
-            System.out.println("Found Ingress Lane");
-        
-            System.out.println("BSM: " + matchingBsm);
-            System.out.println("Stop Line: " + bestStopLine);
-            System.out.println("Distance: " + minDistance);
-            System.out.println("Reference Point: " + this.intersection.getReferencePoint());
-            System.out.println("Intersection WKT");
+        if(bestStopLine != null){
+            this.ingressLane = bestStopLine.getLane();
+            this.ingressBsm = matchingBsm;
+        } else{
+            System.out.println("BSM Set did not cross intersection");
+        }
 
-            System.out.println(this.intersection.getIntersectionAsWkt());
-
-            System.out.println("Vehicle Path");
-            System.out.println(this.getVehiclePathAsWkt());
-        //} else{
-            //System.out.println("BSM Set did not cross intersection");
-        //}
-        
-
-
-        return 0;
     }
 
     

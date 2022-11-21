@@ -20,4 +20,10 @@ public class CircleMath {
     public static double boundAngleDegrees(double angle){
         return angle % 360;
     }
+
+    // converts a heading in degrees XY where positive rotation is counter-clockwise and 0 degrees is along the x axis
+    // to an identical heading (in degrees) where 0 degrees is due north and positive rotation is to the east.
+    public static double headingXYToHeadingFromNorth(double headingXY){
+        return (360 - (headingXY - 90)) % 360;
+    }
 }

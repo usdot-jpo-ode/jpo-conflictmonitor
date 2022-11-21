@@ -105,15 +105,18 @@ while count < max(len(spat_lines), len(bsm_lines)):
     now = datetime.utcnow()
 
     if count < len(bsms) and enable_bsms:
+        bsm = bsms[count]
         #bsm = json.loads(bsm_lines[count])
-        bsm = modify_bsm_time(bsms[count], now)
-        if bsm['payload']['data']['coreData']['id'] == 'E6A99808':
-            print(bsm['metadata']['recordGeneratedAt'],",",bsm['payload']['data']['coreData']['position']['longitude'], ", " , bsm['payload']['data']['coreData']['position']['latitude'])
+        #bsm = modify_bsm_time(bsms[count], now)
+        #if bsm['payload']['data']['coreData']['id'] == 'E6A99808':
+        #    print(bsm['metadata']['recordGeneratedAt'],",",bsm['payload']['data']['coreData']['position']['longitude'], ", " , bsm['payload']['data']['coreData']['position']['latitude'])
+        print("Sending BSM", bsm['metadata']['odeReceivedAt'])
         resp = bsm_producer.send_msg(bsm)
     
     if count < len(spats) and enable_spat:
         #spat = json.loads(spat_lines[count])
-        spat = modify_spat_time(spats[count], now)
+        #spat = modify_spat_time(spats[count], now)
+        spat = spats[count]
         resp = spat_producer.send_msg(spat)
 
     if count < len(map_lines) and enable_map:

@@ -94,7 +94,7 @@ public class MonitorServiceController {
 
 
             //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), bsmWindowStore, spatWindowStore, mapKeyValueStore);
+            topology = IntersectionEventTopology.build(conflictMonitorProps.getKafkaTopicCmBsmEvent(), bsmWindowStore, spatWindowStore, mapKeyValueStore, conflictMonitorProps.getKafkaTopicCmVehicleEvent());
             streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start();

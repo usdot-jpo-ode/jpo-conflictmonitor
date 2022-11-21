@@ -3,6 +3,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
+import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
+
 public class StopLine {
     
     private double heading;
@@ -15,7 +17,7 @@ public class StopLine {
         if(points.getNumPoints() >=2){
             Point startPoint = points.getStartPoint(); // Stop Line Point
             Point headingPoint = points.getPointN(1); // Secondary Point used to compute heading
-            double heading = Math.toDegrees(Math.atan2(startPoint.getY() - headingPoint.getY(), startPoint.getX() - headingPoint.getX()));
+            double heading = CircleMath.headingXYToHeadingFromNorth(Math.toDegrees(Math.atan2(startPoint.getY() - headingPoint.getY(), startPoint.getX() - headingPoint.getX())));
             
             return new StopLine(startPoint, heading, ingressLane);
         }else{

@@ -61,7 +61,7 @@ public class MessageIngestTopology {
         KStream<String, OdeBsmData> bsmRekeyedStream = bsmJsonStream.selectKey((key, value)->{
             J2735BsmCoreData core = ((J2735Bsm) value.getPayload().getData()).getCoreData();
             String ip = ((OdeBsmMetadata)value.getMetadata()).getOriginIp();
-            return ip+"_"+core.getId() +"_"+ core.getMsgCnt();
+            return ip+"_"+core.getId() +"_"+ BsmTimestampExtractor.getBsmTimestamp(value);
         });
 
         //Group up all of the BSM's based upon the new ID. Generally speaking this shouldn't change anything as the BSM's have unique keys
@@ -79,6 +79,7 @@ public class MessageIngestTopology {
             .withValueSerde(JsonSerdes.OdeBsm())
         );
 
+        //bsmRekeyedStream.print(Printed.toSysOut());
 
         /*
          * 
@@ -161,7 +162,7 @@ public class MessageIngestTopology {
         //     return newKey;
         // });
 
-        //mapJsonStream.print(Printed.toSysOut());
+        
         
 
         return builder.build();

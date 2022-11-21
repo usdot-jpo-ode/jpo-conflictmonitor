@@ -1,6 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.J2735GenericLane;
+import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
 
 public class SignalStateEvent {
     private int timestamp;

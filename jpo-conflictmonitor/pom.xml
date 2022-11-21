@@ -19,6 +19,7 @@
     <maven.deploy.skip>true</maven.deploy.skip>
     <description>Detects Intersection Message Conflicts from messaged passed by the ODE</description>
     <java.version>11</java.version>
+    
   </properties>
   <dependencies>
     <!-- Spring Boot Dependencies -->

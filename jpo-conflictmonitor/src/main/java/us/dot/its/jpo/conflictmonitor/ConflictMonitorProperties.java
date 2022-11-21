@@ -200,6 +200,10 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicAsn1EncoderInput = "topic.Asn1EncoderInput";
    private String kafkaTopicAsn1EncoderOutput = "topic.Asn1EncoderOutput";
 
+   //Vehicle Events
+   private String kafkaTopicCmVehicleEvent = "topic.CmVehicleEvent";
+
+
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
 
@@ -217,7 +221,8 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
 
    // Conflict Monitor Properties
-   
+
+
 
 
    @Autowired
@@ -763,6 +768,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicDriverAlertJson(String kafkaTopicDriverAlertJson) {
       this.kafkaTopicDriverAlertJson = kafkaTopicDriverAlertJson;
+   }
+
+   public String getKafkaTopicCmVehicleEvent() {
+      return kafkaTopicCmVehicleEvent;
+   }
+
+   public void setKafkaTopicCmVehicleEvent(String kafkaTopicVehicleEvent) {
+      this.kafkaTopicCmVehicleEvent = kafkaTopicVehicleEvent;
    }
 
    public Integer getFileWatcherPeriod() {

@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -15,7 +16,9 @@ import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.kstream.Produced;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.StopLine;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -56,6 +59,7 @@ public class IntersectionEventTopology {
                 agg.add(next.value);
             }
         }
+
         bsmRange.close();
 
         return agg;
@@ -92,7 +96,7 @@ public class IntersectionEventTopology {
     }
 
 
-    public static Topology build(String bsmEventTopic, ReadOnlyWindowStore bsmWindowStore, ReadOnlyWindowStore spatWindowStore, ReadOnlyKeyValueStore mapStore) {
+    public static Topology build(String bsmEventTopic, ReadOnlyWindowStore bsmWindowStore, ReadOnlyWindowStore spatWindowStore, ReadOnlyKeyValueStore mapStore, String vehicleEventOutputTopic) {
         
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -106,18 +110,17 @@ public class IntersectionEventTopology {
                 );
 
 
-        KStream<String, BsmEvent> intersectionState = bsmEventStream.map(
+        KStream<String, VehicleEvent> intersectionState = bsmEventStream.flatMap(
             (key, value)->{
-                if(value.getStartingBsm() == null || value.getEndingBsm() == null){
-                    System.out.println("Received Event with No Ending. Skipping");
-                    return new KeyValue<>(key, value);
-                }
+                List<KeyValue<String, VehicleEvent>> result = new ArrayList<KeyValue<String, VehicleEvent>>();
 
+                String vehicleId = getBsmID(value.getStartingBsm());
+                
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
 
                 MapFeatureCollection map = null;
-                BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, getBsmID(value.getStartingBsm()));
+                BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime);
 
                 if(spats.getSpats().size() > 0){
@@ -126,26 +129,37 @@ public class IntersectionEventTopology {
                     int intersectionId = firstSpat.getIntersectionId();
 
                     String mapLookupKey = ip +":"+ intersectionId;
-                    System.out.println("Looking for Map with Key: " + mapLookupKey);
                     map = getMap(mapStore, mapLookupKey);
+
+
+                    if(map != null){
+                        String eventIdKey = vehicleId + "_" + intersectionId;
+                        Intersection intersection = Intersection.fromMapFeatureCollection(map);
+                        //VehiclePath path = new VehiclePath(bsms, intersection);
+                        VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
+    
+                        result.add(new KeyValue<>(eventIdKey, event));
+                    }else{
+                        System.out.println("Map was Null");
+                    }
+
                 }
 
 
                 System.out.println("Detected Vehicle Event");
+                System.out.println("Vehicle ID: " + ((J2735Bsm)value.getStartingBsm().getPayload().getData()).getCoreData().getId());
                 System.out.println("Captured Bsms:  " + bsms.getBsms().size());
                 System.out.println("Captured Spats: " + spats.getSpats().size());
-                if(map != null){
-                    Intersection intersection = Intersection.fromMapFeatureCollection(map);
-                    System.out.println(intersection);
-                    VehiclePath path = new VehiclePath(bsms, intersection);
-                }else{
-                    System.out.println("Map was Null");
-                }
-                
-
-                return new KeyValue<>(key, value);
+                return result;
             }
         );
+
+
+        // intersectionState.to(
+        //     // Push the joined GeoJSON stream back out to the SPaT GeoJSON topic 
+        //     vehicleEventOutputTopic, 
+        //     Produced.with(Serdes.String(),
+        //             JsonSerdes.VehicleEvent()));
         
 
         return builder.build();

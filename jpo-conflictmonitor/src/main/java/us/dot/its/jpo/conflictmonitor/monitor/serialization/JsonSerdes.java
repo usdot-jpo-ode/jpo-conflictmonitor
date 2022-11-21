@@ -7,8 +7,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmEventDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 
 public class JsonSerdes {
    
@@ -28,5 +30,11 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<BsmEvent>(),
             new BsmEventDeserializer());
+    }
+
+    public static Serde<VehicleEvent> VehicleEvent(){
+        return Serdes.serdeFrom(
+          new JsonSerializer<VehicleEvent>(),
+          new VehicleEventDeserializer());
     }
 }
