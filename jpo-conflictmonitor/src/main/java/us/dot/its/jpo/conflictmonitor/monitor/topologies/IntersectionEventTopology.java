@@ -18,9 +18,10 @@ import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.kstream.Produced;
 
+import us.dot.its.jpo.conflictmonitor.monitor.analytics.LaneDirectionAnalytics;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
-import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.StopLine;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.IntersectionLine;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -61,6 +62,7 @@ public class IntersectionEventTopology {
         }
 
         bsmRange.close();
+        agg.sort();
 
         return agg;
     }
@@ -86,6 +88,7 @@ public class IntersectionEventTopology {
             //}
         }
         spatRange.close();
+        spatAggregator.sort();
 
         return spatAggregator;
     }
@@ -124,7 +127,7 @@ public class IntersectionEventTopology {
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime);
 
                 if(spats.getSpats().size() > 0){
-                    ProcessedSpat firstSpat = spats.getSpats().first();
+                    ProcessedSpat firstSpat = spats.getSpats().get(0);
                     String ip = firstSpat.getOriginIp();
                     int intersectionId = firstSpat.getIntersectionId();
 
@@ -135,8 +138,10 @@ public class IntersectionEventTopology {
                     if(map != null){
                         String eventIdKey = vehicleId + "_" + intersectionId;
                         Intersection intersection = Intersection.fromMapFeatureCollection(map);
-                        //VehiclePath path = new VehiclePath(bsms, intersection);
+                        VehiclePath path = new VehiclePath(bsms, intersection);
                         VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
+                        LaneDirectionAnalytics analytics = new LaneDirectionAnalytics(path);
+                        analytics.start();
     
                         result.add(new KeyValue<>(eventIdKey, event));
                     }else{

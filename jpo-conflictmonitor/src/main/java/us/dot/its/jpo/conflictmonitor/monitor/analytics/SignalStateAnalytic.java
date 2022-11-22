@@ -17,7 +17,7 @@ public class SignalStateAnalytic {
     }
 
     public void analyzeSignalStateEvents(){
-
+        
     }
 
     

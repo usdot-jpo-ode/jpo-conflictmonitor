@@ -14,7 +14,8 @@ public class Intersection {
     
     private ArrayList<Lane> ingressLanes;
     private ArrayList<Lane> egressLanes;
-    private ArrayList<StopLine> stopLines;
+    private ArrayList<IntersectionLine> stopLines;
+    private ArrayList<IntersectionLine> startLines;
     
     private Coordinate referencePoint;
 
@@ -36,7 +37,7 @@ public class Intersection {
         
 
         for(MapFeature feature: map.getFeatures()){
-            Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint());
+            Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), 366);
             if(lane.getIngress()){
                 ingressLanes.add(lane);
             }else{
@@ -59,11 +60,21 @@ public class Intersection {
     }
 
     public void updateStopLines(){
-        this.stopLines = new ArrayList<StopLine>();
+        this.stopLines = new ArrayList<IntersectionLine>();
         for(Lane lane : this.ingressLanes){
-            StopLine line = StopLine.fromIngressLane(lane);
+            IntersectionLine line = IntersectionLine.fromLane(lane);
             if(line != null){
                 this.stopLines.add(line);
+            }
+        }
+    }
+
+    public void updateStartLines(){
+        this.startLines = new ArrayList<IntersectionLine>();
+        for(Lane lane : this.egressLanes){
+            IntersectionLine line = IntersectionLine.fromLane(lane);
+            if(line != null){
+                this.startLines.add(line);
             }
         }
     }
@@ -83,6 +94,7 @@ public class Intersection {
 
     public void setEgressLanes(ArrayList<Lane> egressLanes) {
         this.egressLanes = egressLanes;
+        this.updateStartLines();
     }
 
     public int getIntersectionId() {
@@ -93,11 +105,11 @@ public class Intersection {
         this.intersectionId = intersectionId;
     }
 
-    public ArrayList<StopLine> getStopLines() {
+    public ArrayList<IntersectionLine> getStopLines() {
         return stopLines;
     }
 
-    public void setStopLines(ArrayList<StopLine> stopLines) {
+    public void setStopLines(ArrayList<IntersectionLine> stopLines) {
         this.stopLines = stopLines;
     }
 

@@ -2,6 +2,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -9,6 +11,8 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class BsmAggregator {
     //private final long retainBsmSeconds = 60;
+
+    private ArrayList<OdeBsmData> bsms = new ArrayList<OdeBsmData>();
 
     private Comparator<OdeBsmData> bsmComparator = new Comparator<OdeBsmData>() {
         @Override
@@ -25,10 +29,14 @@ public class BsmAggregator {
         }
     };
 
-    private TreeSet<OdeBsmData> bsms = new TreeSet<OdeBsmData>(bsmComparator);
+    
     public BsmAggregator add(OdeBsmData newBsm) {
         bsms.add(newBsm);
         return this;
+    }
+
+    public void sort(){
+        Collections.sort(this.bsms, bsmComparator);
     }
 
     public BsmAggregator addWithoutDeletion(OdeBsmData newBsm){
@@ -40,15 +48,11 @@ public class BsmAggregator {
         return this;
     }
 
-    // public ZonedDateTime getBsmDateTime(OdeBsmData bsm) {
-    //     return ZonedDateTime.parse(bsm.getMetadata().getOdeReceivedAt(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
-    // }
-
-    public TreeSet<OdeBsmData> getBsms() {
+    public ArrayList<OdeBsmData> getBsms() {
         return bsms;
     }
 
-    public void setBsmList(TreeSet<OdeBsmData> bsms) {
+    public void setBsmList(ArrayList<OdeBsmData> bsms) {
         this.bsms = bsms;
     }
 }

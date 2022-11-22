@@ -16,7 +16,7 @@ public class VehicleEvent {
     public VehicleEvent(BsmAggregator bsms, SpatAggregator spats, Intersection intersection) {
         this.bsms = bsms;
         this.spats = spats;
-        //this.intersection = intersection;
+        this.intersection = intersection;
     }
 
     public BsmAggregator getBsms() {

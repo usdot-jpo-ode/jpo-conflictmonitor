@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
+import java.util.ArrayList;
+
 import org.geotools.geometry.GeometryBuilder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -25,12 +27,8 @@ public class VehiclePath {
 
     private Lane ingressLane;
     private Lane egressLane;
-
     private OdeBsmData ingressBsm;
-    private OdeBsmData egressBsm;
-
-
-    
+    private OdeBsmData egressBsm;    
 
     public VehiclePath(BsmAggregator bsms, Intersection intersection){
         this.bsms = bsms;
@@ -41,7 +39,7 @@ public class VehiclePath {
     }
 
     public void buildVehiclePath(){
-        Coordinate referencePoint = intersection.getReferencePoint();
+        Coordinate referencePoint = this.intersection.getReferencePoint();
        
         Coordinate[] vehicleCoords = new Coordinate[bsms.getBsms().size()];
         int index =0;
@@ -51,27 +49,44 @@ public class VehiclePath {
             double[] shiftedPosition = CoordinateConversion.longLatToOffsetCM(
                 position.getLongitude().doubleValue(),
                 position.getLatitude().doubleValue(),
-                this.intersection.getReferencePoint().getX(),
-                this.intersection.getReferencePoint().getY()
+                referencePoint.getX(),
+                referencePoint.getY()
             );
             
             vehicleCoords[index] = new Coordinate(shiftedPosition[0], shiftedPosition[1]);
-            //System.out.println("BSM Time:" + bsm.getMetadata().getRecordGeneratedAt() + " offsetX :" +vehicleCoords[index].getX()+ " offsetY: "+vehicleCoords[index].getY());
             index++;
         }
         
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(vehicleCoords);
         this.pathPoints = new LineString(sequence, this.geometryFactory);
-        this.calculateIngress(); 
+        this.calculateIngress();
+        this.calculateEgress();
     }
 
     public void calculateIngress(){
+        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines(), bsms);
+        if(match != null){
+            this.ingressLane = match.getLane();
+            this.ingressBsm = match.getBsm();
+        }
+    }
+
+    public void calculateEgress(){
+        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines(), bsms);
+        if(match != null){
+            this.egressLane = match.getLane();
+            this.egressBsm = match.getBsm();
+        }
+    }
+
+
+    public LineVehicleIntersection findLineVehicleIntersection(ArrayList<IntersectionLine> lines, BsmAggregator bsms){
         double minDistance = Double.MAX_VALUE;
         OdeBsmData matchingBsm = null;
-        StopLine bestStopLine = null;
+        IntersectionLine bestLine = null;
 
 
-        for(StopLine stop : intersection.getStopLines()){
+        for(IntersectionLine stop : intersection.getStopLines()){
             if(this.pathPoints.isWithinDistance(stop.getCenterPoint(), 450)){
                 int index =0;
                 for(OdeBsmData bsm : this.bsms.getBsms()){
@@ -82,7 +97,7 @@ public class VehiclePath {
                         if(distance < minDistance){
                             matchingBsm = bsm;
                             minDistance = distance;
-                            bestStopLine = stop;
+                            bestLine = stop;
                         }
                     }
                     index++;
@@ -90,19 +105,44 @@ public class VehiclePath {
             }
         }
 
-        if(bestStopLine != null){
-            this.ingressLane = bestStopLine.getLane();
-            this.ingressBsm = matchingBsm;
+        if(bestLine != null){
+            return new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
         } else{
             System.out.println("BSM Set did not cross intersection");
+            return null;
         }
-
+    }
+    
+    public Lane getIngressLane() {
+        return ingressLane;
     }
 
-    
+    public void setIngressLane(Lane ingressLane) {
+        this.ingressLane = ingressLane;
+    }
 
-    public int getEgressLane(){
-        return 0;
+    public Lane getEgressLane() {
+        return egressLane;
+    }
+
+    public void setEgressLane(Lane egressLane) {
+        this.egressLane = egressLane;
+    }
+
+    public OdeBsmData getIngressBsm() {
+        return ingressBsm;
+    }
+
+    public void setIngressBsm(OdeBsmData ingressBsm) {
+        this.ingressBsm = ingressBsm;
+    }
+
+    public OdeBsmData getEgressBsm() {
+        return egressBsm;
+    }
+
+    public void setEgressBsm(OdeBsmData egressBsm) {
+        this.egressBsm = egressBsm;
     }
 
     public LineString getPathPoints() {
