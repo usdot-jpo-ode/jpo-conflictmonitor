@@ -25,4 +25,8 @@ public class LineVehicleIntersection {
     public void setLane(Lane lane) {
         this.lane = lane;
     }
+
+    public String toString(){
+        return "Line Vehicle Intersection. Line: " + lane + " BSM" + bsm;
+    }
 }

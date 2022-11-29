@@ -1,58 +1,67 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 public class ConnectionOfTravelEvent {
-    private int timestamp;
-    private int roadRegulatorID;
-    private int intersectionID;
-    private int ingressLaneID;
-    private int egressLaneID;
-    private int connectionID; // unknown value allowed
+    private long timestamp;
+    private int roadRegulatorId;
+    private int intersectionId;
+    private int ingressLaneId;
+    private int egressLaneId;
+    private int connectionId; // unknown value allowed
 
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
+    public int getRoadRegulatorId() {
+        return roadRegulatorId;
     }
 
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
+    public void setRoadRegulatorId(int roadRegulatorId) {
+        this.roadRegulatorId = roadRegulatorId;
     }
 
-    public int getIntersectionID() {
-        return intersectionID;
+    public int getIntersectionId() {
+        return intersectionId;
     }
 
-    public void setIntersectionID(int intersectionID) {
-        this.intersectionID = intersectionID;
+    public void setIntersectionId(int intersectionId) {
+        this.intersectionId = intersectionId;
     }
 
-    public int getIngressLaneID() {
-        return ingressLaneID;
+    public int getIngressLaneId() {
+        return ingressLaneId;
     }
 
-    public void setIngressLaneID(int ingressLaneID) {
-        this.ingressLaneID = ingressLaneID;
+    public void setIngressLaneId(int ingressLaneId) {
+        this.ingressLaneId = ingressLaneId;
     }
 
-    public int getEgressLaneID() {
-        return egressLaneID;
+    public int getEgressLaneId() {
+        return egressLaneId;
     }
 
-    public void setEgressLaneID(int egressLaneID) {
-        this.egressLaneID = egressLaneID;
+    public void setEgressLaneId(int egressLaneId) {
+        this.egressLaneId = egressLaneId;
     }
 
-    public int getConnectionID() {
-        return connectionID;
+    public int getConnectionId() {
+        return connectionId;
     }
 
-    public void setConnectionID(int connectionID) {
-        this.connectionID = connectionID;
+    public void setConnectionId(int connectionId) {
+        this.connectionId = connectionId;
+    }
+
+    public String getKey(){
+        return this.intersectionId + "_" + this.ingressLaneId + "_" + this.egressLaneId;
+    }
+
+    @Override
+    public String toString(){
+        return "Connection of Travel Event: Intersection: " + this.intersectionId + " Ingress: " + this.ingressLaneId + "Egress: " + this.egressLaneId;
     }
 }

@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -19,6 +20,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 
 
+
+
 public class Lane {
 
     private int id;
@@ -35,12 +38,7 @@ public class Lane {
         Lane lane = new Lane();
         lane.setLaneWidthCm(laneWidthCm);
         lane.setId(feature.getId());
-        if(feature.getProperties().getIngressPath()){
-            lane.setIngress(true);
-        }
-        else{
-            lane.setIngress(false);
-        }
+        
 
         double[][] featureCoordinates = feature.getGeometry().getCoordinates();
         Coordinate[] coordinates = new Coordinate[featureCoordinates.length];
@@ -58,6 +56,15 @@ public class Lane {
 
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(coordinates);
         LineString lanePoints = new LineString(sequence, lane.getGeometryFactory());
+
+        if(feature.getProperties().getIngressPath()){
+            lane.setIngress(true);
+        }
+        else{
+            lane.setIngress(false);
+            lanePoints = lanePoints.reverse();
+        }
+
         lane.setPoints(lanePoints);
         lane.region = 0;
 
@@ -141,6 +148,17 @@ public class Lane {
             wktOut += "\"" + writer.writeFormatted(segment.getPolygon()) + "\"\n";
         }
         return wktOut;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Lane)) {
+            return false;
+        }
+        Lane lane = (Lane) o;
+        return Objects.equals(this.getId(), lane.getId());
     }
 
     @Override

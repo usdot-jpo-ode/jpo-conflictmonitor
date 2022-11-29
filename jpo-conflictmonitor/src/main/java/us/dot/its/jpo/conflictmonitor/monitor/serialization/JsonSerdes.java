@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
@@ -59,5 +60,11 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<LaneDirectionOfTravelEvent>(),
             new JsonDeserializer<>(LaneDirectionOfTravelEvent.class));
+    }
+
+    public static Serde<ConnectionOfTravelEvent> ConnectionOfTravelEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelEvent>(),
+            new JsonDeserializer<>(ConnectionOfTravelEvent.class));
     } 
 }

@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
@@ -11,6 +12,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTWriter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 
 public class Intersection {
     
@@ -21,8 +23,19 @@ public class Intersection {
     private ArrayList<IntersectionLine> startLines;
     private Coordinate referencePoint;
     private int intersectionId;
+    private int roadRegulatorId;
+    private ArrayList<LaneConnection> laneConnections;
 
 
+
+
+    
+
+
+    
+
+
+    
 
 
     public static Intersection fromMapFeatureCollection(MapFeatureCollection map){
@@ -30,6 +43,8 @@ public class Intersection {
         Intersection intersection = new Intersection();
         ArrayList<Lane> ingressLanes = new ArrayList<>();
         ArrayList<Lane> egressLanes = new ArrayList<>();
+        HashMap<Integer, Lane> laneLookup = new HashMap();
+        ArrayList<LaneConnection> laneConnections = new ArrayList<>();
 
         if(map.getFeatures().length > 0){
             double[] referencePoint = map.getFeatures()[0].getGeometry().getCoordinates()[0];
@@ -39,7 +54,7 @@ public class Intersection {
             return null;
         }
         
-
+        // Create all the lanes from features
         for(MapFeature feature: map.getFeatures()){
             Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), 366);
             if(lane.getIngress()){
@@ -47,13 +62,27 @@ public class Intersection {
             }else{
                 egressLanes.add(lane);
             }
+            laneLookup.put(lane.getId(), lane);
+        }
+        
+        //Create List of Lane Connections
+        int laneConnectionId = 0; 
+        for(MapFeature feature: map.getFeatures()){
+            
+            for(int id: feature.getProperties().getConnectedLanes()){
+                Lane ingressLane = laneLookup.get(feature.getId());
+                Lane egressLane = laneLookup.get(id);
+                LaneConnection connection = new LaneConnection(ingressLane, egressLane, laneConnectionId);
+                laneConnections.add(connection);
+                laneConnectionId +=1;
+            }
         }
 
         intersection.setIngressLanes(ingressLanes);
         intersection.setEgressLanes(egressLanes);
-
-        
-
+        intersection.setRoadRegulatorId(0);
+        intersection.setIntersectionId(0);
+        intersection.setLaneConnections(laneConnections);
         
         return intersection; 
     }
@@ -81,6 +110,15 @@ public class Intersection {
                 this.startLines.add(line);
             }
         }
+    }
+
+    public LaneConnection getLaneConnection(Lane ingressLane, Lane egressLane){
+        for(LaneConnection laneConnection: this.laneConnections){
+            if(laneConnection.getIngressLane() == ingressLane && laneConnection.getEgressLane() == egressLane){
+                return laneConnection;
+            }
+        }
+        return null;
     }
 
     public ArrayList<Lane> getIngressLanes() {
@@ -117,12 +155,38 @@ public class Intersection {
         this.stopLines = stopLines;
     }
 
+    public ArrayList<IntersectionLine> getStartLines() {
+        return startLines;
+    }
+
+    public void setStartLines(ArrayList<IntersectionLine> startLines) {
+        this.startLines = startLines;
+    }
+
     public Coordinate getReferencePoint() {
         return referencePoint;
     }
 
     public void setReferencePoint(Coordinate referencePoint) {
         this.referencePoint = referencePoint;
+    }
+
+    public int getRoadRegulatorId() {
+        return roadRegulatorId;
+    }
+
+
+    public void setRoadRegulatorId(int roadRegulatorId) {
+        this.roadRegulatorId = roadRegulatorId;
+    }
+
+    public ArrayList<LaneConnection> getLaneConnections() {
+        return laneConnections;
+    }
+
+
+    public void setLaneConnections(ArrayList<LaneConnection> laneConnections) {
+        this.laneConnections = laneConnections;
     }
 
     public String getIntersectionAsWkt() {

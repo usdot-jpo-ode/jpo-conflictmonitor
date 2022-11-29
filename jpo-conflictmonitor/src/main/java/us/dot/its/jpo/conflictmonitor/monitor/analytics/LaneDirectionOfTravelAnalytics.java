@@ -27,7 +27,7 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
 @Component(DEFAULT_LANE_DIRECTION_OF_TRAVEL_ALGORITHM)
-public class LaneDirectionAnalytics implements LaneDirectionOfTravelAlgorithm{
+public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgorithm{
     
     //private VehiclePath path;
     LaneDirectionOfTravelParameters parameters;

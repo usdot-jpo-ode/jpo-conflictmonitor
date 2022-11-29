@@ -72,7 +72,7 @@ public class VehiclePath {
     }
 
     public void calculateEgress(){
-        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines(), bsms);
+        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStartLines(), bsms);
         if(match != null){
             this.egressLane = match.getLane();
             this.egressBsm = match.getBsm();
@@ -86,18 +86,19 @@ public class VehiclePath {
         IntersectionLine bestLine = null;
 
 
-        for(IntersectionLine stop : intersection.getStopLines()){
-            if(this.pathPoints.isWithinDistance(stop.getCenterPoint(), 450)){
+        for(IntersectionLine line : lines){
+            
+            if(this.pathPoints.isWithinDistance(line.getCenterPoint(), 450)){
                 int index =0;
                 for(OdeBsmData bsm : this.bsms.getBsms()){
                     Point p = this.pathPoints.getPointN(index);
                     double vehicleHeading = ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getHeading().doubleValue();
-                    if(CircleMath.getAngularDistanceDegrees(vehicleHeading, stop.getHeading()) <= 20){
-                        double distance = p.distance(stop.getCenterPoint());
+                    if(CircleMath.getAngularDistanceDegrees(vehicleHeading, line.getHeading()) <= 20){
+                        double distance = p.distance(line.getCenterPoint());
                         if(distance < minDistance){
                             matchingBsm = bsm;
                             minDistance = distance;
-                            bestLine = stop;
+                            bestLine = line;
                         }
                     }
                     index++;
@@ -108,7 +109,6 @@ public class VehiclePath {
         if(bestLine != null){
             return new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
         } else{
-            System.out.println("BSM Set did not cross intersection");
             return null;
         }
     }

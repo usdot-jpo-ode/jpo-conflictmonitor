@@ -24,11 +24,14 @@ import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithms;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.analytics.LaneDirectionAnalytics;
+import us.dot.its.jpo.conflictmonitor.monitor.analytics.LaneDirectionOfTravelAnalytics;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.IntersectionLine;
@@ -36,6 +39,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapTimestampExtractor;
@@ -115,6 +119,7 @@ public class IntersectionEventTopology {
         
         StreamsBuilder builder = new StreamsBuilder();
 
+        // Setup Lane Direction of Travel Factory
         LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
         String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
         LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm = ldotAlgoFactory.getAlgorithm(ldotAlgo);
@@ -122,6 +127,15 @@ public class IntersectionEventTopology {
         
         laneDirectionOfTravelAlgorithm.setParameters(ldotParams);
         laneDirectionOfTravelAlgorithm.start();
+
+        // Setup Connection of Travel Factory
+        ConnectionOfTravelAlgorithmFactory cotAlgoFactory = conflictMonitorProps.getConnectionOfTravelAlgorithmFactory();
+        String cotAlgo = conflictMonitorProps.getConnectionOfTravelAlgorithm();
+        ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm = cotAlgoFactory.getAlgorithm(cotAlgo);
+        ConnectionOfTravelParameters cotParams = conflictMonitorProps.getConnectionOfTravelParameters();
+        
+        connectionOfTravelAlgorithm.setParameters(cotParams);
+        connectionOfTravelAlgorithm.start();
 
         
         KStream<String, BsmEvent> bsmEventStream = 
@@ -192,7 +206,6 @@ public class IntersectionEventTopology {
         // Perform Analytics on Lane direction of Travel Events
         KStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                System.out.println("Lane Direction of Travel ");
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
                 List<KeyValue<String, LaneDirectionOfTravelEvent>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelEvent>>();
@@ -207,28 +220,36 @@ public class IntersectionEventTopology {
         );
 
         laneDirectionOfTravelEventStream.to(
-            // Push the joined GeoJSON stream back out to the SPaT GeoJSON topic 
             conflictMonitorProps.getKafkatopicCmLaneDirectionOfTravelEvent(), 
             Produced.with(Serdes.String(),
                     JsonSerdes.LaneDirectionOfTravelEvent()));
 
         
 
-
-        KStream<String, VehicleEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
+        // Perform Analytics on Lane direction of Travel Events
+        KStream<String, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                System.out.println("Connection Travel ");
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
-                List<KeyValue<String, VehicleEvent>> result = new ArrayList<KeyValue<String, VehicleEvent>>();
-
+                List<KeyValue<String, ConnectionOfTravelEvent>> result = new ArrayList<KeyValue<String, ConnectionOfTravelEvent>>();
+                ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(path);
+                if(event != null){
+                    result.add(new KeyValue<>(event.getKey(), event));
+                    System.out.println(event);
+                }
                 return result;
             }
         );
 
+        connectionTravelEventsStream.to(
+            conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
+            Produced.with(Serdes.String(),
+                    JsonSerdes.ConnectionOfTravelEvent()));
 
-        // KStream<String, MapFeatureCollection> mapJsonStream = 
+
+        // KStream<String, MapFeatureCollection>  = 
         //     builder.stream(
-        //         geoJsonMapTopic, 
+        //         conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
         //         Consumed.with(
         //             Serdes.String(),
         //             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson())

@@ -48,6 +48,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapB
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
@@ -77,10 +79,10 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
    private String laneDirectionOfTravelAlgorithm;
    private LaneDirectionOfTravelParameters laneDirectionOfTravelParameters;
-  
-
    
-
+   private ConnectionOfTravelAlgorithmFactory connectionOfTravelAlgorithmFactory;
+   private String connectionOfTravelAlgorithm;
+   private ConnectionOfTravelParameters connectionOfTravelParameters;
    
 
    @Autowired
@@ -174,6 +176,35 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    @Autowired
    public void setLaneDirectionOfTravelParameters(LaneDirectionOfTravelParameters laneDirectionOfTravelParameters) {
       this.laneDirectionOfTravelParameters = laneDirectionOfTravelParameters;
+   }
+
+   public ConnectionOfTravelAlgorithmFactory getConnectionOfTravelAlgorithmFactory() {
+      return connectionOfTravelAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setConnectionOfTravelAlgorithmFactory(
+         ConnectionOfTravelAlgorithmFactory connectionOfTravelAlgorithmFactory) {
+      this.connectionOfTravelAlgorithmFactory = connectionOfTravelAlgorithmFactory;
+   }
+
+   public String getConnectionOfTravelAlgorithm() {
+      return connectionOfTravelAlgorithm;
+   }
+
+   @Value("${connection.of.travel.algorithm}")
+   public void setConnectionOfTravelAlgorithm(String connectionOfTravelAlgorithm) {
+      this.connectionOfTravelAlgorithm = connectionOfTravelAlgorithm;
+   }
+
+   public ConnectionOfTravelParameters getConnectionOfTravelParameters() {
+      return connectionOfTravelParameters;
+   }
+
+   
+   @Autowired
+   public void setConnectionOfTravelParameters(ConnectionOfTravelParameters connectionOfTravelParameters) {
+      this.connectionOfTravelParameters = connectionOfTravelParameters;
    }
 
    public Boolean isVerboseJson() {
@@ -380,6 +411,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    //Vehicle Events
    private String kafkaTopicCmVehicleEvent = "topic.CmVehicleEvent";
    private String kafkatopicCmLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
+   private String kafkaTopicCmConnectionOfTravelEvent = "topic.CmConnectionOfTravelEvent";
 
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
@@ -961,6 +993,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkatopicCmLaneDirectionOfTravelEvent(String kafkatopicCmLaneDirectionOfTravelEvent) {
       this.kafkatopicCmLaneDirectionOfTravelEvent = kafkatopicCmLaneDirectionOfTravelEvent;
+   }
+
+   public String getKafkaTopicCmConnectionOfTravelEvent() {
+      return kafkaTopicCmConnectionOfTravelEvent;
+   }
+
+   public void setKafkaTopicCmConnectionOfTravelEvent(String kafkaTopicCmConnectionOfTravelEvent) {
+      this.kafkaTopicCmConnectionOfTravelEvent = kafkaTopicCmConnectionOfTravelEvent;
    }
 
    public Integer getFileWatcherPeriod() {
