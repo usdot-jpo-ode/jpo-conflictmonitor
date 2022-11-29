@@ -90,6 +90,7 @@
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-geojsonconverter</artifactId>
       <version>1.0.0-SNAPSHOT</version>
+      <classifier>jpo-geojsonconverter</classifier>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -115,7 +116,10 @@
         <version>3.6.1</version>
     </dependency>
 
-
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
 
   </dependencies>
   <repositories>
@@ -148,6 +152,23 @@
                     </goals>
                 </execution>
             </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M7</version>
+        <configuration>
+            <enableProcessChecker>all</enableProcessChecker>
+            <shutdown>exit</shutdown>
+        </configuration>
+        <dependencies>
+            <dependency>
+              <!-- Force test to use junit4.7 -->
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit47</artifactId>
+              <version>3.0.0-M7</version>
+            </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>

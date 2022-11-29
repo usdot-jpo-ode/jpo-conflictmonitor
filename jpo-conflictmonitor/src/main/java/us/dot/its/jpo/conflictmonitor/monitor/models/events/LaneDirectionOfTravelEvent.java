@@ -1,7 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-public class LaneDirectionOfTravelEvent {
-    private int timestamp;
+public class LaneDirectionOfTravelEvent extends IntersectionEvent{
+    private long timestamp;
     private int roadRegulatorID;
     private int intersectionID;
     private int laneID;
@@ -12,13 +12,18 @@ public class LaneDirectionOfTravelEvent {
     private double laneSegmentFinalLongitude;
     private double expectedHeading;
     private double medianVehicleHeading;
+    private double medianDistanceFromCenterline;
     private int aggregateBSMCount;
 
-    public int getTimestamp() {
+    public LaneDirectionOfTravelEvent(){
+        super();
+    }
+
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -102,11 +107,23 @@ public class LaneDirectionOfTravelEvent {
         this.medianVehicleHeading = medianVehicleHeading;
     }
 
+    public double getMedianDistanceFromCenterline() {
+        return medianDistanceFromCenterline;
+    }
+
+    public void setMedianDistanceFromCenterline(double medianDistanceFromCenterline) {
+        this.medianDistanceFromCenterline = medianDistanceFromCenterline;
+    }
+
     public int getAggregateBSMCount() {
         return aggregateBSMCount;
     }
 
     public void setAggregateBSMCount(int aggregateBSMCount) {
         this.aggregateBSMCount = aggregateBSMCount;
+    }
+
+    public String getKey(){
+        return this.intersectionID + "_" + this.laneID + "_" + this.laneSegmentNumber;
     }
 }

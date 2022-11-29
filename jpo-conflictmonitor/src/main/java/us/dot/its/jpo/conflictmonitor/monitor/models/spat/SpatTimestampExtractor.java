@@ -25,7 +25,7 @@ public class SpatTimestampExtractor implements TimestampExtractor {
     public static long getSpatTimestamp(ProcessedSpat spat){
         try{
             if(spat.getUtcTimeStamp() != null){
-                ZonedDateTime time = ZonedDateTime.parse(spat.getUtcTimeStamp(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                ZonedDateTime time = spat.getUtcTimeStamp();
                 return time.toInstant().toEpochMilli();
             }else{
                 System.out.println("Spat Timestamp Parsing Failed. Input Timestamp was null");

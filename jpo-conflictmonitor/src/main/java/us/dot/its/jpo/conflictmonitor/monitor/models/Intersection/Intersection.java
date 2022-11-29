@@ -10,16 +10,20 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTWriter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Intersection {
+    
     
     private ArrayList<Lane> ingressLanes;
     private ArrayList<Lane> egressLanes;
     private ArrayList<IntersectionLine> stopLines;
     private ArrayList<IntersectionLine> startLines;
-    
     private Coordinate referencePoint;
-
     private int intersectionId;
+
+
+
 
     public static Intersection fromMapFeatureCollection(MapFeatureCollection map){
 
@@ -116,7 +120,6 @@ public class Intersection {
     public Coordinate getReferencePoint() {
         return referencePoint;
     }
-
 
     public void setReferencePoint(Coordinate referencePoint) {
         this.referencePoint = referencePoint;

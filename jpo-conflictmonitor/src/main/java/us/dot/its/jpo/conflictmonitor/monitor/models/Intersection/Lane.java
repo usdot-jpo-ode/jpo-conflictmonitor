@@ -10,19 +10,25 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
+
 
 public class Lane {
 
     private int id;
     private LineString points;
     private Boolean ingress;
-    private GeometryFactory geometryFactory;
-    private int laneWidthCm;
 
+    private GeometryFactory geometryFactory;
     
+    private int laneWidthCm;
+    private int region;
 
     public static Lane fromGeoJsonFeature(MapFeature feature, Coordinate referencePoint, int laneWidthCm){
         
@@ -53,8 +59,7 @@ public class Lane {
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(coordinates);
         LineString lanePoints = new LineString(sequence, lane.getGeometryFactory());
         lane.setPoints(lanePoints);
-        
-
+        lane.region = 0;
 
         return lane;
     }
@@ -69,40 +74,7 @@ public class Lane {
         for(int i=1; i < this.points.getNumPoints(); i++){
             Point segmentStartPoint = this.points.getPointN(i-1);
             Point segmentEndPoint = this.points.getPointN(i);
-
-            double headingRadians = Math.atan2(segmentStartPoint.getY() - segmentEndPoint.getY(),segmentStartPoint.getX() - segmentEndPoint.getX());
-            double headingFromNorth = CircleMath.headingXYToHeadingFromNorth(Math.toDegrees(headingRadians));
-            double positiveHeadingShift = headingRadians + Math.PI / 2.0;
-            double negativeHeadingShift = headingRadians - Math.PI / 2.0;
-
-            double offsetDistance = this.laneWidthCm / 2.0;
-
-            Coordinate[] coordinates = new Coordinate[]{
-                new Coordinate(
-                    segmentStartPoint.getX() + (Math.cos(positiveHeadingShift) * offsetDistance),
-                    segmentStartPoint.getY() + (Math.sin(positiveHeadingShift) * offsetDistance)
-                ),
-                new Coordinate(
-                    segmentEndPoint.getX() + (Math.cos(positiveHeadingShift) * offsetDistance),
-                    segmentEndPoint.getY() + (Math.sin(positiveHeadingShift) * offsetDistance)
-                ),
-                new Coordinate(
-                    segmentEndPoint.getX() + (Math.cos(negativeHeadingShift) * offsetDistance),
-                    segmentEndPoint.getY() + (Math.sin(negativeHeadingShift) * offsetDistance)
-                ),
-                new Coordinate(
-                    segmentStartPoint.getX() + (Math.cos(negativeHeadingShift) * offsetDistance),
-                    segmentStartPoint.getY() + (Math.sin(negativeHeadingShift) * offsetDistance)
-                ),
-                new Coordinate(
-                    segmentStartPoint.getX() + (Math.cos(positiveHeadingShift) * offsetDistance),
-                    segmentStartPoint.getY() + (Math.sin(positiveHeadingShift) * offsetDistance)
-                ),
-            };
-
-            Polygon poly = this.geometryFactory.createPolygon(coordinates);
-            
-            LaneSegment segment = new LaneSegment(poly, headingFromNorth);
+            LaneSegment segment = new LaneSegment(segmentStartPoint, segmentEndPoint, this.laneWidthCm, this.ingress, this.geometryFactory);
             laneSegments.add(segment);
         }
 
@@ -149,6 +121,14 @@ public class Lane {
 
     public void setLaneWidthCm(int laneWidthCm) {
         this.laneWidthCm = laneWidthCm;
+    }
+
+    public int getRegion() {
+        return region;
+    }
+
+    public void setRegion(int region) {
+        this.region = region;
     }
 
     public String getLaneAsWkt() {

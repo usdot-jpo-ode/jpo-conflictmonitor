@@ -43,6 +43,14 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.thymeleaf.util.StringUtils;
+
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -59,6 +67,174 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    @Autowired
    private Environment env;
 
+   private MapBroadcastRateAlgorithmFactory mapBroadcastRateAlgorithmFactory;
+   private SpatBroadcastRateAlgorithmFactory spatBroadcastRateAlgorithmFactory;    
+   private String mapBroadcastRateAlgorithm;
+   private String spatBroadcastRateAlgorithm;
+   private SpatBroadcastRateParameters spatBroadcastRateParameters;
+   private MapBroadcastRateParameters mapBroadcastRateParameters;
+
+   private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
+   private String laneDirectionOfTravelAlgorithm;
+   private LaneDirectionOfTravelParameters laneDirectionOfTravelParameters;
+  
+
+   
+
+   
+
+   @Autowired
+   public void setMapBroadcastRateParameters(MapBroadcastRateParameters mapBroadcastRateParameters) {
+      this.mapBroadcastRateParameters = mapBroadcastRateParameters;
+   }
+
+   @Autowired
+   public void setSpatBroadcastRateParameters(SpatBroadcastRateParameters spatBroadcastRateParameters) {
+      this.spatBroadcastRateParameters = spatBroadcastRateParameters;
+   }
+
+
+   @Autowired
+   public void setMapBroadcastRateAlgorithmFactory(MapBroadcastRateAlgorithmFactory factory) {
+      this.mapBroadcastRateAlgorithmFactory = factory;
+   } 
+ 
+
+   @Autowired
+   public void setSpatBroadcastRateAlgorithmFactory(SpatBroadcastRateAlgorithmFactory factory) {
+      this.spatBroadcastRateAlgorithmFactory = factory;
+   }
+
+  
+
+   @Value("${map.broadcast.rate.algorithm}")
+   public void setMapBroadcastRateAlgorithm(String mapBroadcastRateAlgorithm) {
+      this.mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithm;
+   }
+
+
+
+   @Value("${spat.broadcast.rate.algorithm}")
+   public void setSpatBroadcastRateAlgorithm(String spatBroadcastRateAlgorithm) {
+      this.spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithm;
+   }
+
+
+   public MapBroadcastRateAlgorithmFactory getMapBroadcastRateAlgorithmFactory() {
+      return mapBroadcastRateAlgorithmFactory;
+   }
+
+
+
+   public SpatBroadcastRateAlgorithmFactory getSpatBroadcastRateAlgorithmFactory() {
+      return spatBroadcastRateAlgorithmFactory;
+   }
+  
+   
+   public String getMapBroadcastRateAlgorithm() {
+      return this.mapBroadcastRateAlgorithm;
+   }
+    
+   public String getSpatBroadcastRateAlgorithm() {
+      return this.spatBroadcastRateAlgorithm;
+   }
+
+   public SpatBroadcastRateParameters getSpatBroadcastRateParameters() {
+      return this.spatBroadcastRateParameters;
+   }
+
+   public MapBroadcastRateParameters getMapBroadcastRateParameters() {
+      return this.mapBroadcastRateParameters;
+   }
+
+
+   public LaneDirectionOfTravelAlgorithmFactory getLaneDirectionOfTravelAlgorithmFactory() {
+      return laneDirectionOfTravelAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setLaneDirectionOfTravelAlgorithmFactory(
+         LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory) {
+      this.laneDirectionOfTravelAlgorithmFactory = laneDirectionOfTravelAlgorithmFactory;
+   }
+
+   public String getLaneDirectionOfTravelAlgorithm() {
+      return laneDirectionOfTravelAlgorithm;
+   }
+
+   @Value("${lane.direction.of.travel.algorithm}")
+   public void setLaneDirectionOfTravelAlgorithm(String laneDirectionOfTravelAlgorithm) {
+      this.laneDirectionOfTravelAlgorithm = laneDirectionOfTravelAlgorithm;
+   }
+
+   public LaneDirectionOfTravelParameters getLaneDirectionOfTravelParameters() {
+      return laneDirectionOfTravelParameters;
+   }
+
+   @Autowired
+   public void setLaneDirectionOfTravelParameters(LaneDirectionOfTravelParameters laneDirectionOfTravelParameters) {
+      this.laneDirectionOfTravelParameters = laneDirectionOfTravelParameters;
+   }
+
+   public Boolean isVerboseJson() {
+      return this.verboseJson;
+   }
+   public void setHostId(String hostId) {
+      this.hostId = hostId;
+   }
+   public void setUploadLocations(List<Path> uploadLocations) {
+      this.uploadLocations = uploadLocations;
+   }
+
+   public int getSecuritySvcsPort() {
+      return this.securitySvcsPort;
+   }
+
+   public void setSecuritySvcsPort(int securitySvcsPort) {
+      this.securitySvcsPort = securitySvcsPort;
+   }
+
+   public String getSecuritySvcsSignatureEndpoint() {
+      return this.securitySvcsSignatureEndpoint;
+   }
+
+   public void setSecuritySvcsSignatureEndpoint(String securitySvcsSignatureEndpoint) {
+      this.securitySvcsSignatureEndpoint = securitySvcsSignatureEndpoint;
+   }
+
+   public String getUploadLocationObuLogLog() {
+      return this.uploadLocationObuLogLog;
+   }
+
+   public void setUploadLocationObuLogLog(String uploadLocationObuLogLog) {
+      this.uploadLocationObuLogLog = uploadLocationObuLogLog;
+   }
+
+   public String getDdsCasPass() {
+      return this.ddsCasPass;
+   }
+
+   public void setDdsCasPass(String ddsCasPass) {
+      this.ddsCasPass = ddsCasPass;
+   }
+
+   public boolean isDepositSdwMessagesOverWebsocket() {
+      return this.depositSdwMessagesOverWebsocket;
+   }
+
+   public boolean getDepositSdwMessagesOverWebsocket() {
+      return this.depositSdwMessagesOverWebsocket;
+   }
+
+
+   public BuildProperties getBuildProperties() {
+      return this.buildProperties;
+   }
+
+   public void setBuildProperties(BuildProperties buildProperties) {
+      this.buildProperties = buildProperties;
+   }
+
    /*
     * General Properties
     */
@@ -72,6 +248,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private int importProcessorBufferSize = OdePlugin.INPUT_STREAM_BUFFER_SIZE;
    private String hostId;
    private List<Path> uploadLocations = new ArrayList<>();
+
 
    /*
     * RSU Properties
@@ -202,7 +379,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    //Vehicle Events
    private String kafkaTopicCmVehicleEvent = "topic.CmVehicleEvent";
-
+   private String kafkatopicCmLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
 
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
@@ -776,6 +953,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicCmVehicleEvent(String kafkaTopicVehicleEvent) {
       this.kafkaTopicCmVehicleEvent = kafkaTopicVehicleEvent;
+   }
+
+   public String getKafkatopicCmLaneDirectionOfTravelEvent() {
+      return kafkatopicCmLaneDirectionOfTravelEvent;
+   }
+
+   public void setKafkatopicCmLaneDirectionOfTravelEvent(String kafkatopicCmLaneDirectionOfTravelEvent) {
+      this.kafkatopicCmLaneDirectionOfTravelEvent = kafkatopicCmLaneDirectionOfTravelEvent;
    }
 
    public Integer getFileWatcherPeriod() {

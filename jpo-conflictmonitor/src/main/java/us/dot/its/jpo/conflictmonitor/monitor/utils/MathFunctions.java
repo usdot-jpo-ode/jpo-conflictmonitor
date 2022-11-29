@@ -17,6 +17,17 @@ public class MathFunctions {
         }
     }
 
+    public static long getMedianTimestamp(ArrayList<Long> list){
+        Collections.sort(list);
+
+        int middle = list.size()/2;
+        if(list.size() % 2 ==0){
+            return (list.get(middle) + list.get(middle+1)) / 2;
+        }else{
+            return list.get(list.size()/2);
+        }
+    }
+
 
 
 }

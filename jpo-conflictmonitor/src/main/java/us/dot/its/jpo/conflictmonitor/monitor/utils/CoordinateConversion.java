@@ -29,6 +29,10 @@ public class CoordinateConversion {
 
     }
 
+    public static double[] offsetCmToLongLat(double refLongitude, double refLatitude, double offsetX, double offsetY){
+        return offsetMToLongLat(refLongitude, refLatitude, offsetX / 100.0, offsetY / 100.0);
+    }
+
     public static double[] longLatToOffsetM(double lng, double lat, double refLng, double refLat){
 
         GeodeticCalculator geoCalc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
@@ -87,6 +91,8 @@ public class CoordinateConversion {
 
 
     }
+
+    
 
     
 }
