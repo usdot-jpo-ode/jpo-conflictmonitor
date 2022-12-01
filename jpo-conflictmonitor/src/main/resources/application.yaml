@@ -33,9 +33,7 @@ kafka.topics:
     - name: topic.CMBsmEvents
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.ProcessedSpat
-      cleanupPolicy: delete
-      retentionMs: 300000
+
 
 
 
