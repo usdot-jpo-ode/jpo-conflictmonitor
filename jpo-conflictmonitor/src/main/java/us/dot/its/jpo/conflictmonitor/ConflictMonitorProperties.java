@@ -62,6 +62,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapB
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -84,6 +89,13 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private MapBroadcastRateParameters mapBroadcastRateParameters;
 
   
+   private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
+   private String laneDirectionOfTravelAlgorithm;
+   private LaneDirectionOfTravelParameters laneDirectionOfTravelParameters;
+   
+   private ConnectionOfTravelAlgorithmFactory connectionOfTravelAlgorithmFactory;
+   private String connectionOfTravelAlgorithm;
+   private ConnectionOfTravelParameters connectionOfTravelParameters;
    
 
    @Autowired
@@ -144,10 +156,62 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    
 
+   public LaneDirectionOfTravelAlgorithmFactory getLaneDirectionOfTravelAlgorithmFactory() {
+      return laneDirectionOfTravelAlgorithmFactory;
+   }
 
+   @Autowired
+   public void setLaneDirectionOfTravelAlgorithmFactory(
+         LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory) {
+      this.laneDirectionOfTravelAlgorithmFactory = laneDirectionOfTravelAlgorithmFactory;
+   }
+
+   public String getLaneDirectionOfTravelAlgorithm() {
+      return laneDirectionOfTravelAlgorithm;
+   }
+
+   @Value("${lane.direction.of.travel.algorithm}")
+   public void setLaneDirectionOfTravelAlgorithm(String laneDirectionOfTravelAlgorithm) {
+      this.laneDirectionOfTravelAlgorithm = laneDirectionOfTravelAlgorithm;
+   }
+
+   public LaneDirectionOfTravelParameters getLaneDirectionOfTravelParameters() {
+      return laneDirectionOfTravelParameters;
+   }
+
+   @Autowired
+   public void setLaneDirectionOfTravelParameters(LaneDirectionOfTravelParameters laneDirectionOfTravelParameters) {
+      this.laneDirectionOfTravelParameters = laneDirectionOfTravelParameters;
+   }
+
+   public ConnectionOfTravelAlgorithmFactory getConnectionOfTravelAlgorithmFactory() {
+      return connectionOfTravelAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setConnectionOfTravelAlgorithmFactory(
+         ConnectionOfTravelAlgorithmFactory connectionOfTravelAlgorithmFactory) {
+      this.connectionOfTravelAlgorithmFactory = connectionOfTravelAlgorithmFactory;
+   }
+
+   public String getConnectionOfTravelAlgorithm() {
+      return connectionOfTravelAlgorithm;
+   }
+
+   @Value("${connection.of.travel.algorithm}")
+   public void setConnectionOfTravelAlgorithm(String connectionOfTravelAlgorithm) {
+      this.connectionOfTravelAlgorithm = connectionOfTravelAlgorithm;
+   }
+
+   public ConnectionOfTravelParameters getConnectionOfTravelParameters() {
+      return connectionOfTravelParameters;
+   }
 
    
-   
+   @Autowired
+   public void setConnectionOfTravelParameters(ConnectionOfTravelParameters connectionOfTravelParameters) {
+      this.connectionOfTravelParameters = connectionOfTravelParameters;
+   }
 
    public Boolean isVerboseJson() {
       return this.verboseJson;
@@ -343,6 +407,11 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicAsn1EncoderInput = "topic.Asn1EncoderInput";
    private String kafkaTopicAsn1EncoderOutput = "topic.Asn1EncoderOutput";
 
+   //Vehicle Events
+   private String kafkaTopicCmVehicleEvent = "topic.CmVehicleEvent";
+   private String kafkatopicCmLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
+   private String kafkaTopicCmConnectionOfTravelEvent = "topic.CmConnectionOfTravelEvent";
+
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
 
@@ -359,6 +428,8 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private static final byte[] JPO_ODE_GROUP_ID = "jode".getBytes();
 
    // Conflict Monitor Properties
+
+
 
    @Autowired
    BuildProperties buildProperties;
@@ -446,22 +517,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    }
 
    
-
-   // @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
-   // public KafkaStreamsConfiguration kafkaStreamsConfig() {
-      
-   //    Properties streamProps = createStreamProperties("mapBroadcastRate");
-      
-   //    // Convert properties from <Object, Object> hashtable to <String, Object> map required by 
-   //    // Spring Kafka Streams Configuration
-   //    Map<String, Object> propertyMap = 
-   //       streamProps.entrySet().stream().collect(Collectors.toMap(
-   //          entry -> (String)entry.getKey(), // Object to String
-   //          entry -> entry.getValue()        // Object
-   //       ));
-      
-   //    return new KafkaStreamsConfiguration(propertyMap);
-   // }
 
    public String getVersion() {
       return version;
@@ -919,6 +974,30 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicDriverAlertJson(String kafkaTopicDriverAlertJson) {
       this.kafkaTopicDriverAlertJson = kafkaTopicDriverAlertJson;
+   }
+
+   public String getKafkaTopicCmVehicleEvent() {
+      return kafkaTopicCmVehicleEvent;
+   }
+
+   public void setKafkaTopicCmVehicleEvent(String kafkaTopicVehicleEvent) {
+      this.kafkaTopicCmVehicleEvent = kafkaTopicVehicleEvent;
+   }
+
+   public String getKafkatopicCmLaneDirectionOfTravelEvent() {
+      return kafkatopicCmLaneDirectionOfTravelEvent;
+   }
+
+   public void setKafkatopicCmLaneDirectionOfTravelEvent(String kafkatopicCmLaneDirectionOfTravelEvent) {
+      this.kafkatopicCmLaneDirectionOfTravelEvent = kafkatopicCmLaneDirectionOfTravelEvent;
+   }
+
+   public String getKafkaTopicCmConnectionOfTravelEvent() {
+      return kafkaTopicCmConnectionOfTravelEvent;
+   }
+
+   public void setKafkaTopicCmConnectionOfTravelEvent(String kafkaTopicCmConnectionOfTravelEvent) {
+      this.kafkaTopicCmConnectionOfTravelEvent = kafkaTopicCmConnectionOfTravelEvent;
    }
 
    public Integer getFileWatcherPeriod() {

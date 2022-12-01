@@ -1,9 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -13,10 +10,8 @@ import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
@@ -26,8 +21,6 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
-import us.dot.its.jpo.ode.model.OdeMapData;
-import us.dot.its.jpo.ode.model.OdeMsgMetadata;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
@@ -61,7 +54,7 @@ public class MessageIngestTopology {
         KStream<String, OdeBsmData> bsmRekeyedStream = bsmJsonStream.selectKey((key, value)->{
             J2735BsmCoreData core = ((J2735Bsm) value.getPayload().getData()).getCoreData();
             String ip = ((OdeBsmMetadata)value.getMetadata()).getOriginIp();
-            return ip+"_"+core.getId() +"_"+ core.getMsgCnt();
+            return ip+"_"+core.getId() +"_"+ BsmTimestampExtractor.getBsmTimestamp(value);
         });
 
         //Group up all of the BSM's based upon the new ID. Generally speaking this shouldn't change anything as the BSM's have unique keys
@@ -79,6 +72,7 @@ public class MessageIngestTopology {
             .withValueSerde(JsonSerdes.OdeBsm())
         );
 
+        //bsmRekeyedStream.print(Printed.toSysOut());
 
         /*
          * 
@@ -161,7 +155,7 @@ public class MessageIngestTopology {
         //     return newKey;
         // });
 
-        //mapJsonStream.print(Printed.toSysOut());
+        
         
 
         return builder.build();

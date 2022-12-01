@@ -16,7 +16,7 @@ map_topic = 'topic.OdeMapJson'
 enable_bsms = True
 enable_spat = True
 enable_map = True
-stop_at = 100
+stop_at = 10000
 
 class MessageProducer:
     broker = ""
@@ -39,12 +39,10 @@ class MessageProducer:
             retries = 3)
 
     def send_msg(self, msg):
-        print("sending message...")
         try:
             future = self.producer.send(self.topic, msg)
             self.producer.flush()
             future.get(timeout=60)
-            print("message sent successfully...")
             return {'status_code':200, 'error':None}
         except Exception as ex:
             return ex
@@ -53,6 +51,14 @@ class MessageProducer:
 def get_lines(filename):
     with open(filename, 'r') as f:
         return f.readlines()
+
+def parse_msg(lines):
+    msgs = []
+    for line in lines:
+        msgs.append(json.loads(line))
+
+    msgs.sort(key= lambda element: element['metadata']['recordGeneratedAt'])
+    return msgs
 
 
 def modify_bsm_time(bsm , mod_time):
@@ -74,7 +80,6 @@ def modify_spat_time(spat, mod_time):
 
     spat['metadata']['odeReceivedAt'] = mod_time.isoformat()+"Z"
 
-    print(spat)
     return spat
 
 
@@ -88,28 +93,36 @@ bsm_lines = get_lines('10.11.81.12_BSMlist.csv')
 spat_lines = get_lines('10.11.81.12_SPATlist.csv')
 map_lines = get_lines('10.11.81.12_MAPlist.csv')
 
+
+bsms = parse_msg(bsm_lines)
+spats = parse_msg(spat_lines)
+
+
+
 count = 0
 
 while count < max(len(spat_lines), len(bsm_lines)):
     now = datetime.utcnow()
-    print(now)
 
-    if count < len(bsm_lines) and enable_bsms:
-        bsm = json.loads(bsm_lines[count])
-        bsm = modify_bsm_time(bsm, now)
+    if count < len(bsms) and enable_bsms:
+        bsm = bsms[count]
+        #bsm = json.loads(bsm_lines[count])
+        #bsm = modify_bsm_time(bsms[count], now)
+        #if bsm['payload']['data']['coreData']['id'] == 'E6A99808':
+        #    print(bsm['metadata']['recordGeneratedAt'],",",bsm['payload']['data']['coreData']['position']['longitude'], ", " , bsm['payload']['data']['coreData']['position']['latitude'])
+        print("Sending BSM", bsm['metadata']['odeReceivedAt'])
         resp = bsm_producer.send_msg(bsm)
-        print("Sending BSM")
     
-    if count < len(spat_lines) and enable_spat:
-        spat = json.loads(spat_lines[count])
-        spat = modify_spat_time(spat, now)
+    if count < len(spats) and enable_spat:
+        #spat = json.loads(spat_lines[count])
+        #spat = modify_spat_time(spats[count], now)
+        spat = spats[count]
         resp = spat_producer.send_msg(spat)
-        print("Sending Spat")
 
     if count < len(map_lines) and enable_map:
         map_msg = json.loads(map_lines[count])
         resp = map_producer.send_msg(map_msg)
-        print("Sending Map")
+
     count +=1
 
     if count >= stop_at:

@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.spat;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -8,6 +10,9 @@ import java.util.TreeSet;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 public class SpatAggregator {
+
+    private ArrayList<ProcessedSpat> spats = new ArrayList<ProcessedSpat>();
+
     private Comparator<ProcessedSpat> spatComparator = new Comparator<ProcessedSpat>() {
         @Override
         public int compare(ProcessedSpat spat1, ProcessedSpat spat2) {
@@ -22,8 +27,7 @@ public class SpatAggregator {
             }
         }
     };
-
-    private TreeSet<ProcessedSpat> spats = new TreeSet<ProcessedSpat>(spatComparator);
+    
     public SpatAggregator add(ProcessedSpat newSpat) {
         spats.add(newSpat);
         return this;
@@ -33,11 +37,15 @@ public class SpatAggregator {
         return this;
     }
 
-    public TreeSet<ProcessedSpat> getSpats() {
+    public void sort(){
+        Collections.sort(this.spats, spatComparator);
+    }
+
+    public ArrayList<ProcessedSpat> getSpats() {
         return spats;
     }
 
-    public void setSpatList(TreeSet<ProcessedSpat> spats) {
+    public void setSpatList(ArrayList<ProcessedSpat> spats) {
         this.spats = spats;
     }
 }

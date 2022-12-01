@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
@@ -8,35 +9,42 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTWriter;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 
 public class Intersection {
     
+    
     private ArrayList<Lane> ingressLanes;
     private ArrayList<Lane> egressLanes;
-    private ArrayList<StopLine> stopLines;
-    
+    private ArrayList<IntersectionLine> stopLines;
+    private ArrayList<IntersectionLine> startLines;
     private Coordinate referencePoint;
+    private int intersectionId;
+    private int roadRegulatorId;
+    private ArrayList<LaneConnection> laneConnections;
 
-
-
-
-   
 
 
 
     
 
 
+    
 
 
+    
 
-    private int intersectionId;
 
     public static Intersection fromMapFeatureCollection(MapFeatureCollection map){
 
         Intersection intersection = new Intersection();
         ArrayList<Lane> ingressLanes = new ArrayList<>();
         ArrayList<Lane> egressLanes = new ArrayList<>();
+        HashMap<Integer, Lane> laneLookup = new HashMap();
+        ArrayList<LaneConnection> laneConnections = new ArrayList<>();
 
         if(map.getFeatures().length > 0){
             double[] referencePoint = map.getFeatures()[0].getGeometry().getCoordinates()[0];
@@ -46,21 +54,35 @@ public class Intersection {
             return null;
         }
         
-
+        // Create all the lanes from features
         for(MapFeature feature: map.getFeatures()){
-            Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint());
+            Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), 366);
             if(lane.getIngress()){
                 ingressLanes.add(lane);
             }else{
                 egressLanes.add(lane);
             }
+            laneLookup.put(lane.getId(), lane);
+        }
+        
+        //Create List of Lane Connections
+        int laneConnectionId = 0; 
+        for(MapFeature feature: map.getFeatures()){
+            
+            for(int id: feature.getProperties().getConnectedLanes()){
+                Lane ingressLane = laneLookup.get(feature.getId());
+                Lane egressLane = laneLookup.get(id);
+                LaneConnection connection = new LaneConnection(ingressLane, egressLane, laneConnectionId);
+                laneConnections.add(connection);
+                laneConnectionId +=1;
+            }
         }
 
         intersection.setIngressLanes(ingressLanes);
         intersection.setEgressLanes(egressLanes);
-
-        
-
+        intersection.setRoadRegulatorId(0);
+        intersection.setIntersectionId(0);
+        intersection.setLaneConnections(laneConnections);
         
         return intersection; 
     }
@@ -71,13 +93,32 @@ public class Intersection {
     }
 
     public void updateStopLines(){
-        this.stopLines = new ArrayList<StopLine>();
+        this.stopLines = new ArrayList<IntersectionLine>();
         for(Lane lane : this.ingressLanes){
-            StopLine line = StopLine.fromIngressLane(lane);
+            IntersectionLine line = IntersectionLine.fromLane(lane);
             if(line != null){
                 this.stopLines.add(line);
             }
         }
+    }
+
+    public void updateStartLines(){
+        this.startLines = new ArrayList<IntersectionLine>();
+        for(Lane lane : this.egressLanes){
+            IntersectionLine line = IntersectionLine.fromLane(lane);
+            if(line != null){
+                this.startLines.add(line);
+            }
+        }
+    }
+
+    public LaneConnection getLaneConnection(Lane ingressLane, Lane egressLane){
+        for(LaneConnection laneConnection: this.laneConnections){
+            if(laneConnection.getIngressLane() == ingressLane && laneConnection.getEgressLane() == egressLane){
+                return laneConnection;
+            }
+        }
+        return null;
     }
 
     public ArrayList<Lane> getIngressLanes() {
@@ -95,6 +136,7 @@ public class Intersection {
 
     public void setEgressLanes(ArrayList<Lane> egressLanes) {
         this.egressLanes = egressLanes;
+        this.updateStartLines();
     }
 
     public int getIntersectionId() {
@@ -105,25 +147,61 @@ public class Intersection {
         this.intersectionId = intersectionId;
     }
 
-    public ArrayList<StopLine> getStopLines() {
+    public ArrayList<IntersectionLine> getStopLines() {
         return stopLines;
     }
 
-    public void setStopLines(ArrayList<StopLine> stopLines) {
+    public void setStopLines(ArrayList<IntersectionLine> stopLines) {
         this.stopLines = stopLines;
+    }
+
+    public ArrayList<IntersectionLine> getStartLines() {
+        return startLines;
+    }
+
+    public void setStartLines(ArrayList<IntersectionLine> startLines) {
+        this.startLines = startLines;
     }
 
     public Coordinate getReferencePoint() {
         return referencePoint;
     }
 
-
     public void setReferencePoint(Coordinate referencePoint) {
         this.referencePoint = referencePoint;
     }
 
+    public int getRoadRegulatorId() {
+        return roadRegulatorId;
+    }
 
 
+    public void setRoadRegulatorId(int roadRegulatorId) {
+        this.roadRegulatorId = roadRegulatorId;
+    }
+
+    public ArrayList<LaneConnection> getLaneConnections() {
+        return laneConnections;
+    }
+
+
+    public void setLaneConnections(ArrayList<LaneConnection> laneConnections) {
+        this.laneConnections = laneConnections;
+    }
+
+    public String getIntersectionAsWkt() {
+        WKTWriter writer = new WKTWriter(2);
+        String wtkOut = "wtk\n";
+        writer.setFormatted(true);
+        for (Lane lane : this.ingressLanes) {
+            wtkOut += "\"" + writer.writeFormatted(lane.getPoints()) + "\"\n";
+        }
+
+        for (Lane lane : this.egressLanes) {
+            wtkOut += "\"" + writer.writeFormatted(lane.getPoints()) + "\"\n";
+        }
+        return wtkOut;
+    }
 
     @Override
     public String toString(){

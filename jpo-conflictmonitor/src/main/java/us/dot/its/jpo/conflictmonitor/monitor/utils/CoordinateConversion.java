@@ -29,18 +29,34 @@ public class CoordinateConversion {
 
     }
 
-    public static double[] longLatToOffsetM(double lng, double lat, double refLong, double refLat){
+    public static double[] offsetCmToLongLat(double refLongitude, double refLatitude, double offsetX, double offsetY){
+        return offsetMToLongLat(refLongitude, refLatitude, offsetX / 100.0, offsetY / 100.0);
+    }
+
+    public static double[] longLatToOffsetM(double lng, double lat, double refLng, double refLat){
 
         GeodeticCalculator geoCalc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
-        geoCalc.setStartingGeographicPoint(refLong, refLat);
+        geoCalc.setStartingGeographicPoint(refLng, refLat);
         geoCalc.setDestinationGeographicPoint(lng, lat);
         double azimuth = geoCalc.getAzimuth();
         double distance = geoCalc.getOrthodromicDistance();
 
-        double offsetX = distance * Math.cos(Math.toRadians(azimuth));
-        double offsetY = distance * Math.sin(Math.toRadians(azimuth));
+        double offsetX = distance * Math.sin(Math.toRadians(azimuth));
+        double offsetY = distance * Math.cos(Math.toRadians(azimuth));
 
-        double[] ret = {offsetX,offsetY};
+        double[] ret = {offsetX, offsetY};
+        return ret;
+    }
+
+    public static double[] longLatToOffsetMM(double lng, double lat, double refLng, double refLat){
+        double[] offsetM = longLatToOffsetM(lng, lat, refLng, refLat);
+        double[] ret = {offsetM[0]*1000.0, offsetM[1]*1000.0};
+        return ret;
+    }
+
+    public static double[] longLatToOffsetCM(double lng, double lat, double refLng, double refLat){
+        double[] offsetM = longLatToOffsetM(lng, lat, refLng, refLat);
+        double[] ret = {offsetM[0]*100.0, offsetM[1]*100.0};
         return ret;
     }
 
@@ -75,4 +91,8 @@ public class CoordinateConversion {
 
 
     }
+
+    
+
+    
 }
