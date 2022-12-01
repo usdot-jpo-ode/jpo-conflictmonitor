@@ -24,13 +24,13 @@ kafka.topics:
   numPartitions: 1
   numReplicas: 1
   createTopics:
-    - name: MyNewTopicA
+    - name: topic.CmMapBroadcastRateEvents
       cleanupPolicy: delete
-      retentionMs: 3600000
-    - name: MyNewTopicB
-      cleanupPolicy: compact
-    - name: MyNewTopicC
-    - name: MyNewTopicD
+      retentionMs: 300000
+    - name: topic.CmSpatBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+
 
   
 
