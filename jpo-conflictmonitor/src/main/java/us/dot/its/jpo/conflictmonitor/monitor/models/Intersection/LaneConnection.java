@@ -5,11 +5,13 @@ public class LaneConnection {
     private Lane ingressLane;
     private Lane egressLane;
     private int connectionId;
+    private int signalGroup;
 
-    public LaneConnection(Lane ingressLane, Lane egressLane, int connectionId){
+    public LaneConnection(Lane ingressLane, Lane egressLane, int connectionId, int signalGroup){
         this.ingressLane = ingressLane;
         this.egressLane = egressLane;
         this.connectionId = connectionId;
+        this.signalGroup = signalGroup;
     }
 
     public Lane getIngressLane() {
@@ -34,6 +36,14 @@ public class LaneConnection {
 
     public void setConnectionId(int connectionId) {
         this.connectionId = connectionId;
+    }
+
+    public int getSignalGroup() {
+        return signalGroup;
+    }
+
+    public void setSignalGroup(int signalGroup) {
+        this.signalGroup = signalGroup;
     }
 
 }

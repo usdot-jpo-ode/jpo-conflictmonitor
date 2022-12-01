@@ -27,17 +27,6 @@ public class Intersection {
     private ArrayList<LaneConnection> laneConnections;
 
 
-
-
-    
-
-
-    
-
-
-    
-
-
     public static Intersection fromMapFeatureCollection(MapFeatureCollection map){
 
         Intersection intersection = new Intersection();
@@ -68,11 +57,10 @@ public class Intersection {
         //Create List of Lane Connections
         int laneConnectionId = 0; 
         for(MapFeature feature: map.getFeatures()){
-            
             for(int id: feature.getProperties().getConnectedLanes()){
                 Lane ingressLane = laneLookup.get(feature.getId());
                 Lane egressLane = laneLookup.get(id);
-                LaneConnection connection = new LaneConnection(ingressLane, egressLane, laneConnectionId);
+                LaneConnection connection = new LaneConnection(ingressLane, egressLane, laneConnectionId, laneConnectionId); // The Map Geo Json Structure doesn't have signal groups.
                 laneConnections.add(connection);
                 laneConnectionId +=1;
             }
@@ -80,8 +68,8 @@ public class Intersection {
 
         intersection.setIngressLanes(ingressLanes);
         intersection.setEgressLanes(egressLanes);
-        intersection.setRoadRegulatorId(0);
-        intersection.setIntersectionId(0);
+        intersection.setRoadRegulatorId(0); // Map Geo Json Structure doesn't have roadRegulatorIds
+        intersection.setIntersectionId(0); // Map Geo Json Structure doesn't have intersectionIds
         intersection.setLaneConnections(laneConnections);
         
         return intersection; 

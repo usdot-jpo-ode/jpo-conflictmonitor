@@ -7,6 +7,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
@@ -66,5 +67,11 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<ConnectionOfTravelEvent>(),
             new JsonDeserializer<>(ConnectionOfTravelEvent.class));
+    }
+
+    public static Serde<SignalStateEvent> SignalStateEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateEvent>(),
+            new JsonDeserializer<>(SignalStateEvent.class));
     } 
 }

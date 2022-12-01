@@ -53,6 +53,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -83,6 +85,10 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private ConnectionOfTravelAlgorithmFactory connectionOfTravelAlgorithmFactory;
    private String connectionOfTravelAlgorithm;
    private ConnectionOfTravelParameters connectionOfTravelParameters;
+
+   private SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
+   private String signalStateVehicleCrossesAlgorithm;
+   private SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters;
    
 
    @Autowired
@@ -200,19 +206,49 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    public ConnectionOfTravelParameters getConnectionOfTravelParameters() {
       return connectionOfTravelParameters;
    }
-
    
    @Autowired
    public void setConnectionOfTravelParameters(ConnectionOfTravelParameters connectionOfTravelParameters) {
       this.connectionOfTravelParameters = connectionOfTravelParameters;
    }
 
+   public SignalStateVehicleCrossesAlgorithmFactory getSignalStateVehicleCrossesAlgorithmFactory() {
+      return signalStateVehicleCrossesAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setSignalStateVehicleCrossesAlgorithmFactory(
+         SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory) {
+      this.signalStateVehicleCrossesAlgorithmFactory = signalStateVehicleCrossesAlgorithmFactory;
+   }
+   
+   public String getSignalStateVehicleCrossesAlgorithm() {
+      return signalStateVehicleCrossesAlgorithm;
+   }
+
+   @Value("${signal.state.vehicle.crosses.algorithm}")
+   public void setSignalStateVehicleCrossesAlgorithm(String signalStateVehicleCrossesAlgorithm) {
+      this.signalStateVehicleCrossesAlgorithm = signalStateVehicleCrossesAlgorithm;
+   }
+
+   public SignalStateVehicleCrossesParameters getSignalStateVehicleCrossesParameters() {
+      return signalStateVehicleCrossesParameters;
+   }
+
+   @Autowired
+   public void setSignalStateVehicleCrossesParameters(
+         SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters) {
+      this.signalStateVehicleCrossesParameters = signalStateVehicleCrossesParameters;
+   }
+
    public Boolean isVerboseJson() {
       return this.verboseJson;
    }
+
    public void setHostId(String hostId) {
       this.hostId = hostId;
    }
+   
    public void setUploadLocations(List<Path> uploadLocations) {
       this.uploadLocations = uploadLocations;
    }
@@ -412,6 +448,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicCmVehicleEvent = "topic.CmVehicleEvent";
    private String kafkatopicCmLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
    private String kafkaTopicCmConnectionOfTravelEvent = "topic.CmConnectionOfTravelEvent";
+   private String kafkaTopicCmSignalStateEvent = "topic.CmSignalStateEvent";
 
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
@@ -1001,6 +1038,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicCmConnectionOfTravelEvent(String kafkaTopicCmConnectionOfTravelEvent) {
       this.kafkaTopicCmConnectionOfTravelEvent = kafkaTopicCmConnectionOfTravelEvent;
+   }
+
+   public String getKafkaTopicCmSignalStateEvent() {
+      return kafkaTopicCmSignalStateEvent;
+   }
+
+   public void setKafkaTopicCmSignalStateEvent(String kafkaTopicCmSignalStateEvent) {
+      this.kafkaTopicCmSignalStateEvent = kafkaTopicCmSignalStateEvent;
    }
 
    public Integer getFileWatcherPeriod() {

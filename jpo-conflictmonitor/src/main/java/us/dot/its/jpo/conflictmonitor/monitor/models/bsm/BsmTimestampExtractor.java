@@ -24,17 +24,6 @@ public class BsmTimestampExtractor implements TimestampExtractor {
         return partitionTime;
     }
 
-    // Deprecated, BSM Time is expected to be pulled from odeReceivedAt and the secmark instead
-    // public static long getBsmTimestamp(OdeBsmData bsm){
-    //     try{
-    //         ZonedDateTime time = ZonedDateTime.parse(bsm.getMetadata().getRecordGeneratedAt(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
-    //         return time.toInstant().toEpochMilli();
-    //     }catch (DateTimeParseException e){
-    //         System.out.println("Timestamp Parsing Failed");
-    //         return -1;
-    //     }
-    // }
-
     public static long getBsmTimestamp(OdeBsmData bsm){
         try{
             ZonedDateTime time = ZonedDateTime.parse(bsm.getMetadata().getOdeReceivedAt(), DateTimeFormatter.ISO_ZONED_DATE_TIME);

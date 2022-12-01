@@ -31,6 +31,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithms;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.analytics.LaneDirectionOfTravelAnalytics;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
@@ -42,6 +45,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
@@ -136,6 +140,15 @@ public class IntersectionEventTopology {
         
         connectionOfTravelAlgorithm.setParameters(cotParams);
         connectionOfTravelAlgorithm.start();
+
+        // Setup Signal State Vehicle Crosses Factory
+        SignalStateVehicleCrossesAlgorithmFactory ssvcAlgoFactory = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithmFactory();
+        String ssvcAlgo = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithm();
+        SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm = ssvcAlgoFactory.getAlgorithm(ssvcAlgo);
+        SignalStateVehicleCrossesParameters ssvcParams = conflictMonitorProps.getSignalStateVehicleCrossesParameters();
+        
+        signalStateVehicleCrossesAlgorithm.setParameters(ssvcParams);
+        signalStateVehicleCrossesAlgorithm.start();
 
         
         KStream<String, BsmEvent> bsmEventStream = 
@@ -245,6 +258,33 @@ public class IntersectionEventTopology {
             conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
             Produced.with(Serdes.String(),
                     JsonSerdes.ConnectionOfTravelEvent()));
+
+
+        // Perform Analytics of Signal State Vehicle Crossing Intersection
+        KStream<String, SignalStateEvent> signalStateVehicleCrossingEventsStream = vehicleEventsStream.flatMap(
+            (key, value)->{
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
+
+                List<KeyValue<String, SignalStateEvent>> result = new ArrayList<KeyValue<String, SignalStateEvent>>();
+                SignalStateEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(path, value.getSpats());
+                if(event != null){
+                    result.add(new KeyValue<>(event.getKey(), event));
+                    System.out.println(event);
+                }
+
+                return result;
+            }
+        );
+
+        signalStateVehicleCrossingEventsStream.to(
+            conflictMonitorProps.getKafkaTopicCmSignalStateEvent(), 
+            Produced.with(Serdes.String(),
+                    JsonSerdes.SignalStateEvent()));
+
+        // connectionTravelEventsStream.to(
+        //     conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
+        //     Produced.with(Serdes.String(),
+        //             JsonSerdes.ConnectionOfTravelEvent()));
 
 
         // KStream<String, MapFeatureCollection>  = 

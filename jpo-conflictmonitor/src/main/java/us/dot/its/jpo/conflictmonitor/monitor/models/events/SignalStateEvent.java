@@ -1,25 +1,26 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
+import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-public class SignalStateEvent {
-    private int timestamp;
+public class SignalStateEvent extends IntersectionEvent{
+    private long timestamp;
     private int roadRegulatorID;
-    private J2735GenericLane ingressLane;
-    private J2735GenericLane egressLane;
+    private int ingressLane;
+    private int egressLane;
     private int connectionID;
-    private String eventState;
-    private int vehicleID;
+    private J2735MovementPhaseState eventState;
+    private String vehicleID;
     private double latitude;
     private double longitude;
     private double heading;
     private double speed;
 
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -31,19 +32,19 @@ public class SignalStateEvent {
         this.roadRegulatorID = roadRegulatorID;
     }
 
-    public J2735GenericLane getIngressLane() {
+    public int getIngressLane() {
         return ingressLane;
     }
 
-    public void setIngressLane(J2735GenericLane ingressLane) {
+    public void setIngressLane(int ingressLane) {
         this.ingressLane = ingressLane;
     }
 
-    public J2735GenericLane getEgressLane() {
+    public int getEgressLane() {
         return egressLane;
     }
 
-    public void setEgressLane(J2735GenericLane egressLane) {
+    public void setEgressLane(int egressLane) {
         this.egressLane = egressLane;
     }
 
@@ -55,19 +56,19 @@ public class SignalStateEvent {
         this.connectionID = connectionID;
     }
 
-    public String getEventState() {
+    public J2735MovementPhaseState getEventState() {
         return eventState;
     }
 
-    public void setEventState(String eventState) {
+    public void setEventState(J2735MovementPhaseState eventState) {
         this.eventState = eventState;
     }
 
-    public int getVehicleID() {
+    public String getVehicleID() {
         return vehicleID;
     }
 
-    public void setVehicleID(int vehicleID) {
+    public void setVehicleID(String vehicleID) {
         this.vehicleID = vehicleID;
     }
 
@@ -101,5 +102,9 @@ public class SignalStateEvent {
 
     public void setSpeed(double speed) {
         this.speed = speed;
+    }
+
+    public String getKey(){
+        return this.roadRegulatorID + "_" + this.vehicleID;
     }
 }
