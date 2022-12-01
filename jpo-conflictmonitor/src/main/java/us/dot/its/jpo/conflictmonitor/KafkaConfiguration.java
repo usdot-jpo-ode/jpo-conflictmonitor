@@ -20,50 +20,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "kafka.topics")
 public class KafkaConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaConfiguration.class);
-
-    private boolean autoCreateTopics;
-    private int numPartitions;
-    private int numReplicas;
-    private List<Map<String, Object>> createTopics;
-
-    public boolean getAutoCreateTopics() {
-        return autoCreateTopics;
-    }
-
-    public void setAutoCreateTopics(boolean autoCreateTopics) {
-        this.autoCreateTopics = autoCreateTopics;
-    }
-
-    public int getNumPartitions() {
-        return numPartitions;
-    }
-
-    public int getNumReplicas() {
-        return numReplicas;
-    }
-
-    public List<Map<String, Object>> getCreateTopics() {
-        return createTopics;
-    }
-
-    public void setNumPartitions(int numPartitions) {
-        this.numPartitions = numPartitions;
-    }
-
-    public void setNumReplicas(int numReplicas) {
-        this.numReplicas = numReplicas;
-    }
-
-    public void setCreateTopics(List<Map<String, Object>> createTopics) {
-        this.createTopics = createTopics;
-    }
-
-    
-
-    @Autowired
-    private KafkaAdmin admin;
-
     @Bean(name = "createKafkaTopics")
     public KafkaAdmin.NewTopics createKafkaTopics() {
         logger.info("createTopic");
@@ -123,5 +79,51 @@ public class KafkaConfiguration {
         
         
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConfiguration.class);
+
+    private boolean autoCreateTopics;
+    private int numPartitions;
+    private int numReplicas;
+    private List<Map<String, Object>> createTopics;
+
+    public boolean getAutoCreateTopics() {
+        return autoCreateTopics;
+    }
+
+    public void setAutoCreateTopics(boolean autoCreateTopics) {
+        this.autoCreateTopics = autoCreateTopics;
+    }
+
+    public int getNumPartitions() {
+        return numPartitions;
+    }
+
+    public int getNumReplicas() {
+        return numReplicas;
+    }
+
+    public List<Map<String, Object>> getCreateTopics() {
+        return createTopics;
+    }
+
+    public void setNumPartitions(int numPartitions) {
+        this.numPartitions = numPartitions;
+    }
+
+    public void setNumReplicas(int numReplicas) {
+        this.numReplicas = numReplicas;
+    }
+
+    public void setCreateTopics(List<Map<String, Object>> createTopics) {
+        this.createTopics = createTopics;
+    }
+
+    
+
+    @Autowired
+    private KafkaAdmin admin;
+
+
 
 }
