@@ -1,0 +1,37 @@
+#General Properties
+#==================
+groupId: ^project.groupId^
+artifactId: ^project.artifactId^
+version: ^project.version^
+server.port: 8082
+
+
+
+# Broadcast Rate Properties
+map.broadcast.rate:
+  algorithm: defaultMapBroadcastRateAlgorithm
+  properties: debug
+spat.broadcast.rate:
+  algorithm: defaultSpatBroadcastRateAlgorithm
+  properties: debug
+
+# Kafka properties
+spring.kafka.bootstrap-servers: localhost:9092
+
+# Custom kafka properties
+kafka.topics:
+  autoCreateTopics: true  # Override auto-create in test properties
+  numPartitions: 1
+  numReplicas: 1
+  createTopics:
+    - name: MyNewTopicA
+      cleanupPolicy: delete
+      retentionMs: 3600000
+    - name: MyNewTopicB
+      cleanupPolicy: compact
+    - name: MyNewTopicC
+    - name: MyNewTopicD
+
+  
+
+      
