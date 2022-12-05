@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 
 @Component
-@PropertySource("classpath:signalStateVehicleStops-${signal.state.vehicle.stops.properties}.properties")
+//@PropertySource("classpath:signalStateVehicleStops-${signal.state.vehicle.stops.properties}.properties")
 public class SignalStateVehicleStopsParameters {
     // Whether to log diagnostic information for debugging
     boolean debug;
@@ -28,17 +28,17 @@ public class SignalStateVehicleStopsParameters {
         return spatBsmMatchWindowMillis;
     }
 
-    @Value("${signal.state.vehicle.stops.spatBsmMatchWindowMillis}")
+    //@Value("${signal.state.vehicle.stops.spatBsmMatchWindowMillis}")
     public void setSpatBsmMathWindowMillis(int spatBsmMatchWindowMillis) {
         this.spatBsmMatchWindowMillis = spatBsmMatchWindowMillis;
     }
 
-    @Value("${signal.state.vehicle.stops.debug}")
-     public void setDebug(boolean debug) {
+    //@Value("${signal.state.vehicle.stops.debug}")
+    public void setDebug(boolean debug) {
         this.debug = debug;
     }
 
-    @Value("${signal.state.vehicle.stops.stopSpeedThreshold}")
+    //@Value("${signal.state.vehicle.stops.stopSpeedThreshold}")
     public void setStopSpeedThreshold(double stopSpeedThreshold) {
         this.stopSpeedThreshold = stopSpeedThreshold;
     }

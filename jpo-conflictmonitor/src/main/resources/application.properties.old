@@ -6,6 +6,7 @@ version=@project.version@
 server.port=8082
 
 
+
 # Broadcast Rate Properties
 map.broadcast.rate.algorithm=defaultMapBroadcastRateAlgorithm
 map.broadcast.rate.properties=debug
@@ -13,6 +14,12 @@ map.broadcast.rate.properties=debug
 spat.broadcast.rate.algorithm=defaultSpatBroadcastRateAlgorithm
 spat.broadcast.rate.properties=debug
 
+# Kafka properties
+spring.kafka.bootstrap-servers=localhost:9092
+kafka.topics.num.partitions=1
+kafka.topics.num.replicas=1
+# Override auto create in test properties
+kafka.topics.auto.create.topics=true
 # Lane Direction of Travel Properties
 lane.direction.of.travel.algorithm=defaultLaneDirectionOfTravelAlgorithm
 lane.direction.of.travel.properties=debug

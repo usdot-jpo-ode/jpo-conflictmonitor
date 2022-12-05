@@ -127,7 +127,7 @@ public class IntersectionEventTopology {
         
         StreamsBuilder builder = new StreamsBuilder();
 
-        // Setup Lane Direction of Travel Factory
+        // // Setup Lane Direction of Travel Factory
         LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
         String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
         LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm = ldotAlgoFactory.getAlgorithm(ldotAlgo);
@@ -300,6 +300,7 @@ public class IntersectionEventTopology {
         // Perform Analytics of Signal State Vehicle Crossing Intersection
         KStream<String, SignalStateStopEvent> signalStateVehicleStopEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
+
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
                 List<KeyValue<String, SignalStateStopEvent>> result = new ArrayList<KeyValue<String, SignalStateStopEvent>>();

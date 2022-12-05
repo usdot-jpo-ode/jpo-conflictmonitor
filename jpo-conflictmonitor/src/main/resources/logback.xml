@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="true" scan="true">
+<configuration>
 	<jmxConfigurator />
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -12,6 +12,7 @@
 	
 	<logger name="org.springframework.web" level="INFO" />
 	<logger name="us.dot.its.jpo.conflictmonitor" level="DEBUG" />
+	
 
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />

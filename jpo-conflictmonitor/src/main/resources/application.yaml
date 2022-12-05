@@ -1,0 +1,66 @@
+#General Properties
+#==================
+groupId: ^project.groupId^
+artifactId: ^project.artifactId^
+version: ^project.version^
+server.port: 8082
+
+
+
+# Broadcast Rate Properties
+map.broadcast.rate:
+  algorithm: defaultMapBroadcastRateAlgorithm
+  properties: debug
+spat.broadcast.rate:
+  algorithm: defaultSpatBroadcastRateAlgorithm
+  properties: debug
+connection.of.travel:
+  algorithm: defaultConnectionOfTravelAlgorithm
+  properties: debug
+lane.direction.of.travel:
+  algorithm: defaultLaneDirectionOfTravelAlgorithm
+  properties: debug
+signal.state.vehicle.crosses:
+  algorithm: defaultSignalStateVehicleCrossesAlgorithm
+  properties: debug
+signal.state.vehicle.stops:
+  algorithm: defaultSignalStateVehicleStopsAlgorithm
+  proprties: debug
+
+
+# Kafka properties
+spring.kafka.bootstrap-servers: localhost:9092
+
+# Custom kafka properties
+kafka.topics:
+  autoCreateTopics: true  # Override auto-create in test properties
+  numPartitions: 1
+  numReplicas: 1
+  createTopics:
+    - name: topic.CmMapBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CMBsmEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmConnectionOfTravelEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmLaneDirectionOfTravelEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSignalStopEvent"
+      cleanupPolicy: delete
+      retentionMs: 300000
+
+
+
+  
+
+      

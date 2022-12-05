@@ -6,6 +6,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
@@ -58,7 +59,7 @@ public class MessageIngestTopology {
         });
 
         //Group up all of the BSM's based upon the new ID. Generally speaking this shouldn't change anything as the BSM's have unique keys
-        KGroupedStream<String, OdeBsmData> bsmKeyGroup = bsmRekeyedStream.groupByKey();
+        KGroupedStream<String, OdeBsmData> bsmKeyGroup = bsmRekeyedStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeBsm()));
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
@@ -72,18 +73,18 @@ public class MessageIngestTopology {
             .withValueSerde(JsonSerdes.OdeBsm())
         );
 
-        //bsmRekeyedStream.print(Printed.toSysOut());
+        // //bsmRekeyedStream.print(Printed.toSysOut());
 
-        /*
-         * 
-         * 
-         *  SPAT MESSAGES
-         * 
-         */
+        // /*
+        //  * 
+        //  * 
+        //  *  SPAT MESSAGES
+        //  * 
+        //  */
 
 
 
-        //SPaT Input Stream
+        // //SPaT Input Stream
         KStream<String, ProcessedSpat> processedSpatStream = 
             builder.stream(
                 processedSpatTopic, 
@@ -94,18 +95,18 @@ public class MessageIngestTopology {
                 );
         
 
-        //Change the Spat Feed to use the Key Key + ID + UTC Time String. This should be unique for every Spat message.
+        // //Change the Spat Feed to use the Key Key + ID + UTC Time String. This should be unique for every Spat message.
         KStream<String, ProcessedSpat> spatRekeyedStream = processedSpatStream.selectKey((key, value)->{
             long ts = SpatTimestampExtractor.getSpatTimestamp(value);
             String newKey = key +"_"+ value.getIntersectionId() +"_"+ ts;
             return newKey;
         });
 
-        //Group up all of the Spats's based upon the new ID. Generally speaking this shouldn't change anything as the Spats's have unique keys
-        KGroupedStream<String, ProcessedSpat> spatKeyGroup = spatRekeyedStream.groupByKey();
+        // //Group up all of the Spats's based upon the new ID. Generally speaking this shouldn't change anything as the Spats's have unique keys
+        KGroupedStream<String, ProcessedSpat> spatKeyGroup = spatRekeyedStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat()));
 
-        //Take the Spats's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
-        //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
+        // //Take the Spats's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
+        // //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
         spatKeyGroup.windowedBy(TimeWindows.of(Duration.ofSeconds(30)).grace(Duration.ofSeconds(30)))
         .reduce(
             (oldValue, newValue)->{
@@ -116,14 +117,14 @@ public class MessageIngestTopology {
             .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
         );
 
-        //spatRekeyedStream.print(Printed.toSysOut());
+        // //spatRekeyedStream.print(Printed.toSysOut());
 
-        /*
-         * 
-         * 
-         *  MAP MESSAGES
-         * 
-         */
+        // /*
+        //  * 
+        //  * 
+        //  *  MAP MESSAGES
+        //  * 
+        //  */
 
         KStream<String, MapFeatureCollection> mapJsonStream = 
             builder.stream(
@@ -133,8 +134,8 @@ public class MessageIngestTopology {
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson())
                 );
             
-        //Group up all of the Maps's based upon the new ID. 
-        KGroupedStream<String, MapFeatureCollection> mapKeyGroup = mapJsonStream.groupByKey();
+        // //Group up all of the Maps's based upon the new ID. 
+        KGroupedStream<String, MapFeatureCollection> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson()));
 
         KTable<String, MapFeatureCollection> maptable = 
             mapKeyGroup
