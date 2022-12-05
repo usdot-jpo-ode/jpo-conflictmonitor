@@ -34,6 +34,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.analytics.LaneDirectionOfTravelAnalytics;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
@@ -46,6 +49,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEv
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
@@ -132,6 +136,7 @@ public class IntersectionEventTopology {
         laneDirectionOfTravelAlgorithm.setParameters(ldotParams);
         laneDirectionOfTravelAlgorithm.start();
 
+
         // Setup Connection of Travel Factory
         ConnectionOfTravelAlgorithmFactory cotAlgoFactory = conflictMonitorProps.getConnectionOfTravelAlgorithmFactory();
         String cotAlgo = conflictMonitorProps.getConnectionOfTravelAlgorithm();
@@ -141,6 +146,7 @@ public class IntersectionEventTopology {
         connectionOfTravelAlgorithm.setParameters(cotParams);
         connectionOfTravelAlgorithm.start();
 
+
         // Setup Signal State Vehicle Crosses Factory
         SignalStateVehicleCrossesAlgorithmFactory ssvcAlgoFactory = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithmFactory();
         String ssvcAlgo = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithm();
@@ -149,6 +155,16 @@ public class IntersectionEventTopology {
         
         signalStateVehicleCrossesAlgorithm.setParameters(ssvcParams);
         signalStateVehicleCrossesAlgorithm.start();
+
+
+        // Setup Signal State Vehicle Stops Factory
+        SignalStateVehicleStopsAlgorithmFactory ssvsAlgoFactory = conflictMonitorProps.getSignalStateVehicleStopsAlgorithmFactory();
+        String ssvsAlgo = conflictMonitorProps.getSignalStateVehicleStopsAlgorithm();
+        SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm = ssvsAlgoFactory.getAlgorithm(ssvsAlgo);
+        SignalStateVehicleStopsParameters ssvsParams = conflictMonitorProps.getSignalStateVehicleStopsParameters();
+        
+        signalStateVehicleStopsAlgorithm.setParameters(ssvsParams);
+        signalStateVehicleStopsAlgorithm.start();
 
         
         KStream<String, BsmEvent> bsmEventStream = 
@@ -248,7 +264,6 @@ public class IntersectionEventTopology {
                 ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(path);
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
-                    System.out.println(event);
                 }
                 return result;
             }
@@ -269,7 +284,6 @@ public class IntersectionEventTopology {
                 SignalStateEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
-                    System.out.println(event);
                 }
 
                 return result;
@@ -281,41 +295,27 @@ public class IntersectionEventTopology {
             Produced.with(Serdes.String(),
                     JsonSerdes.SignalStateEvent()));
 
-        // connectionTravelEventsStream.to(
-        //     conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
-        //     Produced.with(Serdes.String(),
-        //             JsonSerdes.ConnectionOfTravelEvent()));
 
 
-        // KStream<String, MapFeatureCollection>  = 
-        //     builder.stream(
-        //         conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
-        //         Consumed.with(
-        //             Serdes.String(),
-        //             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson())
-        //         );
-            
-        //Group up all of the Maps's based upon the new ID. 
-        // KGroupedStream<String, VehicleEvent> vehicleEventKeyGroup = vehicleEventsStream.groupByKey();
+        // Perform Analytics of Signal State Vehicle Crossing Intersection
+        KStream<String, SignalStateStopEvent> signalStateVehicleStopEventsStream = vehicleEventsStream.flatMap(
+            (key, value)->{
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
-        // KTable<String, VehicleEvent> maptable = 
-        //     vehicleEventKeyGroup
-        //     .reduce(
-        //         (oldValue, newValue)->{
-        //                 return newValue;
-        //         },
-        //     Materialized.<String, VehicleEvent, KeyValueStore<Bytes, byte[]>>as(vehicleEventStoreName)
-        //     .withKeySerde(Serdes.String())
-        //     .withValueSerde(JsonSerdes.VehicleEvent())
-        //     );
+                List<KeyValue<String, SignalStateStopEvent>> result = new ArrayList<KeyValue<String, SignalStateStopEvent>>();
+                SignalStateStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(path, value.getSpats());
+                if(event != null){
+                    result.add(new KeyValue<>(event.getKey(), event));
+                }
 
+                return result;
+            }
+        );
 
-        // vehicleEventsStream.to(
-        //     // Push the joined GeoJSON stream back out to the SPaT GeoJSON topic 
-        //     vehicleEventOutputTopic, 
-        //     Produced.with(Serdes.String(),
-        //             JsonSerdes.VehicleEvent()));
-        
+        signalStateVehicleStopEventsStream.to(
+            conflictMonitorProps.getKafakTopicCmVehicleStopEvent(), 
+            Produced.with(Serdes.String(),
+                    JsonSerdes.SignalStateVehicleStopsEvent()));
 
         return builder.build();
     }

@@ -55,6 +55,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -89,6 +91,15 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
    private String signalStateVehicleCrossesAlgorithm;
    private SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters;
+
+
+   private SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
+   private String signalStateVehicleStopsAlgorithm;
+   private SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
+
+   
+
+   
    
 
    @Autowired
@@ -241,6 +252,34 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       this.signalStateVehicleCrossesParameters = signalStateVehicleCrossesParameters;
    }
 
+   public SignalStateVehicleStopsAlgorithmFactory getSignalStateVehicleStopsAlgorithmFactory() {
+      return signalStateVehicleStopsAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setSignalStateVehicleStopsAlgorithmFactory(
+         SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory) {
+      this.signalStateVehicleStopsAlgorithmFactory = signalStateVehicleStopsAlgorithmFactory;
+   }
+
+   public String getSignalStateVehicleStopsAlgorithm() {
+      return signalStateVehicleStopsAlgorithm;
+   }
+
+   @Value("${signal.state.vehicle.stops.algorithm}")
+   public void setSignalStateVehicleStopsAlgorithm(String signalStateVehicleStopsAlgorithm) {
+      this.signalStateVehicleStopsAlgorithm = signalStateVehicleStopsAlgorithm;
+   }
+
+   public SignalStateVehicleStopsParameters getSignalStateVehicleStopsParameters() {
+      return signalStateVehicleStopsParameters;
+   }
+
+   @Autowired
+   public void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters signalStateVehicleStopsParameters) {
+      this.signalStateVehicleStopsParameters = signalStateVehicleStopsParameters;
+   }
+
    public Boolean isVerboseJson() {
       return this.verboseJson;
    }
@@ -378,6 +417,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicCmBsmEvent = "topic.CMBsmEvents";
 
 
+
    private int bsmReceiverPort = 46800;
    private int bsmBufferSize = 500;
 
@@ -449,6 +489,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkatopicCmLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
    private String kafkaTopicCmConnectionOfTravelEvent = "topic.CmConnectionOfTravelEvent";
    private String kafkaTopicCmSignalStateEvent = "topic.CmSignalStateEvent";
+   private String kafakTopicCmVehicleStopEvent = "topic.CmSignalStopEvent";
 
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
@@ -1022,6 +1063,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicCmVehicleEvent(String kafkaTopicVehicleEvent) {
       this.kafkaTopicCmVehicleEvent = kafkaTopicVehicleEvent;
+   }
+
+   public String getKafakTopicCmVehicleStopEvent() {
+      return kafakTopicCmVehicleStopEvent;
+   }
+
+   public void setKafakTopicCmVehicleStopEvent(String kafakTopicCmVehicleStopEvent) {
+      this.kafakTopicCmVehicleStopEvent = kafakTopicCmVehicleStopEvent;
    }
 
    public String getKafkatopicCmLaneDirectionOfTravelEvent() {
