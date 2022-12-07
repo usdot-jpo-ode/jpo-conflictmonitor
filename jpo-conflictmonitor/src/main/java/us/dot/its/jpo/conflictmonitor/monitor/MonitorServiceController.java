@@ -27,6 +27,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.Spa
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
@@ -91,6 +95,20 @@ public class MonitorServiceController {
             spatCountAlgo.setParameters(spatCountParams);
             Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
             spatCountAlgo.start();
+
+
+            //Map Spat Alignment Topology
+            MapSpatMessageAssessmentAlgorithmFactory mapSpatAlgoFactory = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithmFactory();
+            String mapSpatAlgo = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
+            MapSpatMessageAssessmentAlgorithm mapSpatAlignmentAlgo = mapSpatAlgoFactory.getAlgorithm(mapSpatAlgo);
+            MapSpatMessageAssessmentParameters mapSpatAlignmentParams = conflictMonitorProps.getMapSpatMessageAssessmentParameters();
+            if (mapSpatAlignmentAlgo instanceof MapSpatMessageAssessmentStreamsAlgorithm) {
+                ((MapSpatMessageAssessmentStreamsAlgorithm)mapSpatAlignmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapSpatAlignment"));
+            }
+            mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
+            mapSpatAlignmentAlgo.start();
+
 
 
 

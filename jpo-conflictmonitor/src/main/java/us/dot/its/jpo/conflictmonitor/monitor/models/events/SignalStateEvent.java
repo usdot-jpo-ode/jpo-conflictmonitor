@@ -1,9 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-public class SignalStateEvent extends IntersectionEvent{
+public class SignalStateEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
     private int ingressLane;

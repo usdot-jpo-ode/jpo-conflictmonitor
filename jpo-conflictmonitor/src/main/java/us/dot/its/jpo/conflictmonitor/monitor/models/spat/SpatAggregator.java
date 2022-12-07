@@ -6,10 +6,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.TreeSet;
-
-
-
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 public class SpatAggregator {

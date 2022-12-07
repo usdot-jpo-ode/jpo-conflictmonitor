@@ -5,8 +5,11 @@ import org.apache.kafka.common.serialization.Serdes;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
@@ -80,5 +83,23 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<SignalStateStopEvent>(),
             new JsonDeserializer<>(SignalStateStopEvent.class));
+    }
+
+    public static Serde<IntersectionReferenceAlignmentEvent> IntersectionReferenceAlignmentEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<IntersectionReferenceAlignmentEvent>(),
+            new JsonDeserializer<>(IntersectionReferenceAlignmentEvent.class));
+    }
+
+    public static Serde<SignalGroupAlignmentEvent> SignalGroupAlignmentEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalGroupAlignmentEvent>(),
+            new JsonDeserializer<>(SignalGroupAlignmentEvent.class));
+    }
+
+    public static Serde<SpatMap> SpatMap() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatMap>(),
+            new JsonDeserializer<>(SpatMap.class));
     } 
 }

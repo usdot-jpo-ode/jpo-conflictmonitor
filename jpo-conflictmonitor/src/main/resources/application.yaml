@@ -26,6 +26,9 @@ signal.state.vehicle.crosses:
 signal.state.vehicle.stops:
   algorithm: defaultSignalStateVehicleStopsAlgorithm
   proprties: debug
+map.spat.message.assessment:
+  algorithm: defaultMapSpatMessageAssessmentAlgorithm
+  properties: debug
 
 
 # Kafka properties

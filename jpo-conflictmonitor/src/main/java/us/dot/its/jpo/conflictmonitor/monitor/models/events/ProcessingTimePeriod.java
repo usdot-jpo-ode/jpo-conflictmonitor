@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * A processing time period with begin and end timestamps
  */
-public class ProcessingTimePeriod {
+public class ProcessingTimePeriod extends Event{
     
     private ZonedDateTime beginTimestamp;
     private ZonedDateTime endTimestamp;

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
 
 /**
  * Configuration defining {@link FactoryBeans}s for locating Broadcast Rate algorithms.

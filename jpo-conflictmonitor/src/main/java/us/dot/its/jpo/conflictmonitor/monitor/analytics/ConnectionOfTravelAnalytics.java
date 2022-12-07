@@ -1,7 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
-import java.util.ArrayList;
-
 import org.springframework.stereotype.Component;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelConstants.*;
@@ -10,7 +8,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 
 @Component(DEFAULT_CONNECTION_OF_TRAVEL_ALGORITHM)

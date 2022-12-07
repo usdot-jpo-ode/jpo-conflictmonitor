@@ -1,7 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops;
 
-import java.util.ArrayList;
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;

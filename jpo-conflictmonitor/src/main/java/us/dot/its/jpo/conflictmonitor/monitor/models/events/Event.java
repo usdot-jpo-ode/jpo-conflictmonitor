@@ -2,11 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import java.time.ZonedDateTime;
 
-public abstract class IntersectionEvent {
+public abstract class Event {
     
     private long eventGeneratedAt;
 
-    public IntersectionEvent(){
+    public Event(){
         this.eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     }
 

@@ -5,7 +5,7 @@ enum ConflictType {
     PERMISSIVE,
 }
 
-public class SignalStateConflictEvent {
+public class SignalStateConflictEvent extends Event{
     private int timestamp;
     private int roadRegulatorID;
     private int intersectionID;

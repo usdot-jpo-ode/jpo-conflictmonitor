@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Component;
@@ -18,24 +17,16 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneSegment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathFunctions;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
 @Component(DEFAULT_LANE_DIRECTION_OF_TRAVEL_ALGORITHM)
 public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgorithm{
     
-    //private VehiclePath path;
     LaneDirectionOfTravelParameters parameters;
-
-    // public LaneDirectionAnalytics(VehiclePath path){
-    //     this.path = path;
-    // }
-
 
     @Override
     public void setParameters(LaneDirectionOfTravelParameters parameters) {

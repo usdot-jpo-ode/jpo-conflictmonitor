@@ -2,7 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-public class SignalStateStopEvent {
+public class SignalStateStopEvent extends Event{
     
     private long timestamp;
     private int roadRegulatorID;

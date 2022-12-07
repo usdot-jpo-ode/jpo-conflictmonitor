@@ -67,6 +67,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
@@ -105,15 +107,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String signalStateVehicleCrossesAlgorithm;
    private SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters;
 
-
    private SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
    private String signalStateVehicleStopsAlgorithm;
    private SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
 
-   
+   private MapSpatMessageAssessmentAlgorithmFactory mapSpatMessageAssessmentAlgorithmFactory;
+   private String mapSpatMessageAssessmentAlgorithm;
+   private MapSpatMessageAssessmentParameters mapSpatMessageAssessmentParameters;
 
-   
-   
 
    @Autowired
    public void setMapBroadcastRateParameters(MapBroadcastRateParameters mapBroadcastRateParameters) {
@@ -145,8 +146,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       this.spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithm;
    }
 
-   
-
    public MapBroadcastRateAlgorithmFactory getMapBroadcastRateAlgorithmFactory() {
       return mapBroadcastRateAlgorithmFactory;
    }
@@ -170,8 +169,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    public MapBroadcastRateParameters getMapBroadcastRateParameters() {
       return this.mapBroadcastRateParameters;
    }
-
-   
 
    public LaneDirectionOfTravelAlgorithmFactory getLaneDirectionOfTravelAlgorithmFactory() {
       return laneDirectionOfTravelAlgorithmFactory;
@@ -284,6 +281,35 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    @Autowired
    public void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters signalStateVehicleStopsParameters) {
       this.signalStateVehicleStopsParameters = signalStateVehicleStopsParameters;
+   }
+
+   public MapSpatMessageAssessmentAlgorithmFactory getMapSpatMessageAssessmentAlgorithmFactory() {
+      return mapSpatMessageAssessmentAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setMapSpatMessageAssessmentAlgorithmFactory(
+         MapSpatMessageAssessmentAlgorithmFactory mapSpatMessageAssessmentAlgorithmFactory) {
+      this.mapSpatMessageAssessmentAlgorithmFactory = mapSpatMessageAssessmentAlgorithmFactory;
+   }
+   
+   @Value("${map.spat.message.assessment.algorithm}")
+   public String getMapSpatMessageAssessmentAlgorithm() {
+      return mapSpatMessageAssessmentAlgorithm;
+   }
+
+   public void setMapSpatMessageAssessmentAlgorithm(String mapSpatMessageAssessmentAlgorithm) {
+      this.mapSpatMessageAssessmentAlgorithm = mapSpatMessageAssessmentAlgorithm;
+   }
+
+   public MapSpatMessageAssessmentParameters getMapSpatMessageAssessmentParameters() {
+      return mapSpatMessageAssessmentParameters;
+   }
+
+   @Autowired
+   public void setMapSpatMessageAssessmentParameters(
+         MapSpatMessageAssessmentParameters mapSpatMessageAssessmentParameters) {
+      this.mapSpatMessageAssessmentParameters = mapSpatMessageAssessmentParameters;
    }
 
    public Boolean isVerboseJson() {

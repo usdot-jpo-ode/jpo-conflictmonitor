@@ -3,8 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 
 
-import us.dot.its.jpo.ode.util.JsonUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

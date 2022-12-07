@@ -5,7 +5,7 @@ enum TimeMarkType {
     MAX_END_TIME,
 }
 
-public class TimeChangeDetailsEvent {
+public class TimeChangeDetailsEvent extends Event{
 
     private int roadRegulatorID;
     private int intersectionID;

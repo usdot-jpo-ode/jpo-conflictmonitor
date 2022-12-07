@@ -1,6 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-public class LaneDirectionOfTravelEvent extends IntersectionEvent{
+public class LaneDirectionOfTravelEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
     private int intersectionID;
