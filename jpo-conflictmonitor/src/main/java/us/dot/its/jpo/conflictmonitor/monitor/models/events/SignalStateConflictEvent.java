@@ -1,25 +1,27 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+
 enum ConflictType {
     PROTECTED,
     PERMISSIVE,
 }
 
 public class SignalStateConflictEvent extends Event{
-    private int timestamp;
+    private long timestamp;
     private int roadRegulatorID;
     private int intersectionID;
     private ConflictType conflictType;
     private int firstConflictingSignalGroup;
-    private int firstConflictingSignalState;
+    private J2735MovementPhaseState firstConflictingSignalState;
     private int secondConflictingSignalGroup;
-    private int secondConflictingSignalState;
+    private J2735MovementPhaseState secondConflictingSignalState;
 
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -55,11 +57,11 @@ public class SignalStateConflictEvent extends Event{
         this.firstConflictingSignalGroup = firstConflictingSignalGroup;
     }
 
-    public int getFirstConflictingSignalState() {
+    public J2735MovementPhaseState getFirstConflictingSignalState() {
         return firstConflictingSignalState;
     }
 
-    public void setFirstConflictingSignalState(int firstConflictingSignalState) {
+    public void setFirstConflictingSignalState(J2735MovementPhaseState firstConflictingSignalState) {
         this.firstConflictingSignalState = firstConflictingSignalState;
     }
 
@@ -71,11 +73,11 @@ public class SignalStateConflictEvent extends Event{
         this.secondConflictingSignalGroup = secondConflictingSignalGroup;
     }
 
-    public int getSecondConflictingSignalState() {
+    public J2735MovementPhaseState getSecondConflictingSignalState() {
         return secondConflictingSignalState;
     }
 
-    public void setSecondConflictingSignalState(int secondConflictingSignalState) {
+    public void setSecondConflictingSignalState(J2735MovementPhaseState secondConflictingSignalState) {
         this.secondConflictingSignalState = secondConflictingSignalState;
     }
 }

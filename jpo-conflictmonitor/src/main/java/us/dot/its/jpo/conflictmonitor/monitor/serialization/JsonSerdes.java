@@ -10,6 +10,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTrave
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
@@ -97,9 +98,17 @@ public class JsonSerdes {
             new JsonDeserializer<>(SignalGroupAlignmentEvent.class));
     }
 
+    public static Serde<SignalStateConflictEvent> SignalStateConflictEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateConflictEvent>(),
+            new JsonDeserializer<>(SignalStateConflictEvent.class));
+    } 
+
     public static Serde<SpatMap> SpatMap() {
         return Serdes.serdeFrom(
             new JsonSerializer<SpatMap>(),
             new JsonDeserializer<>(SpatMap.class));
-    } 
+    }
+
+    
 }

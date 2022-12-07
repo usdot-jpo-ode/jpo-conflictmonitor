@@ -61,9 +61,12 @@ kafka.topics:
     - name: "topic.CmSignalStopEvent"
       cleanupPolicy: delete
       retentionMs: 300000
-
-
-
-  
-
-      
+    - name: "topic.CmSignalGroupAlignmentEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmIntersectionReferenceAlignmentEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSignalStateConflictEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000

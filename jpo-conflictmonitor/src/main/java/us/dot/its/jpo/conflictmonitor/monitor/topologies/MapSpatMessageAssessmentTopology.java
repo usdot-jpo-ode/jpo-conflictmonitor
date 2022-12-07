@@ -17,14 +17,19 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
+import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +38,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -94,6 +100,26 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         Set<Integer> outputSet = new HashSet<>();
         outputSet.add(input);
         return outputSet;
+    }
+
+    private J2735MovementPhaseState getSpatEventStateBySignalGroup(ProcessedSpat spat, int signalGroup){
+        for(MovementState state: spat.getStates()){
+            if(state.getSignalGroup() == signalGroup){
+                List<MovementEvent> movementEvents = state.getStateTimeSpeed(); 
+                if(movementEvents.size() > 0){
+                    return movementEvents.get(0).getEventState();
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean doStatesConflict(J2735MovementPhaseState a, J2735MovementPhaseState b){
+        return 
+            a.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE) && !b.equals(J2735MovementPhaseState.STOP_AND_REMAIN) ||
+            a.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED) && !b.equals(J2735MovementPhaseState.STOP_AND_REMAIN) ||
+            b.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE) && !a.equals(J2735MovementPhaseState.STOP_AND_REMAIN) ||
+            b.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE) && !a.equals(J2735MovementPhaseState.STOP_AND_REMAIN);
     }
 
     private Topology buildTopology() {
@@ -206,6 +232,69 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             parameters.getSignalGroupAlignmentEventTopicName(), 
             Produced.with(Serdes.String(),
                     JsonSerdes.SignalGroupAlignmentEvent()));
+
+
+    
+    // Signal Group Alignment Event Check
+    KStream<String, SignalStateConflictEvent> signalStateConflictEventStream = spatJoinedMap.flatMap(
+        (key, value)->{
+            
+            ArrayList<KeyValue<String, SignalStateConflictEvent>> events = new ArrayList<>();
+
+            MapFeatureCollection map = value.getMap();
+            ProcessedSpat spat = value.getSpat();
+
+            if(map == null || spat == null){
+                return events;
+            }
+
+            Intersection intersection = Intersection.fromMapFeatureCollection(value.getMap());
+            ArrayList<LaneConnection> connections = intersection.getLaneConnections();
+            for(int i =0; i < connections.size(); i++){
+                LaneConnection firstConnection = connections.get(i);
+                for(int j = i+1; j< connections.size(); j++){
+                    LaneConnection secondConnection = connections.get(j);
+                    
+                    if(firstConnection.crosses(secondConnection)){
+
+                        
+
+                        J2735MovementPhaseState firstState = getSpatEventStateBySignalGroup(spat, firstConnection.getSignalGroup());
+                        J2735MovementPhaseState secondState = getSpatEventStateBySignalGroup(spat, secondConnection.getSignalGroup());
+
+                        if(firstState == null || secondState == null){
+                            // Skip if the connection is not in the Spat Message
+                            continue;
+                        }
+
+                        if(doStatesConflict(firstState, secondState)){
+                            
+                            SignalStateConflictEvent event = new SignalStateConflictEvent();
+                            event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
+                            event.setRoadRegulatorID(intersection.getRoadRegulatorId());
+                            event.setIntersectionID(intersection.getIntersectionId());
+                            event.setFirstConflictingSignalGroup(firstConnection.getSignalGroup());
+                            event.setSecondConflictingSignalGroup(secondConnection.getSignalGroup());
+                            event.setFirstConflictingSignalState(firstState);
+                            event.setSecondConflictingSignalState(secondState);
+
+                            events.add(new KeyValue<String, SignalStateConflictEvent>(key, event));
+                            
+                        }
+                    }
+                }
+            }
+
+            return events;
+        }
+    );
+
+    signalStateConflictEventStream.to(
+            parameters.getSignalStateConflictEventTopicName(), 
+            Produced.with(Serdes.String(),
+                    JsonSerdes.SignalStateConflictEvent()));
+
+
 
     return builder.build();
 

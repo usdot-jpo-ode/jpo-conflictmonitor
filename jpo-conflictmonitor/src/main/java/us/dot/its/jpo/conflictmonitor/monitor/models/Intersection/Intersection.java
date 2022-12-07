@@ -109,6 +109,16 @@ public class Intersection {
         return null;
     }
 
+    public ArrayList<LaneConnection> getLaneConnectionBySignalGroup(int signalGroup){
+        ArrayList<LaneConnection> connections = new ArrayList<>();
+        for(LaneConnection laneConnection: this.laneConnections){
+            if(laneConnection.getSignalGroup() == signalGroup){
+                connections.add(laneConnection);
+            }
+        }
+        return connections;
+    }
+
     public ArrayList<Lane> getIngressLanes() {
         return ingressLanes;
     }

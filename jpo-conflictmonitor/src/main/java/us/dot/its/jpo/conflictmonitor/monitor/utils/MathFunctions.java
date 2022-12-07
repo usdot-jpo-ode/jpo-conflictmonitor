@@ -28,6 +28,11 @@ public class MathFunctions {
         }
     }
 
+    // returns the input value bounded by the positive and negative threshold;
+    public static double clamp(double value, double threshold) {
+        return Math.max(Math.min(value, threshold), -threshold);
+    }
+
 
 
 }
