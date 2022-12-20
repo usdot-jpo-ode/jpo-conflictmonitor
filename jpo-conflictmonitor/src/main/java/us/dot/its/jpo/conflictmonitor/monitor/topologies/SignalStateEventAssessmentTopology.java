@@ -1,0 +1,169 @@
+package us.dot.its.jpo.conflictmonitor.monitor.topologies;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentConstants.*;
+
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.util.Properties;
+
+
+
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.Aggregator;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.Initializer;
+import org.apache.kafka.streams.kstream.JoinWindows;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.SlidingWindows;
+import org.apache.kafka.streams.kstream.Suppressed;
+import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
+import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.kstream.Windows;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.WindowStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.ode.model.OdeMapMetadata;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateTimeStampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+
+
+@Component(DEFAULT_SIGNAL_STATE_EVENT_ASSESSMENT_ALGORITHM)
+public class SignalStateEventAssessmentTopology 
+    implements SignalStateEventAssessmentStreamsAlgorithm {
+
+    private static final Logger logger = LoggerFactory.getLogger(SignalStateEventAssessmentTopology.class);
+
+    SignalStateEventAssessmentParameters parameters;
+    Properties streamsProperties;
+    Topology topology;
+    KafkaStreams streams;
+
+    @Override
+    public void setParameters(SignalStateEventAssessmentParameters parameters) {
+        this.parameters = parameters;
+    }
+
+    @Override
+    public SignalStateEventAssessmentParameters getParameters() {
+        return parameters;
+    }
+
+    @Override
+    public void setStreamsProperties(Properties streamsProperties) {
+       this.streamsProperties = streamsProperties;
+    }
+
+    @Override
+    public Properties getStreamsProperties() {
+        return streamsProperties;
+    }
+
+    @Override
+    public KafkaStreams getStreams() {
+        return streams;
+    }
+
+    @Override
+    public void start() {
+        if (parameters == null) {
+            throw new IllegalStateException("Start called before setting parameters.");
+        }
+        if (streamsProperties == null) {
+            throw new IllegalStateException("Streams properties are not set.");
+        }
+        if (streams != null && streams.state().isRunningOrRebalancing()) {
+            throw new IllegalStateException("Start called while streams is already running.");
+        }
+        logger.info("StartingSignalStateEventAssessmentTopology");
+        Topology topology = buildTopology();
+        streams = new KafkaStreams(topology, streamsProperties);
+        streams.start();
+        logger.info("Started SignalStateEventAssessmentTopology.");
+        System.out.println("Started Events Topology");
+    }
+
+    private Topology buildTopology() {
+        var builder = new StreamsBuilder();
+
+        // GeoJson Input Spat Stream
+        KStream<String, SignalStateEvent> signalStateEvents = 
+            builder.stream(
+                parameters.getSignalStateEventTopicName(), 
+                Consumed.with(
+                    Serdes.String(), 
+                    JsonSerdes.SignalStateEvent())
+                    .withTimestampExtractor(new SignalStateTimeStampExtractor())
+                );
+        
+        SlidingWindows signalStateEventJoinWindow = SlidingWindows.ofTimeDifferenceAndGrace(
+            Duration.ofDays(parameters.getLookBackPeriodDays()),
+            Duration.ofDays(parameters.getLookBackPeriodGraceTimeSeconds())
+        );
+
+        Initializer<SignalStateEventAssessment> signalStateAssessmentInitializer = SignalStateEventAssessment::new;
+
+        Aggregator<String, SignalStateEvent, SignalStateEventAssessment> signalStateEventAggregator = 
+            (key, value, aggregate) -> aggregate.add(value);
+
+        KTable<Windowed<String>, SignalStateEventAssessment> signalStateAssessments = 
+            signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateEvent()))
+            .windowedBy(signalStateEventJoinWindow)
+            .aggregate(
+                signalStateAssessmentInitializer,
+                signalStateEventAggregator,
+                Materialized.<String, SignalStateEventAssessment, WindowStore<Bytes, byte[]>>as("signalStateEventAssessments")
+                    .withKeySerde(Serdes.String())
+                    .withValueSerde(JsonSerdes.SignalStateEventAssessment())
+            );
+
+        // Map the Windowed K Stream back to a Key Value Pair
+        KStream<String, SignalStateEventAssessment> signalStateAssessmentStream = signalStateAssessments.toStream()
+            .map((key, value) -> KeyValue.pair(key.key(), value)
+        );
+
+        signalStateAssessmentStream.to(
+            parameters.getSignalStateEventAssessmentOutputTopicName(), 
+            Produced.with(Serdes.String(),
+                    JsonSerdes.SignalStateEventAssessment()));
+
+
+        return builder.build();
+    }    
+
+    @Override
+    public void stop() {
+        logger.info("Stopping SignalStateEventAssessmentTopology.");
+        if (streams != null) {
+            streams.close();
+            streams.cleanUp();
+            streams = null;
+        }
+        logger.info("Stopped SignalStateEventAssessmentTopology.");
+    }
+    
+}

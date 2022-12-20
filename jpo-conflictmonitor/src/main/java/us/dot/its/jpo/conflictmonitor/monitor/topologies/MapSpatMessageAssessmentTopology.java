@@ -26,6 +26,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -96,9 +97,11 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         logger.info("Started MapSpatMessageAssessment. Topology");
     }
 
-    private Set<Integer> getAsSet(int input){
+    private Set<Integer> getAsSet(Integer input){
         Set<Integer> outputSet = new HashSet<>();
-        outputSet.add(input);
+        if(input != null){
+            outputSet.add(input);
+        }
         return outputSet;
     }
 
@@ -137,11 +140,11 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         );
 
     // Map Input Stream
-    KTable<String, MapFeatureCollection> mapKTable = 
+    KTable<String, ProcessedMap> mapKTable = 
         builder.table(parameters.getMapInputTopicName(), 
         Materialized.with(
             Serdes.String(),
-            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson()
+            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()
         ));
 
 
@@ -151,9 +154,9 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         processedSpatStream.leftJoin(mapKTable, (spat, map) -> {
             return new SpatMap(spat, map);
         }, 
-        Joined.<String, ProcessedSpat, MapFeatureCollection>as("spat-maps-joined").withKeySerde(Serdes.String())
+        Joined.<String, ProcessedSpat, ProcessedMap>as("spat-maps-joined").withKeySerde(Serdes.String())
             .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-            .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson())
+            .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
         );
 
     // Intersection Reference Alignment Check
@@ -165,16 +168,17 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             event.setSourceID(key);
 
             if(value.getMap() != null){
-                MapFeatureCollection map = value.getMap();
+                ProcessedMap map = value.getMap();
                 Set<Integer> intersectionIds = new HashSet<>();
                 
-                for(MapFeature feature: map.getFeatures()){
-                    intersectionIds.add(feature.getId());
-                }
-                event.setMapRoadRegulatorIds(intersectionIds);
+                // TODO
+                // for(MapFeature feature: map.getFeatures()){
+                //     intersectionIds.add(feature.getId());
+                // }
+                // event.setMapRoadRegulatorIds(intersectionIds);
 
             }
-
+            
             if(value.getSpat() != null){
                 ProcessedSpat spat = value.getSpat();
                 event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
@@ -209,10 +213,6 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             Set<Integer> mapSignalGroups = new HashSet<>();
             Set<Integer> spatSignalGroups = new HashSet<>();
 
-            for(MapFeature feature: value.getMap().getFeatures()){
-                // Current Map Structure Doesn't have Map Signal Groups
-            }
-
             for(MovementState state: value.getSpat().getStates()){
                 spatSignalGroups.add(state.getSignalGroup());
             }
@@ -241,14 +241,14 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             
             ArrayList<KeyValue<String, SignalStateConflictEvent>> events = new ArrayList<>();
 
-            MapFeatureCollection map = value.getMap();
+            ProcessedMap map = value.getMap();
             ProcessedSpat spat = value.getSpat();
 
             if(map == null || spat == null){
                 return events;
             }
 
-            Intersection intersection = Intersection.fromMapFeatureCollection(value.getMap());
+            Intersection intersection = Intersection.fromProcessedMap(map);
             ArrayList<LaneConnection> connections = intersection.getLaneConnections();
             for(int i =0; i < connections.size(); i++){
                 LaneConnection firstConnection = connections.get(i);
@@ -277,6 +277,13 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                             event.setSecondConflictingSignalGroup(secondConnection.getSignalGroup());
                             event.setFirstConflictingSignalState(firstState);
                             event.setSecondConflictingSignalState(secondState);
+                            
+
+                            if(firstState.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED) || firstState.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)){
+                                event.setConflictType(secondState);
+                            }else{
+                                event.setConflictType(firstState);
+                            }
 
                             events.add(new KeyValue<String, SignalStateConflictEvent>(key, event));
                             

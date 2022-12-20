@@ -10,12 +10,12 @@ public class TimeChangeDetailsEvent extends Event{
     private int roadRegulatorID;
     private int intersectionID;
     private int signalGroup;
-    private int firstSpatTimestamp;
-    private int secondSpatTimestamp;
-    private TimeMarkType firstTimeMarkType;
-    private TimeMarkType secondTimeMarkType;
-    private int firstConflictingTimemark;
-    private int secondConflictingTimemark;
+    private long firstSpatTimestamp;
+    private long secondSpatTimestamp;
+    private long firstTimeMarkType;
+    private long secondTimeMarkType;
+    private long firstConflictingTimemark;
+    private long secondConflictingTimemark;
 
     public int getRoadRegulatorID() {
         return roadRegulatorID;
@@ -41,51 +41,51 @@ public class TimeChangeDetailsEvent extends Event{
         this.signalGroup = signalGroup;
     }
 
-    public int getFirstSpatTimestamp() {
+    public long getFirstSpatTimestamp() {
         return firstSpatTimestamp;
     }
 
-    public void setFirstSpatTimestamp(int firstSpatTimestamp) {
+    public void setFirstSpatTimestamp(long firstSpatTimestamp) {
         this.firstSpatTimestamp = firstSpatTimestamp;
     }
 
-    public int getSecondSpatTimestamp() {
+    public long getSecondSpatTimestamp() {
         return secondSpatTimestamp;
     }
 
-    public void setSecondSpatTimestamp(int secondSpatTimestamp) {
+    public void setSecondSpatTimestamp(long secondSpatTimestamp) {
         this.secondSpatTimestamp = secondSpatTimestamp;
     }
 
-    public TimeMarkType getFirstTimeMarkType() {
+    public long getFirstTimeMarkType() {
         return firstTimeMarkType;
     }
 
-    public void setFirstTimeMarkType(TimeMarkType firstTimeMarkType) {
+    public void setFirstTimeMarkType(long firstTimeMarkType) {
         this.firstTimeMarkType = firstTimeMarkType;
     }
 
-    public TimeMarkType getSecondTimeMarkType() {
+    public long getSecondTimeMarkType() {
         return secondTimeMarkType;
     }
 
-    public void setSecondTimeMarkType(TimeMarkType secondTimeMarkType) {
+    public void setSecondTimeMarkType(long secondTimeMarkType) {
         this.secondTimeMarkType = secondTimeMarkType;
     }
 
-    public int getFirstConflictingTimemark() {
+    public long getFirstConflictingTimemark() {
         return firstConflictingTimemark;
     }
 
-    public void setFirstConflictingTimemark(int firstConflictingTimemark) {
+    public void setFirstConflictingTimemark(long firstConflictingTimemark) {
         this.firstConflictingTimemark = firstConflictingTimemark;
     }
 
-    public int getSecondConflictingTimemark() {
+    public long getSecondConflictingTimemark() {
         return secondConflictingTimemark;
     }
 
-    public void setSecondConflictingTimemark(int secondConflictingTimemark) {
+    public void setSecondConflictingTimemark(long secondConflictingTimemark) {
         this.secondConflictingTimemark = secondConflictingTimemark;
     }
 }

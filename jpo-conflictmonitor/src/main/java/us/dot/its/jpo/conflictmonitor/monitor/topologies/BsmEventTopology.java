@@ -2,11 +2,13 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.Topology.AutoOffsetReset;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -22,6 +24,7 @@ public class BsmEventTopology {
 
 
         bsmEventBuilder.addSource(BSM_SOURCE, Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), inputTopic);
+        //bsmEventBuilder.addSource(AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(), Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), inputTopic);
         bsmEventBuilder.addProcessor(BSM_PROCESSOR, BsmEventProcessor::new, BSM_SOURCE);
         bsmEventBuilder.addSink(BSM_SINK, outputTopic, Serdes.String().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
 

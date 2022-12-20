@@ -11,6 +11,7 @@ import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
@@ -19,6 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
@@ -63,7 +65,7 @@ public class MessageIngestTopology {
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        bsmKeyGroup.windowedBy(TimeWindows.of(Duration.ofSeconds(30)).grace(Duration.ofSeconds(30)))
+        bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofSeconds(30), Duration.ofSeconds(30)))
         .reduce(
             (oldValue, newValue)->{
                 return newValue;
@@ -126,29 +128,29 @@ public class MessageIngestTopology {
         //  * 
         //  */
 
-        KStream<String, MapFeatureCollection> mapJsonStream = 
+        KStream<String, ProcessedMap> mapJsonStream = 
             builder.stream(
                 geoJsonMapTopic, 
                 Consumed.with(
                     Serdes.String(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson())
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
                 );
             
         // //Group up all of the Maps's based upon the new ID. 
-        KGroupedStream<String, MapFeatureCollection> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson()));
+        KGroupedStream<String, ProcessedMap> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()));
 
-        KTable<String, MapFeatureCollection> maptable = 
+        KTable<String, ProcessedMap> maptable = 
             mapKeyGroup
             .reduce(
                 (oldValue, newValue)->{
                         return newValue;
                 },
-            Materialized.<String, MapFeatureCollection, KeyValueStore<Bytes, byte[]>>as(mapStroreName)
+            Materialized.<String, ProcessedMap, KeyValueStore<Bytes, byte[]>>as(mapStroreName)
             .withKeySerde(Serdes.String())
-            .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.MapGeoJson())
+            .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
             );
 
-        
+        //mapJsonStream.print(Printed.toSysOut());
         //Change the Map Feed to use a unique key This should be unique for every Spat message.
         // KStream<String, ProcessedSpat> mapRekeyedStream = mapJsonStream.selectKey((key, value)->{
         //     long ts = SpatTimestampExtractor.getSpatTimestamp(value);

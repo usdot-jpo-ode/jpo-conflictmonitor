@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
@@ -13,11 +14,15 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignment
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmEventDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
@@ -102,12 +107,36 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<SignalStateConflictEvent>(),
             new JsonDeserializer<>(SignalStateConflictEvent.class));
-    } 
+    }
+
+    public static Serde<TimeChangeDetailsEvent> TimeChangeDetailsEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<TimeChangeDetailsEvent>(),
+            new JsonDeserializer<>(TimeChangeDetailsEvent.class));
+    }
+
+    public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatTimeChangeDetailAggregator>(),
+            new SpatTimeChangeDetailAggregatorDeserializer());
+    }
 
     public static Serde<SpatMap> SpatMap() {
         return Serdes.serdeFrom(
             new JsonSerializer<SpatMap>(),
             new JsonDeserializer<>(SpatMap.class));
+    }
+
+    public static Serde<SignalStateAssessment> SignalStateAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateAssessment>(),
+            new JsonDeserializer<>(SignalStateAssessment.class));
+    }
+
+    public static Serde<SignalStateEventAssessment> SignalStateEventAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateEventAssessment>(),
+            new JsonDeserializer<>(SignalStateEventAssessment.class));
     }
 
     

@@ -42,7 +42,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
@@ -64,13 +64,16 @@ public class IntersectionEventTopology {
         KeyValueIterator<Windowed<String>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
 
         BsmAggregator agg = new BsmAggregator();
+
+        
         while(bsmRange.hasNext()){
             KeyValue<Windowed<String>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
-
+            //System.out.println(getBsmID(next.value));
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
             }
+            
         }
 
         bsmRange.close();
@@ -106,8 +109,8 @@ public class IntersectionEventTopology {
     }
 
 
-    public static MapFeatureCollection getMap(ReadOnlyKeyValueStore mapStore, String key){
-        return (MapFeatureCollection) mapStore.get(key);
+    public static ProcessedMap getMap(ReadOnlyKeyValueStore mapStore, String key){
+        return (ProcessedMap) mapStore.get(key);
     }
 
 
@@ -171,7 +174,11 @@ public class IntersectionEventTopology {
                 
                 List<KeyValue<String, VehicleEvent>> result = new ArrayList<KeyValue<String, VehicleEvent>>();
 
+                
+                
+
                 if(value.getStartingBsm() == null || value.getEndingBsm() == null){
+                    System.out.println("Detected BSM Event is Missing Start or End BSM Exiting.");
                     return result;
                 }
 
@@ -181,9 +188,11 @@ public class IntersectionEventTopology {
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
 
-                MapFeatureCollection map = null;
+                ProcessedMap map = null;
                 BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime);
+
+                
 
                 if(spats.getSpats().size() > 0){
                     ProcessedSpat firstSpat = spats.getSpats().get(0);
@@ -197,7 +206,7 @@ public class IntersectionEventTopology {
 
                     if(map != null){
                         
-                        Intersection intersection = Intersection.fromMapFeatureCollection(map);
+                        Intersection intersection = Intersection.fromProcessedMap(map);
                         VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
 
                         String vehicleEventKey = intersection.getIntersectionId() + "_" + vehicleId;
@@ -274,6 +283,7 @@ public class IntersectionEventTopology {
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
 
+                System.out.println("Signal State Event Vehicle Crossing: " + result.size());
                 return result;
             }
         );
@@ -297,6 +307,7 @@ public class IntersectionEventTopology {
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
 
+                
                 return result;
             }
         );

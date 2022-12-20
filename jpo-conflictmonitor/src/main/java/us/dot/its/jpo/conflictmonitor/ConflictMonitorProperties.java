@@ -69,10 +69,16 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -115,6 +121,18 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String mapSpatMessageAssessmentAlgorithm;
    private MapSpatMessageAssessmentParameters mapSpatMessageAssessmentParameters;
 
+   private SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
+   private String spatTimeChangeDetailsAlgorithm;
+   private SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters;
+
+   private MapTimeChangeDetailsAlgorithmFactory mapTimeChangeDetailsAlgorithmFactory;
+   private String mapTimeChangeDetailsAlgorithm;
+   private MapTimeChangeDetailsParameters mapTimeChangeDetailsParameters;
+
+   private SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
+   private String signalStateEventAssessmentAlgorithm;
+   private SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+   
 
    @Autowired
    public void setMapBroadcastRateParameters(MapBroadcastRateParameters mapBroadcastRateParameters) {
@@ -312,6 +330,94 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       this.mapSpatMessageAssessmentParameters = mapSpatMessageAssessmentParameters;
    }
 
+   public SpatTimeChangeDetailsAlgorithmFactory getSpatTimeChangeDetailsAlgorithmFactory() {
+      return spatTimeChangeDetailsAlgorithmFactory;
+   }
+
+
+   @Autowired
+   public void setSpatTimeChangeDetailsAlgorithmFactory(
+         SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory) {
+      this.spatTimeChangeDetailsAlgorithmFactory = spatTimeChangeDetailsAlgorithmFactory;
+   }
+
+   public String getSpatTimeChangeDetailsAlgorithm() {
+      return spatTimeChangeDetailsAlgorithm;
+   }
+
+   @Value("${spat.time.change.details.algorithm}")
+   public void setSpatTimeChangeDetailsAlgorithm(String spatTimeChangeDetailsAlgorithm) {
+      this.spatTimeChangeDetailsAlgorithm = spatTimeChangeDetailsAlgorithm;
+   }
+
+   public SpatTimeChangeDetailsParameters getSpatTimeChangeDetailsParameters() {
+      return spatTimeChangeDetailsParameters;
+   }
+
+   @Autowired
+   public void setSpatTimeChangeDetailsParameters(SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters) {
+      this.spatTimeChangeDetailsParameters = spatTimeChangeDetailsParameters;
+   }
+
+   public MapTimeChangeDetailsAlgorithmFactory getMapTimeChangeDetailsAlgorithmFactory() {
+      return mapTimeChangeDetailsAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setMapTimeChangeDetailsAlgorithmFactory(
+         MapTimeChangeDetailsAlgorithmFactory mapTimeChangeDetailsAlgorithmFactory) {
+      this.mapTimeChangeDetailsAlgorithmFactory = mapTimeChangeDetailsAlgorithmFactory;
+   }
+
+   public String getMapTimeChangeDetailsAlgorithm() {
+      return mapTimeChangeDetailsAlgorithm;
+   }
+
+   @Value("${map.time.change.details.algorithm}")
+   public void setMapTimeChangeDetailsAlgorithm(String mapTimeChangeDetailsAlgorithm) {
+      this.mapTimeChangeDetailsAlgorithm = mapTimeChangeDetailsAlgorithm;
+   }
+
+   public MapTimeChangeDetailsParameters getMapTimeChangeDetailsParameters() {
+      return mapTimeChangeDetailsParameters;
+   }
+
+   @Autowired
+   public void setMapTimeChangeDetailsParameters(MapTimeChangeDetailsParameters mapTimeChangeDetailsParameters) {
+      this.mapTimeChangeDetailsParameters = mapTimeChangeDetailsParameters;
+   }
+
+
+   public SignalStateEventAssessmentAlgorithmFactory getSignalStateEventAssessmentAlgorithmFactory() {
+      return signalStateEventAssessmentAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setSignalStateEventAssessmentAlgorithmFactory(
+         SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory) {
+      this.signalStateEventAssessmentAlgorithmFactory = signalStateEventAssessmentAlgorithmFactory;
+   }
+
+   
+   public String getSignalStateEventAssessmentAlgorithm() {
+      return signalStateEventAssessmentAlgorithm;
+   }
+
+   @Value("${signal.state.event.assessment.algorithm}")
+   public void setSignalStateEventAssessmentAlgorithm(String signalStateEventAssessmentAlgorithm) {
+      this.signalStateEventAssessmentAlgorithm = signalStateEventAssessmentAlgorithm;
+   }
+
+   public SignalStateEventAssessmentParameters getSignalStateEventAssessmentAlgorithmParameters() {
+      return signalStateEventAssessmentAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setSignalStateEventAssessmentAlgorithmParameters(
+      SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
+      this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
+   }
+
    public Boolean isVerboseJson() {
       return this.verboseJson;
    }
@@ -494,6 +600,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicOdeMapTxPojo = "topic.OdeMapTxPojo";
    private String kafkaTopicOdeMapJson = "topic.OdeMapJson";
    private String kafkaTopicMapGeoJson = "topic.MapGeoJson";
+   private String kafkaTopicProcessedMap = "topic.ProcessedMap";
    private int mapReceiverPort = 44920;
    private int mapBufferSize = 2048;
 
@@ -511,7 +618,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkatopicCmLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
    private String kafkaTopicCmConnectionOfTravelEvent = "topic.CmConnectionOfTravelEvent";
    private String kafkaTopicCmSignalStateEvent = "topic.CmSignalStateEvent";
-   private String kafakTopicCmVehicleStopEvent = "topic.CmSignalStopEvent";
+   private String kafakTopicCmVehicleStopEvent = "topic.CmSignalStopEvent"; 
 
    // SDW Depositor Module
    private String kafkaTopicSdwDepositorInput = "topic.SDWDepositorInput";
@@ -612,7 +719,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
+      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams5");
       // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
    }
@@ -1291,6 +1398,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicMapGeoJson(String kafkaTopicMapGeoJson) {
       this.kafkaTopicMapGeoJson = kafkaTopicMapGeoJson;
+   }
+
+   public String getKafkaTopicProcessedMap() {
+      return kafkaTopicProcessedMap;
+   }
+
+   public void setKafkaTopicProcessedMap(String kafkaTopicProcessedMap) {
+      this.kafkaTopicProcessedMap = kafkaTopicProcessedMap;
    }
 
    public String getKafkaTopicOdeRawEncodedSSMJson() {

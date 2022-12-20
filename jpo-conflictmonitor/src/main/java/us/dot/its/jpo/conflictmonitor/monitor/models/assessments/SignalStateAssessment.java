@@ -2,7 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
 import java.util.List;
 
-public class SignalStateAssessment {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+
+public class SignalStateAssessment extends Assessment{
     private int timestamp;
     private List<SignalStateAssessmentGroup> signalStateAssessmentGroup;
 
@@ -20,5 +24,17 @@ public class SignalStateAssessment {
 
     public void setSignalStateAssessmentGroup(List<SignalStateAssessmentGroup> signalStateAssessmentGroup) {
         this.signalStateAssessmentGroup = signalStateAssessmentGroup;
+    }
+
+    @JsonIgnore
+    public SignalStateAssessment add(SignalStateEvent event){
+
+
+        return this;
+    }
+
+    @Override
+    public String toString(){
+        return "Signal State Assessment";
     }
 }

@@ -2,16 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-enum ConflictType {
-    PROTECTED,
-    PERMISSIVE,
-}
-
 public class SignalStateConflictEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
     private int intersectionID;
-    private ConflictType conflictType;
+    private J2735MovementPhaseState conflictType;
     private int firstConflictingSignalGroup;
     private J2735MovementPhaseState firstConflictingSignalState;
     private int secondConflictingSignalGroup;
@@ -41,11 +36,11 @@ public class SignalStateConflictEvent extends Event{
         this.intersectionID = intersectionID;
     }
 
-    public ConflictType getConflictType() {
+    public J2735MovementPhaseState getConflictType() {
         return conflictType;
     }
 
-    public void setConflictType(ConflictType conflictType) {
+    public void setConflictType(J2735MovementPhaseState conflictType) {
         this.conflictType = conflictType;
     }
 

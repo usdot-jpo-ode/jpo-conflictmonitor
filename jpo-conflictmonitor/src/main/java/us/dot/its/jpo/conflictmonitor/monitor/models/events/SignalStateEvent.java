@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 public class SignalStateEvent extends Event{
@@ -14,6 +16,7 @@ public class SignalStateEvent extends Event{
     private double longitude;
     private double heading;
     private double speed;
+    private int signalGroup;
 
     public long getTimestamp() {
         return timestamp;
@@ -103,6 +106,15 @@ public class SignalStateEvent extends Event{
         this.speed = speed;
     }
 
+    public int getSignalGroup() {
+        return signalGroup;
+    }
+
+    public void setSignalGroup(int signalGroup) {
+        this.signalGroup = signalGroup;
+    }
+
+    @JsonIgnore
     public String getKey(){
         return this.roadRegulatorID + "_" + this.vehicleID;
     }

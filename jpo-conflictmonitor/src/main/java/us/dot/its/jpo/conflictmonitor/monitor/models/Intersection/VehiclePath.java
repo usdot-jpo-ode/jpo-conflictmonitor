@@ -40,6 +40,7 @@ public class VehiclePath {
 
     public void buildVehiclePath(){
         Coordinate referencePoint = this.intersection.getReferencePoint();
+        
        
         Coordinate[] vehicleCoords = new Coordinate[bsms.getBsms().size()];
         int index =0;
@@ -52,6 +53,8 @@ public class VehiclePath {
                 referencePoint.getX(),
                 referencePoint.getY()
             );
+
+            //System.out.println("Reference Long:" + referencePoint.getX() +"Reference Lat: " + referencePoint.getY() + "Bsm Long:" + position.getLongitude() + "BSM Lat: " + position.getLatitude() + "Shifted Position: " + shiftedPosition[0] + "," + shiftedPosition[1]);
             
             vehicleCoords[index] = new Coordinate(shiftedPosition[0], shiftedPosition[1]);
             index++;
@@ -85,9 +88,7 @@ public class VehiclePath {
         OdeBsmData matchingBsm = null;
         IntersectionLine bestLine = null;
 
-
         for(IntersectionLine line : lines){
-            
             if(this.pathPoints.isWithinDistance(line.getCenterPoint(), 450)){
                 int index =0;
                 for(OdeBsmData bsm : this.bsms.getBsms()){

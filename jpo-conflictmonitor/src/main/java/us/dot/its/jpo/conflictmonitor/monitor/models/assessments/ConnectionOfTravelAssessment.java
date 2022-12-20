@@ -2,7 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
 import java.util.List;
 
-public class ConnectionOfTravelAssessment {
+public class ConnectionOfTravelAssessment extends Assessment{
     private int timestamp;
     private List<ConnectionOfTravelAssessmentGroup> ConnectionOfTravelAssessment;
 

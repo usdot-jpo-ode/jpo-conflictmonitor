@@ -31,9 +31,17 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assess
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -43,7 +51,6 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
  */
 @Controller
 @DependsOn("createKafkaTopics")
-@Profile("!test")    // Don't start in test profile
 public class MonitorServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
@@ -60,7 +67,7 @@ public class MonitorServiceController {
        
         String bsmStoreName = "BsmWindowStore";
         String spatStoreName = "SpatWindowStore";
-        String mapStoreName = "MapWindowStore";
+        String mapStoreName = "ProcessedMapWindowStore";
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
@@ -97,6 +104,23 @@ public class MonitorServiceController {
             // spatCountAlgo.start();
 
 
+            // Spat Time Change Details Assessment
+            //Sends Time Change Details Events when the time deltas in spat messages are incorrect
+            SpatTimeChangeDetailsAlgorithmFactory spatTCDAlgoFactory = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithmFactory();
+            String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
+            SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
+            SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
+            if (spatTimeChangeDetailsAlgo instanceof SpatTimeChangeDetailsAlgorithm) {
+                ((SpatTimeChangeDetailsStreamsAlgorithm)spatTimeChangeDetailsAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatTimeChangeDetails"));
+            }
+            spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
+            spatTimeChangeDetailsAlgo.start();
+
+            
+
+
+
             //Map Spat Alignment Topology
             MapSpatMessageAssessmentAlgorithmFactory mapSpatAlgoFactory = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithmFactory();
             String mapSpatAlgo = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
@@ -108,6 +132,9 @@ public class MonitorServiceController {
             mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
             Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
             mapSpatAlignmentAlgo.start();
+
+
+            
 
 
 
@@ -126,7 +153,7 @@ public class MonitorServiceController {
                 bsmStoreName,
                 conflictMonitorProps.getKafkaTopicProcessedSpat(),
                 spatStoreName,
-                conflictMonitorProps.getKafkaTopicMapGeoJson(),
+                conflictMonitorProps.getKafkaTopicProcessedMap(),
                 mapStoreName
             );
             streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
@@ -142,10 +169,10 @@ public class MonitorServiceController {
             ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore =
                 streams.store(StoreQueryParameters.fromNameAndType(spatStoreName, QueryableStoreTypes.windowStore()));
 
-            ReadOnlyKeyValueStore<String, MapFeatureCollection> mapKeyValueStore =
+            ReadOnlyKeyValueStore<String, ProcessedMap> mapKeyValueStore =
                 streams.store(StoreQueryParameters.fromNameAndType(mapStoreName, QueryableStoreTypes.keyValueStore()));
 
-            //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            // //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
             topology = IntersectionEventTopology.build(
                 conflictMonitorProps, 
                 bsmWindowStore,
@@ -155,6 +182,20 @@ public class MonitorServiceController {
             streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start();
+
+
+            // Signal State Event Assessment Topology
+            SignalStateEventAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
+            String signalStateEventAssessmentAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
+            SignalStateEventAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
+            SignalStateEventAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
+            if (signalStateEventAssesmentAlgo instanceof SignalStateEventAssessmentStreamsAlgorithm) {
+                ((SignalStateEventAssessmentStreamsAlgorithm)signalStateEventAssesmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("signalStateEventAssessment"));
+            }
+            signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
+            signalStateEventAssesmentAlgo.start();
+            
 
             //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
             // topology = IntersectionEventTopology.build(conflictMonitorProps, bsmWindowStore, spatWindowStore, mapKeyValueStore);

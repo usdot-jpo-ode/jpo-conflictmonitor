@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapNode;
 
 
 
@@ -40,19 +42,20 @@ public class Lane {
         lane.setId(feature.getId());
         
 
-        double[][] featureCoordinates = feature.getGeometry().getCoordinates();
-        Coordinate[] coordinates = new Coordinate[featureCoordinates.length];
-        for(int i=0; i< featureCoordinates.length; i++){
-            double[] shiftedCoordinate = CoordinateConversion.longLatToOffsetCM(
-                featureCoordinates[i][0], 
-                featureCoordinates[i][1],
-                referencePoint.getX(),
-                referencePoint.getY());
+        List<MapNode> nodes = feature.getProperties().getNodes();
+        Coordinate[] coordinates = new Coordinate[nodes.size()];
 
-            coordinates[i] = new Coordinate(shiftedCoordinate[0], shiftedCoordinate[1]);
+        int sumX = 0;
+        int sumY = 0;
+        for(int i=0; i< nodes.size(); i++){
+            int deltaX = nodes.get(i).getDelta()[0];
+            int deltaY = nodes.get(i).getDelta()[1];
+
+            sumX += deltaX;
+            sumY += deltaY;
+
+            coordinates[i] = new Coordinate(sumX, sumY);
         }
-
-
 
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(coordinates);
         LineString lanePoints = new LineString(sequence, lane.getGeometryFactory());

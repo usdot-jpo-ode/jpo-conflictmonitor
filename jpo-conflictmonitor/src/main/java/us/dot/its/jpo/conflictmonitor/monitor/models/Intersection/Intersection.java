@@ -5,6 +5,9 @@ import java.util.HashMap;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
+import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
@@ -22,54 +25,120 @@ public class Intersection {
     private ArrayList<IntersectionLine> stopLines;
     private ArrayList<IntersectionLine> startLines;
     private Coordinate referencePoint;
-    private int intersectionId;
-    private int roadRegulatorId;
+    private Integer intersectionId;
+    private Integer roadRegulatorId;
     private ArrayList<LaneConnection> laneConnections;
 
 
-    public static Intersection fromMapFeatureCollection(MapFeatureCollection map){
+    // public static Intersection fromMapFeatureCollection(MapFeatureCollection map){
+
+    //     Intersection intersection = new Intersection();
+    //     ArrayList<Lane> ingressLanes = new ArrayList<>();
+    //     ArrayList<Lane> egressLanes = new ArrayList<>();
+    //     HashMap<Integer, Lane> laneLookup = new HashMap();
+    //     ArrayList<LaneConnection> laneConnections = new ArrayList<>();
+
+    //     if(map.getFeatures().length > 0){
+    //         double[] referencePoint = map.getFeatures()[0].getGeometry().getCoordinates()[0];
+    //         intersection.setReferencePoint(new Coordinate(referencePoint[0], referencePoint[1]));
+    //     }else{
+    //         System.out.println("Cannot Build Intersection from MapFeatureCollection. Feature collection has no Features.");
+    //         return null;
+    //     }
+        
+    //     // Create all the lanes from features
+    //     for(MapFeature feature: map.getFeatures()){
+    //         Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), 366);
+    //         if(lane.getIngress()){
+    //             ingressLanes.add(lane);
+    //         }else{
+    //             egressLanes.add(lane);
+    //         }
+    //         laneLookup.put(lane.getId(), lane);
+    //     }
+        
+    //     //Create List of Lane Connections
+    //     int laneConnectionId = 0; 
+    //     for(MapFeature feature: map.getFeatures()){
+    //         for(int id: feature.getProperties().getConnectedLanes()){
+    //             Lane ingressLane = laneLookup.get(feature.getId());
+    //             Lane egressLane = laneLookup.get(id);
+    //             LaneConnection connection = new LaneConnection(ingressLane, egressLane, laneConnectionId, laneConnectionId); // The Map Geo Json Structure doesn't have signal groups.
+    //             laneConnections.add(connection);
+    //             laneConnectionId +=1;
+    //         }
+    //     }
+
+    //     intersection.setIngressLanes(ingressLanes);
+    //     intersection.setEgressLanes(egressLanes);
+    //     intersection.setRoadRegulatorId(0); // Map Geo Json Structure doesn't have roadRegulatorIds
+    //     intersection.setIntersectionId(0); // Map Geo Json Structure doesn't have intersectionIds
+    //     intersection.setLaneConnections(laneConnections);
+        
+    //     return intersection; 
+    // }
+
+    public static Intersection fromProcessedMap(ProcessedMap map){
 
         Intersection intersection = new Intersection();
         ArrayList<Lane> ingressLanes = new ArrayList<>();
         ArrayList<Lane> egressLanes = new ArrayList<>();
-        HashMap<Integer, Lane> laneLookup = new HashMap();
         ArrayList<LaneConnection> laneConnections = new ArrayList<>();
+        HashMap<Integer, Lane> laneLookup = new HashMap();
 
-        if(map.getFeatures().length > 0){
-            double[] referencePoint = map.getFeatures()[0].getGeometry().getCoordinates()[0];
-            intersection.setReferencePoint(new Coordinate(referencePoint[0], referencePoint[1]));
+
+        intersection.setIntersectionId(map.getProperties().getIntersectionId());
+        if(map.getProperties().getRegion() != null){
+            intersection.setRoadRegulatorId(map.getProperties().getRegion());
         }else{
-            System.out.println("Cannot Build Intersection from MapFeatureCollection. Feature collection has no Features.");
-            return null;
+            intersection.setRoadRegulatorId(-1);
         }
-        
-        // Create all the lanes from features
-        for(MapFeature feature: map.getFeatures()){
-            Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), 366);
-            if(lane.getIngress()){
+        intersection.setReferencePoint(new Coordinate(map.getProperties().getRefPoint().getLongitude().doubleValue(), map.getProperties().getRefPoint().getLatitude().doubleValue()));
+
+        int laneWidth = map.getProperties().getLaneWidth();
+
+
+
+        MapFeatureCollection features = map.getMapFeatureCollection();
+        for(MapFeature feature: features.getFeatures()){
+            MapProperties props = feature.getProperties();
+            Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), laneWidth);
+            if(props.getIngressPath()){
                 ingressLanes.add(lane);
             }else{
                 egressLanes.add(lane);
             }
             laneLookup.put(lane.getId(), lane);
         }
-        
-        //Create List of Lane Connections
-        int laneConnectionId = 0; 
-        for(MapFeature feature: map.getFeatures()){
-            for(int id: feature.getProperties().getConnectedLanes()){
-                Lane ingressLane = laneLookup.get(feature.getId());
-                Lane egressLane = laneLookup.get(id);
-                LaneConnection connection = new LaneConnection(ingressLane, egressLane, laneConnectionId, laneConnectionId); // The Map Geo Json Structure doesn't have signal groups.
-                laneConnections.add(connection);
-                laneConnectionId +=1;
+
+        for(MapFeature feature: features.getFeatures()){
+            if(feature.getProperties().getConnectsTo() != null){
+                for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
+                    Lane ingressLane = laneLookup.get(feature.getId());
+                    Lane egressLane = laneLookup.get(laneConnection.getConnectingLane().getLane());
+                    int connectionId = -1;
+                    int signalGroup = -1;
+
+                    if(laneConnection.getConnectionID() != null){
+                        connectionId = laneConnection.getConnectionID();
+                    }
+
+                    if(laneConnection.getSignalGroup() != null){
+                        signalGroup = laneConnection.getSignalGroup();
+                    }
+
+
+
+                    LaneConnection connection = new LaneConnection(ingressLane, egressLane, connectionId, signalGroup); // The Map Geo Json Structure doesn't have signal groups.
+                    laneConnections.add(connection);
+                }
             }
         }
 
+
+
         intersection.setIngressLanes(ingressLanes);
         intersection.setEgressLanes(egressLanes);
-        intersection.setRoadRegulatorId(0); // Map Geo Json Structure doesn't have roadRegulatorIds
-        intersection.setIntersectionId(0); // Map Geo Json Structure doesn't have intersectionIds
         intersection.setLaneConnections(laneConnections);
         
         return intersection; 

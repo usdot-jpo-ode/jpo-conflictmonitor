@@ -29,6 +29,15 @@ signal.state.vehicle.stops:
 map.spat.message.assessment:
   algorithm: defaultMapSpatMessageAssessmentAlgorithm
   properties: debug
+spat.time.change.details:
+  algorithm: defaultSpatTimeChangeDetailsAlgorithm
+  properties: debug
+map.time.change.details:
+  algorithm: defaultMapTimeChangeDetailsAlgorithm
+  properties: debug
+signal.state.event.assessment:
+  algorithm: defaultSignalStateEventAssessmentAlgorithm
+  properties: debug
 
 
 # Kafka properties

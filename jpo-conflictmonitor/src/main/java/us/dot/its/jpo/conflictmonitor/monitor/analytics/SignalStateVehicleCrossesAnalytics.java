@@ -92,6 +92,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         event.setLatitude(bsmData.getCoreData().getPosition().getLongitude().doubleValue());
         event.setHeading(bsmData.getCoreData().getHeading().doubleValue());
         event.setSpeed(bsmData.getCoreData().getSpeed().doubleValue());
+        event.setSignalGroup(connection.getSignalGroup());
         return event;
     }
 

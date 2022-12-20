@@ -2,7 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
 import java.util.List;
 
-public class LaneDirectionOfTravelAssessment {
+public class LaneDirectionOfTravelAssessment extends Assessment{
     private int timestamp;
     private List<LaneDirectionOfTravelAssessmentGroup> laneDirectionOfTravelAssessmentGroup;
     
