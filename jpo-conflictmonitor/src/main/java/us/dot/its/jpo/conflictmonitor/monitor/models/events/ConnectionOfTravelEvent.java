@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
     private int roadRegulatorId;
@@ -56,6 +58,7 @@ public class ConnectionOfTravelEvent extends Event{
         this.connectionId = connectionId;
     }
 
+    @JsonIgnore
     public String getKey(){
         return this.intersectionId + "_" + this.ingressLaneId + "_" + this.egressLaneId;
     }

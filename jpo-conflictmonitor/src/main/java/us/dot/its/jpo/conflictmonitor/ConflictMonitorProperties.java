@@ -64,9 +64,13 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.Spa
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
@@ -132,6 +136,16 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
    private String signalStateEventAssessmentAlgorithm;
    private SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+
+   private LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
+   private String laneDirectionOfTravelAssessmentAlgorithm;
+   private LaneDirectionOfTravelAssessmentParameters laneDirectionOfTravelAssessmentAlgorithmParameters;
+
+   private ConnectionOfTravelAssessmentAlgorithmFactory connectionOfTravelAssessmentAlgorithmFactory;
+   private String connectionOfTravelAssessmentAlgorithm;
+   private ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgorithmParameters;
+
+
    
 
    @Autowired
@@ -416,6 +430,64 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    public void setSignalStateEventAssessmentAlgorithmParameters(
       SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
       this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
+   }
+
+   public LaneDirectionOfTravelAssessmentAlgorithmFactory getLaneDirectionOfTravelAssessmentAlgorithmFactory() {
+      return laneDirectionOfTravelAssessmentAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setLaneDirectionOfTravelAssessmentAlgorithmFactory(
+         LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionfOfTravelAssessmentAlgorithmFactory) {
+      this.laneDirectionOfTravelAssessmentAlgorithmFactory = laneDirectionfOfTravelAssessmentAlgorithmFactory;
+   }
+
+   public String getLaneDirectionOfTravelAssessmentAlgorithm() {
+      return laneDirectionOfTravelAssessmentAlgorithm;
+   }
+
+   @Value("${lane.direction.of.travel.assessment.algorithm}")
+   public void setLaneDirectionOfTravelAssessmentAlgorithm(String laneDirectionOfTravelAssessmentAlgorithm) {
+      this.laneDirectionOfTravelAssessmentAlgorithm = laneDirectionOfTravelAssessmentAlgorithm;
+   }
+
+   public LaneDirectionOfTravelAssessmentParameters getLaneDirectionOfTravelAssessmentAlgorithmParameters() {
+      return laneDirectionOfTravelAssessmentAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setLaneDirectionOfTravelAssessmentAlgorithmParameters(
+         LaneDirectionOfTravelAssessmentParameters laneDirectionOfTravelAssessmentAlgorithmParameters) {
+      this.laneDirectionOfTravelAssessmentAlgorithmParameters = laneDirectionOfTravelAssessmentAlgorithmParameters;
+   }
+
+   public ConnectionOfTravelAssessmentAlgorithmFactory getConnectionOfTravelAssessmentAlgorithmFactory() {
+      return connectionOfTravelAssessmentAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setConnectionOfTravelAssessmentAlgorithmFactory(
+         ConnectionOfTravelAssessmentAlgorithmFactory connectionOfTravelAssessmentAlgorithmFactory) {
+      this.connectionOfTravelAssessmentAlgorithmFactory = connectionOfTravelAssessmentAlgorithmFactory;
+   }
+   
+   public String getConnectionOfTravelAssessmentAlgorithm() {
+      return connectionOfTravelAssessmentAlgorithm;
+   }
+
+   @Value("${connection.of.travel.assessment.algorithm}")
+   public void setConnectionOfTravelAssessmentAlgorithm(String connectionOfTravelAssessmentAlgorithm) {
+      this.connectionOfTravelAssessmentAlgorithm = connectionOfTravelAssessmentAlgorithm;
+   }
+
+   public ConnectionOfTravelAssessmentParameters getConnectionOfTravelAssessmentAlgorithmParameters() {
+      return connectionOfTravelAssessmentAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setConnectionOfTravelAssessmentAlgorithmParameters(
+         ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgorithmParameters) {
+      this.connectionOfTravelAssessmentAlgorithmParameters = connectionOfTravelAssessmentAlgorithmParameters;
    }
 
    public Boolean isVerboseJson() {

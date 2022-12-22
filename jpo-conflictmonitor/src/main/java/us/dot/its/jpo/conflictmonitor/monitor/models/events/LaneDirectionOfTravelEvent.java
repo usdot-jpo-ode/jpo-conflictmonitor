@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class LaneDirectionOfTravelEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
@@ -123,6 +125,7 @@ public class LaneDirectionOfTravelEvent extends Event{
         this.aggregateBSMCount = aggregateBSMCount;
     }
 
+    @JsonIgnore
     public String getKey(){
         return this.intersectionID + "_" + this.laneID + "_" + this.laneSegmentNumber;
     }

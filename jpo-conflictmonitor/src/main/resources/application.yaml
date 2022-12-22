@@ -38,6 +38,12 @@ map.time.change.details:
 signal.state.event.assessment:
   algorithm: defaultSignalStateEventAssessmentAlgorithm
   properties: debug
+lane.direction.of.travel.assessment:
+  algorithm: defaultLaneDirectionOfTravelAssessmentAlgorithm
+  properties: debug
+connection.of.travel.assessment:
+  algorithm: defaultConnectionOfTravelAssessmentAlgorithm
+  properties: debug
 
 
 # Kafka properties

@@ -16,6 +16,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
@@ -137,6 +139,18 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<SignalStateEventAssessment>(),
             new JsonDeserializer<>(SignalStateEventAssessment.class));
+    }
+
+    public static Serde<LaneDirectionOfTravelAssessment> LaneDirectionOfTravelAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelAssessment>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelAssessment.class));
+    }
+
+    public static Serde<ConnectionOfTravelAssessment> ConnectionOfTravelAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelAssessment>(),
+            new JsonDeserializer<>(ConnectionOfTravelAssessment.class));
     }
 
     
