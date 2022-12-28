@@ -8,10 +8,10 @@
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>usdot.jpo.ode</groupId>
-  <artifactId>jpo-conflictmanager</artifactId>
+  <artifactId>jpo-conflictmonitor</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
-  <name>jpo-conflictmanager</name>
+  <name>jpo-conflictmonitor</name>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
