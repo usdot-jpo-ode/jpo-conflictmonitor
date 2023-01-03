@@ -10,11 +10,11 @@ public abstract class Assessment {
         this.assessmentGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     }
 
-    public long getEventGeneratedAt() {
+    public long getAssessmentGeneratedAt() {
         return assessmentGeneratedAt;
     }
 
-    public void setEventGeneratedAt(long assessmentGeneratedAt) {
+    public void setAssessmentGeneratedAt(long assessmentGeneratedAt) {
         this.assessmentGeneratedAt = assessmentGeneratedAt;
     }
 }

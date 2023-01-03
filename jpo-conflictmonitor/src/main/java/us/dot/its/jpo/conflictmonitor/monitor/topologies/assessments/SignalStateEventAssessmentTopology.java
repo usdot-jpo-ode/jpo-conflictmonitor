@@ -20,9 +20,11 @@ import org.apache.kafka.streams.kstream.Initializer;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.SlidingWindows;
 import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.SignalStateTimestampExtractor;
@@ -104,31 +107,33 @@ public class SignalStateEventAssessmentTopology
                     JsonSerdes.SignalStateEvent())
                     .withTimestampExtractor(new SignalStateTimestampExtractor())
                 );
-        
-        SlidingWindows signalStateEventJoinWindow = SlidingWindows.ofTimeDifferenceAndGrace(
-            Duration.ofDays(parameters.getLookBackPeriodDays()),
-            Duration.ofDays(parameters.getLookBackPeriodGraceTimeSeconds())
-        );
 
-        Initializer<SignalStateEventAssessment> signalStateAssessmentInitializer = SignalStateEventAssessment::new;
+        Initializer<SignalStateEventAggregator> signalStateAssessmentInitializer = ()->{
+            SignalStateEventAggregator agg = new SignalStateEventAggregator();
+            agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
+            return agg;
+        };
 
-        Aggregator<String, SignalStateEvent, SignalStateEventAssessment> signalStateEventAggregator = 
+        Aggregator<String, SignalStateEvent, SignalStateEventAggregator> signalStateEventAggregator = 
             (key, value, aggregate) -> aggregate.add(value);
 
-        KTable<Windowed<String>, SignalStateEventAssessment> signalStateAssessments = 
+
+        KTable<String, SignalStateEventAggregator> signalStateAssessments = 
             signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateEvent()))
-            .windowedBy(signalStateEventJoinWindow)
             .aggregate(
                 signalStateAssessmentInitializer,
                 signalStateEventAggregator,
-                Materialized.<String, SignalStateEventAssessment, WindowStore<Bytes, byte[]>>as("signalStateEventAssessments")
+                Materialized.<String, SignalStateEventAggregator, KeyValueStore<Bytes, byte[]>>as("signalStateEventAssessments")
                     .withKeySerde(Serdes.String())
-                    .withValueSerde(JsonSerdes.SignalStateEventAssessment())
+                    .withValueSerde(JsonSerdes.SignalStateEventAggregator())
             );
+
+
+        
 
         // Map the Windowed K Stream back to a Key Value Pair
         KStream<String, SignalStateEventAssessment> signalStateAssessmentStream = signalStateAssessments.toStream()
-            .map((key, value) -> KeyValue.pair(key.key(), value)
+            .map((key, value) -> KeyValue.pair(key, value.getSignalStateEventAssessment())
         );
 
         signalStateAssessmentStream.to(
@@ -136,6 +141,7 @@ public class SignalStateEventAssessmentTopology
             Produced.with(Serdes.String(),
                     JsonSerdes.SignalStateEventAssessment()));
 
+        signalStateAssessmentStream.print(Printed.toSysOut());
 
         return builder.build();
     }    

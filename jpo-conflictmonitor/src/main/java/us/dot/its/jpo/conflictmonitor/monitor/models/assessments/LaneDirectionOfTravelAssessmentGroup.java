@@ -10,24 +10,11 @@ public class LaneDirectionOfTravelAssessmentGroup {
     private int laneID;
     private int segmentID;
     private int inToleranceEvents;
-    private double medianInToleranceHeading;
     private int outOfToleranceEvents;
-    private ArrayList<Double> headings;
-    private ArrayList<Double> offsets;
+    private double medianInToleranceHeading;
+    private double medianInToleranceCenterlineDistance;
     private double tolerance;
 
-    
-    // @JsonIgnore
-    // public LaneDirectionOfTravelAssessmentGroup(int laneID, int segmentID, double tolerance){
-    //     this.laneID = laneID;
-    //     this.segmentID = segmentID;
-    //     this.tolerance = tolerance;
-    // }
-
-    public void add(LaneDirectionOfTravelEvent event){
-        headings.add(event.getMedianVehicleHeading());
-        offsets.add(event.getMedianDistanceFromCenterline());
-    }
 
     public int getLaneID() {
         return laneID;
@@ -75,5 +62,13 @@ public class LaneDirectionOfTravelAssessmentGroup {
 
     public void setTolerance(double tolerance) {
         this.tolerance = tolerance;
+    }
+
+    public double getMedianInToleranceCenterlineDistance() {
+        return medianInToleranceCenterlineDistance;
+    }
+
+    public void setMedianInToleranceCenterlineDistance(double medianInToleranceCenterlineDistance) {
+        this.medianInToleranceCenterlineDistance = medianInToleranceCenterlineDistance;
     }
 }

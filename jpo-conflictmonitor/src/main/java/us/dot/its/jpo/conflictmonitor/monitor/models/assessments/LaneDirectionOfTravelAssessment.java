@@ -12,7 +12,7 @@ public class LaneDirectionOfTravelAssessment extends Assessment{
     private int intersectionID;
     private List<LaneDirectionOfTravelAssessmentGroup> laneDirectionOfTravelAssessmentGroup = new ArrayList<>();
     
-
+    
     
 
     public LaneDirectionOfTravelAssessment add(LaneDirectionOfTravelEvent event){

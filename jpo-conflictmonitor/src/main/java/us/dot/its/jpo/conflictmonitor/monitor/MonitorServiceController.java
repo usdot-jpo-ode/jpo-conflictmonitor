@@ -47,6 +47,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spa
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -190,6 +191,9 @@ public class MonitorServiceController {
             streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start();
+
+
+            
 
 
             // Signal State Event Assessment Topology

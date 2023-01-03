@@ -10,14 +10,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class SignalStateEventAssessment extends Assessment{
-    private int timestamp;
+    private long timestamp;
     private List<SignalStateEventAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();
 
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

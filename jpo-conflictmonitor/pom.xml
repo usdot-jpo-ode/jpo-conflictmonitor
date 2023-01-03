@@ -100,7 +100,7 @@
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-geojsonconverter</artifactId>
       <version>1.0.0-SNAPSHOT</version>
-      <classifier>jpo-geojsonconverter</classifier>
+      <!-- <classifier>jpo-geojsonconverter</classifier> -->
     </dependency>
     <dependency>
       <groupId>junit</groupId>

@@ -26,13 +26,6 @@ public class SignalStateAssessment extends Assessment{
         this.signalStateAssessmentGroup = signalStateAssessmentGroup;
     }
 
-    @JsonIgnore
-    public SignalStateAssessment add(SignalStateEvent event){
-
-
-        return this;
-    }
-
     @Override
     public String toString(){
         return "Signal State Assessment";

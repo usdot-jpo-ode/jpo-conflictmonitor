@@ -16,7 +16,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
@@ -141,6 +143,12 @@ public class JsonSerdes {
             new JsonDeserializer<>(SignalStateEventAssessment.class));
     }
 
+    public static Serde<SignalStateEventAggregator> SignalStateEventAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateEventAggregator>(),
+            new JsonDeserializer<>(SignalStateEventAggregator.class));
+    }
+
     public static Serde<LaneDirectionOfTravelAssessment> LaneDirectionOfTravelAssessment() {
         return Serdes.serdeFrom(
             new JsonSerializer<LaneDirectionOfTravelAssessment>(),
@@ -151,6 +159,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<ConnectionOfTravelAssessment>(),
             new JsonDeserializer<>(ConnectionOfTravelAssessment.class));
+    }
+
+    public static Serde<LaneDirectionOfTravelAggregator> LaneDirectionOfTravelAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelAggregator>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelAggregator.class));
     }
 
     

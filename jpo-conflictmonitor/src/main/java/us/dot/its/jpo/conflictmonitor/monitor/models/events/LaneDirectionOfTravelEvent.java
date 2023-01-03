@@ -127,6 +127,6 @@ public class LaneDirectionOfTravelEvent extends Event{
 
     @JsonIgnore
     public String getKey(){
-        return this.intersectionID + "_" + this.laneID + "_" + this.laneSegmentNumber;
+        return this.intersectionID + "";
     }
 }

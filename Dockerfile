@@ -30,11 +30,14 @@ RUN mvn clean install -DskipTests
 WORKDIR /home/jpo-conflictmonitor
 
 RUN mvn clean package -DskipTests
+
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
+
 FROM openjdk:11-jre-slim
 
 WORKDIR /home
 
-COPY --from=builder /home/jpo-conflictmonitor/src/main/resources/application.properties /home
+COPY --from=builder /home/jpo-conflictmonitor/src/main/resources/application.yaml /home
 COPY --from=builder /home/jpo-conflictmonitor/src/main/resources/logback.xml /home
 COPY --from=builder /home/jpo-conflictmonitor/target/jpo-conflictmonitor.jar /home
 
