@@ -2,3 +2,6 @@
 	path = jpo-ode
 	url = https://github.com/usdot-jpo-ode/jpo-ode
 
+[submodule "jpo-geojsonconverter"]
+	path = jpo-geojsonconverter
+	url = https://github.com/usdot-jpo-ode/jpo-geojsonconverter
