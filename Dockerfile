@@ -3,15 +3,15 @@ FROM maven:3.8.1-openjdk-11 as builder
 WORKDIR /home
 
 # Copy only the files needed to avoid putting all sorts of junk from your local env on to the image
-COPY ./jpo-ode/pom.xml ./jpo-ode/
-COPY ./jpo-ode/jpo-ode-common/pom.xml ./jpo-ode/jpo-ode-common/
-COPY ./jpo-ode/jpo-ode-common/src ./jpo-ode/jpo-ode-common/src
-COPY ./jpo-ode/jpo-ode-plugins/pom.xml ./jpo-ode/jpo-ode-plugins/
-COPY ./jpo-ode/jpo-ode-plugins/src ./jpo-ode/jpo-ode-plugins/src
-COPY ./jpo-ode/jpo-ode-core/pom.xml ./jpo-ode/jpo-ode-core/
-COPY ./jpo-ode/jpo-ode-core/src ./jpo-ode/jpo-ode-core/src/
-COPY ./jpo-ode/jpo-ode-svcs/pom.xml ./jpo-ode/jpo-ode-svcs/
-COPY ./jpo-ode/jpo-ode-svcs/src ./jpo-ode/jpo-ode-svcs/src
+COPY ./jpo-geojsonconverter/jpo-ode/pom.xml ./jpo-ode/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-common/pom.xml ./jpo-ode/jpo-ode-common/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-common/src ./jpo-ode/jpo-ode-common/src
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-plugins/pom.xml ./jpo-ode/jpo-ode-plugins/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-plugins/src ./jpo-ode/jpo-ode-plugins/src
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-core/pom.xml ./jpo-ode/jpo-ode-core/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-core/src ./jpo-ode/jpo-ode-core/src/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-svcs/pom.xml ./jpo-ode/jpo-ode-svcs/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-svcs/src ./jpo-ode/jpo-ode-svcs/src
 
 COPY ./jpo-geojsonconverter/jpo-geojsonconverter/pom.xml ./jpo-geojsonconverter/
 COPY ./jpo-geojsonconverter/jpo-geojsonconverter/src ./jpo-geojsonconverter/src
@@ -30,8 +30,6 @@ RUN mvn clean install -DskipTests
 WORKDIR /home/jpo-conflictmonitor
 
 RUN mvn clean package -DskipTests
-
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM openjdk:11-jre-slim
 
@@ -54,3 +52,5 @@ ENTRYPOINT ["java", \
 	"-Dlogback.configurationFile=/home/logback.xml", \
 	"-jar", \
 	"/home/jpo-conflictmonitor.jar"]
+
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

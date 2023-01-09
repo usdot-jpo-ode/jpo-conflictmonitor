@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.util.ArrayList;
 import java.util.List;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 
 public class LaneDirectionOfTravelAssessment extends Assessment{

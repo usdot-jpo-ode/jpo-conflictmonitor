@@ -2,10 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
-
 public class SignalStateAssessment extends Assessment{
     private int timestamp;
     private List<SignalStateAssessmentGroup> signalStateAssessmentGroup;

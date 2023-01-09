@@ -1,11 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
-import java.util.ArrayList;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
-
 public class LaneDirectionOfTravelAssessmentGroup {
     private int laneID;
     private int segmentID;

@@ -1,6 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.spat;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

@@ -3,26 +3,28 @@ package us.dot.its.jpo.conflictmonitor.monitor.serialization;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmEventDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
@@ -31,7 +33,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.Vehi
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 
 public class JsonSerdes {
    
@@ -155,17 +156,25 @@ public class JsonSerdes {
             new JsonDeserializer<>(LaneDirectionOfTravelAssessment.class));
     }
 
+    public static Serde<LaneDirectionOfTravelAggregator> LaneDirectionOfTravelAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelAggregator>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelAggregator.class));
+    }
+
     public static Serde<ConnectionOfTravelAssessment> ConnectionOfTravelAssessment() {
         return Serdes.serdeFrom(
             new JsonSerializer<ConnectionOfTravelAssessment>(),
             new JsonDeserializer<>(ConnectionOfTravelAssessment.class));
     }
 
-    public static Serde<LaneDirectionOfTravelAggregator> LaneDirectionOfTravelAggregator() {
+    public static Serde<ConnectionOfTravelAggregator> ConnectionOfTravelAggregator() {
         return Serdes.serdeFrom(
-            new JsonSerializer<LaneDirectionOfTravelAggregator>(),
-            new JsonDeserializer<>(LaneDirectionOfTravelAggregator.class));
+            new JsonSerializer<ConnectionOfTravelAggregator>(),
+            new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
     }
+
+    
 
     
 }

@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 public class SignalStateEventAssessmentGroup {
 

@@ -3,8 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 
 public class IntersectionLine {

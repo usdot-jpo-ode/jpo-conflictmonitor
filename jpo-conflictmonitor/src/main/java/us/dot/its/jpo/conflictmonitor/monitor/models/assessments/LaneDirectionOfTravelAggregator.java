@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

@@ -7,7 +7,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEv
 
 public class ConnectionOfTravelAssessment extends Assessment{
     private int timestamp;
-    private List<ConnectionOfTravelAssessmentGroup> ConnectionOfTravelAssessment = new ArrayList<>();
+    private List<ConnectionOfTravelAssessmentGroup> connectionOfTravelAssessmentGroups = new ArrayList<>();
 
     public int getTimestamp() {
         return timestamp;
@@ -18,11 +18,11 @@ public class ConnectionOfTravelAssessment extends Assessment{
     }
 
     public List<ConnectionOfTravelAssessmentGroup> getConnectionOfTravelAssessment() {
-        return ConnectionOfTravelAssessment;
+        return connectionOfTravelAssessmentGroups;
     }
 
-    public void setConnectionOfTravelAssessment(List<ConnectionOfTravelAssessmentGroup> connectionOfTravelAssessment) {
-        ConnectionOfTravelAssessment = connectionOfTravelAssessment;
+    public void setConnectionOfTravelAssessmentGroups(List<ConnectionOfTravelAssessmentGroup> connectionOfTravelAssessmentGroups) {
+        this.connectionOfTravelAssessmentGroups = connectionOfTravelAssessmentGroups;
     }
 
     public ConnectionOfTravelAssessment add(ConnectionOfTravelEvent event){

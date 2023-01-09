@@ -10,12 +10,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTWriter;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 
 public class Intersection {
     
@@ -84,7 +79,7 @@ public class Intersection {
         ArrayList<Lane> ingressLanes = new ArrayList<>();
         ArrayList<Lane> egressLanes = new ArrayList<>();
         ArrayList<LaneConnection> laneConnections = new ArrayList<>();
-        HashMap<Integer, Lane> laneLookup = new HashMap();
+        HashMap<Integer, Lane> laneLookup = new HashMap<>();
 
 
         intersection.setIntersectionId(map.getProperties().getIntersectionId());

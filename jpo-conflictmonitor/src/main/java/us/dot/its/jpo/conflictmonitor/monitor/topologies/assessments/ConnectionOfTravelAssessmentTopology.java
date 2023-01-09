@@ -23,6 +23,7 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.SlidingWindows;
 import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +31,9 @@ import org.springframework.stereotype.Component;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.ConnectionOfTravelTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -108,30 +106,31 @@ public class ConnectionOfTravelAssessmentTopology
                     .withTimestampExtractor(new ConnectionOfTravelTimestampExtractor())
                 );
         
-        SlidingWindows connectionOfTravelEventJoinWindow = SlidingWindows.ofTimeDifferenceAndGrace(
-            Duration.ofDays(parameters.getLookBackPeriodDays()),
-            Duration.ofDays(parameters.getLookBackPeriodGraceTimeSeconds())
-        );
 
-        Initializer<ConnectionOfTravelAssessment> connectionOfTravelAssessmentInitializer = ConnectionOfTravelAssessment::new;
+        Initializer<ConnectionOfTravelAggregator> connectionOfTravelAssessmentInitializer = ()->{
+            ConnectionOfTravelAggregator agg = new ConnectionOfTravelAggregator();
+            agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
+            return agg;
+        };
 
-        Aggregator<String, ConnectionOfTravelEvent, ConnectionOfTravelAssessment> connectionOfTravelEventAggregator = 
+
+        Aggregator<String, ConnectionOfTravelEvent, ConnectionOfTravelAggregator> connectionOfTravelEventAggregator = 
             (key, value, aggregate) -> aggregate.add(value);
 
-        KTable<Windowed<String>, ConnectionOfTravelAssessment> connectionOfTravelAssessments = 
+
+        KTable<String, ConnectionOfTravelAggregator> connectionOfTravelAssessments = 
             connectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ConnectionOfTravelEvent()))
-            .windowedBy(connectionOfTravelEventJoinWindow)
             .aggregate(
                 connectionOfTravelAssessmentInitializer,
                 connectionOfTravelEventAggregator,
-                Materialized.<String, ConnectionOfTravelAssessment, WindowStore<Bytes, byte[]>>as("connectionOfTravelAssessments")
+                Materialized.<String, ConnectionOfTravelAggregator, KeyValueStore<Bytes, byte[]>>as("connectionOfTravelAssessments")
                     .withKeySerde(Serdes.String())
-                    .withValueSerde(JsonSerdes.ConnectionOfTravelAssessment())
+                    .withValueSerde(JsonSerdes.ConnectionOfTravelAggregator())
             );
 
         // Map the Windowed K Stream back to a Key Value Pair
         KStream<String, ConnectionOfTravelAssessment> connectionOfTravelAssessmentStream = connectionOfTravelAssessments.toStream()
-            .map((key, value) -> KeyValue.pair(key.key(), value)
+            .map((key, value) -> KeyValue.pair(key, value.getConnectionOfTravelAssessment())
         );
 
         connectionOfTravelAssessmentStream.to(

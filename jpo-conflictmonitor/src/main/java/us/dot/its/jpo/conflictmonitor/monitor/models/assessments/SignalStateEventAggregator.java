@@ -3,13 +3,9 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.utils.MathFunctions;
 
 public class SignalStateEventAggregator {
     private ArrayList<SignalStateEvent> events = new ArrayList<>();

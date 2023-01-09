@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-
 public class SpatTimeChangeDetailAggregator {
     private ArrayList<SpatTimeChangeDetail> spatTimeChangeDetails = new ArrayList<>();
     private int messageBufferSize;

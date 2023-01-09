@@ -1,18 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
-import java.time.Duration;
 import java.time.format.DateTimeFormatter;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.SessionWindows;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Printed;
-
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-//import us.dot.its.jpo.geojsonconverter.geojson.spat.SpatFeatureCollection;
 
 
 public class ConflictTopology {
