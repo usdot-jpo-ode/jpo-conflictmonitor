@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathFunctions;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class LaneDirectionOfTravelAggregator {
     private ArrayList<LaneDirectionOfTravelEvent> events = new ArrayList<>();
@@ -127,16 +130,24 @@ public class LaneDirectionOfTravelAggregator {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
 
-    public String toString(){
-        return "Lane Direction of Travel Event Aggregator. Created At: " + this.aggregatorCreationTime + " Message Count: " + this.events.size() + "Intersection ID: " + this;
-    }
-
     public long getMessageDurationDays() {
         return messageDurationDays;
     }
 
     public void setMessageDurationDays(long messageDurationDays) {
         this.messageDurationDays = messageDurationDays;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
     
 }

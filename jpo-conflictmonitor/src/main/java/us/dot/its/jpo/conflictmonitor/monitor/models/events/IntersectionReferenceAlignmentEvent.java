@@ -2,6 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
 public class IntersectionReferenceAlignmentEvent extends Event{
     
     private String sourceID;
@@ -10,6 +15,10 @@ public class IntersectionReferenceAlignmentEvent extends Event{
     private Set<Integer> mapRoadRegulatorIds;
     private Set<Integer> spatIntersectionIds;
     private Set<Integer> mapIntersectionIds;
+
+    public IntersectionReferenceAlignmentEvent(){
+        super("IntersectionReferenceAlignment");
+    }
 
     public String getSourceID() {
         return sourceID;
@@ -57,5 +66,17 @@ public class IntersectionReferenceAlignmentEvent extends Event{
 
     public void setMapIntersectionIds(Set<Integer> mapIntersectionIds) {
         this.mapIntersectionIds = mapIntersectionIds;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

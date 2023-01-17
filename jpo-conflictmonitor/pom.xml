@@ -100,7 +100,7 @@
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-geojsonconverter</artifactId>
       <version>1.0.0-SNAPSHOT</version>
-      <!-- <classifier>jpo-geojsonconverter</classifier> -->
+      <classifier>jpo-geojsonconverter</classifier>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -180,6 +180,26 @@
             </dependency>
         </dependencies>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>jar</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                    <!--to be imported on other projects-->
+                    <classifier>jpo-conflictmonitor</classifier>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+
+
     </plugins>
   </build>
 </project>

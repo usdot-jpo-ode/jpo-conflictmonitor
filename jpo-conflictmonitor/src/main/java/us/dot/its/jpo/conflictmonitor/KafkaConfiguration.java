@@ -67,12 +67,12 @@ public class KafkaConfiguration {
 
 
         // Verify if the topics exist
-        try {
-            var topicDescriptions = admin.describeTopics(topicNames.toArray(String[]::new));
-            logger.info("Topics: {}", topicDescriptions);
-        } catch (Exception uex) {
-            logger.error("Could not create topic", uex);
-        }
+        // try {
+        //     var topicDescriptions = admin.describeTopics(topicNames.toArray(String[]::new));
+        //     logger.info("Topics: {}", topicDescriptions);
+        // } catch (Exception uex) {
+        //     logger.error("Could not create topic", uex);
+        // }
 
 
         return new NewTopics(newTopics.toArray(NewTopic[]::new));

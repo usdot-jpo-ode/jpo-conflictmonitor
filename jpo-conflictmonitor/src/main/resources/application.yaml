@@ -44,6 +44,9 @@ lane.direction.of.travel.assessment:
 connection.of.travel.assessment:
   algorithm: defaultConnectionOfTravelAssessmentAlgorithm
   properties: debug
+repartition:
+  algorithm: defaultRepartitionAlgorithm
+  properties: debug
 
 
 # Kafka properties
@@ -83,5 +86,8 @@ kafka.topics:
       cleanupPolicy: delete
       retentionMs: 300000
     - name: "topic.CmSignalStateConflictEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmBsmJsonRepartition"
       cleanupPolicy: delete
       retentionMs: 300000
