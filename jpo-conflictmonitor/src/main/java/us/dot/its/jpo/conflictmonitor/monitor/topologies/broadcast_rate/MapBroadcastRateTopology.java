@@ -6,8 +6,6 @@ import java.time.Duration;
 import java.time.ZoneOffset;
 import java.util.Properties;
 
-
-
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -30,10 +28,11 @@ import org.springframework.stereotype.Component;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
-import us.dot.its.jpo.ode.model.OdeMapMetadata;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 
 @Component(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM)
@@ -98,21 +97,16 @@ public class MapBroadcastRateTopology
     private Topology buildTopology() {
         var builder = new StreamsBuilder();
 
-        KStream<Windowed<String>, Long> countStream = builder
+        KStream<Windowed<RsuIntersectionKey>, Long> countStream = builder
             .stream(parameters.getInputTopicName(), 
                 Consumed.with(
-                            Serdes.String(), 
-                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.OdeMap())
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
                         .withTimestampExtractor(new MapTimestampExtractor())
             )
-            .map((oldKey, oldValue) -> {
-                // Change key to RSU IP address and value to constant = 1
-                var metadata = (OdeMapMetadata)oldValue.getMetadata();
-                var newKey = metadata.getOriginIp();
-                return KeyValue.pair(newKey, 1);
-            })
+            .mapValues((oldValue) -> 1) // Map the value to the constant int 1 (key remains the same)
             .groupByKey(
-                Grouped.with(Serdes.String(), Serdes.Integer())
+                Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
             )
             .windowedBy(
                 // Hopping window
@@ -122,8 +116,8 @@ public class MapBroadcastRateTopology
                     .grace(Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
             )
             .count(
-                Materialized.<String, Long, WindowStore<Bytes, byte[]>>as("map-counts")
-                    .withKeySerde(Serdes.String())
+                Materialized.<RsuIntersectionKey, Long, WindowStore<Bytes, byte[]>>as("map-counts")
+                    .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                     .withValueSerde(Serdes.Long())
             )
             .suppress(
@@ -137,7 +131,7 @@ public class MapBroadcastRateTopology
             });
         }
 
-        KStream<String, MapBroadcastRateEvent> eventStream = countStream            
+        KStream<RsuIntersectionKey, MapBroadcastRateEvent> eventStream = countStream            
             .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
@@ -148,7 +142,7 @@ public class MapBroadcastRateTopology
             .map((windowedKey, counts) -> {
                 // Generate an event
                 MapBroadcastRateEvent event = new MapBroadcastRateEvent();
-                event.setSourceDeviceId(windowedKey.key());
+                event.setSourceDeviceId(windowedKey.key().getRsuId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
@@ -170,8 +164,9 @@ public class MapBroadcastRateTopology
 
         eventStream.to(parameters.getOutputEventTopicName(),
             Produced.with(
-                Serdes.String(), 
-                JsonSerdes.MapBroadcastRateEvent())
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                JsonSerdes.MapBroadcastRateEvent(), 
+                new RsuIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
         );
         
         return builder.build();

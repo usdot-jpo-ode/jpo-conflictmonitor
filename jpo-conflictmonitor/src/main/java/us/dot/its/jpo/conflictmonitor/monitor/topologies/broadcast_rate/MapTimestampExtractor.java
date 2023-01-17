@@ -12,7 +12,8 @@ import org.apache.kafka.streams.processor.TimestampExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import us.dot.its.jpo.ode.model.OdeMapData;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
+
 
 public class MapTimestampExtractor implements TimestampExtractor {
 
@@ -20,8 +21,8 @@ public class MapTimestampExtractor implements TimestampExtractor {
 
     @Override
     public long extract(ConsumerRecord<Object, Object> record, long partitionTime) {
-        OdeMapData map = (OdeMapData) record.value();
-        if (map != null && map.getMetadata() != null && isNotBlank(map.getMetadata().getOdeReceivedAt())) {
+        ProcessedMap map = (ProcessedMap) record.value();
+        if (map != null && map.getProperties() != null && map.getProperties().getOdeReceivedAt() != null) {
             var timestamp = extractTimestamp(map);
             if (timestamp > -1) {
                 return timestamp;
@@ -32,9 +33,9 @@ public class MapTimestampExtractor implements TimestampExtractor {
         return Instant.now().toEpochMilli();
      }
 
-    public static long extractTimestamp(OdeMapData map) {
+    public static long extractTimestamp(ProcessedMap map) {
         try{
-            ZonedDateTime zdt = ZonedDateTime.parse(map.getMetadata().getOdeReceivedAt(), DateTimeFormatter.ISO_DATE_TIME);
+            ZonedDateTime zdt = map.getProperties().getOdeReceivedAt();
             long timestamp =  zdt.toInstant().toEpochMilli();
             return timestamp;
         } catch (DateTimeParseException e){
