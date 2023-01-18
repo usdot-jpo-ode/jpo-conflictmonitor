@@ -45,7 +45,7 @@ public class ConflictMonitorPropertiesTest {
     public void testMapBroadcastRateParameters() {
         var props = properties.getMapBroadcastRateParameters();
         assertThat(props, notNullValue());
-        assertThat(props.getInputTopicName(), equalTo("topic.OdeMapJson"));
+        assertThat(props.getInputTopicName(), equalTo("topic.ProcessedMap"));
         
     }
 

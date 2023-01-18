@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
@@ -775,7 +776,11 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams6");
+      if (SystemUtils.IS_OS_LINUX) {
+         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams6");
+      } else if (SystemUtils.IS_OS_WINDOWS) {
+         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "C:/temp");
+      }
       // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
    }

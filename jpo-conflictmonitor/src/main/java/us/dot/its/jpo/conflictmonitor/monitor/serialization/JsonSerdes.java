@@ -26,7 +26,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmEventDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
@@ -51,7 +50,7 @@ public class JsonSerdes {
     public static Serde<BsmEvent> BsmEvent(){
         return Serdes.serdeFrom(
             new JsonSerializer<BsmEvent>(),
-            new BsmEventDeserializer());
+            new JsonDeserializer<>(BsmEvent.class));
     }
 
     public static Serde<VehicleEvent> VehicleEvent(){

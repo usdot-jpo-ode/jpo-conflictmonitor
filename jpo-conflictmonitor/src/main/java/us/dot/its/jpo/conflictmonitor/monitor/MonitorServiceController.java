@@ -84,33 +84,33 @@ public class MonitorServiceController {
            
            
 
-            // // Map Broadcast Rate Topology
-            // // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            // MapBroadcastRateAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapBroadcastRateAlgorithmFactory();
-            // String mapAlgo = conflictMonitorProps.getMapBroadcastRateAlgorithm();
-            // MapBroadcastRateAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
-            // MapBroadcastRateParameters mapCountParams = conflictMonitorProps.getMapBroadcastRateParameters();
-            // logger.info("Map params {}", mapCountParams);
-            // if (mapCountAlgo instanceof MapBroadcastRateStreamsAlgorithm) {
-            //     ((MapBroadcastRateStreamsAlgorithm)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
-            // }
-            // mapCountAlgo.setParameters(mapCountParams);
-            // Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
-            // mapCountAlgo.start();
+            // Map Broadcast Rate Topology
+            // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
+            MapBroadcastRateAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapBroadcastRateAlgorithmFactory();
+            String mapAlgo = conflictMonitorProps.getMapBroadcastRateAlgorithm();
+            MapBroadcastRateAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
+            MapBroadcastRateParameters mapCountParams = conflictMonitorProps.getMapBroadcastRateParameters();
+            logger.info("Map params {}", mapCountParams);
+            if (mapCountAlgo instanceof MapBroadcastRateStreamsAlgorithm) {
+                ((MapBroadcastRateStreamsAlgorithm)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
+            }
+            mapCountAlgo.setParameters(mapCountParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
+            mapCountAlgo.start();
 
             
-            // // Spat Broadcast Rate Topology
-            // // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
-            // SpatBroadcastRateAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatBroadcastRateAlgorithmFactory();
-            // String spatAlgo = conflictMonitorProps.getSpatBroadcastRateAlgorithm();
-            // SpatBroadcastRateAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
-            // SpatBroadcastRateParameters spatCountParams = conflictMonitorProps.getSpatBroadcastRateParameters();
-            // if (spatCountAlgo instanceof SpatBroadcastRateStreamsAlgorithm) {
-            //     ((SpatBroadcastRateStreamsAlgorithm)spatCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatBroadcastRate"));
-            // }
-            // spatCountAlgo.setParameters(spatCountParams);
-            // Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
-            // spatCountAlgo.start();
+            // Spat Broadcast Rate Topology
+            // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
+            SpatBroadcastRateAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatBroadcastRateAlgorithmFactory();
+            String spatAlgo = conflictMonitorProps.getSpatBroadcastRateAlgorithm();
+            SpatBroadcastRateAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
+            SpatBroadcastRateParameters spatCountParams = conflictMonitorProps.getSpatBroadcastRateParameters();
+            if (spatCountAlgo instanceof SpatBroadcastRateStreamsAlgorithm) {
+                ((SpatBroadcastRateStreamsAlgorithm)spatCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatBroadcastRate"));
+            }
+            spatCountAlgo.setParameters(spatCountParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
+            spatCountAlgo.start();
 
 
             // Spat Time Change Details Assessment
@@ -234,11 +234,11 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.start();
             
 
-            //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            // topology = IntersectionEventTopology.build(conflictMonitorProps, bsmWindowStore, spatWindowStore, mapKeyValueStore);
-            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            // streams.start();
+            // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            topology = IntersectionEventTopology.build(conflictMonitorProps, bsmWindowStore, spatWindowStore, mapKeyValueStore);
+            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
+            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            streams.start();
 
             
 

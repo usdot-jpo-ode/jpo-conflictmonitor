@@ -9,6 +9,8 @@ import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
@@ -17,6 +19,9 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
 public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(BsmEventProcessor.class);
+    
     private final String fStoreName = "bsm-event-state-store";
     private final Duration fPunctuationInterval = Duration.ofSeconds(10); // Check Every 10 Seconds
     private final long fSuppressTimeoutMillis = Duration.ofSeconds(10).toMillis(); // Emit event if no data for the last 10 seconds
@@ -33,6 +38,7 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
     public void process(String key, OdeBsmData value) {
         // Key the BSM's based upon vehicle ID.
         key = key + "_" + ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
+        
         ValueAndTimestamp<BsmEvent> record = stateStore.get(key);
         
         if (record != null) {

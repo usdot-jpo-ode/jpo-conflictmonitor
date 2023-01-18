@@ -9,6 +9,8 @@ public class BsmEvent {
     private Long startingBsmTimestamp;
     private Long endingBsmTimestamp;
 
+    public BsmEvent() {}
+
     public BsmEvent(OdeBsmData startingBsm){
         this.startingBsm = startingBsm;
     }
