@@ -13,6 +13,10 @@ public class SignalStateEventAssessment extends Assessment{
     private long timestamp;
     private List<SignalStateEventAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();
 
+    public SignalStateEventAssessment(){
+        super("SignalStateEvent");
+    }
+
     public long getTimestamp() {
         return timestamp;
     }

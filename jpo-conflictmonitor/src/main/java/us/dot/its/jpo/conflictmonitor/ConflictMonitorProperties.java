@@ -57,6 +57,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
@@ -128,6 +130,10 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private ConnectionOfTravelAssessmentAlgorithmFactory connectionOfTravelAssessmentAlgorithmFactory;
    private String connectionOfTravelAssessmentAlgorithm;
    private ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgorithmParameters;
+
+   private RepartitionAlgorithmFactory repartitionAlgorithmFactory;
+   private String repartitionAlgorithm;
+   private RepartitionParameters repartitionAlgorithmParameters;
 
 
    
@@ -474,6 +480,33 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       this.connectionOfTravelAssessmentAlgorithmParameters = connectionOfTravelAssessmentAlgorithmParameters;
    }
 
+   public RepartitionAlgorithmFactory getRepartitionAlgorithmFactory() {
+      return repartitionAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setRepartitionAlgorithmFactory(RepartitionAlgorithmFactory repartitionAlgorithmFactory) {
+      this.repartitionAlgorithmFactory = repartitionAlgorithmFactory;
+   }
+
+   public String getRepartitionAlgorithm() {
+      return repartitionAlgorithm;
+   }
+
+   @Value("${repartition.algorithm}")
+   public void setRepartitionAlgorithm(String repartitionAlgorithm) {
+      this.repartitionAlgorithm = repartitionAlgorithm;
+   }
+
+   public RepartitionParameters getRepartitionAlgorithmParameters() {
+      return repartitionAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setRepartitionAlgorithmParameters(RepartitionParameters repartitionAlgorithmParameters) {
+      this.repartitionAlgorithmParameters = repartitionAlgorithmParameters;
+   }
+
    public Boolean isVerboseJson() {
       return this.verboseJson;
    }
@@ -607,6 +640,9 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String kafkaTopicFilteredOdeBsmJson = "topic.FilteredOdeBsmJson";
    private String kafkaTopicOdeRawEncodedBSMJson = "topic.OdeRawEncodedBSMJson";
    private String kafkaTopicCmBsmEvent = "topic.CMBsmEvents";
+   private String kafkaTopicBsmRepartition = "topic.BsmJsonRepartition";
+
+   
 
    private int bsmReceiverPort = 46800;
    private int bsmBufferSize = 500;
@@ -775,7 +811,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams6");
+      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams7");
       // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
    }
@@ -1102,6 +1138,14 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    public void setKafkaTopicOdeBsmJson(String kafkaTopicOdeBsmJson) {
       this.kafkaTopicOdeBsmJson = kafkaTopicOdeBsmJson;
+   }
+
+   public String getKafkaTopicBsmRepartition() {
+      return kafkaTopicBsmRepartition;
+   }
+
+   public void setKafkaTopicBsmRepartition(String kafkaTopicBsmRepartition) {
+      this.kafkaTopicBsmRepartition = kafkaTopicBsmRepartition;
    }
 
    public String getKafkaTopicCmBsmEvent() {

@@ -11,6 +11,7 @@ import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
@@ -117,7 +118,7 @@ public class MessageIngestTopology {
             .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
         );
 
-        // //spatRekeyedStream.print(Printed.toSysOut());
+        
 
         // /*
         //  * 
@@ -156,7 +157,7 @@ public class MessageIngestTopology {
         //     return newKey;
         // });
 
-        
+        mapJsonStream.print(Printed.toSysOut());
         
 
         return builder.build();

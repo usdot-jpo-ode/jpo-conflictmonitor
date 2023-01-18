@@ -4,8 +4,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class SignalStateEventAggregator {
     private ArrayList<SignalStateEvent> events = new ArrayList<>();
@@ -80,16 +83,24 @@ public class SignalStateEventAggregator {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
 
-    public String toString(){
-        return "Lane Direction of Travel Event Aggregator. Created At: " + this.aggregatorCreationTime + " Message Count: " + this.events.size() + "Intersection ID: " + this;
-    }
-
     public long getMessageDurationDays() {
         return messageDurationDays;
     }
 
     public void setMessageDurationDays(long messageDurationDays) {
         this.messageDurationDays = messageDurationDays;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
     
 }

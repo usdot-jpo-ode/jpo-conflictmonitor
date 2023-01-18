@@ -1,5 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
 enum TimeMarkType {
     MIN_END_TIME,
     MAX_END_TIME,
@@ -16,6 +21,10 @@ public class TimeChangeDetailsEvent extends Event{
     private long secondTimeMarkType;
     private long firstConflictingTimemark;
     private long secondConflictingTimemark;
+
+    public TimeChangeDetailsEvent(){
+        super("TimeChangeDetails");
+    }
 
     public int getRoadRegulatorID() {
         return roadRegulatorID;
@@ -87,5 +96,17 @@ public class TimeChangeDetailsEvent extends Event{
 
     public void setSecondConflictingTimemark(long secondConflictingTimemark) {
         this.secondConflictingTimemark = secondConflictingTimemark;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

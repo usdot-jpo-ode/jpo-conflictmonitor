@@ -1,5 +1,9 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.util.JsonUtils;
 
@@ -34,10 +38,6 @@ public class BsmEvent {
         this.endingBsm = endingBsm;
     }
 
-    public String toString(){
-        return JsonUtils.toJson(this, false);
-    }
-
     public void setStartingBsmTimestamp(Long startingBsmTimestamp){
         this.startingBsmTimestamp = startingBsmTimestamp;
     }
@@ -49,7 +49,20 @@ public class BsmEvent {
     public void setEndingBsmTimestamp(Long endingBsmTimestamp){
         this.endingBsmTimestamp = endingBsmTimestamp;
     }
+    
     public Long getEndingBsmTimestamp(){
         return endingBsmTimestamp;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

@@ -42,6 +42,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -92,11 +93,13 @@ public class IntersectionEventTopology {
 
         KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(timeFrom, timeTo);
 
+        //System.out.println("Start Millis: " + startMillis + "End Millis: " + endMillis);
+
         SpatAggregator spatAggregator = new SpatAggregator();
         while(spatRange.hasNext()){
             KeyValue<Windowed<String>, ProcessedSpat> next = spatRange.next();
             long ts = SpatTimestampExtractor.getSpatTimestamp(next.value);
-
+            
 
             //if(startMillis <= ts && endMillis >= ts){ Add this back in later once geojson converter timestamps are fixed
                 spatAggregator.add(next.value);
@@ -198,8 +201,11 @@ public class IntersectionEventTopology {
                     ProcessedSpat firstSpat = spats.getSpats().get(0);
                     String ip = firstSpat.getOriginIp();
                     int intersectionId = firstSpat.getIntersectionId();
-
-                    String mapLookupKey = ip +":"+ intersectionId;
+                    // RsuIntersectionKey rsuIntersectionKey = new RsuIntersectionKey(ip, intersectionId);
+                    // String mapLookupKey = rsuIntersectionKey.toString();
+                    String mapLookupKey = "{\"rsuId\":\""+ip+"\",\"intersectionId\":"+intersectionId+"}";
+                    // String mapLookupKey = ip +":"+ intersectionId;
+                    System.out.println(mapLookupKey);
                     map = getMap(mapStore, mapLookupKey);
 
                     
