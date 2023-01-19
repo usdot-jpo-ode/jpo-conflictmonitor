@@ -4,7 +4,10 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.B
 
 import java.time.Duration;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Suppressed;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
+import org.apache.kafka.streams.kstream.internals.TimeWindow;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.WindowStore;
@@ -117,6 +121,7 @@ public class MapBroadcastRateTopology
                 boolean hasValidationMessages = props.getValidationMessages() != null && !props.getValidationMessages().isEmpty();
                 return hasValidationMessages;
             })
+            // Produce events for messages with validation errors
             .map((key, value) -> {
                 List<String> validationMessages = value.getProperties()
                     .getValidationMessages()
@@ -127,7 +132,27 @@ public class MapBroadcastRateTopology
                 minDataEvent.setMissingDataElements(validationMessages);
                 minDataEvent.setIntersectionId(key.getIntersectionId());
                 minDataEvent.setSourceDeviceId(key.getRsuId());
+
+                // Get the time window this event would be in without actually performing windowing
+                // we just need to add the window timestamps to the event.
+
+                // Use a tumbling window with no grace to avoid duplicates
+                var timeWindows = TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()));
+
+                // Gets a map of all time windows this instant could be in 
+                Map<Long, TimeWindow> windows = timeWindows.windowsFor(MapTimestampExtractor.extractTimestamp(value));
+
+                // Pick the earliest one (there should only be one for the tumbling window)
+                TimeWindow window = windows.entrySet().stream().min(Comparator.comparingLong(entry -> entry.getKey())).map(entry -> entry.getValue()).orElse(null);                
+                if (window != null) {
+                    var timePeriod = new ProcessingTimePeriod();
+                    timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
+                    timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
+                    minDataEvent.setTimePeriod(timePeriod);
+                }
+
                 return KeyValue.pair(key, minDataEvent);
+
             }).to(parameters.getMinimumDataEventTopicName(),
                 Produced.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
