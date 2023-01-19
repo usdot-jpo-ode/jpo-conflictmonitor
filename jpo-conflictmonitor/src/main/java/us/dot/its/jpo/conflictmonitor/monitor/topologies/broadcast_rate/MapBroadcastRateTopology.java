@@ -115,18 +115,20 @@ public class MapBroadcastRateTopology
 
         // Extract validation info for Minimum Data events
         processedMapStream
+            .peek((key, value) -> {
+                logger.info("Min data received MAP {}\n{}", key, value);
+            })
             // Filter out messages that are valid
-            .filter((key, value) -> {
-                var props = value.getProperties();
-                boolean hasValidationMessages = props.getValidationMessages() != null && !props.getValidationMessages().isEmpty();
-                return hasValidationMessages;
+            .filter((key, value) -> value.getProperties() != null && !value.getProperties().getCti4501Conformant())
+            .peek((key, value) -> {
+                logger.info("Filtered MAP {}", key);
             })
             // Produce events for the messages that have validation errors
             .map((key, value) -> {
                 List<String> validationMessages = value.getProperties()
                     .getValidationMessages()
                     .stream()
-                    .map(valMsg -> valMsg.getMessage())
+                    .map(valMsg -> String.format("%s (%s)", valMsg.getMessage(), valMsg.getSchemaPath()))
                     .collect(Collectors.toList());
                 var minDataEvent = new MapMinimumDataEvent();
                 minDataEvent.setMissingDataElements(validationMessages);
@@ -143,13 +145,13 @@ public class MapBroadcastRateTopology
                 Map<Long, TimeWindow> windows = timeWindows.windowsFor(MapTimestampExtractor.extractTimestamp(value));
 
                 // Pick one (random map entry, but there should only be one for the tumbling window)
-                TimeWindow window = windows.values().stream().findAny().orElse(new TimeWindow(0L, 0L));                
-                
-                var timePeriod = new ProcessingTimePeriod();
-                timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
-                timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
-                minDataEvent.setTimePeriod(timePeriod);
-
+                TimeWindow window = windows.values().stream().findAny().orElse(null);                
+                if (window != null) {
+                    var timePeriod = new ProcessingTimePeriod();
+                    timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
+                    timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
+                    minDataEvent.setTimePeriod(timePeriod);
+                }
 
                 return KeyValue.pair(key, minDataEvent);
 
@@ -170,9 +172,8 @@ public class MapBroadcastRateTopology
             .windowedBy(
                 // Hopping window
                 TimeWindows
-                    .of(Duration.ofSeconds(parameters.getRollingPeriodSeconds()))
+                    .ofSizeAndGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()), Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
                     .advanceBy(Duration.ofSeconds(parameters.getOutputIntervalSeconds()))
-                    .grace(Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
             )
             .count(
                 Materialized.<RsuIntersectionKey, Long, WindowStore<Bytes, byte[]>>as("map-counts")
