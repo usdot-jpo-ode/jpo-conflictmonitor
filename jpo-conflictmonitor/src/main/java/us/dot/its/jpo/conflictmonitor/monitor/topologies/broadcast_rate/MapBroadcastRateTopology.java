@@ -144,6 +144,7 @@ public class MapBroadcastRateTopology
 
                 // Pick one (random map entry, but there should only be one for the tumbling window)
                 TimeWindow window = windows.values().stream().findAny().orElse(new TimeWindow(0L, 0L));                
+                
                 var timePeriod = new ProcessingTimePeriod();
                 timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
                 timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
