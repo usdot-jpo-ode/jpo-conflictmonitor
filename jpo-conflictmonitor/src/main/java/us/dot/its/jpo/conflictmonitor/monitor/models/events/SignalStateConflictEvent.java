@@ -1,5 +1,9 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 public class SignalStateConflictEvent extends Event{
@@ -11,6 +15,10 @@ public class SignalStateConflictEvent extends Event{
     private J2735MovementPhaseState firstConflictingSignalState;
     private int secondConflictingSignalGroup;
     private J2735MovementPhaseState secondConflictingSignalState;
+
+    public SignalStateConflictEvent(){
+        super("SignalStateConflict");
+    }
 
     public long getTimestamp() {
         return timestamp;
@@ -74,5 +82,17 @@ public class SignalStateConflictEvent extends Event{
 
     public void setSecondConflictingSignalState(J2735MovementPhaseState secondConflictingSignalState) {
         this.secondConflictingSignalState = secondConflictingSignalState;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

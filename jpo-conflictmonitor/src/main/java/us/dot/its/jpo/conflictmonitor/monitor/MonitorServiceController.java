@@ -39,6 +39,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assess
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
@@ -80,6 +84,17 @@ public class MonitorServiceController {
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
+
+            RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
+            String repAlgo = conflictMonitorProps.getRepartitionAlgorithm();
+            RepartitionAlgorithm repartitionAlgo = repartitionAlgoFactory.getAlgorithm(repAlgo);
+            RepartitionParameters repartitionParams = conflictMonitorProps.getRepartitionAlgorithmParameters();
+            if (repartitionAlgo instanceof RepartitionAlgorithm) {
+                ((RepartitionStreamsAlgorithm)repartitionAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("repartition"));
+            }
+            repartitionAlgo.setParameters(repartitionParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(repartitionAlgo::stop));
+            repartitionAlgo.start();
             
            
            

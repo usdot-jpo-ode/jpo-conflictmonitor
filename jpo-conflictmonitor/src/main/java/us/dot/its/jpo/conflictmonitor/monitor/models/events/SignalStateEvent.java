@@ -1,7 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 public class SignalStateEvent extends Event{
@@ -17,6 +20,10 @@ public class SignalStateEvent extends Event{
     private double heading;
     private double speed;
     private int signalGroup;
+
+    public SignalStateEvent(){
+        super("SignalState");
+    }
 
     public long getTimestamp() {
         return timestamp;
@@ -117,5 +124,17 @@ public class SignalStateEvent extends Event{
     @JsonIgnore
     public String getKey(){
         return this.roadRegulatorID + "_" + this.vehicleID;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

@@ -1,5 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
 public class SignalStateAssessmentGroup {
 
     private int signalGroup;
@@ -37,6 +42,18 @@ public class SignalStateAssessmentGroup {
 
     public void setGreenEvents(int greenEvents) {
         this.greenEvents = greenEvents;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 
 }
