@@ -121,7 +121,7 @@ public class MapBroadcastRateTopology
                 boolean hasValidationMessages = props.getValidationMessages() != null && !props.getValidationMessages().isEmpty();
                 return hasValidationMessages;
             })
-            // Produce events for messages with validation errors
+            // Produce events for the messages that have validation errors
             .map((key, value) -> {
                 List<String> validationMessages = value.getProperties()
                     .getValidationMessages()
@@ -142,14 +142,13 @@ public class MapBroadcastRateTopology
                 // Gets a map of all time windows this instant could be in 
                 Map<Long, TimeWindow> windows = timeWindows.windowsFor(MapTimestampExtractor.extractTimestamp(value));
 
-                // Pick the earliest one (there should only be one for the tumbling window)
-                TimeWindow window = windows.entrySet().stream().min(Comparator.comparingLong(entry -> entry.getKey())).map(entry -> entry.getValue()).orElse(null);                
-                if (window != null) {
-                    var timePeriod = new ProcessingTimePeriod();
-                    timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
-                    timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
-                    minDataEvent.setTimePeriod(timePeriod);
-                }
+                // Pick one (random map entry, but there should only be one for the tumbling window)
+                TimeWindow window = windows.values().stream().findAny().orElse(new TimeWindow(0L, 0L));                
+                var timePeriod = new ProcessingTimePeriod();
+                timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
+                timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
+                minDataEvent.setTimePeriod(timePeriod);
+
 
                 return KeyValue.pair(key, minDataEvent);
 
