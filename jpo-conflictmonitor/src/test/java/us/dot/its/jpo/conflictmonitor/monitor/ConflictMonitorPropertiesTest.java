@@ -46,7 +46,8 @@ public class ConflictMonitorPropertiesTest {
         var props = properties.getMapBroadcastRateParameters();
         assertThat(props, notNullValue());
         assertThat(props.getInputTopicName(), equalTo("topic.ProcessedMap"));
-        
+        assertThat(props.getOutputEventTopicName(), equalTo("topic.CmMapBroadcastRateEvents"));
+        assertThat(props.getMinimumDataEventTopicName(), equalTo("topic.CmMapMinimumDataEvents"));
     }
 
     @Test

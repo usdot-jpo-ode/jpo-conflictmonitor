@@ -7,6 +7,4 @@ import lombok.Generated;
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
-public class MapMinimumDataEvent extends MinimumDataEvent {
-    
-}
+public class MapMinimumDataEvent extends MinimumDataEvent {}

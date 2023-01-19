@@ -7,7 +7,7 @@ server.port: 8082
 
 
 
-# Broadcast Rate Properties
+# Algorithm Properties
 map.broadcast.rate:
   algorithm: defaultMapBroadcastRateAlgorithm
   properties: debug
@@ -58,7 +58,13 @@ kafka.topics:
     - name: topic.CmMapBroadcastRateEvents
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmMapMinimumDataEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
     - name: topic.CmSpatBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatMinimumDataEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CMBsmEvents

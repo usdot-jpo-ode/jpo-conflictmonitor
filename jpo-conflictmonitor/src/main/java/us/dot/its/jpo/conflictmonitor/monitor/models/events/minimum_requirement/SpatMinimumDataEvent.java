@@ -7,6 +7,4 @@ import lombok.Data;
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
-public class SpatMinimumDataEvent extends MinimumDataEvent {
-    
-}
+public class SpatMinimumDataEvent extends MinimumDataEvent {}
