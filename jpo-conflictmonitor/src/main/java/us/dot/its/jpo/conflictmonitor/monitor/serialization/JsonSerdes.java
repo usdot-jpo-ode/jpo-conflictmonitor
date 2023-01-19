@@ -24,6 +24,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_requirement.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_requirement.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
@@ -173,7 +175,19 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
     }
 
-    
+    public static Serde<MapMinimumDataEvent> MapMinimumDataEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapMinimumDataEvent>(),
+            new JsonDeserializer<>(MapMinimumDataEvent.class)
+        );
+    }
+
+    public static Serde<SpatMinimumDataEvent> SpatMinimumDataEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatMinimumDataEvent>(),
+            new JsonDeserializer<>(SpatMinimumDataEvent.class)
+        );
+    }
 
     
 }

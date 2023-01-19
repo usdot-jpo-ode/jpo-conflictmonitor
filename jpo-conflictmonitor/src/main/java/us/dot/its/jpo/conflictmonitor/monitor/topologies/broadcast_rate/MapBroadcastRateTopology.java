@@ -4,7 +4,9 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.B
 
 import java.time.Duration;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -30,9 +32,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapB
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_requirement.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 
 @Component(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM)
@@ -97,13 +101,43 @@ public class MapBroadcastRateTopology
     private Topology buildTopology() {
         var builder = new StreamsBuilder();
 
-        KStream<Windowed<RsuIntersectionKey>, Long> countStream = builder
+        KStream<RsuIntersectionKey, ProcessedMap> processedMapStream = builder
             .stream(parameters.getInputTopicName(), 
                 Consumed.with(
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
                         .withTimestampExtractor(new MapTimestampExtractor())
-            )
+            );
+
+        // Extract validation info for Minimum Data events
+        processedMapStream
+            // Filter out messages that are valid
+            .filter((key, value) -> {
+                var props = value.getProperties();
+                boolean hasValidationMessages = props.getValidationMessages() != null && !props.getValidationMessages().isEmpty();
+                return hasValidationMessages;
+            })
+            .map((key, value) -> {
+                List<String> validationMessages = value.getProperties()
+                    .getValidationMessages()
+                    .stream()
+                    .map(valMsg -> valMsg.getMessage())
+                    .collect(Collectors.toList());
+                var minDataEvent = new MapMinimumDataEvent();
+                minDataEvent.setMissingDataElements(validationMessages);
+                minDataEvent.setIntersectionId(key.getIntersectionId());
+                minDataEvent.setSourceDeviceId(key.getRsuId());
+                return KeyValue.pair(key, minDataEvent);
+            }).to(parameters.getMinimumDataEventTopicName(),
+                Produced.with(
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                    JsonSerdes.MapMinimumDataEvent(), 
+                    new RsuIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
+            );
+
+        // Perform count for Broadcast Rate analysis
+        KStream<Windowed<RsuIntersectionKey>, Long> countStream = 
+            processedMapStream
             .mapValues((oldValue) -> 1) // Map the value to the constant int 1 (key remains the same)
             .groupByKey(
                 Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
