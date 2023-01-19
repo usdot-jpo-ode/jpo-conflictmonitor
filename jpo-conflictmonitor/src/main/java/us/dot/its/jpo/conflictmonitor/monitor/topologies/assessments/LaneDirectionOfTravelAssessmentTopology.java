@@ -37,10 +37,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 
 @Component(DEFAULT_LANE_DIRECTION_OF_TRAVEL_ASSESSMENT_ALGORITHM)
-public class LaneDirectionfOfTravelAssessmentTopology 
+public class LaneDirectionOfTravelAssessmentTopology 
     implements LaneDirectionOfTravelAssessmentStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(LaneDirectionfOfTravelAssessmentTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(LaneDirectionOfTravelAssessmentTopology.class);
 
     LaneDirectionOfTravelAssessmentParameters parameters;
     Properties streamsProperties;
@@ -101,7 +101,7 @@ public class LaneDirectionfOfTravelAssessmentTopology
         System.out.println("Started Events Topology");
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
         
@@ -114,18 +114,9 @@ public class LaneDirectionfOfTravelAssessmentTopology
                     .withTimestampExtractor(new LaneDirectionOfTravelTimestampExtractor())
                 );
 
-        KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
+        // laneDirectionOfTravelEvents.print(Printed.toSysOut());
 
-        // Store the Lane direction of Travel Events in a local window store for further processing. 
-        // KTable<String, LaneDirectionOfTravelEvent> eventStore = laneDirectionOfTravelEventsGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofDays(1), Duration.ofSeconds(30)))
-        // .reduce(
-        //     (oldValue, newValue)->{
-        //         return newValue;
-        //     },
-        //     Materialized.<String, LaneDirectionOfTravelEvent, WindowStore<Bytes, byte[]>>as("laneDirectionOfTravelEventWindowStore")
-        //     .withKeySerde(Serdes.String())
-        //     .withValueSerde(JsonSerdes.LaneDirectionOfTravelEvent())
-        // );
+        KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
 
         Initializer<LaneDirectionOfTravelAggregator> laneDirectionOfTravelAssessmentInitializer = ()->{
             LaneDirectionOfTravelAggregator agg = new LaneDirectionOfTravelAggregator();
@@ -152,7 +143,7 @@ public class LaneDirectionfOfTravelAssessmentTopology
             .map((key, value) -> KeyValue.pair(key, value.getLaneDirectionOfTravelAssessment())
         );
         
-        laneDirectionOfTravelAssessmentStream.print(Printed.toSysOut());
+        // laneDirectionOfTravelAssessmentStream.print(Printed.toSysOut());
 
         laneDirectionOfTravelAssessmentStream.to(
         parameters.getLaneDirectionOfTravelAssessmentOutputTopicName(), 

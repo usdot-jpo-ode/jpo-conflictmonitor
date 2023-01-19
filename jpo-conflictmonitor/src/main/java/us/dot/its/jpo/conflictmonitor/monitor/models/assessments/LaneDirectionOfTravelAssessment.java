@@ -3,7 +3,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class LaneDirectionOfTravelAssessment extends Assessment{
     private long timestamp;
@@ -11,7 +15,9 @@ public class LaneDirectionOfTravelAssessment extends Assessment{
     private int intersectionID;
     private List<LaneDirectionOfTravelAssessmentGroup> laneDirectionOfTravelAssessmentGroup = new ArrayList<>();
     
-    
+    public LaneDirectionOfTravelAssessment(){
+        super("LaneDirectionOfTravel");
+    }
     
 
     public LaneDirectionOfTravelAssessment add(LaneDirectionOfTravelEvent event){
@@ -48,6 +54,18 @@ public class LaneDirectionOfTravelAssessment extends Assessment{
     public void setLaneDirectionOfTravelAssessmentGroup(
             List<LaneDirectionOfTravelAssessmentGroup> laneDirectionOfTravelAssessmentGroup) {
         this.laneDirectionOfTravelAssessmentGroup = laneDirectionOfTravelAssessmentGroup;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 
     

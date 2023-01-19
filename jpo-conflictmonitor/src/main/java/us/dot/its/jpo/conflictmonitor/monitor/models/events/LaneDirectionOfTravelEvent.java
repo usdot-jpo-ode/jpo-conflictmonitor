@@ -1,6 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class LaneDirectionOfTravelEvent extends Event{
     private long timestamp;
@@ -18,7 +22,7 @@ public class LaneDirectionOfTravelEvent extends Event{
     private int aggregateBSMCount;
 
     public LaneDirectionOfTravelEvent(){
-        super();
+        super("LaneDirectionOfTravel");
     }
 
     public long getTimestamp() {
@@ -128,5 +132,17 @@ public class LaneDirectionOfTravelEvent extends Event{
     @JsonIgnore
     public String getKey(){
         return this.intersectionID + "";
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }
