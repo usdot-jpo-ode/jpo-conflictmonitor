@@ -15,8 +15,10 @@ import lombok.Generated;
 @Generated
 public abstract class Notification {
 
-    private final ZonedDateTime notificationGeneratedAt = ZonedDateTime.now();
+    private final long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     public final String notificationType;
+    public String notificationText;
+    public String notificationHeading;
 
     public Notification(String notificationType) {
         this.notificationType = notificationType;
@@ -33,4 +35,6 @@ public abstract class Notification {
      * It should not depend on the absolute values of any timestamp fields.
      */
     public abstract String uniqueId();
+
+    
 }
