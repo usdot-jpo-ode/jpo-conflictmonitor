@@ -14,23 +14,10 @@ import lombok.Generated;
 @Generated
 public abstract class Event {
     
-    private long eventGeneratedAt;
-    private String eventType = "";
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public Event(){
-        this.eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
-    }
+    private final long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    private final String eventType;
 
     public Event(String eventType){
-        this.eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
         this.eventType = eventType;
     }
 

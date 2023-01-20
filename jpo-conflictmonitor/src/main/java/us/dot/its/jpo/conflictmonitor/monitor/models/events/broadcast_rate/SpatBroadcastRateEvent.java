@@ -8,4 +8,9 @@ import lombok.EqualsAndHashCode;
 @Generated
 @EqualsAndHashCode(callSuper = true)
 public class SpatBroadcastRateEvent
-    extends BroadcastRateEvent {}
+    extends BroadcastRateEvent {
+
+        SpatBroadcastRateEvent() {
+            super("SpatBroadcastRateEvent");
+        }
+    }

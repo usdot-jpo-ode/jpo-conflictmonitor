@@ -97,3 +97,9 @@ kafka.topics:
     - name: "topic.CmBsmJsonRepartition"
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.ProcessedMap  # Temporary: To be managed by geojsonconverter
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedSpat # Temporary: To be managed by geojsonconverter
+      cleanupPolicy: delete
+      retentionMs: 300000

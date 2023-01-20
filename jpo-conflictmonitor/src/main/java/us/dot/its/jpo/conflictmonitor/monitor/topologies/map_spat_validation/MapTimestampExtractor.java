@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -38,7 +38,7 @@ public class MapTimestampExtractor implements TimestampExtractor {
             ZonedDateTime zdt = map.getProperties().getOdeReceivedAt();
             long timestamp =  zdt.toInstant().toEpochMilli();
             return timestamp;
-        } catch (DateTimeParseException e){
+        } catch (Exception e){
             logger.error("Timestamp Parsing Failed", e);
             return -1;
         }

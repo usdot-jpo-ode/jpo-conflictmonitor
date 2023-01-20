@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -7,29 +7,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 
 /**
- * Test SPAT algorithm, writes random numbers to the log in debug mode.
+ * Test algorithm just writes random numbers to the log
  */
-@Component(ALTERNATE_SPAT_BROADCAST_RATE_ALGORITHM)
-public class AlternateSpatBroadcastRateAlgorithm
-    implements SpatBroadcastRateAlgorithm {
-    
-        private static final Logger logger = LoggerFactory.getLogger(AlternateSpatBroadcastRateAlgorithm.class);
+@Component(ALTERNATE_MAP_BROADCAST_RATE_ALGORITHM)
+public class AlternateMapBroadcastRateAlgorithm implements MapBroadcastRateAlgorithm {
 
-    SpatBroadcastRateParameters parameters;
+    private static final Logger logger = LoggerFactory.getLogger(AlternateMapBroadcastRateAlgorithm.class);
+
+    MapBroadcastRateParameters parameters;
     Timer timer;
 
     @Override
-    public void setParameters(SpatBroadcastRateParameters parameters) {
+    public void setParameters(MapBroadcastRateParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public SpatBroadcastRateParameters getParameters() {
+    public MapBroadcastRateParameters getParameters() {
         return parameters;
     }
 
@@ -43,10 +42,10 @@ public class AlternateSpatBroadcastRateAlgorithm
 
             @Override
             public void run() {
-                int counts = (int)((Math.random() * 40) + 80); // Random number between 80-120
-                logger.info("Fake SPAT Count: {}", counts);
+                int counts = (int)((Math.random() * 4) + 8); // Random number between 8-12
+                logger.info("Fake MAP Count: {}", counts);
                 if (counts < parameters.getLowerBound() || counts > parameters.getUpperBound()) {
-                    logger.info("Fake SPAT Broadcast Rate Event.");
+                    logger.info("Fake MAP Broadcast Rate Event.");
                 }
             }
 
@@ -63,4 +62,5 @@ public class AlternateSpatBroadcastRateAlgorithm
         }
         
     }
+    
 }

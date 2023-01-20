@@ -1,11 +1,14 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateStreamsAlgorithm;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.springframework.stereotype.Component;
@@ -25,20 +28,33 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Suppressed;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
+import org.apache.kafka.streams.kstream.internals.TimeWindow;
+import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.dot.its.jpo.ode.model.OdeSpatMetadata;
+//import us.dot.its.jpo.ode.model.OdeSpatMetadata;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_requirement.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
+/**
+ * Assessments/validations for SPAT messages.
+ * <p>Reads {@link ProcessedSpat} messages.
+ * <p>Produces {@link SpatBroadcastRateEvent}s and {@link SpatMinimumDataEvent}s
+ */
 @Component(DEFAULT_SPAT_BROADCAST_RATE_ALGORITHM)
-public class SpatBroadcastRateTopology implements SpatBroadcastRateStreamsAlgorithm {
+public class SpatAssessmentsTopology 
+    extends BaseValidationTopology
+    implements SpatBroadcastRateStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatBroadcastRateTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpatAssessmentsTopology.class);
 
     SpatBroadcastRateParameters parameters;
     Properties streamsProperties;
@@ -96,32 +112,75 @@ public class SpatBroadcastRateTopology implements SpatBroadcastRateStreamsAlgori
     private Topology buildTopology() {
         var builder = new StreamsBuilder();
 
-        KStream<Windowed<String>, Long> countStream = builder
+        KStream<RsuIntersectionKey, ProcessedSpat> processedSpatStream = builder
             .stream(parameters.getInputTopicName(), 
                 Consumed.with(
-                            Serdes.String(), 
-                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.OdeSpat())
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
                         .withTimestampExtractor(new SpatTimestampExtractor())
-            )
-            .map((oldKey, oldValue) -> {
-                // Change key to RSU IP address and value to constant = 1
-                var metadata = (OdeSpatMetadata)oldValue.getMetadata();
-                var newKey = metadata.getOriginIp();
-                return KeyValue.pair(newKey, 1);
+                );
+
+        // Extract validation info for Minimum Data events
+        processedSpatStream
+            .peek((key, value) -> {
+                logger.info("Min data received SPAT {}", key);
             })
+            .filter((key, value) -> !value.getCti4501Conformant())
+            .peek((key, value) -> {
+                logger.info("Filtered SPAT {}", key);
+            })
+            .map((key, value) -> {
+                List<String> validationMessages = value.getValidationMessages()
+                    .stream()
+                    .map(valMsg -> String.format("%s (%s)", valMsg.getMessage(), valMsg.getSchemaPath()))
+                    .collect(Collectors.toList());
+                    var minDataEvent = new SpatMinimumDataEvent();
+                    minDataEvent.setMissingDataElements(validationMessages);
+                    minDataEvent.setIntersectionId(key.getIntersectionId());
+                    minDataEvent.setSourceDeviceId(key.getRsuId());
+    
+                    // Get the time window this event would be in without actually performing windowing
+                    // we just need to add the window timestamps to the event.
+    
+                    // Use a tumbling window with no grace to avoid duplicates
+                    var timeWindows = TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()));
+    
+                    // Gets a map of all time windows this instant could be in 
+                    Map<Long, TimeWindow> windows = timeWindows.windowsFor(SpatTimestampExtractor.extractTimestamp(value));
+    
+                    // Pick one (random map entry, but there should only be one for the tumbling window)
+                    TimeWindow window = windows.values().stream().findAny().orElse(null);                
+                    if (window != null) {
+                        var timePeriod = new ProcessingTimePeriod();
+                        timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
+                        timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
+                        minDataEvent.setTimePeriod(timePeriod);
+                    }
+    
+                    return KeyValue.pair(key, minDataEvent);
+            }).to(parameters.getMinimumDataEventTopicName(),
+                Produced.with(
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                    JsonSerdes.SpatMinimumDataEvent(),
+                    new RsuIdPartitioner<RsuIntersectionKey, SpatMinimumDataEvent>())
+            );
+        
+        // Perform count for Broadcast Rate analysis
+        KStream<Windowed<RsuIntersectionKey>, Long> countStream = 
+            processedSpatStream
+            .mapValues((value) -> 1)    // Map the value to the constant int 1 (key remains the same)
             .groupByKey(
-                Grouped.with(Serdes.String(), Serdes.Integer())
+                Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
             )
             .windowedBy(
                 // Hopping window
                 TimeWindows
-                    .of(Duration.ofSeconds(parameters.getRollingPeriodSeconds()))
+                    .ofSizeAndGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()), Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
                     .advanceBy(Duration.ofSeconds(parameters.getOutputIntervalSeconds()))
-                    .grace(Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
             )
             .count(
-                Materialized.<String, Long, WindowStore<Bytes, byte[]>>as("spat-counts")
-                    .withKeySerde(Serdes.String())
+                Materialized.<RsuIntersectionKey, Long, WindowStore<Bytes, byte[]>>as("spat-counts")
+                    .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                     .withValueSerde(Serdes.Long())
             )
             .suppress(
@@ -135,7 +194,7 @@ public class SpatBroadcastRateTopology implements SpatBroadcastRateStreamsAlgori
             });
         }
 
-        KStream<String, SpatBroadcastRateEvent> eventStream = countStream            
+        KStream<RsuIntersectionKey, SpatBroadcastRateEvent> eventStream = countStream            
             .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
@@ -146,7 +205,7 @@ public class SpatBroadcastRateTopology implements SpatBroadcastRateStreamsAlgori
             .map((windowedKey, counts) -> {
                 // Generate an event
                 SpatBroadcastRateEvent event = new SpatBroadcastRateEvent();
-                event.setSourceDeviceId(windowedKey.key());
+                event.setSourceDeviceId(windowedKey.key().getRsuId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
@@ -168,8 +227,9 @@ public class SpatBroadcastRateTopology implements SpatBroadcastRateStreamsAlgori
 
         eventStream.to(parameters.getOutputEventTopicName(),
             Produced.with(
-                Serdes.String(), 
-                JsonSerdes.SpatBroadcastRateEvent())
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                JsonSerdes.SpatBroadcastRateEvent(),
+                new RsuIdPartitioner<RsuIntersectionKey, SpatBroadcastRateEvent>())
         );
         
         return builder.build();

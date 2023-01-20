@@ -8,4 +8,9 @@ import lombok.Generated;
 @Generated
 @EqualsAndHashCode(callSuper = true)
 public class MapBroadcastRateEvent
-    extends BroadcastRateEvent {}
+    extends BroadcastRateEvent {
+
+        public MapBroadcastRateEvent() {
+            super("MapBroadcastRateEvent");
+        }
+    }

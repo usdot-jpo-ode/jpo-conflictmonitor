@@ -1,13 +1,11 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -43,11 +41,16 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 
+/**
+ * Assessments/validations for MAP messages.
+ * <p>Reads {@link ProcessedMap} messages.
+ * <p>Produces {@link MapBroadcastRateEvent}s and {@link MapMinimumDataEvent}s
+ */
 @Component(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM)
-public class MapBroadcastRateTopology 
+public class MapAssessmentsTopology 
     implements MapBroadcastRateStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapBroadcastRateTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapAssessmentsTopology.class);
 
     MapBroadcastRateParameters parameters;
     Properties streamsProperties;
@@ -116,7 +119,7 @@ public class MapBroadcastRateTopology
         // Extract validation info for Minimum Data events
         processedMapStream
             .peek((key, value) -> {
-                logger.info("Min data received MAP {}\n{}", key, value);
+                logger.info("Min data received MAP {}", key);
             })
             // Filter out messages that are valid
             .filter((key, value) -> value.getProperties() != null && !value.getProperties().getCti4501Conformant())
@@ -165,7 +168,7 @@ public class MapBroadcastRateTopology
         // Perform count for Broadcast Rate analysis
         KStream<Windowed<RsuIntersectionKey>, Long> countStream = 
             processedMapStream
-            .mapValues((oldValue) -> 1) // Map the value to the constant int 1 (key remains the same)
+            .mapValues((value) -> 1) // Map the value to the constant int 1 (key remains the same)
             .groupByKey(
                 Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
             )

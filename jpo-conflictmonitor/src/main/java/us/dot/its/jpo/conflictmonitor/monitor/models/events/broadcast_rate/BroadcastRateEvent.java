@@ -4,6 +4,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
@@ -14,13 +16,17 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod
 @EqualsAndHashCode(callSuper = true)
 @Generated
 public abstract class BroadcastRateEvent extends Event {
+
+    public BroadcastRateEvent(String eventType) {
+        super(eventType);
+    }
         
     /**
      * The name of the Kafka topic containing messages to be counted
      */
     private String topicName;
 
-     /**
+    /**
      * The source RSU Device ID
      */
     private String sourceDeviceId;
@@ -39,5 +45,6 @@ public abstract class BroadcastRateEvent extends Event {
      * @return The number of messages processed
      */
     private int numberOfMessages;
+
     
 }
