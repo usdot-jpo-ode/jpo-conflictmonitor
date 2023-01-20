@@ -91,7 +91,7 @@ public class SignalStateEventAssessmentTopology
         System.out.println("Started Events Topology");
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
         // GeoJson Input Spat Stream
@@ -109,6 +109,8 @@ public class SignalStateEventAssessmentTopology
             agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
             return agg;
         };
+
+        signalStateEvents.print(Printed.toSysOut());
 
         Aggregator<String, SignalStateEvent, SignalStateEventAggregator> signalStateEventAggregator = 
             (key, value, aggregate) -> aggregate.add(value);

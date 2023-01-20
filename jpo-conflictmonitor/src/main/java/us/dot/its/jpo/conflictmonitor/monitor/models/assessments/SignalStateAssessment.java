@@ -2,15 +2,24 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
 public class SignalStateAssessment extends Assessment{
-    private int timestamp;
+    private long timestamp;
     private List<SignalStateAssessmentGroup> signalStateAssessmentGroup;
 
-    public int getTimestamp() {
+    public SignalStateAssessment(){
+        super("SignalState");
+    }
+
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -23,7 +32,14 @@ public class SignalStateAssessment extends Assessment{
     }
 
     @Override
-    public String toString(){
-        return "Signal State Assessment";
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

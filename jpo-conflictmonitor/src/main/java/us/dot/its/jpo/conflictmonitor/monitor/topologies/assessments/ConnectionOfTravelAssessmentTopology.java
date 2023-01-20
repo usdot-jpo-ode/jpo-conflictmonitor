@@ -20,6 +20,7 @@ import org.apache.kafka.streams.kstream.Initializer;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.SlidingWindows;
 import org.apache.kafka.streams.kstream.Windowed;
@@ -93,7 +94,7 @@ public class ConnectionOfTravelAssessmentTopology
         System.out.println("Started Events Topology");
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
         // GeoJson Input Spat Stream
@@ -105,6 +106,8 @@ public class ConnectionOfTravelAssessmentTopology
                     JsonSerdes.ConnectionOfTravelEvent())
                     .withTimestampExtractor(new ConnectionOfTravelTimestampExtractor())
                 );
+
+        connectionOfTravelEvents.print(Printed.toSysOut());
         
 
         Initializer<ConnectionOfTravelAggregator> connectionOfTravelAssessmentInitializer = ()->{
@@ -133,12 +136,14 @@ public class ConnectionOfTravelAssessmentTopology
             .map((key, value) -> KeyValue.pair(key, value.getConnectionOfTravelAssessment())
         );
 
+        connectionOfTravelAssessmentStream.print(Printed.toSysOut());
+
         connectionOfTravelAssessmentStream.to(
             parameters.getConnectionOfTravelAssessmentOutputTopicName(), 
             Produced.with(Serdes.String(),
                     JsonSerdes.ConnectionOfTravelAssessment()));
 
-
+                    
         return builder.build();
     }    
 

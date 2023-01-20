@@ -1,6 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
@@ -9,6 +13,10 @@ public class ConnectionOfTravelEvent extends Event{
     private int ingressLaneId;
     private int egressLaneId;
     private int connectionId; // unknown value allowed
+
+    public ConnectionOfTravelEvent(){
+        super("ConnectionOfTravel");
+    }
 
     public long getTimestamp() {
         return timestamp;
@@ -64,7 +72,14 @@ public class ConnectionOfTravelEvent extends Event{
     }
 
     @Override
-    public String toString(){
-        return "Connection of Travel Event: Intersection: " + this.intersectionId + " Ingress: " + this.ingressLaneId + "Egress: " + this.egressLaneId;
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
 }

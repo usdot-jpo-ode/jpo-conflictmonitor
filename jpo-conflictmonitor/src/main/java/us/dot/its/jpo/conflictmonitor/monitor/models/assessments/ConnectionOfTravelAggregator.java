@@ -4,8 +4,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class ConnectionOfTravelAggregator {
     private ArrayList<ConnectionOfTravelEvent> events = new ArrayList<>();
@@ -38,19 +41,22 @@ public class ConnectionOfTravelAggregator {
         ArrayList<ConnectionOfTravelAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<String,ConnectionOfTravelAssessmentGroup> connectionGroupLookup = new HashMap<>(); // laneId, Segment Index
 
-        // for(SignalStateEvent event : this.events){
-        //     SignalStateEventAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
-        //     if(signalGroup == null){
-        //         signalGroup = new SignalStateEventAssessmentGroup();
-        //         assessmentGroups.add(signalGroup);
-        //         signalGroupLookup.put(event.getSignalGroup(),signalGroup);
-        //     }
-        //     signalGroup.addSignalStateEvent(event);
-            
-        // }
+        for(ConnectionOfTravelEvent event : this.events){
+            String eventKey = getEventKey(event);
+            ConnectionOfTravelAssessmentGroup connectionGroup = connectionGroupLookup.get(eventKey);
+            if(connectionGroup == null){
+                connectionGroup = new ConnectionOfTravelAssessmentGroup();
+                connectionGroup.setIngressLaneID(event.getIngressLaneId());
+                connectionGroup.setEgressLaneID(event.getEgressLaneId());
+                connectionGroup.setConnectionID(event.getConnectionId());
+                assessmentGroups.add(connectionGroup);
+                connectionGroupLookup.put(eventKey,connectionGroup);
+            }
+            connectionGroup.addConnectionOfTravelEvent(event);
+        }
         
-        // assessment.setSignalStateAssessmentGroup(assessmentGroups);
-        // assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
+        assessment.setConnectionOfTravelAssessmentGroups(assessmentGroups);
+        assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
 
         return assessment;
     }
@@ -75,16 +81,24 @@ public class ConnectionOfTravelAggregator {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
 
-    public String toString(){
-        return "Connection of Travel Event Aggregator. Created At: " + this.aggregatorCreationTime + " Message Count: " + this.events.size() + "Intersection ID: " + this;
-    }
-
     public long getMessageDurationDays() {
         return messageDurationDays;
     }
 
     public void setMessageDurationDays(long messageDurationDays) {
         this.messageDurationDays = messageDurationDays;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = (mapper.writeValueAsString(this));
+        } catch (JsonProcessingException e) {
+            System.out.println(e);
+        }
+        return testReturn;
     }
     
 }
