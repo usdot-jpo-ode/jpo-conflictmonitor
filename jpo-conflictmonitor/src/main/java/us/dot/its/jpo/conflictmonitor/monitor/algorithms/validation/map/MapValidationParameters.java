@@ -1,30 +1,30 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
 
+import org.springframework.beans.factory.annotation.Value;
 
 @Data
 @Generated
 @Component
-@PropertySource(name = "spatBroadcastRate", value = "classpath:spatBroadcastRate-${spat.broadcast.rate.properties}.properties")
-public class SpatBroadcastRateParameters {
-
+@PropertySource("classpath:mapValidation-${map.validation.properties}.properties")
+public class MapValidationParameters {
+    
     String inputTopicName;
 
     /**
      * Output topic for 'Broadcast Rate' events
      */
-    String outputEventTopicName;
+    String broadcastRateTopicName;
 
     /**
      * Output topc for 'Minimum Data' events
      */
-    String minimumDataEventTopicName;
+    String minimumDataTopicName;
 
     // Window parameters
     int rollingPeriodSeconds;
@@ -37,46 +37,61 @@ public class SpatBroadcastRateParameters {
 
     // Whether to log diagnostic information for debugging
     boolean debug;
-   
 
-
-    @Value("${spat.broadcast.rate.outputEventTopicName}")
-    public void setOutputEventTopicName(String outputEventTopicName) {
-        this.outputEventTopicName = outputEventTopicName;
+    
+ 
+    @Value("${map.validation.broadcastRateTopicName}")
+    public void setBroadcastRateTopicName(String broadcastRateTopicName) {
+        this.broadcastRateTopicName = broadcastRateTopicName;
     }
 
-    @Value("${spat.broadcast.rate.inputTopicName}")
+    @Value("${map.validation.minimumDataTopicName}")
+    public void setMinimumDataTopicName(String minimumDataTopicName) {
+        this.minimumDataTopicName = minimumDataTopicName;
+    }
+    
+
+    @Value("${map.validation.inputTopicName}")
     public void setInputTopicName(String inputTopicName) {
         this.inputTopicName = inputTopicName;
     }
 
-    @Value("${spat.broadcast.rate.rollingPeriodSeconds}")
+   
+
+    @Value("${map.validation.rollingPeriodSeconds}")
     public void setRollingPeriodSeconds(int rollingPeriodDurationSeconds) {
         this.rollingPeriodSeconds = rollingPeriodDurationSeconds;
     }
 
-    @Value("${spat.broadcast.rate.outputIntervalSeconds}")
+    
+    @Value("${map.validation.outputIntervalSeconds}")
     public void setOutputIntervalSeconds(int outputIntervalSeconds) {
         this.outputIntervalSeconds = outputIntervalSeconds;
     }
 
-    @Value("${spat.broadcast.rate.gracePeriodMilliseconds}")
+
+    @Value("${map.validation.gracePeriodMilliseconds}")
     public void setGracePeriodMilliseconds(int gracePeriodMilliseconds) {
         this.gracePeriodMilliseconds = gracePeriodMilliseconds;
     }
 
-    @Value("${spat.broadcast.rate.lowerBound}")
+
+    @Value("${map.validation.lowerBound}")
     public void setLowerBound(int broadcastRateLowerBound) {
         this.lowerBound = broadcastRateLowerBound;
     }
 
-    @Value("${spat.broadcast.rate.upperBound}")
+    
+    @Value("${map.validation.upperBound}")
     public void setUpperBound(int broadcastRateUpperBound) {
         this.upperBound = broadcastRateUpperBound;
     }
 
-    @Value("${spat.broadcast.rate.debug}")
+   
+    @Value("${map.validation.debug}")
      public void setDebug(boolean debug) {
         this.debug = debug;
     }
+
+    
 }

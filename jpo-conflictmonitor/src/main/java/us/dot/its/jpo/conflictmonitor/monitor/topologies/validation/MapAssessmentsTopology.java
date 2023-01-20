@@ -1,6 +1,6 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
@@ -30,11 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_requirement.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -46,24 +46,24 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
  * <p>Reads {@link ProcessedMap} messages.
  * <p>Produces {@link MapBroadcastRateEvent}s and {@link MapMinimumDataEvent}s
  */
-@Component(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM)
+@Component(DEFAULT_MAP_VALIDATION_ALGORITHM)
 public class MapAssessmentsTopology 
-    implements MapBroadcastRateStreamsAlgorithm {
+    implements MapValidationStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MapAssessmentsTopology.class);
 
-    MapBroadcastRateParameters parameters;
+    MapValidationParameters parameters;
     Properties streamsProperties;
     Topology topology;
     KafkaStreams streams;
 
     @Override
-    public void setParameters(MapBroadcastRateParameters parameters) {
+    public void setParameters(MapValidationParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public MapBroadcastRateParameters getParameters() {
+    public MapValidationParameters getParameters() {
         return parameters;
     }
 
@@ -158,7 +158,7 @@ public class MapAssessmentsTopology
 
                 return KeyValue.pair(key, minDataEvent);
 
-            }).to(parameters.getMinimumDataEventTopicName(),
+            }).to(parameters.getMinimumDataTopicName(),
                 Produced.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                     JsonSerdes.MapMinimumDataEvent(), 
@@ -225,7 +225,7 @@ public class MapAssessmentsTopology
             });
         }
 
-        eventStream.to(parameters.getOutputEventTopicName(),
+        eventStream.to(parameters.getBroadcastRateTopicName(),
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.MapBroadcastRateEvent(), 

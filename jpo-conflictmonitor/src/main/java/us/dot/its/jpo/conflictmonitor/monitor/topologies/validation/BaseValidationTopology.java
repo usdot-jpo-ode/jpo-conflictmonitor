@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
 
 /**
  * Common code for {@link MapAssessmentsTopology} and {@link SpatAssessmentsTopoloby}

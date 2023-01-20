@@ -1,9 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
-
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateStreamsAlgorithm;
-
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.springframework.stereotype.Component;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
@@ -35,10 +32,13 @@ import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
 //import us.dot.its.jpo.ode.model.OdeSpatMetadata;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_requirement.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -49,25 +49,25 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
  * <p>Reads {@link ProcessedSpat} messages.
  * <p>Produces {@link SpatBroadcastRateEvent}s and {@link SpatMinimumDataEvent}s
  */
-@Component(DEFAULT_SPAT_BROADCAST_RATE_ALGORITHM)
-public class SpatAssessmentsTopology 
+@Component(DEFAULT_SPAT_VALIDATION_ALGORITHM)
+public class SpatValidationTopology 
     extends BaseValidationTopology
-    implements SpatBroadcastRateStreamsAlgorithm {
+    implements SpatValidationStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatAssessmentsTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpatValidationTopology.class);
 
-    SpatBroadcastRateParameters parameters;
+    SpatValidationParameters parameters;
     Properties streamsProperties;
     Topology topology;
     KafkaStreams streams;
 
     @Override
-    public void setParameters(SpatBroadcastRateParameters parameters) {
+    public void setParameters(SpatValidationParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public SpatBroadcastRateParameters getParameters() {
+    public SpatValidationParameters getParameters() {
         return parameters;
     }
 
@@ -158,7 +158,7 @@ public class SpatAssessmentsTopology
                     }
     
                     return KeyValue.pair(key, minDataEvent);
-            }).to(parameters.getMinimumDataEventTopicName(),
+            }).to(parameters.getMinimumDataTopicName(),
                 Produced.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                     JsonSerdes.SpatMinimumDataEvent(),
@@ -175,7 +175,9 @@ public class SpatAssessmentsTopology
             .windowedBy(
                 // Hopping window
                 TimeWindows
-                    .ofSizeAndGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()), Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
+                    .ofSizeAndGrace(
+                        Duration.ofSeconds(parameters.getRollingPeriodSeconds()), 
+                        Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
                     .advanceBy(Duration.ofSeconds(parameters.getOutputIntervalSeconds()))
             )
             .count(
@@ -225,7 +227,7 @@ public class SpatAssessmentsTopology
             });
         }
 
-        eventStream.to(parameters.getOutputEventTopicName(),
+        eventStream.to(parameters.getBroadcastRateTopicName(),
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.SpatBroadcastRateEvent(),

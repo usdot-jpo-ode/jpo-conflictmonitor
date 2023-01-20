@@ -29,8 +29,8 @@ public abstract class Notification {
 
     /**
      * @return A string that uniquely identifies the notification 
-     * for purposes of supressing duplicates.  It should 
-     * not depend on the absolute values any timestamp fields.
+     * for purposes of suppressing duplicates within the Conflict Monitor.  
+     * It should not depend on the absolute values of any timestamp fields.
      */
     public abstract String uniqueId();
 }

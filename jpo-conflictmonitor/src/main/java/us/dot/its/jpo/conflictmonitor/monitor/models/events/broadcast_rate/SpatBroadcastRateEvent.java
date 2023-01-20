@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 public class SpatBroadcastRateEvent
     extends BroadcastRateEvent {
 
-        SpatBroadcastRateEvent() {
+        public SpatBroadcastRateEvent() {
             super("SpatBroadcastRateEvent");
         }
     }

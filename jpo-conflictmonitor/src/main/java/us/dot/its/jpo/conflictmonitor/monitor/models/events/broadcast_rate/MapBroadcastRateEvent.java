@@ -13,4 +13,5 @@ public class MapBroadcastRateEvent
         public MapBroadcastRateEvent() {
             super("MapBroadcastRateEvent");
         }
+        
     }

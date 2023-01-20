@@ -8,11 +8,11 @@ server.port: 8082
 
 
 # Algorithm Properties
-map.broadcast.rate:
-  algorithm: defaultMapBroadcastRateAlgorithm
+map.validation:
+  algorithm: defaultMapValidationAlgorithm
   properties: debug
-spat.broadcast.rate:
-  algorithm: defaultSpatBroadcastRateAlgorithm
+spat.validation:
+  algorithm: defaultSpatValidationAlgorithm
   properties: debug
 connection.of.travel:
   algorithm: defaultConnectionOfTravelAlgorithm

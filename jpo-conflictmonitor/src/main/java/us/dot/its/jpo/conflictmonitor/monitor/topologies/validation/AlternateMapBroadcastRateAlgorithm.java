@@ -1,4 +1,6 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.map_spat_validation;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -7,28 +9,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 
 /**
  * Test algorithm just writes random numbers to the log
  */
-@Component(ALTERNATE_MAP_BROADCAST_RATE_ALGORITHM)
-public class AlternateMapBroadcastRateAlgorithm implements MapBroadcastRateAlgorithm {
+@Component(ALTERNATE_MAP_VALIDATION_ALGORITHM)
+public class AlternateMapBroadcastRateAlgorithm implements MapValidationAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(AlternateMapBroadcastRateAlgorithm.class);
 
-    MapBroadcastRateParameters parameters;
+    MapValidationParameters parameters;
     Timer timer;
 
     @Override
-    public void setParameters(MapBroadcastRateParameters parameters) {
+    public void setParameters(MapValidationParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public MapBroadcastRateParameters getParameters() {
+    public MapValidationParameters getParameters() {
         return parameters;
     }
 

@@ -43,11 +43,6 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.thymeleaf.util.StringUtils;
 
-
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
@@ -70,6 +65,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.ode.context.AppContext;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.model.OdeMsgMetadata;
@@ -84,12 +83,12 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    @Autowired
    private Environment env;
 
-   private MapBroadcastRateAlgorithmFactory mapBroadcastRateAlgorithmFactory;
-   private SpatBroadcastRateAlgorithmFactory spatBroadcastRateAlgorithmFactory;
-   private String mapBroadcastRateAlgorithm;
-   private String spatBroadcastRateAlgorithm;
-   private SpatBroadcastRateParameters spatBroadcastRateParameters;
-   private MapBroadcastRateParameters mapBroadcastRateParameters;
+   private MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
+   private SpatValidationStreamsAlgorithmFactory spatValidationAlgorithmFactory;
+   private String mapValidationAlgorithm;
+   private String spatValidationAlgorithm;
+   private SpatValidationParameters spatValidationParameters;
+   private MapValidationParameters mapValidationParameters;
 
   
    private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
@@ -140,57 +139,57 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    
 
    @Autowired
-   public void setMapBroadcastRateParameters(MapBroadcastRateParameters mapBroadcastRateParameters) {
-      this.mapBroadcastRateParameters = mapBroadcastRateParameters;
+   public void setMapValidationParameters(MapValidationParameters mapBroadcastRateParameters) {
+      this.mapValidationParameters = mapBroadcastRateParameters;
    }
 
    @Autowired
-   public void setSpatBroadcastRateParameters(SpatBroadcastRateParameters spatBroadcastRateParameters) {
-      this.spatBroadcastRateParameters = spatBroadcastRateParameters;
+   public void setSpatValidationParameters(SpatValidationParameters spatBroadcastRateParameters) {
+      this.spatValidationParameters = spatBroadcastRateParameters;
    }
 
    @Autowired
-   public void setMapBroadcastRateAlgorithmFactory(MapBroadcastRateAlgorithmFactory factory) {
-      this.mapBroadcastRateAlgorithmFactory = factory;
+   public void setMapValidationAlgorithmFactory(MapValidationAlgorithmFactory factory) {
+      this.mapValidationAlgorithmFactory = factory;
    }
 
    @Autowired
-   public void setSpatBroadcastRateAlgorithmFactory(SpatBroadcastRateAlgorithmFactory factory) {
-      this.spatBroadcastRateAlgorithmFactory = factory;
+   public void setSpatValidationAlgorithmFactory(SpatValidationStreamsAlgorithmFactory factory) {
+      this.spatValidationAlgorithmFactory = factory;
    }
 
-   @Value("${map.broadcast.rate.algorithm}")
-   public void setMapBroadcastRateAlgorithm(String mapBroadcastRateAlgorithm) {
-      this.mapBroadcastRateAlgorithm = mapBroadcastRateAlgorithm;
+   @Value("${map.validation.algorithm}")
+   public void setMapValidationAlgorithm(String mapBroadcastRateAlgorithm) {
+      this.mapValidationAlgorithm = mapBroadcastRateAlgorithm;
    }
 
-   @Value("${spat.broadcast.rate.algorithm}")
-   public void setSpatBroadcastRateAlgorithm(String spatBroadcastRateAlgorithm) {
-      this.spatBroadcastRateAlgorithm = spatBroadcastRateAlgorithm;
+   @Value("${spat.validation.algorithm}")
+   public void setSpatValidationAlgorithm(String spatBroadcastRateAlgorithm) {
+      this.spatValidationAlgorithm = spatBroadcastRateAlgorithm;
    }
 
-   public MapBroadcastRateAlgorithmFactory getMapBroadcastRateAlgorithmFactory() {
-      return mapBroadcastRateAlgorithmFactory;
+   public MapValidationAlgorithmFactory getMapValidationAlgorithmFactory() {
+      return mapValidationAlgorithmFactory;
    }
 
-   public SpatBroadcastRateAlgorithmFactory getSpatBroadcastRateAlgorithmFactory() {
-      return spatBroadcastRateAlgorithmFactory;
+   public SpatValidationStreamsAlgorithmFactory getSpatValidationAlgorithmFactory() {
+      return spatValidationAlgorithmFactory;
    }
 
-   public String getMapBroadcastRateAlgorithm() {
-      return this.mapBroadcastRateAlgorithm;
+   public String getMapValidationAlgorithm() {
+      return this.mapValidationAlgorithm;
    }
 
-   public String getSpatBroadcastRateAlgorithm() {
-      return this.spatBroadcastRateAlgorithm;
+   public String getSpatValidationAlgorithm() {
+      return this.spatValidationAlgorithm;
    }
 
-   public SpatBroadcastRateParameters getSpatBroadcastRateParameters() {
-      return this.spatBroadcastRateParameters;
+   public SpatValidationParameters getSpatValidationParameters() {
+      return this.spatValidationParameters;
    }
 
-   public MapBroadcastRateParameters getMapBroadcastRateParameters() {
-      return this.mapBroadcastRateParameters;
+   public MapValidationParameters getMapValidationParameters() {
+      return this.mapValidationParameters;
    }
 
    public LaneDirectionOfTravelAlgorithmFactory getLaneDirectionOfTravelAlgorithmFactory() {
