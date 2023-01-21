@@ -110,7 +110,7 @@ public class SpatValidationTopology
                 Consumed.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-                        .withTimestampExtractor(new SpatTimestampExtractor())
+                        .withTimestampExtractor(new TimestampExtractorForBroadcastRate())
                 );
 
         // Extract validation info for Minimum Data events
@@ -119,11 +119,11 @@ public class SpatValidationTopology
             .map((key, value) -> {
                 var minDataEvent = new SpatMinimumDataEvent();
                 var valMsgList = value.getValidationMessages();
-                var timestamp = SpatTimestampExtractor.extractTimestamp(value);
+                var timestamp = TimestampExtractorForBroadcastRate.extractTimestamp(value);
                 populateMinDataEvent(key, minDataEvent, valMsgList, parameters.getRollingPeriodSeconds(), 
                     timestamp);
                 if (parameters.isDebug()){
-                    logger.info("SpatMinimumDataEvent: {}", minDataEvent);
+                    logger.debug("SpatMinimumDataEvent {}", key);
                 }
                 return KeyValue.pair(key, minDataEvent);
             }).to(parameters.getMinimumDataTopicName(),

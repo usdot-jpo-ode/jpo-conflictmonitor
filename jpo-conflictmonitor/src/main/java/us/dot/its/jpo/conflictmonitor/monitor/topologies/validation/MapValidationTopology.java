@@ -113,7 +113,7 @@ public class MapValidationTopology
                 Consumed.with(
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
-                        .withTimestampExtractor(new MapTimestampExtractor())
+                        .withTimestampExtractor(new TimestampExtractorForBroadcastRate())
             );
 
         // Extract validation info for Minimum Data events
@@ -125,13 +125,17 @@ public class MapValidationTopology
             .map((key, value) -> {
                 var minDataEvent = new MapMinimumDataEvent();
                 var valMsgList = value.getProperties().getValidationMessages();
-                var timestamp = MapTimestampExtractor.extractTimestamp(value);
+                var timestamp = TimestampExtractorForBroadcastRate.extractTimestamp(value);
                 populateMinDataEvent(key, minDataEvent, valMsgList, parameters.getRollingPeriodSeconds(), 
                     timestamp);
                 return KeyValue.pair(key, minDataEvent);
             });
 
-        
+        if (parameters.isDebug()) {
+            minDataStream = minDataStream.peek((key, value) -> {
+                logger.info("MAP Min Data Event {}", key);
+            });
+        }
             
         minDataStream.to(parameters.getMinimumDataTopicName(),
             Produced.with(

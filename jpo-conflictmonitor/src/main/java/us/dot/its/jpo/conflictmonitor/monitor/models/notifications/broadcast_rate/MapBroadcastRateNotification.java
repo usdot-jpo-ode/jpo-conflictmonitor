@@ -5,7 +5,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 public class MapBroadcastRateNotification 
     extends BroadcastRateNotification<MapBroadcastRateEvent> {
 
-    public MapBroadcastRateNotification(String notificationType) {
+    public MapBroadcastRateNotification() {
         super("MapBroadcastRateNotification");
     }
 }

@@ -1,7 +1,15 @@
+#!/user/bin/env python
+
+# Call with argument to pass in interval seconds
+# example:
+# python spat_sender.py 0.11
+
 import socket
 import time
 import os
-import random
+import sys
+
+
 
 # Currently set to oim-dev environment's ODE
 UDP_IP = os.getenv('DOCKER_HOST_IP')
@@ -23,11 +31,10 @@ print("UDP target port:", UDP_PORT)
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 
 interval = 0.1
+if len(sys.argv) > 1:
+  interval = float(sys.argv[1])
 
 while True:
-  rand = random.randint(0, 1)
-  jitter = -0.09 if rand == 0 else 0.07
-  sleepTime = interval + jitter
-  time.sleep(sleepTime)
-  print(f"sending SPaT every {sleepTime} seconds")
+  time.sleep(interval)
+  print(f"sending SPaT every {interval} seconds")
   sock.sendto(bytes.fromhex(MESSAGE), (UDP_IP, UDP_PORT))

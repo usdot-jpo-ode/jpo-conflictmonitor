@@ -2,13 +2,17 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import java.time.ZonedDateTime;
 
-import lombok.Data;
+import lombok.Setter;
+import lombok.EqualsAndHashCode;
 import lombok.Generated;
+import lombok.Getter;
 
 /**
  * A processing time period with begin and end timestamps
  */
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Generated
 public class ProcessingTimePeriod {
     

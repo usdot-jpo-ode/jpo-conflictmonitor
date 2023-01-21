@@ -2,8 +2,17 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import java.time.ZonedDateTime;
 
-import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.EqualsAndHashCode;
 import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 /**
  * Base class for Notification messages.
@@ -11,9 +20,13 @@ import lombok.Generated;
  * <p>Notifications are informational messages that signal
  * an anomaly or error condition.
  */
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Generated
 public abstract class Notification {
+
+    private static final Logger logger = LoggerFactory.getLogger(Notification.class);
 
     private final long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     public final String notificationType;
@@ -34,7 +47,17 @@ public abstract class Notification {
      * for purposes of suppressing duplicates within the Conflict Monitor.  
      * It should not depend on the absolute values of any timestamp fields.
      */
-    public abstract String uniqueId();
+    public abstract String getUniqueId();
 
-    
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+           logger.error("Exception serializing to json", e);
+        }
+        return testReturn;
+    }
 }

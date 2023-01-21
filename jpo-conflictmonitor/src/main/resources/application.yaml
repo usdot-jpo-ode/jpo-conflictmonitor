@@ -10,10 +10,10 @@ server.port: 8082
 # Algorithm Properties
 map.validation:
   algorithm: defaultMapValidationAlgorithm
-  properties: debug
+  properties: default
 spat.validation:
   algorithm: defaultSpatValidationAlgorithm
-  properties: debug
+  properties: default
 connection.of.travel:
   algorithm: defaultConnectionOfTravelAlgorithm
   properties: debug

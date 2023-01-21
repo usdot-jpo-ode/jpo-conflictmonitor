@@ -157,7 +157,7 @@ public class MessageIngestTopology {
         //     return newKey;
         // });
 
-        mapJsonStream.print(Printed.toSysOut());
+        //mapJsonStream.print(Printed.toSysOut());
         
 
         return builder.build();
