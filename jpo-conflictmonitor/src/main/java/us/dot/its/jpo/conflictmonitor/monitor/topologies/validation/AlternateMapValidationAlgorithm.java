@@ -16,9 +16,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
  * Test algorithm just writes random numbers to the log
  */
 @Component(ALTERNATE_MAP_VALIDATION_ALGORITHM)
-public class AlternateMapBroadcastRateAlgorithm implements MapValidationAlgorithm {
+public class AlternateMapValidationAlgorithm implements MapValidationAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(AlternateMapBroadcastRateAlgorithm.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlternateMapValidationAlgorithm.class);
 
     MapValidationParameters parameters;
     Timer timer;

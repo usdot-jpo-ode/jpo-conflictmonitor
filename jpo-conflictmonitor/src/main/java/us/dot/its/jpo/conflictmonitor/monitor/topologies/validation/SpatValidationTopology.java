@@ -25,8 +25,6 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Suppressed;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
-import org.apache.kafka.streams.kstream.internals.TimeWindow;
-import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.WindowStore;
@@ -35,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
-//import us.dot.its.jpo.ode.model.OdeSpatMetadata;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
@@ -85,10 +82,6 @@ public class SpatValidationTopology
     public KafkaStreams getStreams() {
         return streams;
     }
-
-
-    
-
    
 
     @Override
@@ -122,42 +115,17 @@ public class SpatValidationTopology
 
         // Extract validation info for Minimum Data events
         processedSpatStream
-            .peek((key, value) -> {
-                logger.info("Min data received SPAT {}", key);
-            })
             .filter((key, value) -> !value.getCti4501Conformant())
-            .peek((key, value) -> {
-                logger.info("Filtered SPAT {}", key);
-            })
             .map((key, value) -> {
-                List<String> validationMessages = value.getValidationMessages()
-                    .stream()
-                    .map(valMsg -> String.format("%s (%s)", valMsg.getMessage(), valMsg.getSchemaPath()))
-                    .collect(Collectors.toList());
-                    var minDataEvent = new SpatMinimumDataEvent();
-                    minDataEvent.setMissingDataElements(validationMessages);
-                    minDataEvent.setIntersectionId(key.getIntersectionId());
-                    minDataEvent.setSourceDeviceId(key.getRsuId());
-    
-                    // Get the time window this event would be in without actually performing windowing
-                    // we just need to add the window timestamps to the event.
-    
-                    // Use a tumbling window with no grace to avoid duplicates
-                    var timeWindows = TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()));
-    
-                    // Gets a map of all time windows this instant could be in 
-                    Map<Long, TimeWindow> windows = timeWindows.windowsFor(SpatTimestampExtractor.extractTimestamp(value));
-    
-                    // Pick one (random map entry, but there should only be one for the tumbling window)
-                    TimeWindow window = windows.values().stream().findAny().orElse(null);                
-                    if (window != null) {
-                        var timePeriod = new ProcessingTimePeriod();
-                        timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
-                        timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
-                        minDataEvent.setTimePeriod(timePeriod);
-                    }
-    
-                    return KeyValue.pair(key, minDataEvent);
+                var minDataEvent = new SpatMinimumDataEvent();
+                var valMsgList = value.getValidationMessages();
+                var timestamp = SpatTimestampExtractor.extractTimestamp(value);
+                populateMinDataEvent(key, minDataEvent, valMsgList, parameters.getRollingPeriodSeconds(), 
+                    timestamp);
+                if (parameters.isDebug()){
+                    logger.info("SpatMinimumDataEvent: {}", minDataEvent);
+                }
+                return KeyValue.pair(key, minDataEvent);
             }).to(parameters.getMinimumDataTopicName(),
                 Produced.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 

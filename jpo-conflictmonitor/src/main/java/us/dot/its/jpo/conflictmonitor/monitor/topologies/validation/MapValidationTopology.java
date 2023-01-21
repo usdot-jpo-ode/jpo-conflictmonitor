@@ -22,7 +22,6 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Suppressed;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
-import org.apache.kafka.streams.kstream.internals.TimeWindow;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.WindowStore;
@@ -47,10 +46,11 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
  * <p>Produces {@link MapBroadcastRateEvent}s and {@link MapMinimumDataEvent}s
  */
 @Component(DEFAULT_MAP_VALIDATION_ALGORITHM)
-public class MapAssessmentsTopology 
+public class MapValidationTopology 
+    extends BaseValidationTopology
     implements MapValidationStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapAssessmentsTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapValidationTopology.class);
 
     MapValidationParameters parameters;
     Properties streamsProperties;
@@ -117,53 +117,30 @@ public class MapAssessmentsTopology
             );
 
         // Extract validation info for Minimum Data events
-        processedMapStream
-            .peek((key, value) -> {
-                logger.info("Min data received MAP {}", key);
-            })
+        KStream<RsuIntersectionKey, MapMinimumDataEvent> minDataStream = processedMapStream
             // Filter out messages that are valid
             .filter((key, value) -> value.getProperties() != null && !value.getProperties().getCti4501Conformant())
-            .peek((key, value) -> {
-                logger.info("Filtered MAP {}", key);
-            })
+           
             // Produce events for the messages that have validation errors
             .map((key, value) -> {
-                List<String> validationMessages = value.getProperties()
-                    .getValidationMessages()
-                    .stream()
-                    .map(valMsg -> String.format("%s (%s)", valMsg.getMessage(), valMsg.getSchemaPath()))
-                    .collect(Collectors.toList());
                 var minDataEvent = new MapMinimumDataEvent();
-                minDataEvent.setMissingDataElements(validationMessages);
-                minDataEvent.setIntersectionId(key.getIntersectionId());
-                minDataEvent.setSourceDeviceId(key.getRsuId());
-
-                // Get the time window this event would be in without actually performing windowing
-                // we just need to add the window timestamps to the event.
-
-                // Use a tumbling window with no grace to avoid duplicates
-                var timeWindows = TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()));
-
-                // Gets a map of all time windows this instant could be in 
-                Map<Long, TimeWindow> windows = timeWindows.windowsFor(MapTimestampExtractor.extractTimestamp(value));
-
-                // Pick one (random map entry, but there should only be one for the tumbling window)
-                TimeWindow window = windows.values().stream().findAny().orElse(null);                
-                if (window != null) {
-                    var timePeriod = new ProcessingTimePeriod();
-                    timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
-                    timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
-                    minDataEvent.setTimePeriod(timePeriod);
-                }
-
+                var valMsgList = value.getProperties().getValidationMessages();
+                var timestamp = MapTimestampExtractor.extractTimestamp(value);
+                populateMinDataEvent(key, minDataEvent, valMsgList, parameters.getRollingPeriodSeconds(), 
+                    timestamp);
                 return KeyValue.pair(key, minDataEvent);
+            });
 
-            }).to(parameters.getMinimumDataTopicName(),
-                Produced.with(
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
-                    JsonSerdes.MapMinimumDataEvent(), 
-                    new RsuIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
-            );
+        
+            
+        minDataStream.to(parameters.getMinimumDataTopicName(),
+            Produced.with(
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                JsonSerdes.MapMinimumDataEvent(), 
+                new RsuIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
+        );
+
+        
 
         // Perform count for Broadcast Rate analysis
         KStream<Windowed<RsuIntersectionKey>, Long> countStream = 

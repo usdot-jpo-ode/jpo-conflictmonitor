@@ -4,12 +4,15 @@ import java.util.List;
 
 import lombok.Data;
 import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.EqualsAndHashCode;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @Generated
 public abstract class MinimumDataEvent extends Event  {

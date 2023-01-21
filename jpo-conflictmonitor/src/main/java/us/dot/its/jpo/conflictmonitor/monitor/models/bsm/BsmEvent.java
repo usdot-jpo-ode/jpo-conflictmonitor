@@ -4,11 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Generated
 public class BsmEvent {
     private OdeBsmData startingBsm;

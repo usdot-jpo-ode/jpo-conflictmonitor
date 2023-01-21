@@ -16,10 +16,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
  * Test SPAT algorithm, writes random numbers to the log in debug mode.
  */
 @Component(ALTERNATE_SPAT_VALIDATION_ALGORITHM)
-public class AlternateSpatBroadcastRateAlgorithm
+public class AlternateSpatValidationAlgorithm
     implements SpatValidationAlgorithm {
     
-        private static final Logger logger = LoggerFactory.getLogger(AlternateSpatBroadcastRateAlgorithm.class);
+        private static final Logger logger = LoggerFactory.getLogger(AlternateSpatValidationAlgorithm.class);
 
     SpatValidationParameters parameters;
     Timer timer;

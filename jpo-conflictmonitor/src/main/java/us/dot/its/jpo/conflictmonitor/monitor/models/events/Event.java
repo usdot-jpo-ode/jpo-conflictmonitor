@@ -8,9 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@EqualsAndHashCode
 @Generated
 public abstract class Event {
     

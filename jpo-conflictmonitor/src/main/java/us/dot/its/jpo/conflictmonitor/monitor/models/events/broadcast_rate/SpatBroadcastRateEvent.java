@@ -4,9 +4,7 @@ import lombok.Data;
 import lombok.Generated;
 import lombok.EqualsAndHashCode;
 
-@Data
-@Generated
-@EqualsAndHashCode(callSuper = true)
+
 public class SpatBroadcastRateEvent
     extends BroadcastRateEvent {
 

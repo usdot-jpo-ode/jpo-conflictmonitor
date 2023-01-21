@@ -12,7 +12,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod
 /**
  * Base class for a Broadcast Rate event to report counts of events during the processing time period.
  */
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @Generated
 public abstract class BroadcastRateEvent extends Event {
