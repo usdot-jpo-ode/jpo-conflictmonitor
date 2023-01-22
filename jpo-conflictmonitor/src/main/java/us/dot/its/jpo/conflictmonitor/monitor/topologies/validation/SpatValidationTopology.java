@@ -102,7 +102,7 @@ public class SpatValidationTopology
         logger.info("Started SpatBroadcastRateTopology.");
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
         KStream<RsuIntersectionKey, ProcessedSpat> processedSpatStream = builder
@@ -176,6 +176,7 @@ public class SpatValidationTopology
                 // Generate an event
                 SpatBroadcastRateEvent event = new SpatBroadcastRateEvent();
                 event.setSourceDeviceId(windowedKey.key().getRsuId());
+                event.setIntersectionId(windowedKey.key().getIntersectionId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 

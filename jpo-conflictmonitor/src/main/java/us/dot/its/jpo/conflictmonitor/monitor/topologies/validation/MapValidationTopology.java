@@ -105,7 +105,7 @@ public class MapValidationTopology
         logger.info("Started MapBroadcastRateTopology.");
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
         KStream<RsuIntersectionKey, ProcessedMap> processedMapStream = builder
@@ -187,6 +187,7 @@ public class MapValidationTopology
                 // Generate an event
                 MapBroadcastRateEvent event = new MapBroadcastRateEvent();
                 event.setSourceDeviceId(windowedKey.key().getRsuId());
+                event.setIntersectionId(windowedKey.key().getIntersectionId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
