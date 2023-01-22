@@ -14,30 +14,34 @@ import org.apache.kafka.streams.TopologyTestDriver;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapSharedProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+
 public class MapValidationTopologyTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(MapValidationTopologyTest.class);
 
     final String inputTopicName = "topic.ProcessedMap";
     final String broadcastRateTopicName = "topic.CmMapBroadcastRateEvents";
     final String minimumDataTopicName = "topic.CmMapMinimumDataEvents";
     
-
+    // Use a tumbling window for test (rolling period = output interval)
+    // just to make it easier to design the test.
     final int rollingPeriod = 10;
-    final int outputInterval = 10;  // Tumbling window for test
+    final int outputInterval = 10;  
     final int gracePeriod = 100;
+
+    // Start time on 10-second window boundary
+    final Instant startTime = Instant.ofEpochMilli(1674356320000L);
 
     final int lowerBound = 9;
     final int upperBound = 11;
@@ -45,8 +49,7 @@ public class MapValidationTopologyTest {
 
     final String validationMsg = "Validation Message";
 
-    // Start time on 10-second window boundary
-    final Instant startTime = Instant.ofEpochMilli(1674356320000L);
+
     final String rsuId = "127.0.0.1";
     final int intersectionId = 11111;
     
@@ -85,12 +88,12 @@ public class MapValidationTopologyTest {
                 JsonSerdes.MapMinimumDataEvent().deserializer()
             );
 
-            final RsuIntersectionKey key = getKey();
+            final RsuIntersectionKey key = new RsuIntersectionKey(rsuId, intersectionId);
 
             // Send maps at .5 Hz (slow)
             final int slowPeriodMillis = 2000;
             final int totalTimeSeconds = 13;
-            List<Instant> instants = getSendInstants(startTime, slowPeriodMillis, totalTimeSeconds);
+            List<Instant> instants = TopologyTestUtils.getInstants(startTime, slowPeriodMillis, totalTimeSeconds);
             for (var currentInstant : instants) {
                 var map = createMap(currentInstant);
                 inputTopic.pipeInput(key, map, currentInstant);
@@ -142,12 +145,7 @@ public class MapValidationTopologyTest {
         return parameters;
     }
 
-    private RsuIntersectionKey getKey() {
-        var key = new RsuIntersectionKey();
-        key.setRsuId(rsuId);
-        key.setIntersectionId(intersectionId);
-        return key;
-    }
+
 
     private ProcessedMap createMap(Instant timestamp) {
         var map = new ProcessedMap();
@@ -163,21 +161,7 @@ public class MapValidationTopologyTest {
         return map;
     }
 
-    /**
-     * Create a list of instants with period in Milliseconds lasting totalSeconds
-     */
-    private List<Instant> getSendInstants(Instant start, int periodMillis, int totalSeconds) {
-        var instants = new ArrayList<Instant>();
-        var currentTime = start.plusMillis(0L);
-        instants.add(currentTime);
-        logger.info("{}", currentTime);
-        while (Duration.between(start, currentTime).getSeconds() <= totalSeconds) {
-            currentTime = currentTime.plusMillis(periodMillis);
-            instants.add(currentTime);
-            logger.info("{}", currentTime);
-        }
-        return instants;
-    }
+    
 
     
 }

@@ -122,11 +122,15 @@ public class SpatValidationTopology
                 var timestamp = TimestampExtractorForBroadcastRate.extractTimestamp(value);
                 populateMinDataEvent(key, minDataEvent, valMsgList, parameters.getRollingPeriodSeconds(), 
                     timestamp);
-                if (parameters.isDebug()){
-                    logger.debug("SpatMinimumDataEvent {}", key);
-                }
+                
                 return KeyValue.pair(key, minDataEvent);
-            }).to(parameters.getMinimumDataTopicName(),
+            })
+            .peek((key, value) -> {
+                if (parameters.isDebug()){
+                    logger.info("SpatMinimumDataEvent {}", key);
+                }
+            })
+            .to(parameters.getMinimumDataTopicName(),
                 Produced.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                     JsonSerdes.SpatMinimumDataEvent(),
