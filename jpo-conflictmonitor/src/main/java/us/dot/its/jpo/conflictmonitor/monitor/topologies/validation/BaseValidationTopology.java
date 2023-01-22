@@ -49,8 +49,8 @@ public abstract class BaseValidationTopology {
         TimeWindow window = windows.values().stream().findAny().orElse(null);                
         if (window != null) {
             var timePeriod = new ProcessingTimePeriod();
-            timePeriod.setBeginTimestamp(window.startTime().atZone(ZoneOffset.UTC));
-            timePeriod.setEndTimestamp(window.endTime().atZone(ZoneOffset.UTC));
+            timePeriod.setBeginTimestamp(window.startTime().toEpochMilli());
+            timePeriod.setEndTimestamp(window.endTime().toEpochMilli());
             minDataEvent.setTimePeriod(timePeriod);
         }
     }

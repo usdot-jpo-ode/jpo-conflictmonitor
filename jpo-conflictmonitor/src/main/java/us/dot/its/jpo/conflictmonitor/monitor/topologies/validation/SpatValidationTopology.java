@@ -180,8 +180,8 @@ public class SpatValidationTopology
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
                 // Grab the timestamps from the time window
-                timePeriod.setBeginTimestamp(windowedKey.window().startTime().atZone(ZoneOffset.UTC));
-                timePeriod.setEndTimestamp(windowedKey.window().endTime().atZone(ZoneOffset.UTC));
+                timePeriod.setBeginTimestamp(windowedKey.window().startTime().toEpochMilli());
+                timePeriod.setEndTimestamp(windowedKey.window().endTime().toEpochMilli());
                 event.setTimePeriod(timePeriod);
                 event.setNumberOfMessages(counts != null ? counts.intValue() : -1);
 
