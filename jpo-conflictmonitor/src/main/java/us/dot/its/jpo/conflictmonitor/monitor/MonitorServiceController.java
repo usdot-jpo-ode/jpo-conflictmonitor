@@ -254,16 +254,16 @@ public class MonitorServiceController {
 
 
             // Intersection Reference Alignment Notification Topology
-            IntersectionReferenceAlignmentNotificationAlgorithmFactory iranAlgoFactory = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmFactory();
-            String intersectionReferenceAlignmentNotificationAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
-            IntersectionReferenceAlignmentNotificationAlgorithm intersectionReferenceAlignmentNotificationAlgo = iranAlgoFactory.getAlgorithm(intersectionReferenceAlignmentNotificationAlgorithm);
-            IntersectionReferenceAlignmentNotificationParameters intersectionReferenceAlignmentNotificationParams = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmParameters();
-            if (intersectionReferenceAlignmentNotificationAlgo instanceof IntersectionReferenceAlignmentNotificationStreamsAlgorithm) {
-                ((IntersectionReferenceAlignmentNotificationStreamsAlgorithm)intersectionReferenceAlignmentNotificationAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("intersectionReferenceAlignmentNotification"));
-            }
-            intersectionReferenceAlignmentNotificationAlgo.setParameters(intersectionReferenceAlignmentNotificationParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(intersectionReferenceAlignmentNotificationAlgo::stop));
-            intersectionReferenceAlignmentNotificationAlgo.start();
+            // IntersectionReferenceAlignmentNotificationAlgorithmFactory iranAlgoFactory = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmFactory();
+            // String intersectionReferenceAlignmentNotificationAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
+            // IntersectionReferenceAlignmentNotificationAlgorithm intersectionReferenceAlignmentNotificationAlgo = iranAlgoFactory.getAlgorithm(intersectionReferenceAlignmentNotificationAlgorithm);
+            // IntersectionReferenceAlignmentNotificationParameters intersectionReferenceAlignmentNotificationParams = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmParameters();
+            // if (intersectionReferenceAlignmentNotificationAlgo instanceof IntersectionReferenceAlignmentNotificationStreamsAlgorithm) {
+            //     ((IntersectionReferenceAlignmentNotificationStreamsAlgorithm)intersectionReferenceAlignmentNotificationAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("intersectionReferenceAlignmentNotification"));
+            // }
+            // intersectionReferenceAlignmentNotificationAlgo.setParameters(intersectionReferenceAlignmentNotificationParams);
+            // Runtime.getRuntime().addShutdownHook(new Thread(intersectionReferenceAlignmentNotificationAlgo::stop));
+            // intersectionReferenceAlignmentNotificationAlgo.start();
             
 
             //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through

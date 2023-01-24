@@ -1,15 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.KeyValue;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +25,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -196,6 +201,40 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             parameters.getIntersectionReferenceAlignmentEventTopicName(), 
             Produced.with(Serdes.String(),
                     JsonSerdes.IntersectionReferenceAlignmentEvent()));
+
+
+    KStream<String, IntersectionReferenceAlignmentNotification> notificationEventStream = intersectionReferenceAlignmentEventStream.flatMap(
+            (key, value)->{
+                List<KeyValue<String, IntersectionReferenceAlignmentNotification>> result = new ArrayList<KeyValue<String, IntersectionReferenceAlignmentNotification>>();
+
+                IntersectionReferenceAlignmentNotification notification = new IntersectionReferenceAlignmentNotification();
+                notification.setEvent(value);
+                notification.setNotificationText("Intersection Reference Alignment Notification, generated because corresponding intersection reference alignment event was generated.");
+                notification.setNotificationHeading("Intersection Reference Alignment");
+                result.add(new KeyValue<>(key, notification));
+                return result;
+            }
+        );
+            
+        KTable<String, IntersectionReferenceAlignmentNotification> notificationTable = 
+            notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.IntersectionReferenceAlignmentNotification()))
+            .reduce(
+                (oldValue, newValue)->{
+                        return oldValue;
+                },
+            Materialized.<String, IntersectionReferenceAlignmentNotification, KeyValueStore<Bytes, byte[]>>as("IntersectionReferenceAlignmentNotification")
+            .withKeySerde(Serdes.String())
+            .withValueSerde(JsonSerdes.IntersectionReferenceAlignmentNotification())
+        );
+
+        notificationTable.toStream().to(
+            parameters.getIntersectionReferenceAlignmentNotificationTopicName(),
+            Produced.with(Serdes.String(),
+                    JsonSerdes.IntersectionReferenceAlignmentNotification()));
+
+        if(parameters.isDebug()){
+            notificationTable.toStream().print(Printed.toSysOut());
+        }
 
 
     // Signal Group Alignment Event Check
