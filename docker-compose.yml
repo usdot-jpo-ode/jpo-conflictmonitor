@@ -11,18 +11,15 @@ services:
         max-file: "5"
 
   mongodb_container:
-    image: mongo:latest
+    image: mongo:6.0.3
     container_name: mongodb_container
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: rootpassword
     ports:
       - 27017:27017
     volumes:
       - mongodb_data_container:/data/db
 
   connect:
-    image: cp-kafka-connect
+    image: cp-kafka-connect:6.1.9
     build:
       context: ./docker/connect
       dockerfile: Dockerfile
@@ -64,7 +61,6 @@ services:
         echo -e "\n--\n+> Creating Kafka Connect MongoDB sink"
         bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017"
         sleep infinity
-
 
 volumes:
   mongodb_data_container:

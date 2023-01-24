@@ -64,12 +64,6 @@ function createSink() {
     echo "timefield=$timefield"
     echo "convert_timestamp=$convert_timestamp"
 
-#
-# Error handling for all sinks: don't stop on errors and write errors to a dead letter queue
-# and include failed record header info.
-# See https://docs.mongodb.com/kafka-connector/master/sink-connector/fundamentals/error-handling-strategies/
-# and https://docs.confluent.io/platform/current/connect/concepts.html#dead-letter-queue
-#
     local connectConfig=' {
         "group.id":"connector-consumer",
         "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
@@ -104,7 +98,7 @@ function createSink() {
 
     echo " Creating connector with Config : $connectConfig"
 
-    curl -X PUT http://localhost:8083/connectors/mongo-sink-${name}/config -H "Content-Type: application/json" -d "$connectConfig"
+    curl -X PUT http://localhost:8083/connectors/MongoSink.${name}/config -H "Content-Type: application/json" -d "$connectConfig"
 }
 
 createSink OdeRawEncodedBSMJson

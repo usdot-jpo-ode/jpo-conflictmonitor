@@ -1,6 +1,6 @@
-FROM confluentinc/cp-kafka-connect:latest
+FROM confluentinc/cp-kafka-connect:6.1.9
 
 COPY connect_start.sh /scripts/connect_start.sh
 
-RUN confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:latest
-RUN confluent-hub install --no-prompt confluentinc/connect-transforms:latest
+RUN confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:1.9.0
+RUN confluent-hub install --no-prompt confluentinc/connect-transforms:1.4.3
