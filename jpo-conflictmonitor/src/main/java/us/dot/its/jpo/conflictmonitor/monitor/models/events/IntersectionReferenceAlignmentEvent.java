@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-public class IntersectionReferenceAlignmentEvent extends Event implements NotificationSource{
+public class IntersectionReferenceAlignmentEvent extends Event{
     
     private String sourceID;
     private long timestamp;
@@ -16,6 +16,8 @@ public class IntersectionReferenceAlignmentEvent extends Event implements Notifi
     private Set<Integer> mapRoadRegulatorIds;
     private Set<Integer> spatIntersectionIds;
     private Set<Integer> mapIntersectionIds;
+
+    
 
     public IntersectionReferenceAlignmentEvent(){
         super("IntersectionReferenceAlignment");
@@ -81,8 +83,11 @@ public class IntersectionReferenceAlignmentEvent extends Event implements Notifi
         return testReturn;
     }
 
-    @Override
-    public String getNotificationSourceString() {
-        return "Intersection Reference Alignment Event";
-    }
+    // public String getNotificationSourceString() {
+    //     return "Intersection Reference Alignment Event";
+    // }
+
+    // public void setNotificationSourceString(String notificationSourceString) {
+    //     this.notificationSourceString = notificationSourceString;
+    // }
 }

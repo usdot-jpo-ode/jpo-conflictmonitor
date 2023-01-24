@@ -2,75 +2,62 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import java.time.ZonedDateTime;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Notification {
-    private long notificationGeneratedAt;
-    private NotificationSource source;
-    private String notificationType;
-    private String notitificationHeading;
-    private String notificationText;
-    private int roadRegulatorID;
-    private int intersectionID;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-    public Notification(){
-        setNotificationGeneratedAt(ZonedDateTime.now().toInstant().toEpochMilli());
-    }
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-    public long getNotificationGeneratedAt() {
-        return notificationGeneratedAt;
-    }
+/**
+ * Base class for Notification messages.
+ * 
+ * <p>Notifications are informational messages that signal
+ * an anomaly or error condition.
+ */
+@Getter
+@Setter
+@EqualsAndHashCode
+@Generated
+public abstract class Notification {
 
-    public void setNotificationGeneratedAt(long notificationGeneratedAt) {
-        this.notificationGeneratedAt = notificationGeneratedAt;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(Notification.class);
 
-    public NotificationSource getSource() {
-        return source;
-    }
+    private final long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    public final String notificationType;
+    public String notificationText;
+    public String notificationHeading;
 
-    public void setSource(NotificationSource source) {
-        this.source = source;
-    }
-
-    public String getNotificationType() {
-        return notificationType;
-    }
-
-    public void setNotificationType(String notificationType) {
+    public Notification(String notificationType) {
         this.notificationType = notificationType;
     }
 
-    public String getNotitificationHeading() {
-        return notitificationHeading;
-    }
+    /**
+     * When the notification expires.
+     */
+    private ZonedDateTime notificationExpiresAt;
 
-    public void setNotitificationHeading(String notitificationHeading) {
-        this.notitificationHeading = notitificationHeading;
-    }
+    /**
+     * @return A string that uniquely identifies the notification 
+     * for purposes of suppressing duplicates within the Conflict Monitor.  
+     * It should not depend on the absolute values of any timestamp fields.
+     */
+    public abstract String getUniqueId();
 
-    public String getNotificationText() {
-        return notificationText;
+    @Override
+    public String toString() {
+        ObjectMapper mapper = DateJsonMapper.getInstance();
+        String testReturn = "";
+        try {
+            testReturn = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+           logger.error("Exception serializing to json", e);
+        }
+        return testReturn;
     }
-
-    public void setNotificationText(String notificationText) {
-        this.notificationText = notificationText;
-    }
-    
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
-    }
-
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
-    }
-
-    public int getIntersectionID() {
-        return intersectionID;
-    }
-
-    public void setIntersectionID(int intersectionID) {
-        this.intersectionID = intersectionID;
-    }
-
 }

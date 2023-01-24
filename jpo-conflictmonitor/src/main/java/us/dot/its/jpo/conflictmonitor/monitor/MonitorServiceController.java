@@ -189,7 +189,7 @@ public class MonitorServiceController {
             streams.start();
 
             
-            Thread.sleep(15000);
+            Thread.sleep(20000);
             
             ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
                 streams.store(StoreQueryParameters.fromNameAndType(bsmStoreName, QueryableStoreTypes.windowStore()));
@@ -253,7 +253,7 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.start();
 
 
-            // Connection Of Travel Assessment Topology
+            // Intersection Reference Alignment Notification Topology
             IntersectionReferenceAlignmentNotificationAlgorithmFactory iranAlgoFactory = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmFactory();
             String intersectionReferenceAlignmentNotificationAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
             IntersectionReferenceAlignmentNotificationAlgorithm intersectionReferenceAlignmentNotificationAlgo = iranAlgoFactory.getAlgorithm(intersectionReferenceAlignmentNotificationAlgorithm);

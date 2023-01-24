@@ -845,7 +845,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams10");
+      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams1");
       // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
    }

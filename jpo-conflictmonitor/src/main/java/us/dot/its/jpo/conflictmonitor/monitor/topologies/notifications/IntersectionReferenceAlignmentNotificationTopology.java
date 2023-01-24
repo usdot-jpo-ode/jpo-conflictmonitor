@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -139,48 +140,38 @@ public class IntersectionReferenceAlignmentNotificationTopology
             intersectionReferenceAlignmentEvents.print(Printed.toSysOut());
         }
 
-        KStream<String, Notification> notificationEventStream = intersectionReferenceAlignmentEvents.flatMap(
+        KStream<String, IntersectionReferenceAlignmentNotification> notificationEventStream = intersectionReferenceAlignmentEvents.flatMap(
             (key, value)->{
-                List<KeyValue<String, Notification>> result = new ArrayList<KeyValue<String, Notification>>();
+                List<KeyValue<String, IntersectionReferenceAlignmentNotification>> result = new ArrayList<KeyValue<String, IntersectionReferenceAlignmentNotification>>();
 
-                Notification notification = new Notification();
-                notification.setIntersectionID(0);
-                notification.setRoadRegulatorID(0);
-                notification.setNotitificationHeading("Intersection Reference Alignment Notification");
-                notification.setNotificationText("");
-                notification.setNotificationType(value.getNotificationSourceString());
-                notification.setSource(value);
+                IntersectionReferenceAlignmentNotification notification = new IntersectionReferenceAlignmentNotification();
+                notification.setEvent(value);
+                notification.setNotificationText("Intersection Reference Alignment Notification, generated because corresponding intersection reference alignment event was generated.");
+                notification.setNotificationHeading("Intersection Reference Alignment");
                 result.add(new KeyValue<>(key, notification));
-
                 return result;
             }
         );
 
-        KGroupedStream<String, Notification> notificationKeyGroup = notificationEventStream.groupByKey();
+        KTable<String, IntersectionReferenceAlignmentNotification> notificationTable = 
+            notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.IntersectionReferenceAlignmentNotification()))
+            .reduce(
+                (oldValue, newValue)->{
+                        return oldValue;
+                },
+            Materialized.<String, IntersectionReferenceAlignmentNotification, KeyValueStore<Bytes, byte[]>>as("IntersectionReferenceAlignmentNotification")
+            .withKeySerde(Serdes.String())
+            .withValueSerde(JsonSerdes.IntersectionReferenceAlignmentNotification())
+        );
 
-        // KTable<String, Notification> firstKTable = 
-        //     builder.table(notificationEventStream, 
-        //     Materialized.with(Serdes.String(), JsonSerdes.Notification()));
+        notificationTable.toStream().to(
+            parameters.getIntersectionReferenceAlignmentNotificationTopicName(),
+            Produced.with(Serdes.String(),
+                    JsonSerdes.IntersectionReferenceAlignmentNotification()));
 
-        // //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
-        // //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        // KTable<String, Notification> intersectionNotifications = notificationKeyGroup
-        //     .reduce(
-        //     (oldValue, newValue)->{
-        //         System.out.println(newValue);
-        //         return newValue;
-        //     },
-            
-        //     Materialized.with(
-        //         Serdes.String(),
-        //         JsonSerdes.Notification()
-        //     ));
-
-        // intersectionNotifications.toStream().to(
-        //     parameters.getIntersectionReferenceAlignmentNotificationTopicName(),
-        //     Produced.with(Serdes.String(),
-        //             JsonSerdes.Notification()));
-
+        if(parameters.isDebug()){
+            notificationTable.toStream().print(Printed.toSysOut());
+        }
                     
         return builder.build();
     }    

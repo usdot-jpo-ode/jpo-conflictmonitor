@@ -118,7 +118,7 @@ public class MessageIngestTopology {
             .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
         );
 
-        processedSpatStream.print(Printed.toSysOut());
+        // processedSpatStream.print(Printed.toSysOut());
 
         
 

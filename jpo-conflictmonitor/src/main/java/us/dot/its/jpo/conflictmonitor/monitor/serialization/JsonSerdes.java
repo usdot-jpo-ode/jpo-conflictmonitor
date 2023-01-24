@@ -33,7 +33,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.Spat
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -182,11 +182,13 @@ public class JsonSerdes {
             new JsonDeserializer<>(BsmIntersectionKey.class));
     }
 
-    public static Serde<Notification> Notification() {
+    public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {
         return Serdes.serdeFrom(
-            new JsonSerializer<Notification>(),
-            new JsonDeserializer<>(Notification.class));
+            new JsonSerializer<IntersectionReferenceAlignmentNotification>(),
+            new JsonDeserializer<>(IntersectionReferenceAlignmentNotification.class));
     }
+
+    
 
     
 
