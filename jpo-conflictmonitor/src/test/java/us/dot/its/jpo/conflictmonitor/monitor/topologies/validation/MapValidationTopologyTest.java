@@ -139,8 +139,8 @@ public class MapValidationTopologyTest {
         parameters.setRollingPeriodSeconds(rollingPeriod);
         parameters.setOutputIntervalSeconds(outputInterval);
         parameters.setGracePeriodMilliseconds(gracePeriod);
-        parameters.setLowerBound(9);
-        parameters.setUpperBound(11);
+        parameters.setLowerBound(lowerBound);
+        parameters.setUpperBound(upperBound);
         parameters.setDebug(debug);
         return parameters;
     }
