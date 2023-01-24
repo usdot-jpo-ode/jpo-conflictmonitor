@@ -5,9 +5,10 @@ import java.time.ZonedDateTime;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-public abstract class Event {
+public abstract class Event{
     
     private long eventGeneratedAt;
     private String eventType = "";

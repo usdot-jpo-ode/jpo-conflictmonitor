@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEven
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
@@ -32,6 +33,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.Spat
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -172,6 +174,18 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<ConnectionOfTravelAggregator>(),
             new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
+    }
+
+    public static Serde<BsmIntersectionKey> BsmIntersectionKey() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmIntersectionKey>(),
+            new JsonDeserializer<>(BsmIntersectionKey.class));
+    }
+
+    public static Serde<Notification> Notification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<Notification>(),
+            new JsonDeserializer<>(Notification.class));
     }
 
     

@@ -104,7 +104,7 @@ You must rename `sample.env` to `.env` for Docker to automatically read the file
 
 The following instructions describe the minimal procedure to fetch, build, and run the main ConflictMonitor application.
 
-#### Step 0 - For Windows Users Only
+#### Step 0
 
 If running on Windows, please make sure that your global git config is set up to not convert end-of-line characters during checkout.
 
@@ -112,6 +112,11 @@ Disable `git core.autocrlf` (One Time Only)
 
 ```bash
 git config --global core.autocrlf false
+```
+
+Enable Long Filepaths for Git
+```bash
+git config core.longpaths true
 ```
 
 #### Step 1 - Download the Source Code

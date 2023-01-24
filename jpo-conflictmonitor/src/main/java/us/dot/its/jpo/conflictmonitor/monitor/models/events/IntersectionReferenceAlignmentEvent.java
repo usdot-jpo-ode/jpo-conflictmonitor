@@ -5,9 +5,10 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-public class IntersectionReferenceAlignmentEvent extends Event{
+public class IntersectionReferenceAlignmentEvent extends Event implements NotificationSource{
     
     private String sourceID;
     private long timestamp;
@@ -78,5 +79,10 @@ public class IntersectionReferenceAlignmentEvent extends Event{
             System.out.println(e);
         }
         return testReturn;
+    }
+
+    @Override
+    public String getNotificationSourceString() {
+        return "Intersection Reference Alignment Event";
     }
 }

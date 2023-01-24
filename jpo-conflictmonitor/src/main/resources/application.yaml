@@ -47,6 +47,9 @@ connection.of.travel.assessment:
 repartition:
   algorithm: defaultRepartitionAlgorithm
   properties: debug
+intersection.reference.alignment.notification:
+  algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
+  properties: debug
 
 
 # Kafka properties
@@ -89,5 +92,17 @@ kafka.topics:
       cleanupPolicy: delete
       retentionMs: 300000
     - name: "topic.CmBsmJsonRepartition"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedSpat
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedMap
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.OdeBsmJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: CmSignalStateEventAssessment
       cleanupPolicy: delete
       retentionMs: 300000

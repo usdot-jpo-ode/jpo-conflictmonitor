@@ -107,7 +107,10 @@ public class ConnectionOfTravelAssessmentTopology
                     .withTimestampExtractor(new ConnectionOfTravelTimestampExtractor())
                 );
 
-        connectionOfTravelEvents.print(Printed.toSysOut());
+        if(parameters.isDebug()){
+            connectionOfTravelEvents.print(Printed.toSysOut());
+        }
+        
         
 
         Initializer<ConnectionOfTravelAggregator> connectionOfTravelAssessmentInitializer = ()->{
@@ -136,7 +139,9 @@ public class ConnectionOfTravelAssessmentTopology
             .map((key, value) -> KeyValue.pair(key, value.getConnectionOfTravelAssessment())
         );
 
-        connectionOfTravelAssessmentStream.print(Printed.toSysOut());
+        if(parameters.isDebug()){
+            connectionOfTravelAssessmentStream.print(Printed.toSysOut());
+        }
 
         connectionOfTravelAssessmentStream.to(
             parameters.getConnectionOfTravelAssessmentOutputTopicName(), 
