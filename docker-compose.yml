@@ -31,6 +31,7 @@ services:
     ports:
       - "8083:8083"
     environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       CONNECT_BOOTSTRAP_SERVERS: ${DOCKER_HOST_IP}:9092
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083
@@ -61,7 +62,7 @@ services:
           sleep 5 
         done
         echo -e "\n--\n+> Creating Kafka Connect MongoDB sink"
-        bash /scripts/connect_start.sh 
+        bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017"
         sleep infinity
 
 
