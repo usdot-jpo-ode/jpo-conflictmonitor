@@ -114,7 +114,8 @@ public class LaneDirectionOfTravelAssessmentTopology
                     .withTimestampExtractor(new LaneDirectionOfTravelTimestampExtractor())
                 );
 
-        // laneDirectionOfTravelEvents.print(Printed.toSysOut());
+        if(parameters.isDebug())
+        laneDirectionOfTravelEvents.print(Printed.toSysOut());
 
         KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
 

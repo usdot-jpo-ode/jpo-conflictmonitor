@@ -5,6 +5,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class IntersectionReferenceAlignmentEvent extends Event{
@@ -15,6 +16,8 @@ public class IntersectionReferenceAlignmentEvent extends Event{
     private Set<Integer> mapRoadRegulatorIds;
     private Set<Integer> spatIntersectionIds;
     private Set<Integer> mapIntersectionIds;
+
+    
 
     public IntersectionReferenceAlignmentEvent(){
         super("IntersectionReferenceAlignment");
@@ -79,4 +82,12 @@ public class IntersectionReferenceAlignmentEvent extends Event{
         }
         return testReturn;
     }
+
+    // public String getNotificationSourceString() {
+    //     return "Intersection Reference Alignment Event";
+    // }
+
+    // public void setNotificationSourceString(String notificationSourceString) {
+    //     this.notificationSourceString = notificationSourceString;
+    // }
 }

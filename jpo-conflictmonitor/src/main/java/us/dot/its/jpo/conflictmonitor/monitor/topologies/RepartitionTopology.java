@@ -20,11 +20,13 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -119,18 +121,18 @@ public class RepartitionTopology implements RepartitionStreamsAlgorithm {
             );
 
 
-        KStream<RsuIntersectionKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
+        KStream<BsmIntersectionKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
             J2735BsmCoreData core = ((J2735Bsm) value.getPayload().getData()).getCoreData();
             String ip = ((OdeBsmMetadata)value.getMetadata()).getOriginIp();
-            return new RsuIntersectionKey(ip, 0);
+            return new BsmIntersectionKey(ip);
         });
 
         bsmRekeyedStream.to(
             parameters.getBsmRepartitionOutputTopicName(), 
             Produced.with(
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                JsonSerdes.BsmIntersectionKey(),
                 JsonSerdes.OdeBsm(),
-                new RsuIdPartitioner<RsuIntersectionKey, OdeBsmData>()
+                new RsuIdPartitioner<BsmIntersectionKey, OdeBsmData>()
             )
         );
 

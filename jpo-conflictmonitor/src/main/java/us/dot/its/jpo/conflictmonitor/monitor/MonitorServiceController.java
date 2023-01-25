@@ -171,7 +171,7 @@ public class MonitorServiceController {
             streams.start();
 
             
-            Thread.sleep(15000);
+            Thread.sleep(20000);
             
             ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
                 streams.store(StoreQueryParameters.fromNameAndType(bsmStoreName, QueryableStoreTypes.windowStore()));
@@ -226,11 +226,11 @@ public class MonitorServiceController {
             ConnectionOfTravelAssessmentAlgorithmFactory cotaAlgoFactory = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmFactory();
             String connectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
             ConnectionOfTravelAssessmentAlgorithm connectionofTravelAssessmentAlgo = cotaAlgoFactory.getAlgorithm(connectionOfTravelAssessmentAlgorithm);
-            ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmenAlgoParams = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmParameters();
+            ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgoParams = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmParameters();
             if (connectionofTravelAssessmentAlgo instanceof StreamsTopology) {
                 ((StreamsTopology)connectionofTravelAssessmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("connectionOfTravelAssessment"));
             }
-            connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmenAlgoParams);
+            connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmentAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
             

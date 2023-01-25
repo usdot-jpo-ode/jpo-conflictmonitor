@@ -135,9 +135,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
 
-
-   
-
    @Autowired
    public void setMapValidationParameters(MapValidationParameters mapBroadcastRateParameters) {
       this.mapValidationParameters = mapBroadcastRateParameters;
@@ -812,7 +809,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
       // Configure the state store location
       if (SystemUtils.IS_OS_LINUX) {
-         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams6");
+         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
       } else if (SystemUtils.IS_OS_WINDOWS) {
          streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "C:/temp");
       }
