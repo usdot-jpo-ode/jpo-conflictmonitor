@@ -25,9 +25,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmEventDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
@@ -53,7 +54,7 @@ public class JsonSerdes {
     public static Serde<BsmEvent> BsmEvent(){
         return Serdes.serdeFrom(
             new JsonSerializer<BsmEvent>(),
-            new BsmEventDeserializer());
+            new JsonDeserializer<>(BsmEvent.class));
     }
 
     public static Serde<VehicleEvent> VehicleEvent(){
@@ -188,9 +189,19 @@ public class JsonSerdes {
             new JsonDeserializer<>(IntersectionReferenceAlignmentNotification.class));
     }
 
-    
+    public static Serde<MapMinimumDataEvent> MapMinimumDataEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapMinimumDataEvent>(),
+            new JsonDeserializer<>(MapMinimumDataEvent.class)
+        );
+    }
 
-    
+    public static Serde<SpatMinimumDataEvent> SpatMinimumDataEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatMinimumDataEvent>(),
+            new JsonDeserializer<>(SpatMinimumDataEvent.class)
+        );
+    }
 
     
 }

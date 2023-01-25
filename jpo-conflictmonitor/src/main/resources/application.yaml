@@ -6,14 +6,13 @@ version: ^project.version^
 server.port: 8082
 
 
-
-# Broadcast Rate Properties
-map.broadcast.rate:
-  algorithm: defaultMapBroadcastRateAlgorithm
-  properties: debug
-spat.broadcast.rate:
-  algorithm: defaultSpatBroadcastRateAlgorithm
-  properties: debug
+# Algorithm Properties
+map.validation:
+  algorithm: defaultMapValidationAlgorithm
+  properties: default
+spat.validation:
+  algorithm: defaultSpatValidationAlgorithm
+  properties: default
 connection.of.travel:
   algorithm: defaultConnectionOfTravelAlgorithm
   properties: debug
@@ -64,7 +63,13 @@ kafka.topics:
     - name: topic.CmMapBroadcastRateEvents
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmMapMinimumDataEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
     - name: topic.CmSpatBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatMinimumDataEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CMBsmEvents

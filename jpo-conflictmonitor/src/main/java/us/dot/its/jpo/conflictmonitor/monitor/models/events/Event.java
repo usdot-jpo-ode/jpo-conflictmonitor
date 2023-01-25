@@ -8,36 +8,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-public abstract class Event{
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@EqualsAndHashCode
+@Generated
+public abstract class Event {
     
-    private long eventGeneratedAt;
-    private String eventType = "";
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public Event(){
-        this.eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
-    }
+    private final long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    private final String eventType;
 
     public Event(String eventType){
-        this.eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
         this.eventType = eventType;
     }
 
-    public long getEventGeneratedAt() {
-        return eventGeneratedAt;
-    }
-
-    public void setEventGeneratedAt(long eventGeneratedAt) {
-        this.eventGeneratedAt = eventGeneratedAt;
-    }
-
+   
     @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();

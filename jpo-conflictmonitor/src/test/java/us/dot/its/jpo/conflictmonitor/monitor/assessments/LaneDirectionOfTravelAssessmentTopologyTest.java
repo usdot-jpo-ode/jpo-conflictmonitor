@@ -24,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
+
 public class LaneDirectionOfTravelAssessmentTopologyTest {
     String kafkaTopicLaneDirectionOfTravelEvent = "topic.CmLaneDirectionOfTravelEvent";
     String kafkaTopicLaneDirectionOfTravelAssessment = "topic.CmLaneDirectionOfTravelAssessment";

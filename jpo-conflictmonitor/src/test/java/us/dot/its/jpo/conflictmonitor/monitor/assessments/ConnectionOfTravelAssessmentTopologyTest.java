@@ -24,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
+
 public class ConnectionOfTravelAssessmentTopologyTest {
     String kafkaTopicConnectionOfTravelEvent = "topic.CmConnectionOfTravelEvent";
     String kafkaTopicConnectionOfTravelAssessment = "topic.CmConnectionOfTravelAssessment";

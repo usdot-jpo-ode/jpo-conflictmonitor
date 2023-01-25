@@ -151,16 +151,6 @@ public class MessageIngestTopology {
             .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
             );
 
-        // mapJsonStream.print(Printed.toSysOut());
-        //Change the Map Feed to use a unique key This should be unique for every Spat message.
-        // KStream<String, ProcessedSpat> mapRekeyedStream = mapJsonStream.selectKey((key, value)->{
-        //     long ts = SpatTimestampExtractor.getSpatTimestamp(value);
-        //     String newKey = key +"_"+ value.getIntersectionId() +"_"+ ts;
-        //     return newKey;
-        // });
-
-        // mapJsonStream.print(Printed.toSysOut());
-        
 
         return builder.build();
     }
