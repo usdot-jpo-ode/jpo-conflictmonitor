@@ -6,7 +6,6 @@ version: ^project.version^
 server.port: 8082
 
 
-
 # Algorithm Properties
 map.validation:
   algorithm: defaultMapValidationAlgorithm

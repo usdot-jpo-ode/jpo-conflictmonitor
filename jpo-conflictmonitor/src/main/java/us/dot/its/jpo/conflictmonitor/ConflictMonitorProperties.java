@@ -758,9 +758,9 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
       if (kafkaBrokers == null) {
 
-         logger.info("ode.kafkaBrokers property not defined. Will try DOCKER_HOST_IP => {}", kafkaBrokers);
-
          String dockerIp = CommonUtils.getEnvironmentVariable("DOCKER_HOST_IP");
+
+         logger.info("ode.kafkaBrokers property not defined. Will try DOCKER_HOST_IP => {}", kafkaBrokers);
 
          if (dockerIp == null) {
             logger.warn(
