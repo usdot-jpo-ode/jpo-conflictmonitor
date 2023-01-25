@@ -31,10 +31,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_as
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
@@ -251,19 +247,6 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmentAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
-
-
-            // Intersection Reference Alignment Notification Topology
-            // IntersectionReferenceAlignmentNotificationAlgorithmFactory iranAlgoFactory = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmFactory();
-            // String intersectionReferenceAlignmentNotificationAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
-            // IntersectionReferenceAlignmentNotificationAlgorithm intersectionReferenceAlignmentNotificationAlgo = iranAlgoFactory.getAlgorithm(intersectionReferenceAlignmentNotificationAlgorithm);
-            // IntersectionReferenceAlignmentNotificationParameters intersectionReferenceAlignmentNotificationParams = conflictMonitorProps.getIntersectionReferenceAlignmentAlgorithmParameters();
-            // if (intersectionReferenceAlignmentNotificationAlgo instanceof IntersectionReferenceAlignmentNotificationStreamsAlgorithm) {
-            //     ((IntersectionReferenceAlignmentNotificationStreamsAlgorithm)intersectionReferenceAlignmentNotificationAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("intersectionReferenceAlignmentNotification"));
-            // }
-            // intersectionReferenceAlignmentNotificationAlgo.setParameters(intersectionReferenceAlignmentNotificationParams);
-            // Runtime.getRuntime().addShutdownHook(new Thread(intersectionReferenceAlignmentNotificationAlgo::stop));
-            // intersectionReferenceAlignmentNotificationAlgo.start();
             
 
             //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through

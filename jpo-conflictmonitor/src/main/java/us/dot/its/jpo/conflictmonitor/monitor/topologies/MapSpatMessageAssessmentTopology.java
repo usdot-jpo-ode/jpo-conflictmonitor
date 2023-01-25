@@ -127,7 +127,7 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             b.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE) && !a.equals(J2735MovementPhaseState.STOP_AND_REMAIN);
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
 
         StreamsBuilder builder = new StreamsBuilder();
  

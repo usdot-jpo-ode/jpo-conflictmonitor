@@ -82,7 +82,7 @@ public class MapSpatMessageAssessmentParameters {
         return intersectionReferenceAlignmentNotificationTopicName;
     }
 
-    @Value("${intersection.reference.alignment.notification.intersectionReferenceAlignmentNotificationTopicName}")
+    @Value("${map.spat.message.assessment.intersectionReferenceAlignmentNotificationTopicName}")
     public void setIntersectionReferenceAlignmentNotificationTopicName(
             String intersectionReferenceAlignmentNotificationTopicName) {
         this.intersectionReferenceAlignmentNotificationTopicName = intersectionReferenceAlignmentNotificationTopicName;

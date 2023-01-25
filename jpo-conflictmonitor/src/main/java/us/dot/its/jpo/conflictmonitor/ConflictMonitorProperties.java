@@ -51,8 +51,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification.IntersectionReferenceAlignmentNotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
@@ -136,12 +134,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private RepartitionAlgorithmFactory repartitionAlgorithmFactory;
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
-   
-   private IntersectionReferenceAlignmentNotificationAlgorithmFactory intersectionReferenceAlignmentAlgorithmFactory;
-   private String intersectionReferenceAlignmentAlgorithm;
-   private IntersectionReferenceAlignmentNotificationParameters intersectionReferenceAlignmentAlgorithmParameters;
-
-   
 
    @Autowired
    public void setMapBroadcastRateParameters(MapBroadcastRateParameters mapBroadcastRateParameters) {
@@ -512,35 +504,6 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       this.repartitionAlgorithmParameters = repartitionAlgorithmParameters;
    }
 
-   public IntersectionReferenceAlignmentNotificationAlgorithmFactory getIntersectionReferenceAlignmentAlgorithmFactory() {
-      return intersectionReferenceAlignmentAlgorithmFactory;
-   }
-
-   @Autowired
-   public void setIntersectionReferenceAlignmentAlgorithmFactory(
-         IntersectionReferenceAlignmentNotificationAlgorithmFactory intersectionReferenceAlignmentAlgorithmFactory) {
-      this.intersectionReferenceAlignmentAlgorithmFactory = intersectionReferenceAlignmentAlgorithmFactory;
-   }
-
-   public String getIntersectionReferenceAlignmentAlgorithm() {
-      return intersectionReferenceAlignmentAlgorithm;
-   }
-
-   @Value("${intersection.reference.alignment.notification.algorithm}")
-   public void setIntersectionReferenceAlignmentAlgorithm(String intersectionReferenceAlignmentAlgorithm) {
-      this.intersectionReferenceAlignmentAlgorithm = intersectionReferenceAlignmentAlgorithm;
-   }
-
-   public IntersectionReferenceAlignmentNotificationParameters getIntersectionReferenceAlignmentAlgorithmParameters() {
-      return intersectionReferenceAlignmentAlgorithmParameters;
-   }
-
-   @Autowired
-   public void setIntersectionReferenceAlignmentAlgorithmParameters(
-         IntersectionReferenceAlignmentNotificationParameters intersectionReferenceAlignmentAlgorithmParameters) {
-      this.intersectionReferenceAlignmentAlgorithmParameters = intersectionReferenceAlignmentAlgorithmParameters;
-   }
-
    public Boolean isVerboseJson() {
       return this.verboseJson;
    }
@@ -845,7 +808,7 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
       // Configure the state store location
-      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams1");
+      streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
       // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;
    }

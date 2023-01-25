@@ -1,7 +1,0 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_reference_alignment_notification;
-
-
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
-
-public interface IntersectionReferenceAlignmentNotificationAlgorithm extends Algorithm<IntersectionReferenceAlignmentNotificationParameters>{
-}
