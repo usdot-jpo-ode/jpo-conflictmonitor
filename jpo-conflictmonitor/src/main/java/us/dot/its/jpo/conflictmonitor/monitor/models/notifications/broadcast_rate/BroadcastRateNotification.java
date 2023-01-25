@@ -18,10 +18,8 @@ public abstract class BroadcastRateNotification<T extends BroadcastRateEvent> ex
         return String.format("%s_%s_%s_%s_%s", 
             this.getNotificationType(), 
             event.getSourceDeviceId(), 
-            // TODO  event.getIntersectionId(), 
-            // TODO event.getTimePeriod() != null ? event.getTimePeriod().periodMillis() : 0L,
-            "intersectionIdPlaceholder",
-            "timePeriodPlaceholder",
+            event.getIntersectionId(), 
+            event.getTimePeriod() != null ? event.getTimePeriod().periodMillis() : 0L,
             event.getNumberOfMessages());
     }
 }

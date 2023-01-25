@@ -1,4 +1,6 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -7,29 +9,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.spat.SpatBroadcastRateParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 
 /**
  * Test SPAT algorithm, writes random numbers to the log in debug mode.
  */
-@Component(ALTERNATE_SPAT_BROADCAST_RATE_ALGORITHM)
-public class AlternateSpatBroadcastRateAlgorithm
-    implements SpatBroadcastRateAlgorithm {
+@Component(ALTERNATE_SPAT_VALIDATION_ALGORITHM)
+public class AlternateSpatValidationAlgorithm
+    implements SpatValidationAlgorithm {
     
-        private static final Logger logger = LoggerFactory.getLogger(AlternateSpatBroadcastRateAlgorithm.class);
+        private static final Logger logger = LoggerFactory.getLogger(AlternateSpatValidationAlgorithm.class);
 
-    SpatBroadcastRateParameters parameters;
+    SpatValidationParameters parameters;
     Timer timer;
 
     @Override
-    public void setParameters(SpatBroadcastRateParameters parameters) {
+    public void setParameters(SpatValidationParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public SpatBroadcastRateParameters getParameters() {
+    public SpatValidationParameters getParameters() {
         return parameters;
     }
 

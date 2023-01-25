@@ -1,12 +1,13 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.broadcast_rate;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.BroadcastRateConstants.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-
-
+import java.util.stream.Collectors;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -28,32 +29,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.broadcast_rate.map.MapBroadcastRateStreamsAlgorithm;
-import us.dot.its.jpo.ode.model.OdeMapMetadata;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 
-@Component(DEFAULT_MAP_BROADCAST_RATE_ALGORITHM)
-public class MapBroadcastRateTopology 
-    implements MapBroadcastRateStreamsAlgorithm {
+/**
+ * Assessments/validations for MAP messages.
+ * <p>Reads {@link ProcessedMap} messages.
+ * <p>Produces {@link MapBroadcastRateEvent}s and {@link MapMinimumDataEvent}s
+ */
+@Component(DEFAULT_MAP_VALIDATION_ALGORITHM)
+public class MapValidationTopology 
+    extends BaseValidationTopology
+    implements MapValidationStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapBroadcastRateTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapValidationTopology.class);
 
-    MapBroadcastRateParameters parameters;
+    MapValidationParameters parameters;
     Properties streamsProperties;
     Topology topology;
     KafkaStreams streams;
 
     @Override
-    public void setParameters(MapBroadcastRateParameters parameters) {
+    public void setParameters(MapValidationParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public MapBroadcastRateParameters getParameters() {
+    public MapValidationParameters getParameters() {
         return parameters;
     }
 
@@ -95,35 +105,63 @@ public class MapBroadcastRateTopology
         logger.info("Started MapBroadcastRateTopology.");
     }
 
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
-        KStream<Windowed<String>, Long> countStream = builder
+        KStream<RsuIntersectionKey, ProcessedMap> processedMapStream = builder
             .stream(parameters.getInputTopicName(), 
                 Consumed.with(
-                            Serdes.String(), 
-                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.OdeMap())
-                        .withTimestampExtractor(new MapTimestampExtractor())
-            )
-            .map((oldKey, oldValue) -> {
-                // Change key to RSU IP address and value to constant = 1
-                var metadata = (OdeMapMetadata)oldValue.getMetadata();
-                var newKey = metadata.getOriginIp();
-                return KeyValue.pair(newKey, 1);
-            })
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
+                        .withTimestampExtractor(new TimestampExtractorForBroadcastRate())
+            );
+
+        // Extract validation info for Minimum Data events
+        KStream<RsuIntersectionKey, MapMinimumDataEvent> minDataStream = processedMapStream
+            // Filter out messages that are valid
+            .filter((key, value) -> value.getProperties() != null && !value.getProperties().getCti4501Conformant())
+           
+            // Produce events for the messages that have validation errors
+            .map((key, value) -> {
+                var minDataEvent = new MapMinimumDataEvent();
+                var valMsgList = value.getProperties().getValidationMessages();
+                var timestamp = TimestampExtractorForBroadcastRate.extractTimestamp(value);
+                populateMinDataEvent(key, minDataEvent, valMsgList, parameters.getRollingPeriodSeconds(), 
+                    timestamp);
+                return KeyValue.pair(key, minDataEvent);
+            });
+
+        if (parameters.isDebug()) {
+            minDataStream = minDataStream.peek((key, value) -> {
+                logger.info("MAP Min Data Event {}", key);
+            });
+        }
+            
+        minDataStream.to(parameters.getMinimumDataTopicName(),
+            Produced.with(
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                JsonSerdes.MapMinimumDataEvent(), 
+                new RsuIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
+        );
+
+        
+
+        // Perform count for Broadcast Rate analysis
+        KStream<Windowed<RsuIntersectionKey>, Long> countStream = 
+            processedMapStream
+            .mapValues((value) -> 1) // Map the value to the constant int 1 (key remains the same)
             .groupByKey(
-                Grouped.with(Serdes.String(), Serdes.Integer())
+                Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
             )
             .windowedBy(
                 // Hopping window
                 TimeWindows
-                    .of(Duration.ofSeconds(parameters.getRollingPeriodSeconds()))
+                    .ofSizeAndGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()), Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
                     .advanceBy(Duration.ofSeconds(parameters.getOutputIntervalSeconds()))
-                    .grace(Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
             )
             .count(
-                Materialized.<String, Long, WindowStore<Bytes, byte[]>>as("map-counts")
-                    .withKeySerde(Serdes.String())
+                Materialized.<RsuIntersectionKey, Long, WindowStore<Bytes, byte[]>>as("map-counts")
+                    .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                     .withValueSerde(Serdes.Long())
             )
             .suppress(
@@ -137,7 +175,7 @@ public class MapBroadcastRateTopology
             });
         }
 
-        KStream<String, MapBroadcastRateEvent> eventStream = countStream            
+        KStream<RsuIntersectionKey, MapBroadcastRateEvent> eventStream = countStream            
             .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
@@ -148,13 +186,14 @@ public class MapBroadcastRateTopology
             .map((windowedKey, counts) -> {
                 // Generate an event
                 MapBroadcastRateEvent event = new MapBroadcastRateEvent();
-                event.setSourceDeviceId(windowedKey.key());
+                event.setSourceDeviceId(windowedKey.key().getRsuId());
+                event.setIntersectionId(windowedKey.key().getIntersectionId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
                 // Grab the timestamps from the time window
-                timePeriod.setBeginTimestamp(windowedKey.window().startTime().atZone(ZoneOffset.UTC));
-                timePeriod.setEndTimestamp(windowedKey.window().endTime().atZone(ZoneOffset.UTC));
+                timePeriod.setBeginTimestamp(windowedKey.window().startTime().toEpochMilli());
+                timePeriod.setEndTimestamp(windowedKey.window().endTime().toEpochMilli());
                 event.setTimePeriod(timePeriod);
                 event.setNumberOfMessages(counts != null ? counts.intValue() : -1);
 
@@ -168,10 +207,11 @@ public class MapBroadcastRateTopology
             });
         }
 
-        eventStream.to(parameters.getOutputEventTopicName(),
+        eventStream.to(parameters.getBroadcastRateTopicName(),
             Produced.with(
-                Serdes.String(), 
-                JsonSerdes.MapBroadcastRateEvent())
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
+                JsonSerdes.MapBroadcastRateEvent(), 
+                new RsuIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
         );
         
         return builder.build();

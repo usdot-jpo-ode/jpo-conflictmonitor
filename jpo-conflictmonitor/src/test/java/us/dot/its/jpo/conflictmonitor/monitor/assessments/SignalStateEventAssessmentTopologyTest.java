@@ -25,8 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
+
 public class SignalStateEventAssessmentTopologyTest {
     String kafkaTopicSignalStateEvent = "topic.CmSignalStateEvent";
     String kafkaTopicSignalStateAssessment = "topic.CmSignalStateEventAssessment";
