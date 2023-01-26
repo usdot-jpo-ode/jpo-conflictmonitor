@@ -15,9 +15,13 @@ public class LaneDirectionOfTravelAssessmentParameters {
     boolean debug;
     String laneDirectionOfTravelEventTopicName;
     String laneDirectionOfTravelAssessmentOutputTopicName;
+    String laneDirectionOfTravelNotificationOutputTopicName;
     long lookBackPeriodDays;
     long lookBackPeriodGraceTimeSeconds;
-    double headingToleranceDegrees;    
+    double headingToleranceDegrees; 
+    int minimumNumberOfEvents;   
+
+    
 
     public String getLaneDirectionOfTravelEventTopicName() {
         return laneDirectionOfTravelEventTopicName;
@@ -63,6 +67,27 @@ public class LaneDirectionOfTravelAssessmentParameters {
     public void setHeadingToleranceDegrees(double headingToleranceDegrees) {
         this.headingToleranceDegrees = headingToleranceDegrees;
     }
+
+    public int getMinimumNumberOfEvents() {
+        return minimumNumberOfEvents;
+    }
+
+    @Value("${lane.direction.of.travel.assessment.minimumNumberOfEvents}")
+    public void setMinimumNumberOfEvents(int minimumNumberOfEvents) {
+        this.minimumNumberOfEvents = minimumNumberOfEvents;
+    }
+
+    public String getLaneDirectionOfTravelNotificationOutputTopicName() {
+        return laneDirectionOfTravelNotificationOutputTopicName;
+    }
+
+    @Value("${lane.direction.of.travel.assessment.laneDirectionOfTravelAssessmentNotificationOutputTopicName}")
+    public void setLaneDirectionOfTravelNotificationOutputTopicName(
+            String laneDirectionOfTravelNotificationOutputTopicName) {
+        this.laneDirectionOfTravelNotificationOutputTopicName = laneDirectionOfTravelNotificationOutputTopicName;
+    }
+
+
    
     public boolean isDebug() {
         return this.debug;

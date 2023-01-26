@@ -233,9 +233,7 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         Produced.with(Serdes.String(),
                 JsonSerdes.IntersectionReferenceAlignmentNotification()));
 
-    if(parameters.isDebug()){
-        intersectionNotificationTable.toStream().print(Printed.toSysOut());
-    }
+    
 
 
     // Signal Group Alignment Event Check

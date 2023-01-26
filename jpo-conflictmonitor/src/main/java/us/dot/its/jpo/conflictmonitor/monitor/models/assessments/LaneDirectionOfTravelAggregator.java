@@ -73,6 +73,9 @@ public class LaneDirectionOfTravelAggregator {
                 ArrayList<Double> headings = new ArrayList<>();
                 ArrayList<Double> distances = new ArrayList<>();
 
+                ArrayList<Double> inToleranceHeadings = new ArrayList<>();
+                ArrayList<Double> inToleranceDistances = new ArrayList<>();
+
                 group.setLaneID(entry.getKey());
                 group.setSegmentID(groups.getKey());
                 
@@ -80,22 +83,28 @@ public class LaneDirectionOfTravelAggregator {
                 int inTolerance = 0;
                 int outOfTolerance = 0;
 
-
+                double expectedHeading = 0;
                 for(LaneDirectionOfTravelEvent event: groups.getValue()){
-                    if(Math.abs(event.getMedianVehicleHeading() - event.getExpectedHeading()) > tolerance){
+                    expectedHeading = event.getExpectedHeading();
+                    if(Math.abs(event.getMedianVehicleHeading() - expectedHeading) > tolerance){
                         outOfTolerance +=1;
                     }else{
                         inTolerance +=1;
-                        headings.add(event.getMedianVehicleHeading());
-                        distances.add(event.getMedianDistanceFromCenterline());
+                        inToleranceHeadings.add(event.getMedianVehicleHeading());
+                        inToleranceDistances.add(event.getMedianDistanceFromCenterline());
                     }
+                    headings.add(event.getMedianVehicleHeading());
+                    distances.add(event.getMedianDistanceFromCenterline());
                 }
 
                 group.setInToleranceEvents(inTolerance);
                 group.setOutOfToleranceEvents(outOfTolerance);
-                group.setMedianInToleranceHeading(MathFunctions.getMedian(headings));
-                group.setMedianInToleranceCenterlineDistance(MathFunctions.getMedian(distances));
+                group.setMedianInToleranceHeading(MathFunctions.getMedian(inToleranceHeadings));
+                group.setMedianInToleranceCenterlineDistance(MathFunctions.getMedian(inToleranceDistances));
+                group.setMedianCenterlineDistance(MathFunctions.getMedian(distances));
+                group.setMedianHeading(MathFunctions.getMedian(headings));
                 group.setTolerance(tolerance);
+                group.setExpectedHeading(expectedHeading);
                 assessmentGroups.add(group);
             }
         }

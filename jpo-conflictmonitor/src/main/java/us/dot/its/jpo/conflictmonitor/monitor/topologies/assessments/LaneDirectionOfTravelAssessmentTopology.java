@@ -2,6 +2,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentConstants.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -31,8 +33,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.LaneDirectionOfTravelTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelAssessmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 
@@ -114,7 +118,7 @@ public class LaneDirectionOfTravelAssessmentTopology
                     .withTimestampExtractor(new LaneDirectionOfTravelTimestampExtractor())
                 );
 
-        if(parameters.isDebug())
+        
         laneDirectionOfTravelEvents.print(Printed.toSysOut());
 
         KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
@@ -144,13 +148,54 @@ public class LaneDirectionOfTravelAssessmentTopology
             .map((key, value) -> KeyValue.pair(key, value.getLaneDirectionOfTravelAssessment())
         );
         
-        // laneDirectionOfTravelAssessmentStream.print(Printed.toSysOut());
+        laneDirectionOfTravelAssessmentStream.print(Printed.toSysOut());
 
         laneDirectionOfTravelAssessmentStream.to(
         parameters.getLaneDirectionOfTravelAssessmentOutputTopicName(), 
         Produced.with(Serdes.String(),
                 JsonSerdes.LaneDirectionOfTravelAssessment()));
 
+
+
+
+        // Issue a Notification if the assessment isn't passing. 
+        KStream<String, LaneDirectionOfTravelAssessmentNotification> laneDirectionOfTravelNotificationEventStream = laneDirectionOfTravelAssessmentStream.flatMap(
+            (key, value)->{
+                List<KeyValue<String, LaneDirectionOfTravelAssessmentNotification>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelAssessmentNotification>>();
+                for(LaneDirectionOfTravelAssessmentGroup group: value.getLaneDirectionOfTravelAssessmentGroup()){
+                    System.out.println(group);
+                    if(group.getOutOfToleranceEvents() + group.getInToleranceEvents() >= parameters.getMinimumNumberOfEvents() && Math.abs(group.getMedianHeading() - group.getExpectedHeading()) > group.getTolerance()){
+                        
+                        System.out.println("Generating Notification");
+                        LaneDirectionOfTravelAssessmentNotification notification = new LaneDirectionOfTravelAssessmentNotification();
+                        notification.setAssessment(value);
+                        notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median heading "+group.getMedianHeading()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+group.getTolerance()+" degrees of the expected heading "+group.getExpectedHeading()+" degrees.");
+                        notification.setNotificationHeading("Lane Direction of Travel Assessment");
+                        result.add(new KeyValue<>(key, notification));
+                    }
+                }
+                return result;
+            }
+        );
+
+        laneDirectionOfTravelNotificationEventStream.print(Printed.toSysOut());
+    
+    
+        KTable<String, LaneDirectionOfTravelAssessmentNotification> laneDirectionOfTravelNotificationTable = 
+            laneDirectionOfTravelNotificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelAssessmentNotification()))
+            .reduce(
+                (oldValue, newValue)->{
+                        return oldValue;
+                },
+            Materialized.<String, LaneDirectionOfTravelAssessmentNotification, KeyValueStore<Bytes, byte[]>>as("LaneDirectionOfTravelAssessmentNotification")
+            .withKeySerde(Serdes.String())
+            .withValueSerde(JsonSerdes.LaneDirectionOfTravelAssessmentNotification())
+        );
+                
+        laneDirectionOfTravelNotificationTable.toStream().to(
+            parameters.getLaneDirectionOfTravelNotificationOutputTopicName(),
+            Produced.with(Serdes.String(),
+                    JsonSerdes.LaneDirectionOfTravelAssessmentNotification()));
 
         return builder.build();
     }    

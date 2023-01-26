@@ -111,3 +111,6 @@ kafka.topics:
     - name: CmSignalStateEventAssessment
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: CmLaneDirectionOfTravelNotification
+      cleanupPolicy: delete
+      retentionMs: 300000
