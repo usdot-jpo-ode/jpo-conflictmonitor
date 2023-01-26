@@ -12,12 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapSpatMessageAssessmentTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.SignalStateEventAssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +26,7 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class IntersectionReferenceAlignmentNotificationTopologyTest {
+public class SignalGroupAlignmentNotificationTopologyTest {
     String kafkaTopicIntersectionReferenceAlignmentEvents = "topic.CmIntersectionReferenceAlignmentEvents";
     String kafkaTopicIntersectionReferenceAlignmentNotifications = "topic.CmIntersectionReferenceAlignmentNotifications";
     String kafkaTopicMapInputTopicName = "topic.ProcessedMap";
@@ -73,16 +73,12 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
                 Serdes.String().serializer());
 
 
-            TestOutputTopic<String, IntersectionReferenceAlignmentNotification> outputNotificationTopic = driver.createOutputTopic(
-                kafkaTopicIntersectionReferenceAlignmentNotifications, 
+            TestOutputTopic<String, SignalGroupAlignmentNotification> outputNotificationTopic = driver.createOutputTopic(
+                kafkaTopicSignalGroupAlignmentNotificationTopicName, 
                 Serdes.String().deserializer(), 
-                JsonSerdes.IntersectionReferenceAlignmentNotification().deserializer());
+                JsonSerdes.SignalGroupAlignmentNotification().deserializer());
 
-            
-            TestOutputTopic<String, IntersectionReferenceAlignmentEvent> outputEventTopic = driver.createOutputTopic(
-                kafkaTopicIntersectionReferenceAlignmentNotifications, 
-                Serdes.String().deserializer(), 
-                JsonSerdes.IntersectionReferenceAlignmentEvent().deserializer());
+        
 
             
             inputMapTopic.pipeInput("12109", processedMap);
@@ -93,31 +89,35 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
             
 
 
-            List<KeyValue<String, IntersectionReferenceAlignmentNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
+            List<KeyValue<String, SignalGroupAlignmentNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
             assertEquals(1, notificationResults.size());
+            System.out.println(notificationResults);
             
-            KeyValue<String, IntersectionReferenceAlignmentNotification> notificationKeyValue = notificationResults.get(0);
+            KeyValue<String, SignalGroupAlignmentNotification> notificationKeyValue = notificationResults.get(0);
 
             System.out.println(notificationResults);
 
             assertEquals("12109", notificationKeyValue.key);
 
-            IntersectionReferenceAlignmentNotification notification = notificationKeyValue.value;
+            SignalGroupAlignmentNotification notification = notificationKeyValue.value;
 
-            assertEquals("IntersectionReferenceAlignmentNotification", notification.getNotificationType());
+            assertEquals("SignalGroupAlignmentNotification", notification.getNotificationType());
 
-            assertEquals("Intersection Reference Alignment Notification, generated because corresponding intersection reference alignment event was generated.", notification.getNotificationText());
+            assertEquals("Signal Group Alignment Notification, generated because corresponding signal group alignment event was generated.", notification.getNotificationText());
 
-            assertEquals("Intersection Reference Alignment", notification.getNotificationHeading());
+            assertEquals("Signal Group Alignment", notification.getNotificationHeading());
 
-            IntersectionReferenceAlignmentEvent event = notification.getEvent();
+            SignalGroupAlignmentEvent event = notification.getEvent();
 
             assertEquals("12109", event.getSourceID());
 
-            assertEquals(1, event.getSpatIntersectionIds().size());
-            assertTrue(event.getSpatIntersectionIds().contains(12109));
+            assertEquals(event.getEventType(), "SignalGroupAlignment");
+            assertTrue(event.getSpatSignalGroupIds().contains(2));
+            assertTrue(event.getSpatSignalGroupIds().contains(4));
+            assertTrue(event.getSpatSignalGroupIds().contains(6));
+            assertEquals(3, event.getSpatSignalGroupIds().size());
 
-            assertEquals(null,event.getMapRoadRegulatorIds());
+            assertEquals(event.getMapSignalGroupIds().size(), 0);
             
             
         }

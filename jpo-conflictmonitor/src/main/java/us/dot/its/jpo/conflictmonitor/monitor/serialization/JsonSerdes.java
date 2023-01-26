@@ -35,6 +35,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.Vehi
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -200,6 +201,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<SpatMinimumDataEvent>(),
             new JsonDeserializer<>(SpatMinimumDataEvent.class)
+        );
+    }
+
+    public static Serde<SignalGroupAlignmentNotification> SignalGroupAlignmentNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalGroupAlignmentNotification>(),
+            new JsonDeserializer<>(SignalGroupAlignmentNotification.class)
         );
     }
 

@@ -26,6 +26,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenc
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -204,37 +205,37 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
 
 
     KStream<String, IntersectionReferenceAlignmentNotification> notificationEventStream = intersectionReferenceAlignmentEventStream.flatMap(
-            (key, value)->{
-                List<KeyValue<String, IntersectionReferenceAlignmentNotification>> result = new ArrayList<KeyValue<String, IntersectionReferenceAlignmentNotification>>();
+        (key, value)->{
+            List<KeyValue<String, IntersectionReferenceAlignmentNotification>> result = new ArrayList<KeyValue<String, IntersectionReferenceAlignmentNotification>>();
 
-                IntersectionReferenceAlignmentNotification notification = new IntersectionReferenceAlignmentNotification();
-                notification.setEvent(value);
-                notification.setNotificationText("Intersection Reference Alignment Notification, generated because corresponding intersection reference alignment event was generated.");
-                notification.setNotificationHeading("Intersection Reference Alignment");
-                result.add(new KeyValue<>(key, notification));
-                return result;
-            }
-        );
-            
-        KTable<String, IntersectionReferenceAlignmentNotification> notificationTable = 
-            notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.IntersectionReferenceAlignmentNotification()))
-            .reduce(
-                (oldValue, newValue)->{
-                        return oldValue;
-                },
-            Materialized.<String, IntersectionReferenceAlignmentNotification, KeyValueStore<Bytes, byte[]>>as("IntersectionReferenceAlignmentNotification")
-            .withKeySerde(Serdes.String())
-            .withValueSerde(JsonSerdes.IntersectionReferenceAlignmentNotification())
-        );
-
-        notificationTable.toStream().to(
-            parameters.getIntersectionReferenceAlignmentNotificationTopicName(),
-            Produced.with(Serdes.String(),
-                    JsonSerdes.IntersectionReferenceAlignmentNotification()));
-
-        if(parameters.isDebug()){
-            notificationTable.toStream().print(Printed.toSysOut());
+            IntersectionReferenceAlignmentNotification notification = new IntersectionReferenceAlignmentNotification();
+            notification.setEvent(value);
+            notification.setNotificationText("Intersection Reference Alignment Notification, generated because corresponding intersection reference alignment event was generated.");
+            notification.setNotificationHeading("Intersection Reference Alignment");
+            result.add(new KeyValue<>(key, notification));
+            return result;
         }
+    );
+            
+    KTable<String, IntersectionReferenceAlignmentNotification> intersectionNotificationTable = 
+        notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.IntersectionReferenceAlignmentNotification()))
+        .reduce(
+            (oldValue, newValue)->{
+                    return oldValue;
+            },
+        Materialized.<String, IntersectionReferenceAlignmentNotification, KeyValueStore<Bytes, byte[]>>as("IntersectionReferenceAlignmentNotification")
+        .withKeySerde(Serdes.String())
+        .withValueSerde(JsonSerdes.IntersectionReferenceAlignmentNotification())
+    );
+
+    intersectionNotificationTable.toStream().to(
+        parameters.getIntersectionReferenceAlignmentNotificationTopicName(),
+        Produced.with(Serdes.String(),
+                JsonSerdes.IntersectionReferenceAlignmentNotification()));
+
+    if(parameters.isDebug()){
+        intersectionNotificationTable.toStream().print(Printed.toSysOut());
+    }
 
 
     // Signal Group Alignment Event Check
@@ -269,6 +270,40 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
             Produced.with(Serdes.String(),
                     JsonSerdes.SignalGroupAlignmentEvent()));
 
+
+    KStream<String, SignalGroupAlignmentNotification> signalGroupNotificationEventStream = signalGroupAlignmentEventStream.flatMap(
+        (key, value)->{
+            List<KeyValue<String, SignalGroupAlignmentNotification>> result = new ArrayList<KeyValue<String, SignalGroupAlignmentNotification>>();
+
+            SignalGroupAlignmentNotification notification = new SignalGroupAlignmentNotification();
+            notification.setEvent(value);
+            notification.setNotificationText("Signal Group Alignment Notification, generated because corresponding signal group alignment event was generated.");
+            notification.setNotificationHeading("Signal Group Alignment");
+            result.add(new KeyValue<>(key, notification));
+            return result;
+        }
+    );
+
+
+    KTable<String, SignalGroupAlignmentNotification> signalGroupNotificationTable = 
+        signalGroupNotificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalGroupAlignmentNotification()))
+        .reduce(
+            (oldValue, newValue)->{
+                    return oldValue;
+            },
+        Materialized.<String, SignalGroupAlignmentNotification, KeyValueStore<Bytes, byte[]>>as("SignalGroupAlignmentNotification")
+        .withKeySerde(Serdes.String())
+        .withValueSerde(JsonSerdes.SignalGroupAlignmentNotification())
+    );
+            
+    signalGroupNotificationTable.toStream().to(
+        parameters.getSignalGroupAlignmentNotificationTopicName(),
+        Produced.with(Serdes.String(),
+                JsonSerdes.SignalGroupAlignmentNotification()));
+
+    // if(parameters.isDebug()){
+    //     signalGroupNotificationTable.toStream().print(Printed.toSysOut());
+    // }
 
     
     // Signal Group Alignment Event Check
