@@ -118,8 +118,6 @@ public class LaneDirectionOfTravelAssessmentTopology
                     .withTimestampExtractor(new LaneDirectionOfTravelTimestampExtractor())
                 );
 
-        
-        laneDirectionOfTravelEvents.print(Printed.toSysOut());
 
         KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
 
@@ -127,6 +125,7 @@ public class LaneDirectionOfTravelAssessmentTopology
             LaneDirectionOfTravelAggregator agg = new LaneDirectionOfTravelAggregator();
             agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
             agg.setTolerance(parameters.getHeadingToleranceDegrees());
+            agg.setDistanceFromCenterlineTolerance(parameters.getDistanceFromCenterlineToleranceCm());
             return agg;
         };
 
@@ -147,8 +146,6 @@ public class LaneDirectionOfTravelAssessmentTopology
         KStream<String, LaneDirectionOfTravelAssessment> laneDirectionOfTravelAssessmentStream = laneDirectionOfTravelAssessments.toStream()
             .map((key, value) -> KeyValue.pair(key, value.getLaneDirectionOfTravelAssessment())
         );
-        
-        laneDirectionOfTravelAssessmentStream.print(Printed.toSysOut());
 
         laneDirectionOfTravelAssessmentStream.to(
         parameters.getLaneDirectionOfTravelAssessmentOutputTopicName(), 
@@ -163,22 +160,28 @@ public class LaneDirectionOfTravelAssessmentTopology
             (key, value)->{
                 List<KeyValue<String, LaneDirectionOfTravelAssessmentNotification>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelAssessmentNotification>>();
                 for(LaneDirectionOfTravelAssessmentGroup group: value.getLaneDirectionOfTravelAssessmentGroup()){
-                    System.out.println(group);
-                    if(group.getOutOfToleranceEvents() + group.getInToleranceEvents() >= parameters.getMinimumNumberOfEvents() && Math.abs(group.getMedianHeading() - group.getExpectedHeading()) > group.getTolerance()){
-                        
-                        System.out.println("Generating Notification");
-                        LaneDirectionOfTravelAssessmentNotification notification = new LaneDirectionOfTravelAssessmentNotification();
-                        notification.setAssessment(value);
-                        notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median heading "+group.getMedianHeading()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+group.getTolerance()+" degrees of the expected heading "+group.getExpectedHeading()+" degrees.");
-                        notification.setNotificationHeading("Lane Direction of Travel Assessment");
-                        result.add(new KeyValue<>(key, notification));
+                    if(group.getOutOfToleranceEvents() + group.getInToleranceEvents() >= parameters.getMinimumNumberOfEvents()){
+                        if(Math.abs(group.getMedianHeading() - group.getExpectedHeading()) > group.getTolerance()){
+                            LaneDirectionOfTravelAssessmentNotification notification = new LaneDirectionOfTravelAssessmentNotification();
+                            notification.setAssessment(value);
+                            notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median heading "+group.getMedianHeading()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+group.getTolerance()+" degrees of the expected heading "+group.getExpectedHeading()+" degrees.");
+                            notification.setNotificationHeading("Lane Direction of Travel Assessment");
+                            result.add(new KeyValue<>(key, notification));
+                        }
+                        if(Math.abs(group.getMedianCenterlineDistance()) > parameters.getDistanceFromCenterlineToleranceCm()){
+                            LaneDirectionOfTravelAssessmentNotification notification = new LaneDirectionOfTravelAssessmentNotification();
+                            notification.setAssessment(value);
+                            notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median distance from centerline "+group.getMedianCenterlineDistance()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+parameters.getDistanceFromCenterlineToleranceCm()+" cm of the center of the lane.");
+                            notification.setNotificationHeading("Lane Direction of Travel Assessment");
+                            result.add(new KeyValue<>(key, notification));
+                        }
                     }
+
+                    
                 }
                 return result;
             }
         );
-
-        laneDirectionOfTravelNotificationEventStream.print(Printed.toSysOut());
     
     
         KTable<String, LaneDirectionOfTravelAssessmentNotification> laneDirectionOfTravelNotificationTable = 

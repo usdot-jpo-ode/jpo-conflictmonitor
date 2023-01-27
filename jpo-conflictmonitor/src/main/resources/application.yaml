@@ -108,9 +108,12 @@ kafka.topics:
     - name: topic.OdeBsmJson
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: CmSignalStateEventAssessment
+    - name: topic.CmSignalStateEventAssessment
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: CmLaneDirectionOfTravelNotification
+    - name: topic.CmLaneDirectionOfTravelNotification
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmConnectionOfTravelNotification
       cleanupPolicy: delete
       retentionMs: 300000

@@ -17,6 +17,9 @@ public class LaneDirectionOfTravelAggregator {
     private ArrayList<LaneDirectionOfTravelEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
     private double tolerance;
+    private double distanceFromCenterlineTolerance;
+    
+
     private long messageDurationDays;
 
     
@@ -105,6 +108,7 @@ public class LaneDirectionOfTravelAggregator {
                 group.setMedianHeading(MathFunctions.getMedian(headings));
                 group.setTolerance(tolerance);
                 group.setExpectedHeading(expectedHeading);
+                group.setDistanceFromCenterlineTolerance(distanceFromCenterlineTolerance);
                 assessmentGroups.add(group);
             }
         }
@@ -129,6 +133,14 @@ public class LaneDirectionOfTravelAggregator {
 
     public void setTolerance(double tolerance) {
         this.tolerance = tolerance;
+    }
+
+    public double getDistanceFromCenterlineTolerance() {
+        return distanceFromCenterlineTolerance;
+    }
+
+    public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
+        this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
     }
 
     public long getAggregatorCreationTime() {

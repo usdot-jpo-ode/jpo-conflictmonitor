@@ -19,9 +19,9 @@ public class LaneDirectionOfTravelAssessmentGroup {
 
     private double expectedHeading; 
 
-    
-
     private double tolerance;
+    private double distanceFromCenterlineTolerance;
+
 
 
 
@@ -103,6 +103,14 @@ public class LaneDirectionOfTravelAssessmentGroup {
 
     public void setExpectedHeading(double expectedHeading) {
         this.expectedHeading = expectedHeading;
+    }
+
+    public double getDistanceFromCenterlineTolerance() {
+        return distanceFromCenterlineTolerance;
+    }
+
+    public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
+        this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
     }
 
     @Override

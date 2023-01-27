@@ -19,6 +19,7 @@ public class LaneDirectionOfTravelAssessmentParameters {
     long lookBackPeriodDays;
     long lookBackPeriodGraceTimeSeconds;
     double headingToleranceDegrees; 
+    double distanceFromCenterlineToleranceCm;
     int minimumNumberOfEvents;   
 
     
@@ -85,6 +86,15 @@ public class LaneDirectionOfTravelAssessmentParameters {
     public void setLaneDirectionOfTravelNotificationOutputTopicName(
             String laneDirectionOfTravelNotificationOutputTopicName) {
         this.laneDirectionOfTravelNotificationOutputTopicName = laneDirectionOfTravelNotificationOutputTopicName;
+    }
+
+    public double getDistanceFromCenterlineToleranceCm() {
+        return distanceFromCenterlineToleranceCm;
+    }
+    
+    @Value("${lane.direction.of.travel.assessment.distanceFromCenterlineToleranceCm}")
+    public void setDistanceFromCenterlineToleranceCm(double distanceFromCenterlineToleranceCm) {
+        this.distanceFromCenterlineToleranceCm = distanceFromCenterlineToleranceCm;
     }
 
 
