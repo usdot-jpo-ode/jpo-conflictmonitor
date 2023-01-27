@@ -37,6 +37,8 @@ import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelAssessmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
+
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -219,8 +221,10 @@ public class JsonSerdes {
         );
     }
 
-
-    
-
-    
+    public static Serde<ConnectionOfTravelNotification> ConnectionOfTravelNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelNotification>(),
+            new JsonDeserializer<>(ConnectionOfTravelNotification.class)
+        );
+    }
 }

@@ -14,6 +14,9 @@ public class ConnectionOfTravelAssessmentParameters {
     String connectionOfTravelAssessmentOutputTopicName;
     long lookBackPeriodDays;
     long lookBackPeriodGraceTimeSeconds;
+    String connectionOfTravelNotificationTopicName;
+    int minimumNumberOfEvents;
+
 
     // Whether to log diagnostic information for debugging
     boolean debug;
@@ -52,6 +55,24 @@ public class ConnectionOfTravelAssessmentParameters {
     @Value("${connection.of.travel.assessment.lookBackPeriodGraceTimeSeconds}")
     public void setLookBackPeriodGraceTimeSeconds(long lookBackPeriodGraceTimeSeconds) {
         this.lookBackPeriodGraceTimeSeconds = lookBackPeriodGraceTimeSeconds;
+    }
+
+    public String getConnectionOfTravelNotificationTopicName() {
+        return connectionOfTravelNotificationTopicName;
+    }
+
+    @Value("${connection.of.travel.assessment.connectionOfTravelNotificationTopicName=topic.CmConnectionOfTravelNotification}")
+    public void setConnectionOfTravelNotificationTopicName(String connectionOfTravelNotificationTopicName) {
+        this.connectionOfTravelNotificationTopicName = connectionOfTravelNotificationTopicName;
+    }
+
+    public int getMinimumNumberOfEvents() {
+        return minimumNumberOfEvents;
+    }
+
+    @Value("${connection.of.travel.assessment.minimumNumberOfEvents}")
+    public void setMinimumNumberOfEvents(int minimumNumberOfEvents) {
+        this.minimumNumberOfEvents = minimumNumberOfEvents;
     }
    
     public boolean isDebug() {
