@@ -111,3 +111,7 @@ kafka.topics:
     - name: CmSignalStateEventAssessment
       cleanupPolicy: delete
       retentionMs: 300000
+
+# Mongo properties
+# spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
+# spring.data.mongodb.database: ConflictMonitor
