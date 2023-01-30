@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 
 
 

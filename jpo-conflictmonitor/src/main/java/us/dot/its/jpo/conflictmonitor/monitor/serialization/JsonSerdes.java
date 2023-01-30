@@ -36,8 +36,10 @@ import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeseriali
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelAssessmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
+
 
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
@@ -214,10 +216,10 @@ public class JsonSerdes {
         );
     }
 
-    public static Serde<LaneDirectionOfTravelAssessmentNotification> LaneDirectionOfTravelAssessmentNotification() {
+    public static Serde<LaneDirectionOfTravelNotification> LaneDirectionOfTravelAssessmentNotification() {
         return Serdes.serdeFrom(
-            new JsonSerializer<LaneDirectionOfTravelAssessmentNotification>(),
-            new JsonDeserializer<>(LaneDirectionOfTravelAssessmentNotification.class)
+            new JsonSerializer<LaneDirectionOfTravelNotification>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelNotification.class)
         );
     }
 
@@ -227,4 +229,14 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelNotification.class)
         );
     }
+
+    public static Serde<SignalStateConflictNotification> SignalStateConflictNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateConflictNotification>(),
+            new JsonDeserializer<>(SignalStateConflictNotification.class)
+        );
+    }
+
+
+    
 }

@@ -35,7 +35,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOf
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.LaneDirectionOfTravelTimestampExtractor;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelAssessmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 
@@ -155,20 +155,20 @@ public class LaneDirectionOfTravelAssessmentTopology
 
 
         // Issue a Notification if the assessment isn't passing. 
-        KStream<String, LaneDirectionOfTravelAssessmentNotification> laneDirectionOfTravelNotificationEventStream = laneDirectionOfTravelAssessmentStream.flatMap(
+        KStream<String, LaneDirectionOfTravelNotification> laneDirectionOfTravelNotificationEventStream = laneDirectionOfTravelAssessmentStream.flatMap(
             (key, value)->{
-                List<KeyValue<String, LaneDirectionOfTravelAssessmentNotification>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelAssessmentNotification>>();
+                List<KeyValue<String, LaneDirectionOfTravelNotification>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelNotification>>();
                 for(LaneDirectionOfTravelAssessmentGroup group: value.getLaneDirectionOfTravelAssessmentGroup()){
                     if(group.getOutOfToleranceEvents() + group.getInToleranceEvents() >= parameters.getMinimumNumberOfEvents()){
                         if(Math.abs(group.getMedianHeading() - group.getExpectedHeading()) > group.getTolerance()){
-                            LaneDirectionOfTravelAssessmentNotification notification = new LaneDirectionOfTravelAssessmentNotification();
+                            LaneDirectionOfTravelNotification notification = new LaneDirectionOfTravelNotification();
                             notification.setAssessment(value);
                             notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median heading "+group.getMedianHeading()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+group.getTolerance()+" degrees of the expected heading "+group.getExpectedHeading()+" degrees.");
                             notification.setNotificationHeading("Lane Direction of Travel Assessment");
                             result.add(new KeyValue<>(key, notification));
                         }
                         if(Math.abs(group.getMedianCenterlineDistance()) > parameters.getDistanceFromCenterlineToleranceCm()){
-                            LaneDirectionOfTravelAssessmentNotification notification = new LaneDirectionOfTravelAssessmentNotification();
+                            LaneDirectionOfTravelNotification notification = new LaneDirectionOfTravelNotification();
                             notification.setAssessment(value);
                             notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median distance from centerline "+group.getMedianCenterlineDistance()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+parameters.getDistanceFromCenterlineToleranceCm()+" cm of the center of the lane.");
                             notification.setNotificationHeading("Lane Direction of Travel Assessment");
@@ -183,13 +183,13 @@ public class LaneDirectionOfTravelAssessmentTopology
         );
     
     
-        KTable<String, LaneDirectionOfTravelAssessmentNotification> laneDirectionOfTravelNotificationTable = 
+        KTable<String, LaneDirectionOfTravelNotification> laneDirectionOfTravelNotificationTable = 
             laneDirectionOfTravelNotificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelAssessmentNotification()))
             .reduce(
                 (oldValue, newValue)->{
                         return oldValue;
                 },
-            Materialized.<String, LaneDirectionOfTravelAssessmentNotification, KeyValueStore<Bytes, byte[]>>as("LaneDirectionOfTravelAssessmentNotification")
+            Materialized.<String, LaneDirectionOfTravelNotification, KeyValueStore<Bytes, byte[]>>as("LaneDirectionOfTravelAssessmentNotification")
             .withKeySerde(Serdes.String())
             .withValueSerde(JsonSerdes.LaneDirectionOfTravelAssessmentNotification())
         );

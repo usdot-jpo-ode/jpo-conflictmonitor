@@ -8,8 +8,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOf
 
 
 
-public class LaneDirectionOfTravelAssessmentNotification extends Notification {
-    public LaneDirectionOfTravelAssessmentNotification() {
+public class LaneDirectionOfTravelNotification extends Notification {
+    public LaneDirectionOfTravelNotification() {
         super("LaneDirectionOfTravelAssessmentNotification");
     }
 

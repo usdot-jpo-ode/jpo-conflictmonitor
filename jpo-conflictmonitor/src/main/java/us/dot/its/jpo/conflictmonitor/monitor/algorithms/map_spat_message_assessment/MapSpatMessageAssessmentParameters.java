@@ -20,10 +20,7 @@ public class MapSpatMessageAssessmentParameters {
     String signalStateConflictEventTopicName;
     String intersectionReferenceAlignmentNotificationTopicName;
     String signalGroupAlignmentNotificationTopicName;
-
-    
-
-    
+    String signalStateConflictNotificationTopicName;
 
     
 
@@ -98,6 +95,15 @@ public class MapSpatMessageAssessmentParameters {
     @Value("${map.spat.message.assessment.signalGroupAlignmentNotificationTopicName}")
     public void setSignalGroupAlignmentNotificationTopicName(String signalGroupAlignmentNotificationTopicName) {
         this.signalGroupAlignmentNotificationTopicName = signalGroupAlignmentNotificationTopicName;
+    }
+
+    public String getSignalStateConflictNotificationTopicName() {
+        return signalStateConflictNotificationTopicName;
+    }
+
+    @Value("${map.spat.message.assessment.signalStateConflictNotificationTopicName}")
+    public void setSignalStateConflictNotificationTopicName(String signalStateConflictNotificationTopicName) {
+        this.signalStateConflictNotificationTopicName = signalStateConflictNotificationTopicName;
     }
 
 

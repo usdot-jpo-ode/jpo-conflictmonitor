@@ -61,7 +61,7 @@ public class ConnectionOfTravelAssessmentParameters {
         return connectionOfTravelNotificationTopicName;
     }
 
-    @Value("${connection.of.travel.assessment.connectionOfTravelNotificationTopicName=topic.CmConnectionOfTravelNotification}")
+    @Value("${connection.of.travel.assessment.connectionOfTravelNotificationTopicName}")
     public void setConnectionOfTravelNotificationTopicName(String connectionOfTravelNotificationTopicName) {
         this.connectionOfTravelNotificationTopicName = connectionOfTravelNotificationTopicName;
     }
