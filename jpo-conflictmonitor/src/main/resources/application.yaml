@@ -113,5 +113,5 @@ kafka.topics:
       retentionMs: 300000
 
 # Mongo properties
-# spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
-# spring.data.mongodb.database: ConflictMonitor
+spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
+spring.data.mongodb.database: ConflictMonitor

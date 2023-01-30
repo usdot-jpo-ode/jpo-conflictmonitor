@@ -47,7 +47,7 @@ public class GroceryItem {
 			this.quantity = quantity;
 		}
 
-				public String getCategory() {
+		public String getCategory() {
 			return category;
 		}
 
