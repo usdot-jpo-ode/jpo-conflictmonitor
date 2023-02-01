@@ -1,11 +1,15 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document("CmConnectionOfTravelEvent")
 public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
     private int roadRegulatorId;

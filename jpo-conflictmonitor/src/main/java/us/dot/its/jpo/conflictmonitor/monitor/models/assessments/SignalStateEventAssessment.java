@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document("CmSignalStateEventAssessment")
 public class SignalStateEventAssessment extends Assessment{
     private long timestamp;
     private List<SignalStateEventAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();

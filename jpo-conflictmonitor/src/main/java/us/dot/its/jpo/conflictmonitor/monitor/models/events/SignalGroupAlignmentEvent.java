@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmSignalGroupAlignmentEvent")
 public class SignalGroupAlignmentEvent extends Event{
     String sourceID;
     long timestamp;

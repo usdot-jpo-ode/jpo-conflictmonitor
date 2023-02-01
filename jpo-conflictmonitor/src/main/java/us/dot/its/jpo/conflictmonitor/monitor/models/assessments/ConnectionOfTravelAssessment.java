@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmConnectionOfTravelAssessment")
 public class ConnectionOfTravelAssessment extends Assessment{
     private long timestamp;
     private List<ConnectionOfTravelAssessmentGroup> connectionOfTravelAssessmentGroups = new ArrayList<>();

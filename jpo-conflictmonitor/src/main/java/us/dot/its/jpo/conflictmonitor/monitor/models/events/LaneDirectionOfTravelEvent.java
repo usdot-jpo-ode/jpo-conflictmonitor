@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmLaneDirectionOfTravelEvent")
 public class LaneDirectionOfTravelEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;

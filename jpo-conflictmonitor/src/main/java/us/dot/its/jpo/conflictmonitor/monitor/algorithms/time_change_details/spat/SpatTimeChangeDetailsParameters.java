@@ -1,6 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 

@@ -8,9 +8,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignment
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.BroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-
-
+@Document("CmSignalGroupAlignmentNotification")
 public class SignalGroupAlignmentNotification extends Notification {
     public SignalGroupAlignmentNotification() {
         super("SignalGroupAlignmentNotification");

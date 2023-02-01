@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+
+@Document("CmIntersectionReferenceAlignmentEvent")
 public class IntersectionReferenceAlignmentEvent extends Event{
     
     private String sourceID;

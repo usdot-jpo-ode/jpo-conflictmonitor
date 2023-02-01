@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmSignalStateConflictEvent")
 public class SignalStateConflictEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
