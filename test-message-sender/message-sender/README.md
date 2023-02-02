@@ -80,7 +80,7 @@ Using the drawing controls:
 
 ![Draw Controls](docs/draw-controls.png)
 
-* Select the circle marker button to place BSMs on the map.  
+* Select the circle marker button to place BSMs on the map.
 
 * Select Cancel when finished placing BSMs.
 
