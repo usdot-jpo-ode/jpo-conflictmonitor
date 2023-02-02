@@ -54,7 +54,7 @@ message-type,relative-timestamp,json-template
 
 `relative-timestamp` is the number of milliseconds relative to the start time.
 
-`json-template` is a OdeSpatJson, OdeMapJson, or OdeBsmJson object on a single line, with timestamps replaced with the following placeholders:
+`json-template` is a OdeSpatJson, OdeMapJson, or OdeBsmJson object on a single line, the following placeholders replaced:
 
 * `@ISO_DATE_TIME@` - Date/Time string.
 * `@TEMP_ID@` - Temporary ID for BSMs, a string of 8 hex digits.
