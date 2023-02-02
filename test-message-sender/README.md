@@ -62,4 +62,4 @@ message-type,relative-timestamp,json-template
 * `"@MILLI_OF_MINUTE@"` - Numeric millisecond of the minute.
 
 
-The script runner converts the timestamps to times relative to the script start time, inserts them into the JSON templates, and schedules the messages to be sent to the appropriate topics in real time.
+The script runner converts the timestamps to times relative to the script start time, inserts them into the JSON templates, and schedules the messages to be sent to the appropriate topics in real time.  It generates a random BSM Temporary ID for each script run.
