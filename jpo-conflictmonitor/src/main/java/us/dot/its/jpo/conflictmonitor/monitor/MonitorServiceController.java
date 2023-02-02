@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.Topology;
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Controller;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
@@ -44,6 +47,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import lombok.Getter;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service
@@ -55,9 +59,12 @@ public class MonitorServiceController {
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
     org.apache.kafka.common.serialization.Serdes bas;
 
-   
-    
+    // Temporary for KafkaStreams that don't implement the Algorithm interface
+    @Getter
+    final ConcurrentHashMap<String, KafkaStreams> streamsMap = new ConcurrentHashMap<String, KafkaStreams>();
 
+    @Getter
+    final ConcurrentHashMap<String, Algorithm<?>> algoMap = new ConcurrentHashMap<String, Algorithm<?>>();
     
     @Autowired
     public MonitorServiceController(ConflictMonitorProperties conflictMonitorProps) {
@@ -71,77 +78,87 @@ public class MonitorServiceController {
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
 
+            final String repartition = "repartition";
             RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
             String repAlgo = conflictMonitorProps.getRepartitionAlgorithm();
             RepartitionAlgorithm repartitionAlgo = repartitionAlgoFactory.getAlgorithm(repAlgo);
             RepartitionParameters repartitionParams = conflictMonitorProps.getRepartitionAlgorithmParameters();
-            if (repartitionAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)repartitionAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("repartition"));
+            if (repartitionAlgo instanceof StreamsTopology) {     
+                ((StreamsTopology)repartitionAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(repartition));
             }
             repartitionAlgo.setParameters(repartitionParams);
             Runtime.getRuntime().addShutdownHook(new Thread(repartitionAlgo::stop));
             repartitionAlgo.start();
+            algoMap.put(repartition, repartitionAlgo);
+            
             
            
            
 
             // Map Broadcast Rate Topology
             // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
+            final String mapBroadcastRate = "mapBroadcastRate";
             MapValidationAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapValidationAlgorithmFactory();
             String mapAlgo = conflictMonitorProps.getMapValidationAlgorithm();
             MapValidationAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
             MapValidationParameters mapCountParams = conflictMonitorProps.getMapValidationParameters();
             logger.info("Map params {}", mapCountParams);
             if (mapCountAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapBroadcastRate"));
+                ((StreamsTopology)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(mapBroadcastRate));
             }
             mapCountAlgo.setParameters(mapCountParams);
             Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
             mapCountAlgo.start();
+            algoMap.put(mapBroadcastRate, mapCountAlgo);
 
             
             // Spat Broadcast Rate Topology
             // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
+            final String spatBroadcastRate = "spatBroadcastRate";
             SpatValidationStreamsAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatValidationAlgorithmFactory();
             String spatAlgo = conflictMonitorProps.getSpatValidationAlgorithm();
             SpatValidationAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
             SpatValidationParameters spatCountParams = conflictMonitorProps.getSpatValidationParameters();
             if (spatCountAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)spatCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatBroadcastRate"));
+                ((StreamsTopology)spatCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(spatBroadcastRate));
             }
             spatCountAlgo.setParameters(spatCountParams);
             Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
             spatCountAlgo.start();
+            algoMap.put(spatBroadcastRate, spatCountAlgo);
 
 
             // Spat Time Change Details Assessment
             //Sends Time Change Details Events when the time deltas in spat messages are incorrect
+            final String spatTimeChangeDetails = "spatTimeChangeDetails";
             SpatTimeChangeDetailsAlgorithmFactory spatTCDAlgoFactory = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithmFactory();
             String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
             SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
             SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
             if (spatTimeChangeDetailsAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)spatTimeChangeDetailsAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatTimeChangeDetails"));
+                ((StreamsTopology)spatTimeChangeDetailsAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
             }
             spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
             Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
             spatTimeChangeDetailsAlgo.start();
-
+            algoMap.put(spatTimeChangeDetails, spatTimeChangeDetailsAlgo);
             
 
 
 
             //Map Spat Alignment Topology
+            final String mapSpatAlignment = "mapSpatAlignment";
             MapSpatMessageAssessmentAlgorithmFactory mapSpatAlgoFactory = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithmFactory();
             String mapSpatAlgo = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
             MapSpatMessageAssessmentAlgorithm mapSpatAlignmentAlgo = mapSpatAlgoFactory.getAlgorithm(mapSpatAlgo);
             MapSpatMessageAssessmentParameters mapSpatAlignmentParams = conflictMonitorProps.getMapSpatMessageAssessmentParameters();
             if (mapSpatAlignmentAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)mapSpatAlignmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("mapSpatAlignment"));
+                ((StreamsTopology)mapSpatAlignmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(mapSpatAlignment));
             }
             mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
             Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
             mapSpatAlignmentAlgo.start();
+            algoMap.put(mapSpatAlignment, mapSpatAlignmentAlgo);
 
 
             
@@ -151,14 +168,17 @@ public class MonitorServiceController {
 
 
             //BSM Topology sends a message every time a vehicle drives through the intersection. 
+            final String bsmEvent = "bsmEvent";
             Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
+            KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties(bsmEvent));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start(); 
+            streamsMap.put(bsmEvent, streams);
 
 
             // // the message ingest topology tracks and stores incoming messages for further processing
-            topology = MessageIngestTopology.build(
+            final String messageIngest = "messageIngest";
+            var messageIngestTopology = MessageIngestTopology.build(
                 conflictMonitorProps.getKafkaTopicOdeBsmJson(),
                 bsmStoreName,
                 conflictMonitorProps.getKafkaTopicProcessedSpat(),
@@ -166,80 +186,89 @@ public class MonitorServiceController {
                 conflictMonitorProps.getKafkaTopicProcessedMap(),
                 mapStoreName
             );
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("messageIngest"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
+            var messageIngestStreams = new KafkaStreams(messageIngestTopology, conflictMonitorProps.createStreamProperties(messageIngest));
+            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestStreams::close));
+            messageIngestStreams.start();
+            streamsMap.put(messageIngest, messageIngestStreams);
 
             
             Thread.sleep(20000);
             
             ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
-                streams.store(StoreQueryParameters.fromNameAndType(bsmStoreName, QueryableStoreTypes.windowStore()));
+            messageIngestStreams.store(StoreQueryParameters.fromNameAndType(bsmStoreName, QueryableStoreTypes.windowStore()));
 
             ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore =
-                streams.store(StoreQueryParameters.fromNameAndType(spatStoreName, QueryableStoreTypes.windowStore()));
+            messageIngestStreams.store(StoreQueryParameters.fromNameAndType(spatStoreName, QueryableStoreTypes.windowStore()));
 
             ReadOnlyKeyValueStore<String, ProcessedMap> mapKeyValueStore =
-                streams.store(StoreQueryParameters.fromNameAndType(mapStoreName, QueryableStoreTypes.keyValueStore()));
+            messageIngestStreams.store(StoreQueryParameters.fromNameAndType(mapStoreName, QueryableStoreTypes.keyValueStore()));
 
             // //the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            topology = IntersectionEventTopology.build(
+            var intersectionEventTopology = IntersectionEventTopology.build(
                 conflictMonitorProps, 
                 bsmWindowStore,
                 spatWindowStore,
                 mapKeyValueStore
             );
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
+            final String intersectionEvent = "intersectionEvent";
+            var intersectionEventStreams = new KafkaStreams(intersectionEventTopology, conflictMonitorProps.createStreamProperties(intersectionEvent));
+            Runtime.getRuntime().addShutdownHook(new Thread(intersectionEventStreams::close));
+            intersectionEventStreams.start();
+            streamsMap.put(intersectionEvent, intersectionEventStreams);
 
 
             
 
 
             // Signal State Event Assessment Topology
+            final String signalStateEventAssessment = "signalStateEventAssessment";
             SignalStateEventAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
             String signalStateEventAssessmentAlgorithm = conflictMonitorProps.getSignalStateEventAssessmentAlgorithm();
             SignalStateEventAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
             SignalStateEventAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
             if (signalStateEventAssesmentAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)signalStateEventAssesmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("signalStateEventAssessment"));
+                ((StreamsTopology)signalStateEventAssesmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(signalStateEventAssessment));
             }
             signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
             signalStateEventAssesmentAlgo.start();
+            algoMap.put(signalStateEventAssessment, signalStateEventAssesmentAlgo);
 
             // Lane Direction Of Travel Assessment Topology
+            final String laneDirectionOfTravelAssessment = "laneDirectionOfTravelAssessment";
             LaneDirectionOfTravelAssessmentAlgorithmFactory ldotaAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAssessmentAlgorithmFactory();
             String laneDirectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getLaneDirectionOfTravelAssessmentAlgorithm();
             LaneDirectionOfTravelAssessmentAlgorithm laneDirectionOfTravelAssesmentAlgo = ldotaAlgoFactory.getAlgorithm(laneDirectionOfTravelAssessmentAlgorithm);
             LaneDirectionOfTravelAssessmentParameters laneDirectionOfTravelAssessmenAlgoParams = conflictMonitorProps.getLaneDirectionOfTravelAssessmentAlgorithmParameters();
             if (laneDirectionOfTravelAssesmentAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)laneDirectionOfTravelAssesmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("laneDirectionOfTravelAssessment"));
+                ((StreamsTopology)laneDirectionOfTravelAssesmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(laneDirectionOfTravelAssessment));
             }
             laneDirectionOfTravelAssesmentAlgo.setParameters(laneDirectionOfTravelAssessmenAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(laneDirectionOfTravelAssesmentAlgo::stop));
             laneDirectionOfTravelAssesmentAlgo.start();
+            algoMap.put(laneDirectionOfTravelAssessment, laneDirectionOfTravelAssesmentAlgo);
 
 
             // Connection Of Travel Assessment Topology
+            final String connectionOfTravelAssessment = "connectionOfTravelAssessment";
             ConnectionOfTravelAssessmentAlgorithmFactory cotaAlgoFactory = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmFactory();
             String connectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
             ConnectionOfTravelAssessmentAlgorithm connectionofTravelAssessmentAlgo = cotaAlgoFactory.getAlgorithm(connectionOfTravelAssessmentAlgorithm);
             ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgoParams = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmParameters();
             if (connectionofTravelAssessmentAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)connectionofTravelAssessmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("connectionOfTravelAssessment"));
+                ((StreamsTopology)connectionofTravelAssessmentAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(connectionOfTravelAssessment));
             }
             connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmentAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
+            algoMap.put(connectionOfTravelAssessment, connectionofTravelAssessmentAlgo);
             
 
-            // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            topology = IntersectionEventTopology.build(conflictMonitorProps, bsmWindowStore, spatWindowStore, mapKeyValueStore);
-            streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start();
+            // // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
+            // topology = IntersectionEventTopology.build(conflictMonitorProps, bsmWindowStore, spatWindowStore, mapKeyValueStore);
+            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
+            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+            // streams.start();
 
             
 
