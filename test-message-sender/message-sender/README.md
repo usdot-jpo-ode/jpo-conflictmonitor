@@ -59,11 +59,38 @@ And navigate to `http://localhost:8088/` in a browser.
 
 ## Usage
 
+Message Sender / Script Creator Map UI:
+
+![Message Sender / Script Creator UI](docs/message-sender-ui.png)
+
+The UI enables doing the following things:
+
+* Upload line-delimited ODE JSON files containing BSM or SPAT data.
+* Upload JSON files containing MAP or SPAT data to use as templates.  The MAP is displayed on the map.  The SPAT phases are listed in a table.
+* Send the MAP template to the OdeMapJson topic at a configurable interval.
+* Send the SPAT template to the OdeSpatJson topic at a configurable interval.
+* Select a combination of SPAT phases to send to the topic in real time, once or looped.
+* Send an uploaded BSM path, or a custom path created with the UI, to the OdeBsmJson topic in real time (optionally with a configurable fixed interval), or all at once.
+* Download line-delimited JSON for BSMs and SPATs, or JSON files containing the edited BSM or SPAT templates.
+* Record scripts containing real-time SPAT, MAP, and BSM data.
+
+### Create a BSM Path
+
+Using the drawing controls:
+
+![Draw Controls](docs/draw-controls.png)
+
 * Select the circle marker button to place BSMs on the map.  
 
 * Select Cancel when finished placing BSMs.
 
-* Click "Send BSMSs" to send BSM JSON messages to the OdeBsmJson topic.
+* Use the trash icon > "Clear All" to delete the entire path.
+
+* The BSMs can be sent to the topic, or downloaded as line-delimited JSON.
+
+* Editing points after placing them or deleting individual points are not supported.
+
+
 
 
 
