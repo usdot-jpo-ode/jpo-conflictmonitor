@@ -1322,6 +1322,7 @@
     const ISO_DATE_TIME = '@ISO_DATE_TIME@';
     const MINUTE_OF_YEAR = '@MINUTE_OF_YEAR@';
     const MILLI_OF_MINUTE = '@MILLI_OF_MINUTE@';
+    const TEMP_ID = '@TEMP_ID@';
 
     function buildScriptFromMap(odeMap) {
         const scriptMap = JSON.parse(JSON.stringify(odeMap))
@@ -1350,6 +1351,7 @@
         const scriptBsm = JSON.parse(JSON.stringify(odeBsm))
         scriptBsm.metadata.odeReceivedAt = ISO_DATE_TIME;
         scriptBsm.payload.data.coreData.secMark = MILLI_OF_MINUTE;
+        scriptBsm.payload.data.coreData.id = TEMP_ID;
         const strBsm = JSON.stringify(scriptBsm);
         const time = Date.now() - RECORD_START_TIME;
         const scriptLine = "BSM," + time + "," + strBsm;

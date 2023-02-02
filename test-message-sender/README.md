@@ -57,7 +57,9 @@ message-type,relative-timestamp,json-template
 `json-template` is a OdeSpatJson, OdeMapJson, or OdeBsmJson object on a single line, with timestamps replaced with the following placeholders:
 
 * `@ISO_DATE_TIME@` - Date/Time string.
+* `@TEMP_ID@` - Temporary ID for BSMs, a string of 8 hex digits.
 * `"@MINUTE_OF_YEAR@"` - Numeric minute of the year.
 * `"@MILLI_OF_MINUTE@"` - Numeric millisecond of the minute.
+
 
 The script runner converts the timestamps to times relative to the script start time, inserts them into the JSON templates, and schedules the messages to be sent to the appropriate topics in real time.

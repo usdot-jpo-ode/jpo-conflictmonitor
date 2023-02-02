@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +33,8 @@ public class ScriptRunner {
     @Autowired
     KafkaTemplate<String, String> kafkaTemplate;
 
+    private static final Random random = new Random();
+
     /**
      * Schedule each item in a script to be run
      * @param scriptFile - File containing the script
@@ -53,7 +56,10 @@ public class ScriptRunner {
     }
 
     private void scanScript(Scanner scanner) {
-        long startTime = Instant.now().toEpochMilli();
+        // Random Temporary ID, 32-bits, 8 hex digit
+        int randomInt = random.nextInt();
+        final String tempId = String.format("%08X", randomInt);
+        final long startTime = Instant.now().toEpochMilli();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
 
@@ -69,22 +75,22 @@ public class ScriptRunner {
                 String messageType = m.group("messageType");
                 long timeOffset = Long.parseLong(m.group("time"));
                 String message = m.group("message");
-                scheduleMessage(startTime, messageType, timeOffset, message);
+                scheduleMessage(startTime, messageType, timeOffset, message, tempId);
             } catch (Exception e) {
                 logger.error(String.format("Exception in line '%s'", line), e);
             }
         }
     }
 
-    private void scheduleMessage(long startTime, String messageType, long timeOffset, String message) 
-    {
+    private void scheduleMessage(final long startTime, final String messageType, 
+        final long timeOffset, final String message, final String tempId) {
         final long sendTime = startTime + timeOffset;
         final Instant sendInstant = Instant.ofEpochMilli(sendTime);
         var job = new SendMessageJob();
         job.setKafkaTemplate(kafkaTemplate);
         job.setMessageType(messageType);
         job.setSendTime(sendTime);
-        job.setMessage(fillTimestamps(sendInstant, message));
+        job.setMessage(fillTemplate(sendInstant, message, tempId));
         scheduler.schedule(job, sendInstant);
         logger.info("Scheduled {} job at {}", messageType, sendTime);
     }
@@ -92,8 +98,11 @@ public class ScriptRunner {
     public static final String ISO_DATE_TIME = "@ISO_DATE_TIME@";
     public static final String MINUTE_OF_YEAR = "\"@MINUTE_OF_YEAR@\"";
     public static final String MILLI_OF_MINUTE = "\"@MILLI_OF_MINUTE@\"";
+    public static final String TEMP_ID = "@TEMP_ID@";
+    
 
-    private static String fillTimestamps(Instant sendInstant, String message) {
+
+    private static String fillTemplate(Instant sendInstant, String message, String tempId) {
         ZonedDateTime zdt = sendInstant.atZone(ZoneOffset.UTC);
         String isoDateTime = zdt.format(DateTimeFormatter.ISO_DATE_TIME);
 
@@ -105,11 +114,13 @@ public class ScriptRunner {
             zdt.getDayOfMonth(), zdt.getHour(), zdt.getMinute(), 0, 0, ZoneOffset.UTC);
         Duration minDuration = Duration.between(zdtMinute, zdt);
         long milliOfMinute = minDuration.toMillis();
+       
         
         return message
             .replace(ISO_DATE_TIME, isoDateTime)
             .replace(MINUTE_OF_YEAR, Long.toString(minuteOfYear))
-            .replace(MILLI_OF_MINUTE, Long.toString(milliOfMinute));
+            .replace(MILLI_OF_MINUTE, Long.toString(milliOfMinute))
+            .replace(TEMP_ID, tempId);
 
     }
 
