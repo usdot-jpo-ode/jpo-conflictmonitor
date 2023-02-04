@@ -1116,10 +1116,10 @@
         const dtYear = new Date(dt.getFullYear(), 0, 1, 0, 0, 0, 0);
         const yearMillis = dtYear.getTime();
         const secondOfYear = (dtMillis - yearMillis) / 1000;
-        const minuteOfYear = secondOfYear / 60;
+        const minuteOfYear = Math.floor(secondOfYear / 60);
         spatCopy.payload.data.timeStamp = minuteOfYear;
         for (const intersection of spatCopy.payload.data.intersectionStateList.intersectionStatelist) {
-            intersection.moy = Math.floor(minuteOfYear);
+            intersection.moy = minuteOfYear;
             intersection.timeStamp = millisOfMinute;
         }
         
