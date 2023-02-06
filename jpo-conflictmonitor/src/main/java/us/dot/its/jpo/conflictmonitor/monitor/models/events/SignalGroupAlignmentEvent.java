@@ -53,6 +53,22 @@ public class SignalGroupAlignmentEvent extends Event{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateEvent)) {
+            return false;
+        }
+        SignalGroupAlignmentEvent signalGroupAlignmentEvent = (SignalGroupAlignmentEvent) o;
+        return 
+            sourceID.equals(signalGroupAlignmentEvent.sourceID) &&
+            timestamp == signalGroupAlignmentEvent.timestamp &&
+            spatSignalGroupIds.equals(signalGroupAlignmentEvent.spatSignalGroupIds) &&
+            mapSignalGroupIds.equals(signalGroupAlignmentEvent.mapSignalGroupIds);
+    }
+
+
+    @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
         String testReturn = "";

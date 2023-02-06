@@ -137,6 +137,29 @@ public class LaneDirectionOfTravelEvent extends Event{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateEvent)) {
+            return false;
+        }
+        LaneDirectionOfTravelEvent laneDirectionOfTravelEvent = (LaneDirectionOfTravelEvent) o;
+        return 
+            timestamp == laneDirectionOfTravelEvent.timestamp &&
+            roadRegulatorID == laneDirectionOfTravelEvent.roadRegulatorID &&
+            intersectionID == laneDirectionOfTravelEvent.intersectionID &&
+            laneID == laneDirectionOfTravelEvent.laneID &&
+            laneSegmentNumber == laneDirectionOfTravelEvent.laneSegmentNumber &&
+            laneSegmentInitialLatitude == laneDirectionOfTravelEvent.laneSegmentInitialLatitude &&
+            laneSegmentInitialLongitude == laneDirectionOfTravelEvent.laneSegmentInitialLongitude &&
+            laneSegmentFinalLongitude == laneDirectionOfTravelEvent.laneSegmentFinalLongitude &&
+            expectedHeading == laneDirectionOfTravelEvent.expectedHeading &&
+            medianVehicleHeading == laneDirectionOfTravelEvent.medianVehicleHeading &&
+            medianDistanceFromCenterline == laneDirectionOfTravelEvent.medianDistanceFromCenterline &&
+            aggregateBSMCount == laneDirectionOfTravelEvent.aggregateBSMCount;
+    }
+
+    @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
         String testReturn = "";

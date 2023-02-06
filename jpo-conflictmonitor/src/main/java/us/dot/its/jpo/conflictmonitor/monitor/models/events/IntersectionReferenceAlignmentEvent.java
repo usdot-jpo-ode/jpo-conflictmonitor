@@ -5,7 +5,6 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.NotificationSource;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -72,6 +71,24 @@ public class IntersectionReferenceAlignmentEvent extends Event{
 
     public void setMapIntersectionIds(Set<Integer> mapIntersectionIds) {
         this.mapIntersectionIds = mapIntersectionIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateEvent)) {
+            return false;
+        }
+        
+        IntersectionReferenceAlignmentEvent intersectionReferenceAlignmentEvent = (IntersectionReferenceAlignmentEvent) o;
+        return 
+            sourceID.equals(intersectionReferenceAlignmentEvent.sourceID) &&
+            timestamp == intersectionReferenceAlignmentEvent.timestamp &&
+            spatRoadRegulatorIds.equals(intersectionReferenceAlignmentEvent.spatRoadRegulatorIds) &&
+            mapRoadRegulatorIds.equals(intersectionReferenceAlignmentEvent.mapRoadRegulatorIds) &&
+            spatIntersectionIds.equals(intersectionReferenceAlignmentEvent.spatIntersectionIds) &&
+            mapIntersectionIds.equals(intersectionReferenceAlignmentEvent.mapIntersectionIds);
     }
 
     @Override

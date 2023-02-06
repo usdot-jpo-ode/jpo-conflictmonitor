@@ -119,6 +119,28 @@ public class SignalStateStopEvent extends Event{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateStopEvent)) {
+            return false;
+        }
+        SignalStateStopEvent signalStateStopEvent = (SignalStateStopEvent) o;
+        return 
+            timestamp == signalStateStopEvent.timestamp &&
+            roadRegulatorID == signalStateStopEvent.roadRegulatorID &&
+            ingressLane == signalStateStopEvent.ingressLane &&
+            egressLane == signalStateStopEvent.egressLane &&
+            connectionID == signalStateStopEvent.connectionID &&
+            eventState == signalStateStopEvent.eventState &&
+            vehicleID == signalStateStopEvent.vehicleID &&
+            latitude == signalStateStopEvent.latitude &&
+            longitude == signalStateStopEvent.longitude &&
+            heading == signalStateStopEvent.heading &&
+            speed == signalStateStopEvent.speed;
+    }
+
+    @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
         String testReturn = "";

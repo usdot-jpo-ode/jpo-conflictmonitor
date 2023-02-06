@@ -87,6 +87,25 @@ public class SignalStateConflictEvent extends Event{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateConflictEvent)) {
+            return false;
+        }
+        SignalStateConflictEvent signalStateConflictEvent = (SignalStateConflictEvent) o;
+        return 
+        timestamp == signalStateConflictEvent.timestamp &&
+            roadRegulatorID == signalStateConflictEvent.roadRegulatorID &&
+            intersectionID == signalStateConflictEvent.intersectionID &&
+            conflictType == signalStateConflictEvent.conflictType &&
+            firstConflictingSignalState == signalStateConflictEvent.firstConflictingSignalState &&
+            secondConflictingSignalGroup == signalStateConflictEvent.secondConflictingSignalGroup &&
+            secondConflictingSignalState == signalStateConflictEvent.secondConflictingSignalState &&
+            firstConflictingSignalGroup == signalStateConflictEvent.firstConflictingSignalGroup;
+    }
+
+    @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
         String testReturn = "";

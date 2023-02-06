@@ -76,6 +76,25 @@ public class ConnectionOfTravelEvent extends Event{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof ConnectionOfTravelEvent)) {
+            return false;
+        }
+        
+        ConnectionOfTravelEvent connectionOfTravelEvent = (ConnectionOfTravelEvent) o;
+        return 
+            timestamp == connectionOfTravelEvent.timestamp &&
+            roadRegulatorId == connectionOfTravelEvent.roadRegulatorId &&
+            intersectionId == connectionOfTravelEvent.intersectionId &&
+            ingressLaneId == connectionOfTravelEvent.ingressLaneId &&
+            egressLaneId == connectionOfTravelEvent.egressLaneId &&
+            connectionId == connectionOfTravelEvent.connectionId;
+            
+    }
+
+    @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
         String testReturn = "";
