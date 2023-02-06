@@ -51,6 +51,7 @@ intersection.reference.alignment.notification:
   properties: debug
 
 
+
 # Kafka properties
 spring.kafka.bootstrap-servers: localhost:9092
 

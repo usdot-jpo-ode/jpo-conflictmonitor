@@ -99,6 +99,27 @@ public class TimeChangeDetailsEvent extends Event{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof TimeChangeDetailsEvent)) {
+            return false;
+        }
+        TimeChangeDetailsEvent timeChangeDetailsEvent = (TimeChangeDetailsEvent) o;
+        return 
+            roadRegulatorID == timeChangeDetailsEvent.roadRegulatorID &&
+            intersectionID == timeChangeDetailsEvent.intersectionID &&
+            signalGroup == timeChangeDetailsEvent.signalGroup &&
+            firstSpatTimestamp == timeChangeDetailsEvent.firstSpatTimestamp &&
+            secondSpatTimestamp == timeChangeDetailsEvent.secondSpatTimestamp &&
+            secondSpatTimestamp == timeChangeDetailsEvent.secondSpatTimestamp &&
+            firstTimeMarkType == timeChangeDetailsEvent.firstTimeMarkType &&
+            secondTimeMarkType == timeChangeDetailsEvent.secondTimeMarkType &&
+            firstConflictingTimemark == timeChangeDetailsEvent.firstConflictingTimemark &&
+            secondConflictingTimemark == timeChangeDetailsEvent.secondConflictingTimemark;
+    }
+
+    @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
         String testReturn = "";

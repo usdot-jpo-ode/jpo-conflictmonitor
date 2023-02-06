@@ -19,11 +19,7 @@ public class SpatTimeChangeDetailsParameters {
     String spatTimeChangeDetailsTopicName;
     String spatTimeChangeDetailsStateStoreName;
     int jitterBufferSize;
-
-    
-
-    
-
+    String spatTimeChangeDetailsNotificationTopicName;
     
 
     public boolean isDebug() {
@@ -69,6 +65,15 @@ public class SpatTimeChangeDetailsParameters {
     @Value("${spat.time.change.details.jitterBufferSize}")
     public void setJitterBufferSize(int jitterBufferSize) {
         this.jitterBufferSize = jitterBufferSize;
+    }
+
+    public String getSpatTimeChangeDetailsNotificationTopicName() {
+        return spatTimeChangeDetailsNotificationTopicName;
+    }
+
+    @Value("${spat.time.change.details.spatTimeChangeDetailsNotificationTopicName}")
+    public void setSpatTimeChangeDetailsNotificationTopicName(String spatTimeChangeDetailsNotificationTopicName) {
+        this.spatTimeChangeDetailsNotificationTopicName = spatTimeChangeDetailsNotificationTopicName;
     }
 
     @Override

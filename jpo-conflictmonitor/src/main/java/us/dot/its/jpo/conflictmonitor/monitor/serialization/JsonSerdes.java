@@ -39,6 +39,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAl
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 
 
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -234,6 +235,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<SignalStateConflictNotification>(),
             new JsonDeserializer<>(SignalStateConflictNotification.class)
+        );
+    }
+
+    public static Serde<TimeChangeDetailsNotification> TimeChangeDetailsNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<TimeChangeDetailsNotification>(),
+            new JsonDeserializer<>(TimeChangeDetailsNotification.class)
         );
     }
 

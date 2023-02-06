@@ -127,6 +127,16 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
             spatTimeChangeDetailsAlgo.start();
 
+
+            String spatTCDNotAlgo = conflictMonitorProps.getSpatTimeChangeDetailsNotificationAlgorithm();
+            SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsNotAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDNotAlgo);
+            // if (spatTimeChangeDetailsNotAlgo instanceof StreamsTopology) {
+            //     ((StreamsTopology)spatTimeChangeDetailsNotAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties("spatTimeChangeDetailsNotification"));
+            // }
+            // spatTimeChangeDetailsNotAlgo.setParameters(spatTimeChangeDetailsParams);
+            // Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsNotAlgo::stop));
+            // spatTimeChangeDetailsNotAlgo.start();
+
             
 
 
