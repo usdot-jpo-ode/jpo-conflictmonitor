@@ -9,28 +9,21 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
@@ -42,11 +35,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEv
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -58,7 +49,7 @@ public class IntersectionEventTopology {
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
-    public static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore bsmWindowStore, Instant start, Instant end, String id){
+    public static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -87,7 +78,7 @@ public class IntersectionEventTopology {
         return agg;
     }
 
-    public static SpatAggregator getSpatByTime(ReadOnlyWindowStore spatWindowStore, Instant start, Instant end){
+    public static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start, Instant end){
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -116,53 +107,26 @@ public class IntersectionEventTopology {
     }
 
 
-    public static ProcessedMap getMap(ReadOnlyKeyValueStore mapStore, String key){
+    public static ProcessedMap getMap(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore, String key){
         return (ProcessedMap) mapStore.get(key);
     }
 
 
-    public static Topology build(ConflictMonitorProperties conflictMonitorProps, ReadOnlyWindowStore bsmWindowStore, ReadOnlyWindowStore spatWindowStore, ReadOnlyKeyValueStore mapStore) {
+    public static Topology build(
+        ConflictMonitorProperties conflictMonitorProps, 
+        ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, 
+        ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, 
+        ReadOnlyKeyValueStore<String, ProcessedMap> mapStore,
+        LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm,
+        LaneDirectionOfTravelParameters laneDirectionOfTravelParams,
+        ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm,
+        ConnectionOfTravelParameters connectionOfTravelParams,
+        SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm,
+        SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters,
+        SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm,
+        SignalStateVehicleStopsParameters signalStateVehicleStopsParameters) {
         
         StreamsBuilder builder = new StreamsBuilder();
-
-        // // Setup Lane Direction of Travel Factory
-        LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
-        String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
-        LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm = ldotAlgoFactory.getAlgorithm(ldotAlgo);
-        LaneDirectionOfTravelParameters ldotParams = conflictMonitorProps.getLaneDirectionOfTravelParameters();
-        
-        laneDirectionOfTravelAlgorithm.setParameters(ldotParams);
-        laneDirectionOfTravelAlgorithm.start();
-
-
-        // Setup Connection of Travel Factory
-        ConnectionOfTravelAlgorithmFactory cotAlgoFactory = conflictMonitorProps.getConnectionOfTravelAlgorithmFactory();
-        String cotAlgo = conflictMonitorProps.getConnectionOfTravelAlgorithm();
-        ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm = cotAlgoFactory.getAlgorithm(cotAlgo);
-        ConnectionOfTravelParameters cotParams = conflictMonitorProps.getConnectionOfTravelParameters();
-        
-        connectionOfTravelAlgorithm.setParameters(cotParams);
-        connectionOfTravelAlgorithm.start();
-
-
-        // Setup Signal State Vehicle Crosses Factory
-        SignalStateVehicleCrossesAlgorithmFactory ssvcAlgoFactory = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithmFactory();
-        String ssvcAlgo = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithm();
-        SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm = ssvcAlgoFactory.getAlgorithm(ssvcAlgo);
-        SignalStateVehicleCrossesParameters ssvcParams = conflictMonitorProps.getSignalStateVehicleCrossesParameters();
-        
-        signalStateVehicleCrossesAlgorithm.setParameters(ssvcParams);
-        signalStateVehicleCrossesAlgorithm.start();
-
-
-        // Setup Signal State Vehicle Stops Factory
-        SignalStateVehicleStopsAlgorithmFactory ssvsAlgoFactory = conflictMonitorProps.getSignalStateVehicleStopsAlgorithmFactory();
-        String ssvsAlgo = conflictMonitorProps.getSignalStateVehicleStopsAlgorithm();
-        SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm = ssvsAlgoFactory.getAlgorithm(ssvsAlgo);
-        SignalStateVehicleStopsParameters ssvsParams = conflictMonitorProps.getSignalStateVehicleStopsParameters();
-        
-        signalStateVehicleStopsAlgorithm.setParameters(ssvsParams);
-        signalStateVehicleStopsAlgorithm.start();
 
         
         KStream<String, BsmEvent> bsmEventStream = 
@@ -245,7 +209,7 @@ public class IntersectionEventTopology {
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
                 List<KeyValue<String, LaneDirectionOfTravelEvent>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelEvent>>();
-                ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(path);
+                ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
                 
                 for(LaneDirectionOfTravelEvent event: events){
                     result.add(new KeyValue<>(event.getKey(), event));
@@ -268,7 +232,7 @@ public class IntersectionEventTopology {
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
                 List<KeyValue<String, ConnectionOfTravelEvent>> result = new ArrayList<KeyValue<String, ConnectionOfTravelEvent>>();
-                ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(path);
+                ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
@@ -288,7 +252,7 @@ public class IntersectionEventTopology {
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
                 List<KeyValue<String, SignalStateEvent>> result = new ArrayList<KeyValue<String, SignalStateEvent>>();
-                SignalStateEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(path, value.getSpats());
+                SignalStateEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(signalStateVehicleCrossesParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
@@ -312,7 +276,7 @@ public class IntersectionEventTopology {
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
                 List<KeyValue<String, SignalStateStopEvent>> result = new ArrayList<KeyValue<String, SignalStateStopEvent>>();
-                SignalStateStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(path, value.getSpats());
+                SignalStateStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(signalStateVehicleStopsParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }

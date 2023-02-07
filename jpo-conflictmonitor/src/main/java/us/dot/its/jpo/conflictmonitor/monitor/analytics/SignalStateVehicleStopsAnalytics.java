@@ -23,31 +23,10 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_STOPS_ALGORITHM)
 public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStopsAlgorithm{
-    SignalStateVehicleStopsParameters parameters;
+   
 
     @Override
-    public void setParameters(SignalStateVehicleStopsParameters parameters) {
-        this.parameters = parameters;
-    }
-
-    @Override
-    public SignalStateVehicleStopsParameters getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public SignalStateStopEvent getSignalStateStopEvent(VehiclePath path, SpatAggregator spats){
+    public SignalStateStopEvent getSignalStateStopEvent(SignalStateVehicleStopsParameters parameters, VehiclePath path, SpatAggregator spats){
 
         Lane ingressLane = path.getIngressLane();
         Lane egressLane = path.getEgressLane();
