@@ -12,10 +12,10 @@ public interface IntersectionEventStreamsAlgorithm
     extends IntersectionEventAlgorithm, StreamsTopology { 
 
     ReadOnlyWindowStore<String, OdeBsmData> getBsmWindowStore();
-    void setBsmWindowStore(ReadOnlyWindowStore<String, OdeBsmData> bsmStore);
     ReadOnlyWindowStore<String, ProcessedSpat> getSpatWindowStore();
-    void setSpatWindowStore(ReadOnlyWindowStore<String, ProcessedSpat> spatStore);
     ReadOnlyKeyValueStore<String, ProcessedMap> getMapStore();
+    
+    void setBsmWindowStore(ReadOnlyWindowStore<String, OdeBsmData> bsmStore);
+    void setSpatWindowStore(ReadOnlyWindowStore<String, ProcessedSpat> spatStore);
     void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore);
-
 }

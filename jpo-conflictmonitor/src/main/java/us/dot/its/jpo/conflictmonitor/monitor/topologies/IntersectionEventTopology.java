@@ -97,6 +97,123 @@ public class IntersectionEventTopology
         return streams;
     }
 
+
+    @Override
+    public LaneDirectionOfTravelAlgorithm getLaneDirectionOfTravelAlgorithm() {
+        return laneDirectionOfTravelAlgorithm;
+    }
+
+    @Override
+    public LaneDirectionOfTravelParameters getLaneDirectionOfTravelParams() {
+        return laneDirectionOfTravelParams;
+    }
+
+    @Override
+    public ConnectionOfTravelAlgorithm getConnectionOfTravelAlgorithm() {
+        return connectionOfTravelAlgorithm;
+    }
+
+    @Override
+    public ConnectionOfTravelParameters getConnectionOfTravelParams() {
+        return connectionOfTravelParams;
+    }
+
+    @Override
+    public SignalStateVehicleCrossesAlgorithm getSignalStateVehicleCrossesAlgorithm() {
+        return signalStateVehicleCrossesAlgorithm;
+    }
+
+    @Override
+    public SignalStateVehicleCrossesParameters getSignalStateVehicleCrossesParameters() {
+        return signalStateVehicleCrossesParameters;
+    }
+
+    @Override
+    public SignalStateVehicleStopsAlgorithm getSignalStateVehicleStopsAlgorithm() {
+        return signalStateVehicleStopsAlgorithm;
+    }
+
+    @Override
+    public SignalStateVehicleStopsParameters getSignalStateVehicleStopsParameters() {
+        return signalStateVehicleStopsParameters;
+    }
+
+    @Override
+    public ReadOnlyWindowStore<String, OdeBsmData> getBsmWindowStore() {
+        return bsmWindowStore;
+    }
+
+    @Override
+    public ReadOnlyWindowStore<String, ProcessedSpat> getSpatWindowStore() {
+        return spatWindowStore;
+    }
+
+    @Override
+    public ReadOnlyKeyValueStore<String, ProcessedMap> getMapStore() {
+        return mapStore;
+    }
+
+    @Override
+    public void setBsmWindowStore(ReadOnlyWindowStore<String, OdeBsmData> bsmStore) {
+        this.bsmWindowStore = bsmStore;
+    }
+
+    @Override
+    public void setSpatWindowStore(ReadOnlyWindowStore<String, ProcessedSpat> spatStore) {
+        this.spatWindowStore = spatStore;
+    }
+
+    @Override
+    public void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore) {
+        this.mapStore = mapStore;
+    }
+
+
+    @Override
+    public void setLaneDirectionOfTravelAlgorithm(LaneDirectionOfTravelAlgorithm laneAlgorithm) {
+        this.laneDirectionOfTravelAlgorithm = laneAlgorithm;
+    }
+
+    @Override
+    public void setLaneDirectionOfTravelParams(LaneDirectionOfTravelParameters laneParams) {
+        this.laneDirectionOfTravelParams = laneParams;
+    }
+
+    @Override
+    public void setConnectionOfTravelAlgorithm(ConnectionOfTravelAlgorithm connTravelAlgorithm) {
+        this.connectionOfTravelAlgorithm = connTravelAlgorithm;
+    }
+
+    @Override
+    public void setConnectionOfTravelParams(ConnectionOfTravelParameters connTravelParams) {
+        this.connectionOfTravelParams = connTravelParams;
+    }
+
+    @Override
+    public void setSignalStateVehicleCrossesAlgorithm(SignalStateVehicleCrossesAlgorithm crossesAlgorithm) {
+        this.signalStateVehicleCrossesAlgorithm = crossesAlgorithm;
+    }
+
+    @Override
+    public void setSignalStateVehicleCrossesParameters(SignalStateVehicleCrossesParameters crossesParams) {
+        this.signalStateVehicleCrossesParameters = crossesParams;
+    }
+
+    @Override
+    public void setSignalStateVehicleStopsAlgorithm(SignalStateVehicleStopsAlgorithm stopsAlgorithm) {
+        this.signalStateVehicleStopsAlgorithm = stopsAlgorithm;
+    }
+
+    @Override
+    public void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters stopsParams) {
+        this.signalStateVehicleStopsParameters = stopsParams;
+    }
+
+    
+
+
+
+
     private static String getBsmID(OdeBsmData value){
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
@@ -344,6 +461,8 @@ public class IntersectionEventTopology
  
         return builder.build();
     }
+
+   
 
     
 

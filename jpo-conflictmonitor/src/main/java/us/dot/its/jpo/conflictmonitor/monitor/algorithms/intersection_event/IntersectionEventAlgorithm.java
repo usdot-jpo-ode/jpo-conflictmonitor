@@ -14,9 +14,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_cr
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 
 
 public interface IntersectionEventAlgorithm extends ExecutableAlgorithm { 
@@ -29,4 +26,14 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     SignalStateVehicleCrossesParameters getSignalStateVehicleCrossesParameters();
     SignalStateVehicleStopsAlgorithm getSignalStateVehicleStopsAlgorithm();
     SignalStateVehicleStopsParameters getSignalStateVehicleStopsParameters();
+
+
+    void setLaneDirectionOfTravelAlgorithm(LaneDirectionOfTravelAlgorithm laneAlgorithm);
+    void setLaneDirectionOfTravelParams(LaneDirectionOfTravelParameters laneParams);
+    void setConnectionOfTravelAlgorithm(ConnectionOfTravelAlgorithm connTravelAlgorithm);
+    void setConnectionOfTravelParams(ConnectionOfTravelParameters connTravelParams);
+    void setSignalStateVehicleCrossesAlgorithm(SignalStateVehicleCrossesAlgorithm crossesAlgorithm);
+    void setSignalStateVehicleCrossesParameters(SignalStateVehicleCrossesParameters crossesParams);
+    void setSignalStateVehicleStopsAlgorithm(SignalStateVehicleStopsAlgorithm stopsAlgorithm);
+    void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters stopsParams);
 }
