@@ -47,6 +47,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
@@ -134,6 +135,27 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private RepartitionAlgorithmFactory repartitionAlgorithmFactory;
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
+
+   private IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
+   private String intersectionEventAlgorithm;
+
+   public IntersectionEventAlgorithmFactory getIntersectionEventAlgorithmFactory() {
+      return this.intersectionEventAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setIntersectionEventAlgorithmFactory(IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory) {
+      this.intersectionEventAlgorithmFactory = intersectionEventAlgorithmFactory;
+   }
+
+   public String getIntersectionEventAlgorithm() {
+      return this.intersectionEventAlgorithm;
+   }
+
+   @Value("${intersection.event.algorithm}")
+   public void setIntersectionEventAlgorithm(String intersectionEventAlgorithm) {
+      this.intersectionEventAlgorithm = intersectionEventAlgorithm;
+   }
 
    @Autowired
    public void setMapValidationParameters(MapValidationParameters mapBroadcastRateParameters) {

@@ -49,6 +49,7 @@ repartition:
 intersection.reference.alignment.notification:
   algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
   properties: debug
+intersection.event.algorithm: defaultIntersectionEventAlgorithm
 
 
 # Kafka properties

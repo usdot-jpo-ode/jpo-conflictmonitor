@@ -18,6 +18,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_st
 
 public interface IntersectionEventAlgorithm extends ExecutableAlgorithm { 
     
+    ConflictMonitorProperties getConflictMonitorProperties();
     LaneDirectionOfTravelAlgorithm getLaneDirectionOfTravelAlgorithm();
     LaneDirectionOfTravelParameters getLaneDirectionOfTravelParams();
     ConnectionOfTravelAlgorithm getConnectionOfTravelAlgorithm();
@@ -27,7 +28,7 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     SignalStateVehicleStopsAlgorithm getSignalStateVehicleStopsAlgorithm();
     SignalStateVehicleStopsParameters getSignalStateVehicleStopsParameters();
 
-
+    void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps);
     void setLaneDirectionOfTravelAlgorithm(LaneDirectionOfTravelAlgorithm laneAlgorithm);
     void setLaneDirectionOfTravelParams(LaneDirectionOfTravelParameters laneParams);
     void setConnectionOfTravelAlgorithm(ConnectionOfTravelAlgorithm connTravelAlgorithm);

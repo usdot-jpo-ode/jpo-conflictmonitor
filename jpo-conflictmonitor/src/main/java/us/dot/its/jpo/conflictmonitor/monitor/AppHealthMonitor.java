@@ -1,18 +1,23 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +25,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 
 @RestController
@@ -34,10 +41,46 @@ public class AppHealthMonitor {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private static final Logger logger = LoggerFactory.getLogger(AppHealthMonitor.class);
+
     @Autowired
     @Getter
     @Setter
     private MonitorServiceController monitorServiceController;
+
+    @Autowired
+    @Getter
+    @Setter
+    private KafkaAdmin kafkaAdmin;
+
+    @Autowired
+    @Getter
+    @Setter
+    private KafkaConfiguration kafkaConfiguration;
+
+    /**
+     * @return JSON map of kafka topics created by this app that currently exist
+     */
+    @GetMapping(value = "/topics", produces = "application/json")
+    public @ResponseBody ResponseEntity<String> listTopics() {
+        try {
+            var existingTopics = new TreeMap<String, String>();
+            
+            var topicNames = kafkaConfiguration.getCreateTopics().stream()
+                .filter(topic -> topic.keySet().contains("name"))
+                .map(topic -> (String)topic.get("name"))
+                .collect(Collectors.toUnmodifiableList());
+            var topicDescMap = kafkaAdmin.describeTopics(topicNames.toArray(new String[0]));
+            for (var entry : topicDescMap.entrySet()) {      
+                existingTopics.put(entry.getKey(), entry.getValue().toString());
+            }
+            String jsonResult = mapper.writeValueAsString(existingTopics);
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(jsonResult);
+        } catch (Exception ex) {
+            String errorJson = String.format("{ \"error\": \"%s\" }", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errorJson);
+        }
+    }
 
     @GetMapping(value = "/streams", produces = "*/*")
     public @ResponseBody ResponseEntity<String> listStreams() {

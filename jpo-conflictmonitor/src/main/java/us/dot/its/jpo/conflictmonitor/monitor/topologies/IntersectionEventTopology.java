@@ -16,6 +16,8 @@ import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.apache.kafka.streams.kstream.Produced;
 
@@ -52,6 +54,9 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_eve
 public class IntersectionEventTopology
     implements IntersectionEventStreamsAlgorithm {
 
+    private static final Logger logger = LoggerFactory.getLogger(IntersectionEventTopology.class);
+
+
     Properties streamsProperties;
     Topology topology;
     KafkaStreams streams;
@@ -73,13 +78,45 @@ public class IntersectionEventTopology
 
     @Override
     public void start() {
-        
+        if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");       
+        if (bsmWindowStore == null) throw new IllegalStateException("bsmWindowStore is not set.");
+        if (spatWindowStore == null) throw new IllegalStateException("spatWindowStore is not set.");
+        if (mapStore == null) throw new IllegalStateException("mapStore is not set.");
+        if (laneDirectionOfTravelAlgorithm == null) throw new IllegalStateException("LaneDirectionOfTravelAlgorithm is not set");
+        if (laneDirectionOfTravelParams == null) throw new IllegalStateException("LaneDirectionOfTravelParameters is not set");
+        if (connectionOfTravelAlgorithm == null) throw new IllegalStateException("ConnectionOfTravelAlgorithm is not set");
+        if (connectionOfTravelParams == null) throw new IllegalStateException("ConnectionOfTravelParameters is not set");
+        if (signalStateVehicleCrossesAlgorithm == null) throw new IllegalStateException("SignalStateVehicleCrossesAlgorithm is not set");
+        if (signalStateVehicleCrossesParameters == null) throw new IllegalStateException("SignalStateVehicleCrossesParameters is not set");
+        if (signalStateVehicleStopsAlgorithm == null) throw new IllegalStateException("SignalStateVehicleStopsAlgorithm is not set");
+        if (signalStateVehicleStopsParameters == null) throw new IllegalStateException("SignalStateVehicleStopsParameters is not set");
+        if (streams != null && streams.state().isRunningOrRebalancing()) throw new IllegalStateException("Start called while streams is already running.");
+        logger.info("Starting IntersectionEventTopology.");
+        Topology topology = buildTopology();
+        streams = new KafkaStreams(topology, streamsProperties);
+        streams.start();
+        logger.info("Started IntersectionEventTopology.");
     }
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stop'");
+        logger.info("Stopping IntersectionEventTopology.");
+        if (streams != null) {
+            streams.close();
+            streams.cleanUp();
+            streams = null;
+        }
+        logger.info("Stopped IntersectionEventTopology.");
+    }
+
+    @Override
+    public ConflictMonitorProperties getConflictMonitorProperties() {
+        return conflictMonitorProps;
+    }
+
+    @Override
+    public void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps) {
+        this.conflictMonitorProps = conflictMonitorProps;
     }
 
     @Override
@@ -281,18 +318,7 @@ public class IntersectionEventTopology
     }
 
 
-    public Topology build(
-        ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, 
-        ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, 
-        ReadOnlyKeyValueStore<String, ProcessedMap> mapStore,
-        LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm,
-        LaneDirectionOfTravelParameters laneDirectionOfTravelParams,
-        ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm,
-        ConnectionOfTravelParameters connectionOfTravelParams,
-        SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm,
-        SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters,
-        SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm,
-        SignalStateVehicleStopsParameters signalStateVehicleStopsParameters) {
+    public Topology buildTopology() {
         
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -461,6 +487,8 @@ public class IntersectionEventTopology
  
         return builder.build();
     }
+
+    
 
    
 
