@@ -3,8 +3,10 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -14,11 +16,13 @@ import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.springframework.stereotype.Component;
 import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
@@ -42,14 +46,62 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventConstants.*;
 
-public class IntersectionEventTopology {
+@Component(DEFAULT_INTERSECTION_EVENT_ALGORITHM)
+public class IntersectionEventTopology
+    implements IntersectionEventStreamsAlgorithm {
 
-    public static String getBsmID(OdeBsmData value){
+    Properties streamsProperties;
+    Topology topology;
+    KafkaStreams streams;
+    ConflictMonitorProperties conflictMonitorProps;
+
+    ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
+    ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore;
+    ReadOnlyKeyValueStore<String, ProcessedMap> mapStore;
+    LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
+    LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
+    ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
+    ConnectionOfTravelParameters connectionOfTravelParams;
+    SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm;
+    SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters;
+    SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
+    SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
+
+
+
+    @Override
+    public void start() {
+        
+    }
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'stop'");
+    }
+
+    @Override
+    public void setStreamsProperties(Properties streamsProperties) {
+        this.streamsProperties = streamsProperties;
+    }
+
+    @Override
+    public Properties getStreamsProperties() {
+       return streamsProperties;
+    }
+
+    @Override
+    public KafkaStreams getStreams() {
+        return streams;
+    }
+
+    private static String getBsmID(OdeBsmData value){
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
-    public static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -78,7 +130,7 @@ public class IntersectionEventTopology {
         return agg;
     }
 
-    public static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start, Instant end){
+    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start, Instant end){
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -107,13 +159,12 @@ public class IntersectionEventTopology {
     }
 
 
-    public static ProcessedMap getMap(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore, String key){
+    private static ProcessedMap getMap(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore, String key){
         return (ProcessedMap) mapStore.get(key);
     }
 
 
-    public static Topology build(
-        ConflictMonitorProperties conflictMonitorProps, 
+    public Topology build(
         ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, 
         ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, 
         ReadOnlyKeyValueStore<String, ProcessedMap> mapStore,
@@ -293,4 +344,8 @@ public class IntersectionEventTopology {
  
         return builder.build();
     }
+
+    
+
+    
 }
