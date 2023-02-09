@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -51,34 +53,41 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 
-
+@Getter
+@Setter
 @RestController
 @RequestMapping(path = "/health")
 @DependsOn("createKafkaTopics")
 public class AppHealthMonitor {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper;
 
     private static final Logger logger = LoggerFactory.getLogger(AppHealthMonitor.class);
 
-    @Autowired @Getter @Setter MonitorServiceController monitorServiceController;
-    @Autowired @Getter @Setter KafkaAdmin kafkaAdmin;
-    @Autowired @Getter @Setter KafkaConfiguration kafkaConfiguration;
-    @Autowired @Getter @Setter ConflictMonitorProperties conflictMonitorProperties;
+    static {
+        mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.registerModule(new JavaTimeModule());
+    }
 
-    @Autowired @Getter @Setter ConnectionOfTravelParameters connectionParams;
-    @Autowired @Getter @Setter ConnectionOfTravelAssessmentParameters connectionAssessmentParams;
-    @Autowired @Getter @Setter LaneDirectionOfTravelParameters laneParameters;
-    @Autowired @Getter @Setter LaneDirectionOfTravelAssessmentParameters laneAssessmentParams;
-    @Autowired @Getter @Setter MapSpatMessageAssessmentParameters mapSpatAssessmentParams;
-    @Autowired @Getter @Setter RepartitionParameters repartitionParams;
-    @Autowired @Getter @Setter SignalStateEventAssessmentParameters signalStateParams;
-    @Autowired @Getter @Setter SignalStateVehicleCrossesParameters crossesParams;
-    @Autowired @Getter @Setter SignalStateVehicleStopsParameters stopsParams;
-    @Autowired @Getter @Setter MapTimeChangeDetailsParameters mapTimeChangeParams;
-    @Autowired @Getter @Setter SpatTimeChangeDetailsParameters spatTimeChangeParams;
-    @Autowired @Getter @Setter MapValidationParameters mapValidationParams;
-    @Autowired @Getter @Setter SpatValidationParameters spatValidationparams;
+    @Autowired MonitorServiceController monitorServiceController;
+    @Autowired KafkaAdmin kafkaAdmin;
+    @Autowired KafkaConfiguration kafkaConfiguration;
+    @Autowired ConflictMonitorProperties conflictMonitorProperties;
+
+    @Autowired ConnectionOfTravelParameters connectionParams;
+    @Autowired ConnectionOfTravelAssessmentParameters connectionAssessmentParams;
+    @Autowired LaneDirectionOfTravelParameters laneParameters;
+    @Autowired LaneDirectionOfTravelAssessmentParameters laneAssessmentParams;
+    @Autowired MapSpatMessageAssessmentParameters mapSpatAssessmentParams;
+    @Autowired RepartitionParameters repartitionParams;
+    @Autowired SignalStateEventAssessmentParameters signalStateParams;
+    @Autowired SignalStateVehicleCrossesParameters crossesParams;
+    @Autowired SignalStateVehicleStopsParameters stopsParams;
+    @Autowired MapTimeChangeDetailsParameters mapTimeChangeParams;
+    @Autowired SpatTimeChangeDetailsParameters spatTimeChangeParams;
+    @Autowired MapValidationParameters mapValidationParams;
+    @Autowired SpatValidationParameters spatValidationparams;
     
 
     /**
@@ -232,8 +241,14 @@ public class AppHealthMonitor {
     }
 
     private ResponseEntity<String> getErrorJson(Exception ex) {
-        String errorJson = String.format("{ \"error\": \"%s\" }", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errorJson);
+        var errMap = Map.of("error", ex.getMessage());
+        try {
+            String errJson = mapper.writeValueAsString(errMap);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errJson);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"error\" }");
+        }
+        
     }
 
     public class StreamsInfoMap extends TreeMap<String, StreamsInfo> {
