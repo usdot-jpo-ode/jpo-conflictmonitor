@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
@@ -71,6 +72,10 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         logger.info("Starting SpatTimeChangeDetailsTopology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        streams.setUncaughtExceptionHandler(ex -> {
+            logger.error("KafkaStreams uncaught exception, will try replacing thread", ex);
+            return StreamThreadExceptionResponse.REPLACE_THREAD;
+        });
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         streams.start();
         logger.info("Started SpatTimeChangeDetailsTopology.");

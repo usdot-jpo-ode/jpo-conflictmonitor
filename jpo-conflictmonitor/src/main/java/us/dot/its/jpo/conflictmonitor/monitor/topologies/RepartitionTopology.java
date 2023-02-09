@@ -4,6 +4,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
@@ -103,6 +104,10 @@ public class RepartitionTopology implements RepartitionStreamsAlgorithm {
         logger.info("Starting Repartition Topology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        streams.setUncaughtExceptionHandler(ex -> {
+            logger.error("KafkaStreams uncaught exception, will try replacing thread", ex);
+            return StreamThreadExceptionResponse.REPLACE_THREAD;
+        });
         streams.start();
         logger.info("Started Repartition Topology");
         System.out.println(parameters.getBsmInputTopicName());

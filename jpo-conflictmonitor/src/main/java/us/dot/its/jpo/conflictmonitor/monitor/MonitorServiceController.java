@@ -105,10 +105,6 @@ public class MonitorServiceController {
             repartitionAlgo.setParameters(repartitionParams);
             Runtime.getRuntime().addShutdownHook(new Thread(repartitionAlgo::stop));
             repartitionAlgo.start();
-            
-            
-            
-           
            
 
             // Map Broadcast Rate Topology
@@ -229,7 +225,7 @@ public class MonitorServiceController {
             
             // Get Algorithms used by intersection event topology
 
-            // // Setup Lane Direction of Travel Factory
+            // Setup Lane Direction of Travel Factory
             LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
             String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
             LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm = ldotAlgoFactory.getAlgorithm(ldotAlgo);
@@ -331,16 +327,9 @@ public class MonitorServiceController {
             
             
 
-            // // the IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
-            // topology = IntersectionEventTopology.build(conflictMonitorProps, bsmWindowStore, spatWindowStore, mapKeyValueStore);
-            // streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("intersectionEvent"));
-            // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            // streams.start();
 
             
-
-            
-            logger.info("All geoJSON conversion services started!");
+            logger.info("All services started!");
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);
         }

@@ -11,6 +11,7 @@ import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KafkaStreams.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,18 +158,11 @@ public class AppHealthMonitor {
             result.put(name, streamsInfo);
 
             KafkaStreams streams = streamsMap.get(name);
-            Object state = null;
             if (streams == null) {
-                state = "KafkaStreams object is null";
                 continue;
             } 
-            Optional<? extends Metric> statusMetric = streams.metrics().values().stream()
-                .filter(metric -> 
-                    "stream-metrics".equals(metric.metricName().group()) &&
-                    "state".equals(metric.metricName().name()))
-                .findFirst();
-            state = statusMetric.isPresent() ? statusMetric.get().metricValue() : "Stream state metric not found.  Streams is probably shut down.";
-            streamsInfo.setState(state);
+            var state = streams.state();
+            streamsInfo.setState(state != null ? state : null);
             
         }
         return getJsonResponse(result);     
@@ -257,7 +251,7 @@ public class AppHealthMonitor {
     @Getter
     @Setter
     public class StreamsInfo {
-        Object state;
+        State state;
         String detailsUrl;      
     }
 

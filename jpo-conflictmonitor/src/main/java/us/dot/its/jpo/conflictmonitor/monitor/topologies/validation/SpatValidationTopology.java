@@ -18,6 +18,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
@@ -98,6 +99,10 @@ public class SpatValidationTopology
         logger.info("Starting SpatBroadcastRateTopology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        streams.setUncaughtExceptionHandler(ex -> {
+            logger.error("KafkaStreams uncaught exception, will try replacing thread", ex);
+            return StreamThreadExceptionResponse.REPLACE_THREAD;
+        });
         streams.start();
         logger.info("Started SpatBroadcastRateTopology.");
     }
