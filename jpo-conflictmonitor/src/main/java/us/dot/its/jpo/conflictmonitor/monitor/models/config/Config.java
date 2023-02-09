@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -16,13 +15,16 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 @Generated
-@Document("CmDefaultConfig")
-public class Config<T> {
+public abstract class Config<T> {
 
     @Id
     private String key;
     private String category;
     private T value;
+
+    public Config(){
+        
+    }
 
     public Config(String key, String category, T value){
         this.key = key;

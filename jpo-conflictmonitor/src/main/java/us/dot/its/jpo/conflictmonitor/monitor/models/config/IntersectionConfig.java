@@ -9,10 +9,15 @@ import lombok.Setter;
 public class IntersectionConfig<T> extends Config<T>{
 
     @Getter @Setter private int intersectionID;
+    @Getter @Setter private String roadRegulatorID;
+    @Getter @Setter private String rsuID;
+    
 
-    public IntersectionConfig(String key, String category, int intersectionID, T value){
+    public IntersectionConfig(String key, String category, String roadRegulatorID, int intersectionID, String rsuID, T value){
         super(key, category, value);
         this.intersectionID = intersectionID;
+        this.roadRegulatorID = roadRegulatorID;
+        this.rsuID = rsuID;
     }
 
 }
