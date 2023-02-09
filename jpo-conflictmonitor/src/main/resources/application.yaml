@@ -80,6 +80,9 @@ connection.of.travel.assessment:
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
 
+intersection.event:
+  algorithm: defaultIntersectionEventAlgorithm
+
 # Lane Direction of Travel
 lane.direction.of.travel:
   algorithm: defaultLaneDirectionOfTravelAlgorithm

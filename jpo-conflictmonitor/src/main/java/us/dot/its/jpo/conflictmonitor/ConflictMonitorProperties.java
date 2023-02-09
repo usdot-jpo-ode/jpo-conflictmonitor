@@ -41,6 +41,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.thymeleaf.util.StringUtils;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -77,7 +78,7 @@ import us.dot.its.jpo.ode.plugin.OdePlugin;
 import us.dot.its.jpo.ode.util.CommonUtils;
 
 @ConfigurationProperties
-public class ConflictMonitorProperties implements EnvironmentAware {
+public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private static final Logger logger = LoggerFactory.getLogger(ConflictMonitorProperties.class);
 

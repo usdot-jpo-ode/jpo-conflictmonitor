@@ -33,8 +33,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
+
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+
 
 @RestController
 @RequestMapping(path = "/health")
@@ -45,20 +61,25 @@ public class AppHealthMonitor {
 
     private static final Logger logger = LoggerFactory.getLogger(AppHealthMonitor.class);
 
-    @Autowired
-    @Getter
-    @Setter
-    private MonitorServiceController monitorServiceController;
+    @Autowired @Getter @Setter MonitorServiceController monitorServiceController;
+    @Autowired @Getter @Setter KafkaAdmin kafkaAdmin;
+    @Autowired @Getter @Setter KafkaConfiguration kafkaConfiguration;
+    @Autowired @Getter @Setter ConflictMonitorProperties conflictMonitorProperties;
 
-    @Autowired
-    @Getter
-    @Setter
-    private KafkaAdmin kafkaAdmin;
-
-    @Autowired
-    @Getter
-    @Setter
-    private KafkaConfiguration kafkaConfiguration;
+    @Autowired @Getter @Setter ConnectionOfTravelParameters connectionParams;
+    @Autowired @Getter @Setter ConnectionOfTravelAssessmentParameters connectionAssessmentParams;
+    @Autowired @Getter @Setter LaneDirectionOfTravelParameters laneParameters;
+    @Autowired @Getter @Setter LaneDirectionOfTravelAssessmentParameters laneAssessmentParams;
+    @Autowired @Getter @Setter MapSpatMessageAssessmentParameters mapSpatAssessmentParams;
+    @Autowired @Getter @Setter RepartitionParameters repartitionParams;
+    @Autowired @Getter @Setter SignalStateEventAssessmentParameters signalStateParams;
+    @Autowired @Getter @Setter SignalStateVehicleCrossesParameters crossesParams;
+    @Autowired @Getter @Setter SignalStateVehicleStopsParameters stopsParams;
+    @Autowired @Getter @Setter MapTimeChangeDetailsParameters mapTimeChangeParams;
+    @Autowired @Getter @Setter SpatTimeChangeDetailsParameters spatTimeChangeParams;
+    @Autowired @Getter @Setter MapValidationParameters mapValidationParams;
+    @Autowired @Getter @Setter SpatValidationParameters spatValidationparams;
+    
 
     /**
      * @return JSON map of kafka topics created by this app that currently exist
@@ -72,15 +93,46 @@ public class AppHealthMonitor {
                 .filter(topic -> topic.keySet().contains("name"))
                 .map(topic -> (String)topic.get("name"))
                 .collect(Collectors.toUnmodifiableList());
+
             var topicDescMap = kafkaAdmin.describeTopics(topicNames.toArray(new String[0]));
+
             for (var entry : topicDescMap.entrySet()) {      
                 existingTopics.put(entry.getKey(), entry.getValue().toString());
             }
-            String jsonResult = mapper.writeValueAsString(existingTopics);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(jsonResult);
+
+            return getJsonResponse(existingTopics);
         } catch (Exception ex) {
-            String errorJson = String.format("{ \"error\": \"%s\" }", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errorJson);
+            return getErrorJson(ex);
+        }
+    }
+
+
+    
+
+
+    @GetMapping(value = "/properties", produces = "application/json")
+    public @ResponseBody ResponseEntity<String> listProperties() {
+        try {
+            var propMap = new TreeMap<String, Object>();
+            propMap.put(conflictMonitorProperties.getClass().getSimpleName(), conflictMonitorProperties);
+            propMap.put(kafkaConfiguration.getClass().getSimpleName(), kafkaConfiguration);
+            propMap.put(connectionParams.getClass().getSimpleName(), connectionParams);
+            propMap.put(connectionAssessmentParams.getClass().getSimpleName(), connectionAssessmentParams);
+            propMap.put(laneParameters.getClass().getSimpleName(), laneParameters);
+            propMap.put(laneAssessmentParams.getClass().getSimpleName(), laneAssessmentParams);
+            propMap.put(mapSpatAssessmentParams.getClass().getSimpleName(), mapSpatAssessmentParams);
+            propMap.put(repartitionParams.getClass().getSimpleName(), repartitionParams);
+            propMap.put(signalStateParams.getClass().getSimpleName(), signalStateParams);
+            propMap.put(crossesParams.getClass().getSimpleName(), crossesParams);
+            propMap.put(stopsParams.getClass().getSimpleName(), stopsParams);
+            propMap.put(mapTimeChangeParams.getClass().getSimpleName(), mapTimeChangeParams);
+            propMap.put(spatTimeChangeParams.getClass().getSimpleName(), spatTimeChangeParams);
+            propMap.put(mapValidationParams.getClass().getSimpleName(), mapValidationParams);
+            propMap.put(spatValidationparams.getClass().getSimpleName(), spatValidationparams);
+            
+            return getJsonResponse(propMap);
+        } catch (Exception ex) {
+            return getErrorJson(ex);
         }
     }
 
@@ -174,9 +226,14 @@ public class AppHealthMonitor {
         try {
             json = mapper.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.TEXT_PLAIN).body(jpe.getMessage());
+           return getErrorJson(jpe);
         }
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(json);
+    }
+
+    private ResponseEntity<String> getErrorJson(Exception ex) {
+        String errorJson = String.format("{ \"error\": \"%s\" }", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errorJson);
     }
 
     public class StreamsInfoMap extends TreeMap<String, StreamsInfo> {

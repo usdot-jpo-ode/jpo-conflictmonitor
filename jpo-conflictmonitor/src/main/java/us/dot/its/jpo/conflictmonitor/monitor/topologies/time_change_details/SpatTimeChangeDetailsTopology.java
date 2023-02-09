@@ -104,7 +104,7 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
 
         builder.addStateStore(storeBuilder, SPAT_SEQUENCE_PROCESSOR);
 
-        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, this.parameters.getSpatOutputTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
+        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, this.parameters.getSpatTimeChangeDetailsTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
         
         
         return builder;
