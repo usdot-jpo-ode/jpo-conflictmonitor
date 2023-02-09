@@ -9,6 +9,7 @@ server.port: 8082
 spring.kafka.bootstrap-servers: localhost:9092
 
 kafkaStateChangeEventTopic: topic.CmKafkaStateChangeEvents
+appHealthNotificationTopic: topic.CmAppHealthNotifications
 
 # Custom kafka properties
 kafka.topics:
@@ -70,6 +71,8 @@ kafka.topics:
     - name: topic.CmKafkaStateChangeEvents
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmAppHealthNotifications
+      cleanupPolicy: compact
 
 # Connection of Travel
 connection.of.travel:

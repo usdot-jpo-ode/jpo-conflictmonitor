@@ -13,6 +13,7 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -88,10 +89,8 @@ public class SignalStateEventAssessmentTopology
         logger.info("StartingSignalStateEventAssessmentTopology");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
-        streams.setUncaughtExceptionHandler(ex -> {
-            logger.error("KafkaStreams uncaught exception, will try replacing thread", ex);
-            return StreamThreadExceptionResponse.REPLACE_THREAD;
-        });
+        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
+        if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
         logger.info("Started SignalStateEventAssessmentTopology.");
         System.out.println("Started Events Topology");
@@ -161,11 +160,18 @@ public class SignalStateEventAssessmentTopology
         logger.info("Stopped SignalStateEventAssessmentTopology.");
     }
 
+    StateListener stateListener;
+
     @Override
     public void registerStateListener(StateListener stateListener) {
-        if (streams != null) {
-            streams.setStateListener(stateListener);
-        }
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
     }
     
 }

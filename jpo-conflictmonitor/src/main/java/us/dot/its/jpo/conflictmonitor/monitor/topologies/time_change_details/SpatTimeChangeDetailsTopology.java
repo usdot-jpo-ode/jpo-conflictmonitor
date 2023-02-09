@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
@@ -73,10 +74,8 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         logger.info("Starting SpatTimeChangeDetailsTopology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
-        streams.setUncaughtExceptionHandler(ex -> {
-            logger.error("KafkaStreams uncaught exception, will try replacing thread", ex);
-            return StreamThreadExceptionResponse.REPLACE_THREAD;
-        });
+        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
+        if (stateListener != null) streams.setStateListener(stateListener);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         streams.start();
         logger.info("Started SpatTimeChangeDetailsTopology.");
@@ -132,10 +131,17 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
     }
 
    
+    StateListener stateListener;
+
     @Override
     public void registerStateListener(StateListener stateListener) {
-        if (streams != null) {
-            streams.setStateListener(stateListener);
-        }
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
     }
 }

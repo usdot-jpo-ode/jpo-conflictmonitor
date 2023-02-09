@@ -41,7 +41,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 import org.thymeleaf.util.StringUtils;
 
 import lombok.Getter;
@@ -146,7 +145,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Setter
    private String kafkaStateChangeEventTopic;
 
-   
+   @Getter
+   @Setter
+   private String appHealthNotificationTopic;
 
    public IntersectionEventAlgorithmFactory getIntersectionEventAlgorithmFactory() {
       return this.intersectionEventAlgorithmFactory;

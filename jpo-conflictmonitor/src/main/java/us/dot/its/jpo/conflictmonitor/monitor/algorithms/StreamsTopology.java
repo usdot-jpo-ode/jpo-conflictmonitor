@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 /**
  * General interface for an algorithm implemented as a Kafka Streams
@@ -23,5 +24,11 @@ public interface StreamsTopology {
     * @param stateListener
     */
     void registerStateListener(StateListener stateListener);
+
+    /**
+     * Register exception handler for exceptions thrown from streams processes.
+     * @param exceptionHandler
+     */
+    void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler);
 
 }
