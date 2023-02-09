@@ -115,3 +115,39 @@ kafka.topics:
 # Mongo properties
 spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
 spring.data.mongodb.database: ConflictMonitor
+
+# TTL initial settings
+mongo.indexes:
+  - name: CmSignalStopEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSignalStateConflictEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmIntersectionReferenceAlignmentEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSignalGroupAlignmentEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmLaneDirectionOfTravelEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmConnectionOfTravelEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSignalStateEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSpatTimeChangeDetailsEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmMapBroadcastRateEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmLaneDirectionOfTravelAssessment
+    timefield: assessmentGeneratedAt
+    expiretime: 7884000
+  - name: CmSpatBroadcastRateEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000

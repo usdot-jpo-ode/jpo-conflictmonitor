@@ -10,7 +10,7 @@ echo "------------------------------------------"
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="")
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
-    [convert_timestamp]=false [timefield]="")
+    [convert_timestamp]=false [timefield]="" [extract_timefield]=true)
 
 declare -A OdeMapJson=([name]="topic.OdeMapJson" [collection]="OdeMapJson"
     [convert_timestamp]=false [timefield]="")
@@ -45,7 +45,7 @@ declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEv
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
-    [convert_timestamp]=false [timefield]="")
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
 
@@ -83,6 +83,7 @@ function createSink() {
         "errors.log.enable": true,
         "errors.log.include.messages": true,
         "errors.deadletterqueue.topic.replication.factor": 1'    
+
 
 
     if [ "$convert_timestamp" == true ]

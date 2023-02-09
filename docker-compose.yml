@@ -1,19 +1,19 @@
 version: '3'
 services:
-  # conflictmonitor:
-  #   build: .
-  #   image: jpo-conflictmonitor:latest
-  #   environment:
-  #     DOCKER_HOST_IP: ${DOCKER_HOST_IP}
-  #     spring.kafka.bootstrap-servers: ${DOCKER_HOST_IP}:9092
-  #   logging:
-  #     options:
-  #       max-size: "10m"
-  #       max-file: "5"
+  conflictmonitor:
+    build: .
+    image: jpo-conflictmonitor:latest
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
+      spring.kafka.bootstrap-servers: ${DOCKER_HOST_IP}:9092
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   mongodb_container:
     image: mongo:6.0.3
-    container_name: mongodb_container
+    container_name: jpo-conflictmonitor-mongodb-container
     ports:
       - 27017:27017
     volumes:
@@ -24,8 +24,9 @@ services:
     build:
       context: ./docker/connect
       dockerfile: Dockerfile
-    hostname: connect
-    container_name: connect
+    container_name: jpo-conflictmonitor-kafka-connect
+    depends_on:
+      - conflictmonitor
     ports:
       - "8083:8083"
     environment:
