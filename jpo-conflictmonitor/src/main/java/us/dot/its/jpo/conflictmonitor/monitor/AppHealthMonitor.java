@@ -14,6 +14,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 
 @RestController
 @RequestMapping(path = "/health")
+@DependsOn("createKafkaTopics")
 public class AppHealthMonitor {
 
     private final ObjectMapper mapper = new ObjectMapper();
