@@ -18,6 +18,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
@@ -83,6 +84,8 @@ public class SpatValidationTopology
     public KafkaStreams getStreams() {
         return streams;
     }
+
+    
    
 
     @Override
@@ -228,6 +231,13 @@ public class SpatValidationTopology
             streams = null;
         }
         logger.info("Stopped SpatBroadcastRateTopology.");
+    }
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        if (streams != null) {
+            streams.setStateListener(stateListener);
+        }
     }
 
    

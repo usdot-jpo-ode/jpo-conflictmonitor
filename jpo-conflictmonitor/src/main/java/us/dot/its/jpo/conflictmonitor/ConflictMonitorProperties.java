@@ -44,6 +44,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.util.StringUtils;
 
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
@@ -139,6 +141,12 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
    private String intersectionEventAlgorithm;
+
+   @Getter
+   @Setter
+   private String kafkaStateChangeEventTopic;
+
+   
 
    public IntersectionEventAlgorithmFactory getIntersectionEventAlgorithmFactory() {
       return this.intersectionEventAlgorithmFactory;

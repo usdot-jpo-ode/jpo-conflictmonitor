@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 import java.util.Properties;
 
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
 
 /**
  * General interface for an algorithm implemented as a Kafka Streams
@@ -16,5 +17,11 @@ public interface StreamsTopology {
 
     
     KafkaStreams getStreams();
+
+   /**
+    * Register a callback method that receives notifications when the KafkaStreams state changes
+    * @param stateListener
+    */
+    void registerStateListener(StateListener stateListener);
 
 }

@@ -13,6 +13,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -166,6 +167,13 @@ public class ConnectionOfTravelAssessmentTopology
             streams = null;
         }
         logger.info("Stopped ConnectionOfTravelEventAssessmentTopology.");
+    }
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        if (streams != null) {
+            streams.setStateListener(stateListener);
+        }
     }
     
 }

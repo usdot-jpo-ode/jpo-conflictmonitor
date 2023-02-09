@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.State;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
@@ -12,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
@@ -56,6 +60,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.KafkaStreamsStateChangeEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -80,15 +85,17 @@ public class MonitorServiceController {
 
     @Getter
     final ConcurrentHashMap<String, StreamsTopology> algoMap = new ConcurrentHashMap<String, StreamsTopology>();
+
+   
     
     @Autowired
-    public MonitorServiceController(ConflictMonitorProperties conflictMonitorProps) {
-        
-
+    public MonitorServiceController(ConflictMonitorProperties conflictMonitorProps, KafkaTemplate<String, String> kafkaTemplate) {
        
         String bsmStoreName = "BsmWindowStore";
         String spatStoreName = "SpatWindowStore";
         String mapStoreName = "ProcessedMapWindowStore";
+
+        final String stateChangeTopic = conflictMonitorProps.getKafkaStateChangeEventTopic();
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
@@ -116,8 +123,10 @@ public class MonitorServiceController {
             MapValidationParameters mapCountParams = conflictMonitorProps.getMapValidationParameters();
             logger.info("Map params {}", mapCountParams);
             if (mapCountAlgo instanceof StreamsTopology) {
-                ((StreamsTopology)mapCountAlgo).setStreamsProperties(conflictMonitorProps.createStreamProperties(mapBroadcastRate));
-                algoMap.put(mapBroadcastRate, (StreamsTopology)mapCountAlgo);
+                var mapStreamsAlgo = (StreamsTopology)mapCountAlgo;
+                mapStreamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapBroadcastRate));
+                mapStreamsAlgo.registerStateListener((newState, oldState) -> stateChangeEvent(kafkaTemplate, stateChangeTopic, mapBroadcastRate, newState, oldState));
+                algoMap.put(mapBroadcastRate, mapStreamsAlgo);
             }
             mapCountAlgo.setParameters(mapCountParams);
             Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
@@ -174,12 +183,6 @@ public class MonitorServiceController {
             mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
             Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
             mapSpatAlignmentAlgo.start();
-            
-
-
-            
-
-
 
 
 
@@ -332,6 +335,18 @@ public class MonitorServiceController {
             logger.info("All services started!");
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);
+        }
+    }
+
+    final ObjectMapper mapper = new ObjectMapper();
+
+    public void stateChangeEvent(KafkaTemplate<String, String> kafkaTemplate, String topic, String topology, State newState, State oldState) {
+        try {
+            var event = new KafkaStreamsStateChangeEvent(topology, newState.toString(), oldState.toString());
+            var message = mapper.writeValueAsString(event);
+            kafkaTemplate.send(topic, message);
+        } catch (Exception ex) {
+            logger.error("Exception sending kafka state change event", ex);
         }
     }
 }

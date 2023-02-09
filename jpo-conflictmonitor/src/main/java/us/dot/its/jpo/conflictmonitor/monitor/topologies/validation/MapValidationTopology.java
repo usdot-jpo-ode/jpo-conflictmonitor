@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -235,6 +236,13 @@ public class MapValidationTopology
             streams = null;
         }
         logger.info("Stopped MapBroadcastRateTopology.");
+    }
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        if (streams != null) {
+            streams.setStateListener(stateListener);
+        }
     }
 
    
