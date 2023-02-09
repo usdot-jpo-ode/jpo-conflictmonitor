@@ -52,7 +52,7 @@ public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler 
             var notification = new KafkaStreamsAnomalyNotification();
             notification.setExceptionEvent(event);
             notification.setNotificationHeading(String.format("Streams error on %s", topology));
-            notification.setNotificationText(ExceptionUtils.getStackTrace(event.getException()));
+            notification.setNotificationText(event.getException().getMessage());
             // Unique id as key, send to compacted topic
             kafkaTemplate.send(notificationTopic, notification.getUniqueId(), notification.toString());
             

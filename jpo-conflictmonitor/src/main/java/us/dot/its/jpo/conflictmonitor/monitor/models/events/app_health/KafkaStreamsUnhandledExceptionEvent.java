@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events.app_health;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,5 +15,6 @@ public class KafkaStreamsUnhandledExceptionEvent extends KafkaStreamsEvent {
         super("KafkaStreamsUnhandledExceptionEvent");
     }
 
+    @JsonIgnore
     Throwable exception;
 }
