@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;

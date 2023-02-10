@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
@@ -71,6 +74,8 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         logger.info("Starting SpatTimeChangeDetailsTopology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
+        if (stateListener != null) streams.setStateListener(stateListener);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         streams.start();
         logger.info("Started SpatTimeChangeDetailsTopology.");
@@ -104,7 +109,7 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
 
         builder.addStateStore(storeBuilder, SPAT_SEQUENCE_PROCESSOR);
 
-        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, this.parameters.getSpatOutputTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
+        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, this.parameters.getSpatTimeChangeDetailsTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
         
         
         return builder;
@@ -126,5 +131,17 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
     }
 
    
-    
+    StateListener stateListener;
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
 }

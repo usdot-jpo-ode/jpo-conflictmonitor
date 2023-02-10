@@ -12,6 +12,9 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
@@ -89,6 +92,8 @@ public class LaneDirectionOfTravelAssessmentTopology
         logger.info("StartingSignalStateEventAssessmentTopology");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
+        if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
         try {
             Thread.sleep(15000);
@@ -164,6 +169,20 @@ public class LaneDirectionOfTravelAssessmentTopology
             streams = null;
         }
         logger.info("Stopped SignalStateEventAssessmentTopology.");
+    }
+
+    StateListener stateListener;
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
     }
     
 }

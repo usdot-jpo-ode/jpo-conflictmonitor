@@ -5,54 +5,11 @@ artifactId: ^project.artifactId^
 version: ^project.version^
 server.port: 8082
 
-
-# Algorithm Properties
-map.validation:
-  algorithm: defaultMapValidationAlgorithm
-  properties: default
-spat.validation:
-  algorithm: defaultSpatValidationAlgorithm
-  properties: default
-connection.of.travel:
-  algorithm: defaultConnectionOfTravelAlgorithm
-  properties: debug
-lane.direction.of.travel:
-  algorithm: defaultLaneDirectionOfTravelAlgorithm
-  properties: debug
-signal.state.vehicle.crosses:
-  algorithm: defaultSignalStateVehicleCrossesAlgorithm
-  properties: debug
-signal.state.vehicle.stops:
-  algorithm: defaultSignalStateVehicleStopsAlgorithm
-  proprties: debug
-map.spat.message.assessment:
-  algorithm: defaultMapSpatMessageAssessmentAlgorithm
-  properties: debug
-spat.time.change.details:
-  algorithm: defaultSpatTimeChangeDetailsAlgorithm
-  properties: debug
-map.time.change.details:
-  algorithm: defaultMapTimeChangeDetailsAlgorithm
-  properties: debug
-signal.state.event.assessment:
-  algorithm: defaultSignalStateEventAssessmentAlgorithm
-  properties: debug
-lane.direction.of.travel.assessment:
-  algorithm: defaultLaneDirectionOfTravelAssessmentAlgorithm
-  properties: debug
-connection.of.travel.assessment:
-  algorithm: defaultConnectionOfTravelAssessmentAlgorithm
-  properties: debug
-repartition:
-  algorithm: defaultRepartitionAlgorithm
-  properties: debug
-intersection.reference.alignment.notification:
-  algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
-  properties: debug
-
-
 # Kafka properties
 spring.kafka.bootstrap-servers: localhost:9092
+
+kafkaStateChangeEventTopic: topic.CmKafkaStateChangeEvents
+appHealthNotificationTopic: topic.CmAppHealthNotifications
 
 # Custom kafka properties
 kafka.topics:
@@ -111,3 +68,126 @@ kafka.topics:
     - name: CmSignalStateEventAssessment
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmKafkaStateChangeEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmAppHealthNotifications
+      cleanupPolicy: compact
+
+# Connection of Travel
+connection.of.travel:
+  algorithm: defaultConnectionOfTravelAlgorithm
+  debug: false
+
+# Connection of Travel Assessment
+connection.of.travel.assessment:
+  algorithm: defaultConnectionOfTravelAssessmentAlgorithm
+  debug: false
+  connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
+  connectionOfTravelAssessmentOutputTopicName: topic.CmConnectionOfTravelAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+
+intersection.event:
+  algorithm: defaultIntersectionEventAlgorithm
+
+# Lane Direction of Travel
+lane.direction.of.travel:
+  algorithm: defaultLaneDirectionOfTravelAlgorithm
+  minimumPointsPerSegment: 5
+  minimumSpeedThreshold: 5
+  debug: false
+
+# Lane Direction of Travel Assessment
+lane.direction.of.travel.assessment:
+  algorithm: defaultLaneDirectionOfTravelAssessmentAlgorithm
+  debug: false
+  laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
+  laneDirectionOfTravelAssessmentOutputTopicName: topic.CmLaneDirectionOfTravelAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+  headingToleranceDegrees: 20
+
+# MAP/SPAT Message Assessment
+map.spat.message.assessment:
+  algorithm: defaultMapSpatMessageAssessmentAlgorithm
+  debug: false
+  mapInputTopicName: topic.ProcessedMap
+  spatInputTopicName: topic.ProcessedSpat
+  signalGroupAlignmentEventTopicName: topic.CmSignalGroupAlignmentEvents
+  intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
+  signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
+  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotifications
+
+# MAP Time Change Details
+map.time.change.details:
+  algorithm: defaultMapTimeChangeDetailsAlgorithm
+  debug: false
+  mapTimeChangeDetailsTopicName: topic.CmMapTimeChangeDetailsEvent
+  mapTimeChangeDetailsStateStoreName: map-time-change-detail-state-store
+  jitterBufferSize: 50
+
+# MAP Validation
+map.validation:
+  algorithm: defaultMapValidationAlgorithm
+  inputTopicName: topic.ProcessedMap
+  broadcastRateTopicName: topic.CmMapBroadcastRateEvents
+  minimumDataTopicName: topic.CmMapMinimumDataEvents
+  rollingPeriodSeconds: 10
+  outputIntervalSeconds: 5
+  gracePeriodMilliseconds: 100
+  lowerBound: 9
+  upperBound: 11
+  debug: false
+
+# BSM Repartition
+repartition:
+  algorithm: defaultRepartitionAlgorithm
+  debug: false
+  bsmInputTopicName: topic.OdeBsmJson
+  bsmRepartitionOutputTopicName: topic.BsmJsonRepartition
+
+# Signal State Event Assessment
+signal.state.event.assessment:
+  algorithm: defaultSignalStateEventAssessmentAlgorithm
+  debug: false
+  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventAssessmentOutputTopicName: topic.CmsignalStateEventAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+
+# Signal State Vehicle Crosses Analytics
+signal.state.vehicle.crosses:
+  algorithm: defaultSignalStateVehicleCrossesAlgorithm
+  debug: false
+  spatBsmMatchWindowMillis: 500
+
+# Signal State Vehicle Stops Analytics
+signal.state.vehicle.stops:
+  algorithm: defaultSignalStateVehicleStopsAlgorithm
+  debug: false
+  spatBsmMatchWindowMillis: 500
+  stopSpeedThreshold: 5
+
+# SPAT Time Change Details
+spat.time.change.details:
+  algorithm: defaultSpatTimeChangeDetailsAlgorithm
+  debug: false
+  spatInputTopicName: topic.ProcessedSpat
+  spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
+  spatTimeChangeDetailsStateStoreName: spat-time-change-detail-state-store
+  jitterBufferSize: 50
+
+# SPAT Validation
+spat.validation:
+  algorithm: defaultSpatValidationAlgorithm
+  inputTopicName: topic.ProcessedSpat
+  broadcastRateTopicName: topic.CmSpatBroadcastRateEvents
+  minimumDataTopicName: topic.CmSpatMinimumDataEvents
+  rollingPeriodSeconds: 10
+  outputIntervalSeconds: 5
+  gracePeriodMilliseconds: 100
+  lowerBound: 90
+  upperBound: 110
+  debug: false
+
