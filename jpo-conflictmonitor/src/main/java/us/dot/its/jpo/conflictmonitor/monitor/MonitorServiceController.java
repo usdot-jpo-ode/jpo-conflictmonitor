@@ -106,7 +106,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)repartitionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(repartition));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, repartition, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, repartition, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, repartition, healthTopic));
                 algoMap.put(repartition, streamsAlgo);
             }
             repartitionAlgo.setParameters(repartitionParams);
@@ -126,7 +126,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)mapCountAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapBroadcastRate));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapBroadcastRate, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapBroadcastRate, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapBroadcastRate, healthTopic));
                 algoMap.put(mapBroadcastRate, streamsAlgo);
             }
             mapCountAlgo.setParameters(mapCountParams);
@@ -146,7 +146,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)spatCountAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatBroadcastRate));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatBroadcastRate, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatBroadcastRate, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatBroadcastRate, healthTopic));
                 algoMap.put(spatBroadcastRate, streamsAlgo);
             }
             spatCountAlgo.setParameters(spatCountParams);
@@ -166,7 +166,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)spatTimeChangeDetailsAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatTimeChangeDetails, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatTimeChangeDetails, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatTimeChangeDetails, healthTopic));
                 algoMap.put(spatTimeChangeDetails, streamsAlgo);
             }
             spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
@@ -187,7 +187,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)mapSpatAlignmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapSpatAlignment));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapSpatAlignment, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapSpatAlignment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapSpatAlignment, healthTopic));
                 algoMap.put(mapSpatAlignment, streamsAlgo);
             }
             mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
@@ -201,7 +201,7 @@ public class MonitorServiceController {
             final Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
             final KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties(bsmEvent));
             streams.setStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
-            streams.setUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
+            streams.setUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, healthTopic));
             Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
             streams.start(); 
             streamsMap.put(bsmEvent, streams);
@@ -220,7 +220,7 @@ public class MonitorServiceController {
             
             final var messageIngestStreams = new KafkaStreams(messageIngestTopology, conflictMonitorProps.createStreamProperties(messageIngest));
             messageIngestStreams.setStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
-            messageIngestStreams.setUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
+            messageIngestStreams.setUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
             Runtime.getRuntime().addShutdownHook(new Thread(messageIngestStreams::close));
             messageIngestStreams.start();
             streamsMap.put(messageIngest, messageIngestStreams);
@@ -287,7 +287,7 @@ public class MonitorServiceController {
                 streamsAlgo.setSpatWindowStore(spatWindowStore);
                 streamsAlgo.setMapStore(mapKeyValueStore);
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, intersectionEvent, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, intersectionEvent, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, intersectionEvent, healthTopic));
                 algoMap.put(intersectionEvent, streamsAlgo);
             }
             Runtime.getRuntime().addShutdownHook(new Thread(intersectionAlgo::stop));
@@ -308,7 +308,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)signalStateEventAssesmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(signalStateEventAssessment));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, signalStateEventAssessment, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, signalStateEventAssessment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, signalStateEventAssessment, healthTopic));
                 algoMap.put(signalStateEventAssessment, streamsAlgo);
             }
             signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
@@ -326,7 +326,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)laneDirectionOfTravelAssesmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(laneDirectionOfTravelAssessment));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, laneDirectionOfTravelAssessment, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, laneDirectionOfTravelAssessment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, laneDirectionOfTravelAssessment, healthTopic));
                 algoMap.put(laneDirectionOfTravelAssessment, streamsAlgo);
             }
             laneDirectionOfTravelAssesmentAlgo.setParameters(laneDirectionOfTravelAssessmenAlgoParams);
@@ -345,7 +345,7 @@ public class MonitorServiceController {
                 final var streamsAlgo = (StreamsTopology)connectionofTravelAssessmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(connectionOfTravelAssessment));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, connectionOfTravelAssessment, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, connectionOfTravelAssessment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, connectionOfTravelAssessment, healthTopic));
                 algoMap.put(connectionOfTravelAssessment, streamsAlgo);
             }
             connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmentAlgoParams);

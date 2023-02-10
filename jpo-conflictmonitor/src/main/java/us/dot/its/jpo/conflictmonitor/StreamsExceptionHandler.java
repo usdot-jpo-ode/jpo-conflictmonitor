@@ -15,8 +15,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.app_health.Ka
 
 
 /**
- * Handler for unhandled exceptions thrown from Streams topologies
- * that always tries to restart streams and logs the exception to a topic.
+ * Handler for unhandled exceptions thrown from Streams topologies that
+ *  logs the exception to a topic, and allows choosing the shutdown behavior.
+ * 
+ * See {@link https://cwiki.apache.org/confluence/display/KAFKA/KIP-671%3A+Introduce+Kafka+Streams+Specific+Uncaught+Exception+Handler}
+ * for a description of the options.
  */
 public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler {
 
@@ -24,16 +27,12 @@ public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler 
 
     final KafkaTemplate<String, String> kafkaTemplate;
     final String topology;
-    final String topic;
     final String notificationTopic;
     
     @Autowired
-    public StreamsExceptionHandler(
-        KafkaTemplate<String, String> kafkaTemplate,
-        String topology, String topic, String notificationTopic) {
+    public StreamsExceptionHandler(KafkaTemplate<String, String> kafkaTemplate, String topology, String notificationTopic) {
             this.kafkaTemplate = kafkaTemplate;
             this.topology = topology;
-            this.topic = topic;
             this.notificationTopic = notificationTopic;
     }
     
@@ -45,9 +44,8 @@ public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler 
             event.setTopology(topology);
             event.setException(exception);
             
-            // Use topology name as key
-            kafkaTemplate.send(topic, topology, event.toString());
-
+            
+            logger.error(String.format("Uncaught exception in stream topology %s", topology), exception);
             
             var notification = new KafkaStreamsAnomalyNotification();
             notification.setExceptionEvent(event);
@@ -60,8 +58,19 @@ public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler 
             logger.error("Exception sending kafka streams error event", ex);
         }
 
+        
+        // SHUTDOWN_CLIENT option shuts down quickly.
+        return StreamThreadExceptionResponse.SHUTDOWN_CLIENT;
+        
+        // SHUTDOWN_APPLICATION shuts down more slowly, but cleans up more thoroughly
+        //return StreamThreadExceptionResponse.SHUTDOWN_APPLICATION;
 
-        return StreamThreadExceptionResponse.REPLACE_THREAD;
+        // "Replace Thread" mode can be used to keep the streams client alive, 
+        // however if the cause of the error was not transient, but due to a code error processing
+        // a record, it can result in the record being repeatedly processed throwing the
+        // same error
+        //
+        //return StreamThreadExceptionResponse.REPLACE_THREAD;
     }
     
 }
