@@ -48,8 +48,8 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 /**
  * Launches ToGeoJsonFromJsonConverter service
  */
-// @Controller
-// @DependsOn("createKafkaTopics")
+@Controller
+@DependsOn("createKafkaTopics")
 public class MonitorServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
@@ -59,7 +59,7 @@ public class MonitorServiceController {
     
 
     
-    // @Autowired
+    @Autowired
     public MonitorServiceController(ConflictMonitorProperties conflictMonitorProps) {
         
 
