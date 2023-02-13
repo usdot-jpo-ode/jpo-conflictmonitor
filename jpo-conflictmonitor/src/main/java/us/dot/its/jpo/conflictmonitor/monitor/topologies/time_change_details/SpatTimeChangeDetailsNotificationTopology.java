@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
@@ -100,7 +102,7 @@ public class SpatTimeChangeDetailsNotificationTopology implements SpatTimeChange
         var builder = new StreamsBuilder();
 
         KStream<String, TimeChangeDetailsEvent> timeChangeDetailsStream = builder.stream(
-                parameters.getSpatOutputTopicName(),
+                parameters.getSpatTimeChangeDetailsTopicName(),
                 Consumed.with(
                         Serdes.String(),
                         JsonSerdes.TimeChangeDetailsEvent())
@@ -161,7 +163,19 @@ public class SpatTimeChangeDetailsNotificationTopology implements SpatTimeChange
         logger.info("Stopped SpatBroadcastRateTopology.");
     }
 
-   
+    StateListener stateListener;
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
     
 }
 

@@ -40,7 +40,7 @@ public class TimeChangeDetailsNotificationTopologyTest {
         SpatTimeChangeDetailsParameters parameters = new SpatTimeChangeDetailsParameters();
 
         parameters.setDebug(false);
-        parameters.setSpatOutputTopicName(spatTimeChangeDetailsEventTopicName);
+        parameters.setSpatTimeChangeDetailsTopicName(spatTimeChangeDetailsEventTopicName);
         parameters.setSpatTimeChangeDetailsNotificationTopicName(spatTimeChangeDetailsNotificationTopicName);
 
 

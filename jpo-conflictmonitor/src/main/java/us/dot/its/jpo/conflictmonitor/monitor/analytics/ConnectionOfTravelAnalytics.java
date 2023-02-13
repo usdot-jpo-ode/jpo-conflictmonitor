@@ -12,31 +12,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEv
 
 @Component(DEFAULT_CONNECTION_OF_TRAVEL_ALGORITHM)
 public class ConnectionOfTravelAnalytics implements ConnectionOfTravelAlgorithm{
-    ConnectionOfTravelParameters parameters;
+    
 
+   
     @Override
-    public void setParameters(ConnectionOfTravelParameters parameters) {
-        this.parameters = parameters;
-    }
-
-    @Override
-    public ConnectionOfTravelParameters getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public ConnectionOfTravelEvent getConnectionOfTravelEvent(VehiclePath path){
+    public ConnectionOfTravelEvent getConnectionOfTravelEvent(ConnectionOfTravelParameters parameters, VehiclePath path){
 
         Lane ingressLane = path.getIngressLane();
         Lane egressLane = path.getEgressLane();

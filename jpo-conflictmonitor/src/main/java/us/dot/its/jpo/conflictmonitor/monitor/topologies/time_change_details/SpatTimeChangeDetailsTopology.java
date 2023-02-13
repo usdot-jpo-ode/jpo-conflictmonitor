@@ -4,18 +4,16 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
 import org.springframework.stereotype.Component;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
@@ -23,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -78,6 +74,8 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         logger.info("Starting SpatTimeChangeDetailsTopology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
+        if (stateListener != null) streams.setStateListener(stateListener);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         streams.start();
         logger.info("Started SpatTimeChangeDetailsTopology.");
@@ -97,8 +95,8 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         final String SPAT_TIME_CHANGE_DETAIL_SINK = "Spat Time Change Detail Sink";
 
 
-        builder.addSource(SPAT_SOURCE, Serdes.String().deserializer(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().deserializer(), parameters.getSpatInputTopicName());
-        builder.addProcessor(SPAT_SEQUENCE_PROCESSOR, new SpatSequenceProcessorSupplier(parameters), SPAT_SOURCE);
+        builder.addSource(SPAT_SOURCE, Serdes.String().deserializer(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().deserializer(), this.parameters.getSpatInputTopicName());
+        builder.addProcessor(SPAT_SEQUENCE_PROCESSOR, new SpatSequenceProcessorSupplier(this.parameters), SPAT_SOURCE);
         
 
  
@@ -110,11 +108,15 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
 
 
         builder.addStateStore(storeBuilder, SPAT_SEQUENCE_PROCESSOR);
-        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, parameters.getSpatOutputTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
 
+        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, this.parameters.getSpatTimeChangeDetailsTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
         
         return builder;
     }
+
+
+
+    
 
     @Override
     public void stop() {
@@ -125,5 +127,20 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
             streams = null;
         }
         logger.info("Stopped SpatBroadcastRateTopology.");
-    }  
+    }
+
+   
+    StateListener stateListener;
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
 }

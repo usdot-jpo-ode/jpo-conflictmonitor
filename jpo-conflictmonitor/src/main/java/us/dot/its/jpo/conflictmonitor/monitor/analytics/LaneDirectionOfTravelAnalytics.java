@@ -28,29 +28,11 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
     
     LaneDirectionOfTravelParameters parameters;
 
+    
+
     @Override
-    public void setParameters(LaneDirectionOfTravelParameters parameters) {
+    public ArrayList<LaneDirectionOfTravelEvent> getLaneDirectionOfTravelEvents(LaneDirectionOfTravelParameters parameters, VehiclePath path){
         this.parameters = parameters;
-    }
-
-    @Override
-    public LaneDirectionOfTravelParameters getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public ArrayList<LaneDirectionOfTravelEvent> getLaneDirectionOfTravelEvents(VehiclePath path){
 
         Lane ingressLane = path.getIngressLane();
         Lane egressLane = path.getEgressLane();
@@ -68,7 +50,7 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
     }
 
     // Returns a HashMap mapping Lane Segments objects to a List of BSM's that correspond to each segment
-    public HashMap<LaneSegment, ArrayList<Integer>> getBsmsByLaneSegment(VehiclePath path, Lane lane){
+    protected HashMap<LaneSegment, ArrayList<Integer>> getBsmsByLaneSegment(VehiclePath path, Lane lane){
 
         HashMap<LaneSegment, ArrayList<Integer>> segmentBsmMap = new HashMap<LaneSegment, ArrayList<Integer>>();
 
@@ -101,13 +83,13 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
         return segmentBsmMap;
     }
 
-    public double[] getSegmentPointAsLongLat(VehiclePath path, Point p){
+    protected double[] getSegmentPointAsLongLat(VehiclePath path, Point p){
         Coordinate reference = path.getIntersection().getReferencePoint();
         return CoordinateConversion.offsetCmToLongLat(reference.getX(), reference.getY(), p.getX(), p.getY());
     }
 
 
-    public ArrayList<LaneDirectionOfTravelEvent> getLaneDirectionEvents(VehiclePath path, Lane lane, HashMap<LaneSegment, ArrayList<Integer>> segmentBsmMap){
+    protected ArrayList<LaneDirectionOfTravelEvent> getLaneDirectionEvents(VehiclePath path, Lane lane, HashMap<LaneSegment, ArrayList<Integer>> segmentBsmMap){
 
         ArrayList<LaneDirectionOfTravelEvent> laneEvents = new ArrayList<>();
 

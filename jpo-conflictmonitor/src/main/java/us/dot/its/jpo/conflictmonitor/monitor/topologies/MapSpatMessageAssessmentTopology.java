@@ -5,6 +5,9 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
@@ -96,6 +99,8 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         logger.info("Starting MapSpatMessageAssessment Topology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
+        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
+        if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
         logger.info("Started MapSpatMessageAssessment. Topology");
     }
@@ -416,4 +421,18 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
         logger.info("Stopped MapSpatMessageAssessmentTopology.");
     }
 
+    
+    StateListener stateListener;
+
+    @Override
+    public void registerStateListener(StateListener stateListener) {
+        this.stateListener = stateListener;
+    }
+
+    StreamsUncaughtExceptionHandler exceptionHandler;
+
+    @Override
+    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
 }
