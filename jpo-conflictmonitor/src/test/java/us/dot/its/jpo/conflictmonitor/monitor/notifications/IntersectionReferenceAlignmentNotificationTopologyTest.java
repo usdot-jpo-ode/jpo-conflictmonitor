@@ -24,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
+
 public class IntersectionReferenceAlignmentNotificationTopologyTest {
     String kafkaTopicIntersectionReferenceAlignmentEvents = "topic.CmIntersectionReferenceAlignmentEvents";
     String kafkaTopicIntersectionReferenceAlignmentNotifications = "topic.CmIntersectionReferenceAlignmentNotifications";

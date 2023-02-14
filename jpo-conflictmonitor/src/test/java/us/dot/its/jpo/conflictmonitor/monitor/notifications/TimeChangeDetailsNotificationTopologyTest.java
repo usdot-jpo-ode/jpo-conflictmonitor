@@ -28,8 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
+
 public class TimeChangeDetailsNotificationTopologyTest {
     String spatTimeChangeDetailsEventTopicName = "topic.CmSpatTimeChangeDetailsEvent";
     String spatTimeChangeDetailsNotificationTopicName = "topic.CmSpatTimeChangeDetailsNotification";
