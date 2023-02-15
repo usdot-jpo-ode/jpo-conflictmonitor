@@ -69,25 +69,20 @@ kafka.topics:
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmLaneDirectionOfTravelNotification
-      cleanupPolicy: delete
-      retentionMs: 300000
+      cleanupPolicy: compact
     - name: topic.CmConnectionOfTravelNotification
-      cleanupPolicy: delete
-      retentionMs: 300000
+      cleanupPolicy: compact
     - name: topic.CmKafkaStateChangeEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmAppHealthNotifications
       cleanupPolicy: compact
     - name: topic.CmSpatTimeChangeDetailsNotification
-      cleanupPolicy: delete
-      retentionMs: 300000
+      cleanupPolicy: compact
     - name: topic.CmSignalStateConflictNotification
-      cleanupPolicy: delete
-      retentionMs: 300000
+      cleanupPolicy: compact
     - name: topic.CmSignalGroupAlignmentNotifications
-      cleanupPolicy: delete
-      retentionMs: 300000
+      cleanupPolicy: compact
     - name: topic.CmLaneDirectionOfTravelAssessment
       cleanupPolicy: delete
       retentionMs: 300000
