@@ -194,6 +194,7 @@ signal.state.vehicle.stops:
 # SPAT Time Change Details
 spat.time.change.details:
   algorithm: defaultSpatTimeChangeDetailsAlgorithm
+  notification.algorithm: defaultSpatTimeChangeNotificationAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
   spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent

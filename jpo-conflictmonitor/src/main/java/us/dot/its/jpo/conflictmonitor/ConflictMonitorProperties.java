@@ -116,7 +116,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
    private String spatTimeChangeDetailsAlgorithm;
-   private String spatTimeChangeDetailsNotificationAlgorithm = "defaultSpatTimeChangeNotificationAlgorithm";
+   private String spatTimeChangeDetailsNotificationAlgorithm;
    private SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters;
 
 
@@ -389,6 +389,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       return spatTimeChangeDetailsNotificationAlgorithm;
    }
 
+   @Value("${spat.time.change.details.notification.algorithm}")
    public void setSpatTimeChangeDetailsNotificationAlgorithm(String spatTimeChangeDetailsNotificationAlgorithm) {
       this.spatTimeChangeDetailsNotificationAlgorithm = spatTimeChangeDetailsNotificationAlgorithm;
    }
