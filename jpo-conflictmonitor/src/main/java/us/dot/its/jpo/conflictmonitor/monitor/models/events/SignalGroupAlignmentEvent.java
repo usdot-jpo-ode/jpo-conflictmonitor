@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmSignalGroupAlignmentEvent")
 public class SignalGroupAlignmentEvent extends Event{
     String sourceID;
     long timestamp;
@@ -49,6 +51,22 @@ public class SignalGroupAlignmentEvent extends Event{
     public void setMapSignalGroupIds(Set<Integer> mapSignalGroupIds) {
         this.mapSignalGroupIds = mapSignalGroupIds;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateEvent)) {
+            return false;
+        }
+        SignalGroupAlignmentEvent signalGroupAlignmentEvent = (SignalGroupAlignmentEvent) o;
+        return 
+            sourceID.equals(signalGroupAlignmentEvent.sourceID) &&
+            timestamp == signalGroupAlignmentEvent.timestamp &&
+            spatSignalGroupIds.equals(signalGroupAlignmentEvent.spatSignalGroupIds) &&
+            mapSignalGroupIds.equals(signalGroupAlignmentEvent.mapSignalGroupIds);
+    }
+
 
     @Override
     public String toString() {

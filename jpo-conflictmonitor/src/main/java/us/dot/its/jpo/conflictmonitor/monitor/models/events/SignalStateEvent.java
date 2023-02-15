@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmSignalStateEvent")
 public class SignalStateEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
@@ -124,6 +126,29 @@ public class SignalStateEvent extends Event{
     @JsonIgnore
     public String getKey(){
         return this.roadRegulatorID + "_" + this.vehicleID;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateEvent)) {
+            return false;
+        }
+        SignalStateEvent signalStateEvent = (SignalStateEvent) o;
+        return 
+            timestamp == signalStateEvent.timestamp &&
+            roadRegulatorID == signalStateEvent.roadRegulatorID &&
+            ingressLane == signalStateEvent.ingressLane &&
+            egressLane == signalStateEvent.egressLane &&
+            connectionID == signalStateEvent.connectionID &&
+            eventState == signalStateEvent.eventState &&
+            vehicleID == signalStateEvent.vehicleID &&
+            latitude == signalStateEvent.latitude &&
+            longitude == signalStateEvent.longitude &&
+            heading == signalStateEvent.heading &&
+            speed == signalStateEvent.speed &&
+            signalGroup == signalStateEvent.signalGroup;
     }
 
     @Override

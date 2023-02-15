@@ -4,29 +4,42 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.springframework.stereotype.Component;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
-@Component(DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM)
-public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStreamsAlgorithm {
+@Component(DEFAULT_SPAT_TIME_CHANGE_DETAILS_NOTIFICATION_ALGORITHM)
+public class SpatTimeChangeDetailsNotificationTopology implements SpatTimeChangeDetailsStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(SpatTimeChangeDetailsTopology.class);
 
@@ -74,8 +87,6 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         logger.info("Starting SpatTimeChangeDetailsTopology.");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
         streams.start();
         logger.info("Started SpatTimeChangeDetailsTopology.");
@@ -87,31 +98,54 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         // streams.start(); 
     }
 
-    private Topology buildTopology() {
-        Topology builder = new Topology();
+    public Topology buildTopology() {
+        var builder = new StreamsBuilder();
 
-        final String SPAT_SOURCE = "Spat Message Source";
-        final String SPAT_SEQUENCE_PROCESSOR = "Spat Sequencer Processor";
-        final String SPAT_TIME_CHANGE_DETAIL_SINK = "Spat Time Change Detail Sink";
-
-
-        builder.addSource(SPAT_SOURCE, Serdes.String().deserializer(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().deserializer(), this.parameters.getSpatInputTopicName());
-        builder.addProcessor(SPAT_SEQUENCE_PROCESSOR, new SpatSequenceProcessorSupplier(this.parameters), SPAT_SOURCE);
-        
-
- 
-        StoreBuilder<KeyValueStore<String, SpatTimeChangeDetailAggregator>> storeBuilder = Stores.keyValueStoreBuilder(
-            Stores.persistentKeyValueStore(parameters.getSpatTimeChangeDetailsStateStoreName()),
-            Serdes.String(),
-            JsonSerdes.SpatTimeChangeDetailAggregator()
+        KStream<String, TimeChangeDetailsEvent> timeChangeDetailsStream = builder.stream(
+                parameters.getSpatTimeChangeDetailsTopicName(),
+                Consumed.with(
+                        Serdes.String(),
+                        JsonSerdes.TimeChangeDetailsEvent())
+        // .withTimestampExtractor(new SpatTimestampExtractor())
         );
 
+        timeChangeDetailsStream.print(Printed.toSysOut());
 
-        builder.addStateStore(storeBuilder, SPAT_SEQUENCE_PROCESSOR);
+        KStream<String, TimeChangeDetailsNotification> timeChangeDetailsNotificationStream = timeChangeDetailsStream
+                .flatMap(
+                        (key, value) -> {
+                            List<KeyValue<String, TimeChangeDetailsNotification>> result = new ArrayList<KeyValue<String, TimeChangeDetailsNotification>>();
 
-        builder.addSink(SPAT_TIME_CHANGE_DETAIL_SINK, this.parameters.getSpatTimeChangeDetailsTopicName(), Serdes.String().serializer(), JsonSerdes.TimeChangeDetailsEvent().serializer(), SPAT_SEQUENCE_PROCESSOR);
+                            TimeChangeDetailsNotification notification = new TimeChangeDetailsNotification();
+                            notification.setEvent(value);
+                            notification.setNotificationText(
+                                    "Time Change Details Notification, generated because corresponding time change details event was generated.");
+                            notification.setNotificationHeading("Time Change Details");
+                            result.add(new KeyValue<>(key, notification));
+                            return result;
+                        });
+
+        timeChangeDetailsNotificationStream.print(Printed.toSysOut());
+
+        KTable<String, TimeChangeDetailsNotification> timeChangeDetailsNotificationTable = timeChangeDetailsNotificationStream
+                .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.TimeChangeDetailsNotification()))
+                .reduce(
+                        (oldValue, newValue) -> {
+                            return oldValue;
+                        },
+                        Materialized
+                                .<String, TimeChangeDetailsNotification, KeyValueStore<Bytes, byte[]>>as(
+                                        "TimeChangeDetailsNotification")
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(JsonSerdes.TimeChangeDetailsNotification()));
+
+        timeChangeDetailsNotificationTable.toStream().to(
+                parameters.getSpatTimeChangeDetailsNotificationTopicName(),
+                Produced.with(Serdes.String(),
+                        JsonSerdes.TimeChangeDetailsNotification()));
         
-        return builder;
+        
+        return builder.build();
     }
 
 
@@ -129,7 +163,6 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
         logger.info("Stopped SpatBroadcastRateTopology.");
     }
 
-   
     StateListener stateListener;
 
     @Override
@@ -143,4 +176,8 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
     public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
+    
 }
+
+
+

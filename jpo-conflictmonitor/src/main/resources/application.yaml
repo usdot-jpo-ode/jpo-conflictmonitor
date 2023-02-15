@@ -65,14 +65,27 @@ kafka.topics:
     - name: topic.OdeBsmJson
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: CmSignalStateEventAssessment
+    - name: topic.CmSignalStateEventAssessment
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmLaneDirectionOfTravelNotification
+      cleanupPolicy: compact
+    - name: topic.CmConnectionOfTravelNotification
+      cleanupPolicy: compact
     - name: topic.CmKafkaStateChangeEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmAppHealthNotifications
       cleanupPolicy: compact
+    - name: topic.CmSpatTimeChangeDetailsNotification
+      cleanupPolicy: compact
+    - name: topic.CmSignalStateConflictNotification
+      cleanupPolicy: compact
+    - name: topic.CmSignalGroupAlignmentNotifications
+      cleanupPolicy: compact
+    - name: topic.CmLaneDirectionOfTravelAssessment
+      cleanupPolicy: delete
+      retentionMs: 300000
 
 # Connection of Travel
 connection.of.travel:
@@ -85,6 +98,7 @@ connection.of.travel.assessment:
   debug: false
   connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
   connectionOfTravelAssessmentOutputTopicName: topic.CmConnectionOfTravelAssessment
+  connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
 
@@ -104,6 +118,7 @@ lane.direction.of.travel.assessment:
   debug: false
   laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
   laneDirectionOfTravelAssessmentOutputTopicName: topic.CmLaneDirectionOfTravelAssessment
+  laneDirectionOfTravelNotificationOutputTopicName: topic.CmLaneDirectionOfTravelNotification
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
   headingToleranceDegrees: 20
@@ -118,6 +133,8 @@ map.spat.message.assessment:
   intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotifications
+  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotifications
+  signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
 
 # MAP Time Change Details
 map.time.change.details:
@@ -172,10 +189,12 @@ signal.state.vehicle.stops:
 # SPAT Time Change Details
 spat.time.change.details:
   algorithm: defaultSpatTimeChangeDetailsAlgorithm
+  notification.algorithm: defaultSpatTimeChangeNotificationAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
   spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
   spatTimeChangeDetailsStateStoreName: spat-time-change-detail-state-store
+  spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   jitterBufferSize: 50
 
 # SPAT Validation
@@ -190,4 +209,9 @@ spat.validation:
   lowerBound: 90
   upperBound: 110
   debug: false
+
+# Intersection Reference Alignment Notification
+intersection.reference.alignment.notification:
+  algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
+  properties: debug
 

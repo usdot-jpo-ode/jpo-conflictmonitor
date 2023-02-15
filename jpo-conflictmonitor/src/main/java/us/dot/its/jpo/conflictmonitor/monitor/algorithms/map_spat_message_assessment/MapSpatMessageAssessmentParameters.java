@@ -13,12 +13,13 @@ import lombok.Generated;
 public class MapSpatMessageAssessmentParameters {
     // Whether to log diagnostic information for debugging
     boolean debug;
-
     String mapInputTopicName;
     String spatInputTopicName;
     String signalGroupAlignmentEventTopicName;
     String intersectionReferenceAlignmentEventTopicName;
     String signalStateConflictEventTopicName;
     String intersectionReferenceAlignmentNotificationTopicName;
-
+    String signalGroupAlignmentNotificationTopicName;
+    String signalStateConflictNotificationTopicName;
+    
 }

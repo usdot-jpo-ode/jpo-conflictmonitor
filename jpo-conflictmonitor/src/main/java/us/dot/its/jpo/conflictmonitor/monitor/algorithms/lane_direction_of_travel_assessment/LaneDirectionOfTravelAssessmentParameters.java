@@ -18,8 +18,10 @@ public class LaneDirectionOfTravelAssessmentParameters {
     boolean debug;
     String laneDirectionOfTravelEventTopicName;
     String laneDirectionOfTravelAssessmentOutputTopicName;
+    String laneDirectionOfTravelNotificationOutputTopicName;
     long lookBackPeriodDays;
     long lookBackPeriodGraceTimeSeconds;
-    double headingToleranceDegrees;    
-    
+    double headingToleranceDegrees; 
+    double distanceFromCenterlineToleranceCm;
+    int minimumNumberOfEvents;
 }

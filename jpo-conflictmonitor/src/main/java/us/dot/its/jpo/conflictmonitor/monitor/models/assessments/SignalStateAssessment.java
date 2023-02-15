@@ -6,7 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmSignalStateAssessment")
 public class SignalStateAssessment extends Assessment{
     private long timestamp;
     private List<SignalStateAssessmentGroup> signalStateAssessmentGroup;

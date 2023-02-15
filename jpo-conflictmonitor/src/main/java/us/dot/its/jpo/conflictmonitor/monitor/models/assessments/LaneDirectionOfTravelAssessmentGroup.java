@@ -8,11 +8,21 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 public class LaneDirectionOfTravelAssessmentGroup {
     private int laneID;
     private int segmentID;
+    
     private int inToleranceEvents;
     private int outOfToleranceEvents;
+    
     private double medianInToleranceHeading;
     private double medianInToleranceCenterlineDistance;
+    private double medianHeading;
+    private double medianCenterlineDistance;
+
+    private double expectedHeading; 
+
     private double tolerance;
+    private double distanceFromCenterlineTolerance;
+
+
 
 
     public int getLaneID() {
@@ -69,6 +79,38 @@ public class LaneDirectionOfTravelAssessmentGroup {
 
     public void setMedianInToleranceCenterlineDistance(double medianInToleranceCenterlineDistance) {
         this.medianInToleranceCenterlineDistance = medianInToleranceCenterlineDistance;
+    }
+
+    public double getMedianHeading() {
+        return medianHeading;
+    }
+
+    public void setMedianHeading(double medianHeading) {
+        this.medianHeading = medianHeading;
+    }
+
+    public double getMedianCenterlineDistance() {
+        return medianCenterlineDistance;
+    }
+
+    public void setMedianCenterlineDistance(double medianCenterlineDistance) {
+        this.medianCenterlineDistance = medianCenterlineDistance;
+    }
+
+    public double getExpectedHeading() {
+        return expectedHeading;
+    }
+
+    public void setExpectedHeading(double expectedHeading) {
+        this.expectedHeading = expectedHeading;
+    }
+
+    public double getDistanceFromCenterlineTolerance() {
+        return distanceFromCenterlineTolerance;
+    }
+
+    public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
+        this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
     }
 
     @Override

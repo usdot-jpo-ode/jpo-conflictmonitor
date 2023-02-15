@@ -18,6 +18,7 @@ public class SpatTimeChangeDetailsParameters {
     String spatInputTopicName;
     String spatTimeChangeDetailsTopicName;
     String spatTimeChangeDetailsStateStoreName;
+    String spatTimeChangeDetailsNotificationTopicName;
     int jitterBufferSize;
     
 }

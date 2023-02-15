@@ -50,9 +50,6 @@ public class ConflictMonitorApplication {
       ObjectName name = new ObjectName("us.dot.its.jpo.geojson:type=SystemConfig");
       mbs.registerMBean(mBean, name);
 
-      
-
-      
    }
 
    @Bean

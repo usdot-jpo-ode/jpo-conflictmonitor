@@ -16,9 +16,8 @@ public class ConnectionOfTravelAssessmentParameters {
     String connectionOfTravelAssessmentOutputTopicName;
     long lookBackPeriodDays;
     long lookBackPeriodGraceTimeSeconds;
-
-    // Whether to log diagnostic information for debugging
+    String connectionOfTravelNotificationTopicName;
+    int minimumNumberOfEvents;
     boolean debug;
-
-
+    
 }
