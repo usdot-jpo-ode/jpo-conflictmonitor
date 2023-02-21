@@ -19,6 +19,9 @@ services:
     container_name: jpo-conflictmonitor-mongodb-container
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+    restart: on-failure
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
     ports:
       - 27017:27017
     volumes:
@@ -30,10 +33,11 @@ services:
       context: ./docker/connect
       dockerfile: Dockerfile
     container_name: jpo-conflictmonitor-kafka-connect
-    depends_on:
-      - conflictmonitor
     ports:
       - "8083:8083"
+    depends_on:
+      mongodb_container:
+        condition: service_healthy
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       CONNECT_BOOTSTRAP_SERVERS: ${DOCKER_HOST_IP}:9092
