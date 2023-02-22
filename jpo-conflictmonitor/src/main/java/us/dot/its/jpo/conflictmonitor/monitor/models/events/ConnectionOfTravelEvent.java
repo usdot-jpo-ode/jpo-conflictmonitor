@@ -1,11 +1,15 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document("CmConnectionOfTravelEvent")
 public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
     private int roadRegulatorId;
@@ -69,6 +73,25 @@ public class ConnectionOfTravelEvent extends Event{
     @JsonIgnore
     public String getKey(){
         return this.intersectionId + "_" + this.ingressLaneId + "_" + this.egressLaneId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof ConnectionOfTravelEvent)) {
+            return false;
+        }
+        
+        ConnectionOfTravelEvent connectionOfTravelEvent = (ConnectionOfTravelEvent) o;
+        return 
+            timestamp == connectionOfTravelEvent.timestamp &&
+            roadRegulatorId == connectionOfTravelEvent.roadRegulatorId &&
+            intersectionId == connectionOfTravelEvent.intersectionId &&
+            ingressLaneId == connectionOfTravelEvent.ingressLaneId &&
+            egressLaneId == connectionOfTravelEvent.egressLaneId &&
+            connectionId == connectionOfTravelEvent.connectionId;
+            
     }
 
     @Override

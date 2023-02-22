@@ -15,6 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 
 import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -22,6 +24,8 @@ import java.util.List;
 @SpringBootTest
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
+@EmbeddedKafka(partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092"})
+@DirtiesContext
 public class ConflictMonitorPropertiesTest {
 
     private final static Logger logger = LoggerFactory.getLogger(ConflictMonitorPropertiesTest.class);

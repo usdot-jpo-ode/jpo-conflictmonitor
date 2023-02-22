@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document("CmSignalStateConflictEvent")
 public class SignalStateConflictEvent extends Event{
     private long timestamp;
     private int roadRegulatorID;
@@ -82,6 +84,25 @@ public class SignalStateConflictEvent extends Event{
 
     public void setSecondConflictingSignalState(J2735MovementPhaseState secondConflictingSignalState) {
         this.secondConflictingSignalState = secondConflictingSignalState;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof SignalStateConflictEvent)) {
+            return false;
+        }
+        SignalStateConflictEvent signalStateConflictEvent = (SignalStateConflictEvent) o;
+        return 
+        timestamp == signalStateConflictEvent.timestamp &&
+            roadRegulatorID == signalStateConflictEvent.roadRegulatorID &&
+            intersectionID == signalStateConflictEvent.intersectionID &&
+            conflictType == signalStateConflictEvent.conflictType &&
+            firstConflictingSignalState == signalStateConflictEvent.firstConflictingSignalState &&
+            secondConflictingSignalGroup == signalStateConflictEvent.secondConflictingSignalGroup &&
+            secondConflictingSignalState == signalStateConflictEvent.secondConflictingSignalState &&
+            firstConflictingSignalGroup == signalStateConflictEvent.firstConflictingSignalGroup;
     }
 
     @Override

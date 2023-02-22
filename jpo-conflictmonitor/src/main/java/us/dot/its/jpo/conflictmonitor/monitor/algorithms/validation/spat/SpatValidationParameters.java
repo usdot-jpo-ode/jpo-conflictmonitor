@@ -1,7 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.Generated;
 @Data
 @Generated
 @Component
-@PropertySource(name = "spatValidation", value = "classpath:spatValidation-${spat.validation.properties}.properties")
+@ConfigurationProperties(prefix = "spat.validation")
 public class SpatValidationParameters {
 
     String inputTopicName;

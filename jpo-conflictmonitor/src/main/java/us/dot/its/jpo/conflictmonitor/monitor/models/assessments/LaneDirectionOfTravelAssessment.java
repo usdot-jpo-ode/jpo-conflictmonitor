@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("CmLaneDirectionOfTravelAssessment")
 public class LaneDirectionOfTravelAssessment extends Assessment{
     private long timestamp;
     private int roadRegulatorID;

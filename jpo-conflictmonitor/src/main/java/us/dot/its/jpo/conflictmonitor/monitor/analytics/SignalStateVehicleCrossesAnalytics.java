@@ -21,31 +21,10 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM)
 public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCrossesAlgorithm{
-    SignalStateVehicleCrossesParameters parameters;
+  
 
     @Override
-    public void setParameters(SignalStateVehicleCrossesParameters parameters) {
-        this.parameters = parameters;
-    }
-
-    @Override
-    public SignalStateVehicleCrossesParameters getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public SignalStateEvent getSignalStateEvent(VehiclePath path, SpatAggregator spats){
+    public SignalStateEvent getSignalStateEvent(SignalStateVehicleCrossesParameters parameters, VehiclePath path, SpatAggregator spats){
         
 
         Lane ingressLane = path.getIngressLane();

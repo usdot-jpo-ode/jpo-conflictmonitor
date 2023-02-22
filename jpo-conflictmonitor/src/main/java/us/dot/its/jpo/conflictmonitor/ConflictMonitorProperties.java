@@ -43,10 +43,13 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.thymeleaf.util.StringUtils;
 
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
@@ -76,7 +79,7 @@ import us.dot.its.jpo.ode.plugin.OdePlugin;
 import us.dot.its.jpo.ode.util.CommonUtils;
 
 @ConfigurationProperties
-public class ConflictMonitorProperties implements EnvironmentAware {
+public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private static final Logger logger = LoggerFactory.getLogger(ConflictMonitorProperties.class);
 
@@ -113,7 +116,9 @@ public class ConflictMonitorProperties implements EnvironmentAware {
 
    private SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
    private String spatTimeChangeDetailsAlgorithm;
+   private String spatTimeChangeDetailsNotificationAlgorithm;
    private SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters;
+
 
    private MapTimeChangeDetailsAlgorithmFactory mapTimeChangeDetailsAlgorithmFactory;
    private String mapTimeChangeDetailsAlgorithm;
@@ -134,6 +139,35 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    private RepartitionAlgorithmFactory repartitionAlgorithmFactory;
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
+
+   private IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
+   private String intersectionEventAlgorithm;
+
+   @Getter
+   @Setter
+   private String kafkaStateChangeEventTopic;
+
+   @Getter
+   @Setter
+   private String appHealthNotificationTopic;
+
+   public IntersectionEventAlgorithmFactory getIntersectionEventAlgorithmFactory() {
+      return this.intersectionEventAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setIntersectionEventAlgorithmFactory(IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory) {
+      this.intersectionEventAlgorithmFactory = intersectionEventAlgorithmFactory;
+   }
+
+   public String getIntersectionEventAlgorithm() {
+      return this.intersectionEventAlgorithm;
+   }
+
+   @Value("${intersection.event.algorithm}")
+   public void setIntersectionEventAlgorithm(String intersectionEventAlgorithm) {
+      this.intersectionEventAlgorithm = intersectionEventAlgorithm;
+   }
 
    @Autowired
    public void setMapValidationParameters(MapValidationParameters mapBroadcastRateParameters) {
@@ -351,6 +385,16 @@ public class ConflictMonitorProperties implements EnvironmentAware {
       this.spatTimeChangeDetailsAlgorithm = spatTimeChangeDetailsAlgorithm;
    }
 
+   public String getSpatTimeChangeDetailsNotificationAlgorithm() {
+      return spatTimeChangeDetailsNotificationAlgorithm;
+   }
+
+   @Value("${spat.time.change.details.notification.algorithm}")
+   public void setSpatTimeChangeDetailsNotificationAlgorithm(String spatTimeChangeDetailsNotificationAlgorithm) {
+      this.spatTimeChangeDetailsNotificationAlgorithm = spatTimeChangeDetailsNotificationAlgorithm;
+   }
+
+
    public SpatTimeChangeDetailsParameters getSpatTimeChangeDetailsParameters() {
       return spatTimeChangeDetailsParameters;
    }
@@ -359,6 +403,8 @@ public class ConflictMonitorProperties implements EnvironmentAware {
    public void setSpatTimeChangeDetailsParameters(SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters) {
       this.spatTimeChangeDetailsParameters = spatTimeChangeDetailsParameters;
    }
+
+   
 
    public MapTimeChangeDetailsAlgorithmFactory getMapTimeChangeDetailsAlgorithmFactory() {
       return mapTimeChangeDetailsAlgorithmFactory;

@@ -35,6 +35,13 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.Vehi
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+
+
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -202,6 +209,42 @@ public class JsonSerdes {
             new JsonDeserializer<>(SpatMinimumDataEvent.class)
         );
     }
+
+    public static Serde<SignalGroupAlignmentNotification> SignalGroupAlignmentNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalGroupAlignmentNotification>(),
+            new JsonDeserializer<>(SignalGroupAlignmentNotification.class)
+        );
+    }
+
+    public static Serde<LaneDirectionOfTravelNotification> LaneDirectionOfTravelAssessmentNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelNotification>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelNotification.class)
+        );
+    }
+
+    public static Serde<ConnectionOfTravelNotification> ConnectionOfTravelNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelNotification>(),
+            new JsonDeserializer<>(ConnectionOfTravelNotification.class)
+        );
+    }
+
+    public static Serde<SignalStateConflictNotification> SignalStateConflictNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateConflictNotification>(),
+            new JsonDeserializer<>(SignalStateConflictNotification.class)
+        );
+    }
+
+    public static Serde<TimeChangeDetailsNotification> TimeChangeDetailsNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<TimeChangeDetailsNotification>(),
+            new JsonDeserializer<>(TimeChangeDetailsNotification.class)
+        );
+    }
+
 
     
 }

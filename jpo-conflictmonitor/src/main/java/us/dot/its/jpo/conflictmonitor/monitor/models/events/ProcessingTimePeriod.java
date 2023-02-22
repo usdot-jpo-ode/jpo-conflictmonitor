@@ -1,7 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-import java.time.ZonedDateTime;
-
 import lombok.Setter;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
