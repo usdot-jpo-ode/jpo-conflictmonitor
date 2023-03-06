@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,6 +18,9 @@ public class LaneDirectionOfTravelAggregator {
     private ArrayList<LaneDirectionOfTravelEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
     private double tolerance;
+    private double distanceFromCenterlineTolerance;
+    
+
     private long messageDurationDays;
 
     
@@ -28,14 +32,16 @@ public class LaneDirectionOfTravelAggregator {
     @JsonIgnore
     public LaneDirectionOfTravelAggregator add(LaneDirectionOfTravelEvent event){
         events.add(event);
+        List<LaneDirectionOfTravelEvent> removeEvents = new ArrayList<>();
 
         for(LaneDirectionOfTravelEvent previousEvents: this.events){
             if(previousEvents.getTimestamp() + (messageDurationDays * 3600*1000) < event.getTimestamp()){
-                events.remove(previousEvents);
+                removeEvents.add(previousEvents);
             }else{
                 break;
             }
         }
+        events.removeAll(removeEvents);
         return this;
     }
 
@@ -136,6 +142,14 @@ public class LaneDirectionOfTravelAggregator {
 
     public void setMessageDurationDays(long messageDurationDays) {
         this.messageDurationDays = messageDurationDays;
+    }
+
+    public double getDistanceFromCenterlineTolerance() {
+        return distanceFromCenterlineTolerance;
+    }
+
+    public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
+        this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
     }
 
     @Override
