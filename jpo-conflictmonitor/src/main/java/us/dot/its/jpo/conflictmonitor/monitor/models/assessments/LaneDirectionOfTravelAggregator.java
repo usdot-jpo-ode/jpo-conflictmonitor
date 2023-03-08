@@ -162,13 +162,7 @@ public class LaneDirectionOfTravelAggregator {
         this.messageDurationDays = messageDurationDays;
     }
 
-    public double getDistanceFromCenterlineTolerance() {
-        return distanceFromCenterlineTolerance;
-    }
-
-    public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
-        this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
-    }
+    
 
     @Override
     public String toString() {
