@@ -10,7 +10,7 @@ echo "------------------------------------------"
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="")
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
-    [convert_timestamp]=false [timefield]="" [extract_timefield]=true)
+    [convert_timestamp]=false [timefield]="")
 
 declare -A OdeMapJson=([name]="topic.OdeMapJson" [collection]="OdeMapJson"
     [convert_timestamp]=false [timefield]="")
@@ -83,7 +83,6 @@ function createSink() {
         "errors.log.enable": true,
         "errors.log.include.messages": true,
         "errors.deadletterqueue.topic.replication.factor": 1'    
-
 
 
     if [ "$convert_timestamp" == true ]
