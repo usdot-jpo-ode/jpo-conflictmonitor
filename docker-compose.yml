@@ -3,34 +3,48 @@ services:
   conflictmonitor:
     build: .
     image: jpo-conflictmonitor:latest
-    hostname: conflictmonitor
+    depends_on:
+      mongodb_container:
+        condition: service_healthy
     ports:
       - "8082:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       spring.kafka.bootstrap-servers: ${DOCKER_HOST_IP}:9092
+      spring.data.mongodb.uri: mongodb://${DOCKER_HOST_IP}:27017
     logging:
       options:
         max-size: "10m"
         max-file: "5"
 
   mongodb_container:
-    image: mongo:6.0.3
-    container_name: mongodb_container
+    image: mongo:6
+    container_name: jpo-conflictmonitor-mongodb-container
+    restart: on-failure
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
     ports:
       - 27017:27017
     volumes:
       - mongodb_data_container:/MongoDB_data/db
+    healthcheck:
+      test: | 
+        test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DOCKER_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
+      interval: 10s
+      start_period: 30s
+    command: ["--replSet", "rs0", "--bind_ip_all"]
 
   connect:
     image: cp-kafka-connect:6.1.9
     build:
       context: ./docker/connect
       dockerfile: Dockerfile
-    hostname: connect
-    container_name: connect
+    container_name: jpo-conflictmonitor-kafka-connect
     ports:
       - "8083:8083"
+    depends_on:
+      mongodb_container:
+        condition: service_healthy
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       CONNECT_BOOTSTRAP_SERVERS: ${DOCKER_HOST_IP}:9092
@@ -58,10 +72,11 @@ services:
       - |
         /etc/confluent/docker/run & 
         echo "Waiting for Kafka Connect to start listening on kafka-connect ❳"
-        while [ $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 000 ] ; do 
-          echo -e $$(date) " Kafka Connect listener HTTP state: " $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) " (waiting for 200)"
-          sleep 5 
+        while [ $$(curl -s -o /dev/null -w %{http_code} http://${DOCKER_HOST_IP}:8083/connectors) -eq 000 ] ; do 
+          echo -e $$(date) " Kafka Connect listener HTTP state: " $$(curl -s -o /dev/null -w %{http_code} http://${DOCKER_HOST_IP}:8083/connectors) " (waiting for 200)"
+          sleep 5
         done
+        sleep 10
         echo -e "\n--\n+> Creating Kafka Connect MongoDB sink"
         bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017"
         sleep infinity
