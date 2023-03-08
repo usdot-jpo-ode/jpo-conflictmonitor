@@ -71,7 +71,8 @@ public class AppHealthMonitor {
     public List<Object> parameterObjects() {
         List<Object> paramObjects = new ArrayList<Object>();
         paramObjects.add(configParams);
-        paramObjects.add(conflictMonitorProperties);
+        // TODO: Fix Jackson error trying to serialize URI inside JAR for this
+        //paramObjects.add(conflictMonitorProperties);
         if (algorithmParameters != null) {
             paramObjects.addAll(algorithmParameters.listParameterObjects());
         }
@@ -158,6 +159,7 @@ public class AppHealthMonitor {
             
             return getJsonResponse(propMap);
         } catch (Exception ex) {
+            logger.error("Error listing properties", ex);
             return getErrorJson(ex);
         }
     }
@@ -256,6 +258,7 @@ public class AppHealthMonitor {
         try {
             json = mapper.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
+            logger.error("Error converting to JSON", jpe);
            return getErrorJson(jpe);
         }
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(json);
@@ -266,7 +269,8 @@ public class AppHealthMonitor {
         try {
             String errJson = mapper.writeValueAsString(errMap);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errJson);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) { 
+            logger.error("Error converting to JSON", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"error\" }");
         }
         
