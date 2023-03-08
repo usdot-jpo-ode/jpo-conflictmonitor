@@ -15,6 +15,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEven
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
@@ -29,6 +32,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
@@ -40,8 +44,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirection
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
-
-
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -245,6 +247,27 @@ public class JsonSerdes {
         );
     }
 
+    public static Serde<DefaultConfig<?>> DefaultConfig() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<DefaultConfig<?>>(),
+            new GenericJsonDeserializer<DefaultConfig<?>>(DefaultConfig.class)
+        );
+    }
+
+    public static Serde<IntersectionConfig<?>> IntersectionConfig() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<IntersectionConfig<?>>(),
+            new GenericJsonDeserializer<IntersectionConfig<?>>(IntersectionConfig.class)
+        );
+    }
+
+    public static Serde<RsuConfigKey> RsuConfigKey() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<RsuConfigKey>(),
+            new JsonDeserializer<>(RsuConfigKey.class)
+        );
+    }
+    
 
     
 }

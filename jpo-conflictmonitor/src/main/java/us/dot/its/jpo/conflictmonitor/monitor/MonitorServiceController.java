@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
@@ -58,7 +59,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
+import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -85,7 +89,12 @@ public class MonitorServiceController {
    
     
     @Autowired
-    public MonitorServiceController(final ConflictMonitorProperties conflictMonitorProps, final KafkaTemplate<String, String> kafkaTemplate) {
+    public MonitorServiceController(final ConflictMonitorProperties conflictMonitorProps, 
+        final KafkaTemplate<String, String> kafkaTemplate,
+        final ConfigTopology configTopology, 
+        final ConfigParameters configParameters,
+        final ConfigInitializer configWriter,
+        final ConnectSourceCreator connectSourceCreator) {
        
         String bsmStoreName = "BsmWindowStore";
         String spatStoreName = "SpatWindowStore";
@@ -96,6 +105,18 @@ public class MonitorServiceController {
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
+            
+            // Configuration Topology
+            // Start this first 
+            final String config = "config";
+            configTopology.setStreamsProperties(conflictMonitorProps.createStreamProperties(config));
+            configTopology.setParameters(configParameters);
+            configTopology.registerStateListener(new StateChangeHandler(kafkaTemplate, config, stateChangeTopic, healthTopic));
+            configTopology.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, config, healthTopic));
+            algoMap.put(config, configTopology);
+            Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
+            configTopology.start();
+            
 
             final String repartition = "repartition";
             final RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
@@ -121,6 +142,7 @@ public class MonitorServiceController {
             final String mapAlgo = conflictMonitorProps.getMapValidationAlgorithm();
             final MapValidationAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
             final MapValidationParameters mapCountParams = conflictMonitorProps.getMapValidationParameters();
+            configTopology.registerConfigListeners(mapCountParams);
             logger.info("Map params {}", mapCountParams);
             if (mapCountAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)mapCountAlgo;
@@ -353,7 +375,20 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.start();
             
             
-
+            // Write initial configuration to MongoDB and create source connectors
+            try {
+                configWriter.createCollections();
+                connectSourceCreator.createDefaultConfigConnector();
+                configWriter.initializeDefaultConfigs();
+                connectSourceCreator.createIntersectionConfigConnector();
+                logger.info("Initialzed MongoDB configuration and source connectors.");
+            } catch (Exception ex) {
+                logger.error("Failed writing to MongoDB", ex);
+            }
+            
+            // Restore properties
+            configTopology.initializeProperties();
+            logger.info("Initialized properties from MongoDB");
 
             
             logger.info("All services started!");

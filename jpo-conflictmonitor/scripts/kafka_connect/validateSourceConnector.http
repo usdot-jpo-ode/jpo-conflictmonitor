@@ -1,0 +1,26 @@
+PUT http://localhost:8083/connector-plugins/com.mongodb.kafka.connect.MongoSourceConnector/config/validate HTTP/1.1
+Content-Type: application/json
+
+{
+    "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
+    "tasks.max": 1,
+    "connection.uri": "mongodb://172.21.43.135:27017",
+    "name": "MongoSource.topic.CmDefaultConfig",
+    "database": "test",
+    "collection": "CmDefaultConfig",
+    "topic.prefix": "",
+    "topic.suffix": "",
+    "poll.max.batch.size": 1000,
+    "poll.await.time.ms": 5000,
+    "batch.size": 0,
+    "copy.existing": true,
+    "publish.full.document.only": true,
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "key.converter.schemas.enable": false,
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": false,
+    "output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
+    "output.format.key": "schema",
+    "output.format.value": "schema",
+    "output.schema.infer.value": true
+}

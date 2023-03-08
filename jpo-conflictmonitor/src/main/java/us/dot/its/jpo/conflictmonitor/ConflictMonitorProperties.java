@@ -45,6 +45,7 @@ import org.thymeleaf.util.StringUtils;
 
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
@@ -143,6 +144,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
    private String intersectionEventAlgorithm;
 
+   
    @Getter
    @Setter
    private String kafkaStateChangeEventTopic;
@@ -150,6 +152,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Getter
    @Setter
    private String appHealthNotificationTopic;
+
+   
 
    public IntersectionEventAlgorithmFactory getIntersectionEventAlgorithmFactory() {
       return this.intersectionEventAlgorithmFactory;
@@ -623,6 +627,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private int importProcessorBufferSize = OdePlugin.INPUT_STREAM_BUFFER_SIZE;
    private String hostId;
    private List<Path> uploadLocations = new ArrayList<>();
+   @Getter @Setter private String connectURL = null;
+   @Getter @Setter private String dockerHostIP = null;
+   private static final String DEFAULT_CONNECT_PORT = "8083";
 
    /*
     * RSU Properties
@@ -819,6 +826,16 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
          }
       }
 
+      // Initialize the Kafka Connect URL
+      if (connectURL == null) {
+         String dockerIp = CommonUtils.getEnvironmentVariable("DOCKER_HOST_IP");
+         if (dockerIp == null) {
+            dockerIp = "localhost";
+         }
+         dockerHostIP = dockerIp;
+         connectURL = String.format("http://%s:%s", dockerHostIP, DEFAULT_CONNECT_PORT);
+      }
+
       List<String> asList = Arrays.asList(this.getKafkaTopicsDisabled());
       logger.info("Disabled Topics: {}", asList);
       kafkaTopicsDisabledSet.addAll(asList);
@@ -855,9 +872,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Configure the state store location
       if (SystemUtils.IS_OS_LINUX) {
-         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/odd/kafka-streams");
+         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/ode/kafka-streams");
       } else if (SystemUtils.IS_OS_WINDOWS) {
-         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "C:/temp");
+         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "C:/temp/ode");
       }
       // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
       return streamProps;

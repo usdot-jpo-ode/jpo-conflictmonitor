@@ -1,0 +1,28 @@
+PUT http://localhost:8083/connectors/MongoSource.topic.CmIntersectionConfig/config HTTP/1.1
+Content-Type: application/json
+
+{
+    "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
+    ,"tasks.max": 3
+    ,"connection.uri": "mongodb://{{$dotenv %DOCKER_HOST_IP}}:27017/?replicaSet=rs0"
+    ,"name": "MongoSource.topic.CmIntersectionConfig"
+    ,"database": "ConflictMonitor"
+    ,"collection": "CmIntersectionConfig"
+    ,"topic.namespace.map": "{ \"ConflictMonitor.CmIntersectionConfig\": \"topic.CmIntersectionConfig\" }"
+    ,"startup.mode": "copy_existing"
+    ,"publish.full.document.only": true
+    ,"publish.full.document.only.tombstones.on.delete": true
+    ,"change.stream.full.document": "required"
+    ,"pipeline": "[{$addFields:{\"fullDocument.key\":\"$fullDocument._id.key\",\"fullDocument.rsuID\":\"$fullDocument._id.rsuID\"}},{$project:{\"fullDocument._class\":0,\"fullDocument._id\":0}}]"
+    ,"key.converter": "org.apache.kafka.connect.json.JsonConverter"
+    ,"key.converter.schemas.enable": false
+    ,"value.converter": "org.apache.kafka.connect.json.JsonConverter"
+    ,"value.converter.schemas.enable": false
+    ,"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson"
+    ,"output.format.key": "schema"
+    ,"output.format.value": "schema"
+    ,"output.schema.infer.value": true
+    ,"transforms": "ValueToKey"
+    ,"transforms.ValueToKey.type": "org.apache.kafka.connect.transforms.ValueToKey"
+    ,"transforms.ValueToKey.fields": "rsuID,key"
+}
