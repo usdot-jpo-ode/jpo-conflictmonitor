@@ -47,7 +47,7 @@ declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEv
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
-    [convert_timestamp]=false [timefield]="")
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
 

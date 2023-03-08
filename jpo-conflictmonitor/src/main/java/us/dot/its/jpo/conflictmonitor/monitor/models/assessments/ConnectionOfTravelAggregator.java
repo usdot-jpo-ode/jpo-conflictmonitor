@@ -3,6 +3,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,13 +27,17 @@ public class ConnectionOfTravelAggregator {
     public ConnectionOfTravelAggregator add(ConnectionOfTravelEvent event){
         events.add(event);
 
+        List<ConnectionOfTravelEvent> removeEvents = new ArrayList<>();
+        
         for(ConnectionOfTravelEvent previousEvents: this.events){
             if(previousEvents.getTimestamp() + (messageDurationDays * 3600*1000) < event.getTimestamp()){
-                events.remove(previousEvents);
+                removeEvents.add(previousEvents);
             }else{
                 break;
             }
         }
+
+        events.removeAll(removeEvents);
         return this;
     }
 
