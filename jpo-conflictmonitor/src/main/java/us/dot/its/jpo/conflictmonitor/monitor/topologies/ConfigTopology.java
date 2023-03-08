@@ -1,15 +1,12 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import static org.apache.kafka.common.serialization.Serdes.String;
-import static org.apache.kafka.common.serialization.Serdes.Void;
 import static org.apache.kafka.streams.state.Stores.keyValueStoreBuilder;
 import static org.apache.kafka.streams.state.Stores.persistentKeyValueStore;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.DefaultConfig;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.IntersectionConfig;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.RsuConfigKey;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,7 +37,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.DefaultConfigListener;
@@ -48,7 +44,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.IntersectionConf
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 @Component

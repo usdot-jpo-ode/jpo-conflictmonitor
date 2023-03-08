@@ -2,25 +2,29 @@ PUT http://localhost:8083/connector-plugins/com.mongodb.kafka.connect.MongoSourc
 Content-Type: application/json
 
 {
-    "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
-    "tasks.max": 1,
-    "connection.uri": "mongodb://172.21.43.135:27017",
-    "name": "MongoSource.topic.CmDefaultConfig",
-    "database": "test",
-    "collection": "CmDefaultConfig",
-    "topic.prefix": "",
-    "topic.suffix": "",
-    "poll.max.batch.size": 1000,
-    "poll.await.time.ms": 5000,
-    "batch.size": 0,
-    "copy.existing": true,
-    "publish.full.document.only": true,
-    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-    "key.converter.schemas.enable": false,
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": false,
-    "output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson",
-    "output.format.key": "schema",
-    "output.format.value": "schema",
-    "output.schema.infer.value": true
+  "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
+  ,"tasks.max": 3
+  ,"connection.uri": "mongodb://localhost:27017/?replicaSet=rs0"
+  ,"name": "MongoSource.topic.CmDefaultConfig"
+  ,"database": "ConflictMonitor"
+  ,"collection": "CmDefaultConfig"
+  ,"topic.namespace.map": "{ \"ConflictMonitor.CmDefaultConfig\": \"topic.CmDefaultConfig\" }"
+  ,"copy.existing": true
+  ,"publish.full.document.only": true
+  ,"publish.full.document.only.tombstones.on.delete": true
+  ,"change.stream.full.document": "required"
+  ,"pipeline": "[{$addFields:{\"fullDocument.key\":\"$fullDocument._id\"}},{$project:{\"fullDocument._id\":0,\"fullDocument._class\":0}}]"
+  ,"key.converter": "org.apache.kafka.connect.storage.StringConverter"
+  ,"key.converter.schemas.enable": false
+  ,"value.converter": "org.apache.kafka.connect.json.JsonConverter"
+  ,"value.converter.schemas.enable": false
+  ,"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson"
+  ,"output.format.key": "schema"
+  ,"output.format.value": "schema"
+  ,"output.schema.infer.value": true
+  ,"transforms": "ValueToKey,ExtractKey"
+  ,"transforms.ValueToKey.type": "org.apache.kafka.connect.transforms.ValueToKey"
+  ,"transforms.ValueToKey.fields": "key"
+  ,"transforms.ExtractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key"
+  ,"transforms.ExtractKey.field": "key"
 }
