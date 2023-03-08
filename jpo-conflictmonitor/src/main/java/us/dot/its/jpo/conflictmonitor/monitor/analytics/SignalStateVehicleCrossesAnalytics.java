@@ -50,11 +50,16 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
 
         LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
         
-        J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, connection.getSignalGroup());
+        
 
-        if(signalState == null){
-            System.out.println("There is no corresponding Signal Group for the provided lane connection");
-            return null;
+        J2735MovementPhaseState signalState = J2735MovementPhaseState.UNAVAILABLE;
+        int connectionId = -1;
+        int signalGroup = -1;
+
+        if(connection != null){
+            signalState = getSignalGroupState(matchingSpat, connection.getSignalGroup());
+            connectionId = connection.getConnectionId();
+            signalGroup = connection.getSignalGroup();
         }
 
         J2735Bsm bsmData = (J2735Bsm)bsm.getPayload().getData();
@@ -62,7 +67,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         SignalStateEvent event = new SignalStateEvent();
         event.setTimestamp(bsmTime);
         event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
-        event.setConnectionID(connection.getConnectionId());
+        event.setConnectionID(connectionId);
         event.setEventState(signalState);
         event.setIngressLane(ingressLane.getId());
         event.setEgressLane(egressLane.getId());
@@ -71,7 +76,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         event.setLatitude(bsmData.getCoreData().getPosition().getLongitude().doubleValue());
         event.setHeading(bsmData.getCoreData().getHeading().doubleValue());
         event.setSpeed(bsmData.getCoreData().getSpeed().doubleValue());
-        event.setSignalGroup(connection.getSignalGroup());
+        event.setSignalGroup(signalGroup);
         return event;
     }
 
