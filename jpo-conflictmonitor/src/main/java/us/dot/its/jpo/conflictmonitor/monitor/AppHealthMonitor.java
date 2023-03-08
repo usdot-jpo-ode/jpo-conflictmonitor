@@ -1,14 +1,11 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
 import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import org.apache.kafka.clients.admin.TopicDescription;
-import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.State;
@@ -16,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +24,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,26 +37,15 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
-
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 
 @Getter
 @Setter
 @RestController
-@RequestMapping(path = "/health")
+@RequestMapping(path = "/health", produces = MediaType.APPLICATION_JSON_VALUE)
 @DependsOn("createKafkaTopics")
 public class AppHealthMonitor {
 
@@ -75,26 +63,70 @@ public class AppHealthMonitor {
     @Autowired KafkaAdmin kafkaAdmin;
     @Autowired KafkaConfiguration kafkaConfiguration;
     @Autowired ConflictMonitorProperties conflictMonitorProperties;
+    @Autowired ConfigParameters configParams;
+    @Autowired AlgorithmParameters algorithmParameters;
+    @Autowired ConfigTopology configTopology;
 
-    @Autowired ConnectionOfTravelParameters connectionParams;
-    @Autowired ConnectionOfTravelAssessmentParameters connectionAssessmentParams;
-    @Autowired LaneDirectionOfTravelParameters laneParameters;
-    @Autowired LaneDirectionOfTravelAssessmentParameters laneAssessmentParams;
-    @Autowired MapSpatMessageAssessmentParameters mapSpatAssessmentParams;
-    @Autowired RepartitionParameters repartitionParams;
-    @Autowired SignalStateEventAssessmentParameters signalStateParams;
-    @Autowired SignalStateVehicleCrossesParameters crossesParams;
-    @Autowired SignalStateVehicleStopsParameters stopsParams;
-    @Autowired MapTimeChangeDetailsParameters mapTimeChangeParams;
-    @Autowired SpatTimeChangeDetailsParameters spatTimeChangeParams;
-    @Autowired MapValidationParameters mapValidationParams;
-    @Autowired SpatValidationParameters spatValidationparams;
+  
+    public List<Object> parameterObjects() {
+        List<Object> paramObjects = new ArrayList<Object>();
+        paramObjects.add(configParams);
+        // TODO: Fix Jackson error trying to serialize URI inside JAR for this
+        //paramObjects.add(conflictMonitorProperties);
+        if (algorithmParameters != null) {
+            paramObjects.addAll(algorithmParameters.listParameterObjects());
+        }
+        return paramObjects;
+    }
+
+    @GetMapping
+    public @ResponseBody ResponseEntity<String> summary() {
+        try {
+            var linkMap = new TreeMap<String, String>();
+            addLinks(linkMap, 
+                "config/default"
+                ,"config/intersection",
+                "topics",
+                "properties",
+                "streams",
+                "connectors"
+                );
+            return getJsonResponse(linkMap);
+        } catch (Exception ex) {
+            return getErrorJson(ex);
+        }
+    }
+
+    private void addLinks(Map<String, String> map, String... paths) {
+        for (String path : paths) {
+            var link = String.format("%s/health/%s", baseUrl(), path);
+            map.put(path, link);
+        }
+    }
+
+    @GetMapping(value = "/config/default")
+    public @ResponseBody ResponseEntity<String> listDefaultConfig() {
+        try {
+            return getJsonResponse(configTopology.mapDefaultConfigs());
+        } catch (Exception ex) {
+            return getErrorJson(ex);
+        }
+    }
+
+    @GetMapping(value = "/config/intersection")
+    public @ResponseBody ResponseEntity<String> listIntersectionConfig() {
+        try {
+            return getJsonResponse(configTopology.mapIntersectionConfigs());
+        } catch (Exception ex) {
+            return getErrorJson(ex);
+        }
+    }
     
 
     /**
      * @return JSON map of kafka topics created by this app that currently exist
      */
-    @GetMapping(value = "/topics", produces = "application/json")
+    @GetMapping(value = "/topics")
     public @ResponseBody ResponseEntity<String> listTopics() {
         try {
             var existingTopics = new TreeMap<String, String>();
@@ -116,40 +148,28 @@ public class AppHealthMonitor {
         }
     }
 
-
-    
-
-
-    @GetMapping(value = "/properties", produces = "application/json")
+    @GetMapping(value = "/properties")
     public @ResponseBody ResponseEntity<String> listProperties() {
         try {
             var propMap = new TreeMap<String, Object>();
-            propMap.put(conflictMonitorProperties.getClass().getSimpleName(), conflictMonitorProperties);
-            propMap.put(kafkaConfiguration.getClass().getSimpleName(), kafkaConfiguration);
-            propMap.put(connectionParams.getClass().getSimpleName(), connectionParams);
-            propMap.put(connectionAssessmentParams.getClass().getSimpleName(), connectionAssessmentParams);
-            propMap.put(laneParameters.getClass().getSimpleName(), laneParameters);
-            propMap.put(laneAssessmentParams.getClass().getSimpleName(), laneAssessmentParams);
-            propMap.put(mapSpatAssessmentParams.getClass().getSimpleName(), mapSpatAssessmentParams);
-            propMap.put(repartitionParams.getClass().getSimpleName(), repartitionParams);
-            propMap.put(signalStateParams.getClass().getSimpleName(), signalStateParams);
-            propMap.put(crossesParams.getClass().getSimpleName(), crossesParams);
-            propMap.put(stopsParams.getClass().getSimpleName(), stopsParams);
-            propMap.put(mapTimeChangeParams.getClass().getSimpleName(), mapTimeChangeParams);
-            propMap.put(spatTimeChangeParams.getClass().getSimpleName(), spatTimeChangeParams);
-            propMap.put(mapValidationParams.getClass().getSimpleName(), mapValidationParams);
-            propMap.put(spatValidationparams.getClass().getSimpleName(), spatValidationparams);
+            
+            for (var params : parameterObjects()) {
+               propMap.put(params.getClass().getSimpleName(), params);
+            } 
             
             return getJsonResponse(propMap);
         } catch (Exception ex) {
+            logger.error("Error listing properties", ex);
             return getErrorJson(ex);
         }
     }
 
-    @GetMapping(value = "/streams", produces = "*/*")
+
+
+    @GetMapping(value = "/streams")
     public @ResponseBody ResponseEntity<String> listStreams() {
         var streamsMap = getKafkaStreamsMap();
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String baseUrl = baseUrl();
         var result = new StreamsInfoMap();
         for (String name : streamsMap.keySet()) {
             var streamsInfo = new StreamsInfo();
@@ -168,7 +188,7 @@ public class AppHealthMonitor {
         return getJsonResponse(result);     
     }
 
-    @GetMapping(value = "/streams/{name}", produces = "*/*")
+    @GetMapping(value = "/streams/{name}")
     public @ResponseBody ResponseEntity<String> namedStreams(@PathVariable String name) {
 
         Map<String, KafkaStreams> streamsMap = getKafkaStreamsMap();
@@ -201,10 +221,19 @@ public class AppHealthMonitor {
        
     }
 
+    @GetMapping(value = "/connectors")
+    public @ResponseBody ResponseEntity<String> connectors() {
+        final var restTemplate = new RestTemplate();
+        final var url = String.format("%s/connectors?expand=status", 
+                conflictMonitorProperties.getConnectURL());
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        return response;
+    }
+
     private Map<String, KafkaStreams> getKafkaStreamsMap() {
 
         
-        var streamsMap = new HashMap<String, KafkaStreams>();
+        var streamsMap = new TreeMap<String, KafkaStreams>();
 
         // Streams not part of an algorithm
         streamsMap.putAll(monitorServiceController.getStreamsMap());
@@ -229,6 +258,7 @@ public class AppHealthMonitor {
         try {
             json = mapper.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
+            logger.error("Error converting to JSON", jpe);
            return getErrorJson(jpe);
         }
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(json);
@@ -239,14 +269,15 @@ public class AppHealthMonitor {
         try {
             String errJson = mapper.writeValueAsString(errMap);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errJson);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) { 
+            logger.error("Error converting to JSON", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"error\" }");
         }
         
     }
 
-    public class StreamsInfoMap extends TreeMap<String, StreamsInfo> {
-    }
+    public class StreamsInfoMap extends TreeMap<String, StreamsInfo> {}
+    
 
     @Getter
     @Setter
@@ -255,10 +286,14 @@ public class AppHealthMonitor {
         String detailsUrl;      
     }
 
+    
+
     public class MetricsGroupMap extends TreeMap<String, MetricsGroup> { }
 
     public class MetricsGroup extends TreeMap<String, Object> { }
 
-    
+    private String baseUrl() {
+        return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+    }
 
 }

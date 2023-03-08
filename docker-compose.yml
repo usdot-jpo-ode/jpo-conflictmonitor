@@ -33,7 +33,6 @@ services:
       interval: 10s
       start_period: 30s
     command: ["--replSet", "rs0", "--bind_ip_all"]
-
   connect:
     image: cp-kafka-connect:6.1.9
     build:
@@ -78,7 +77,7 @@ services:
         done
         sleep 10
         echo -e "\n--\n+> Creating Kafka Connect MongoDB sink"
-        bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017"
+        bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017/?replicaSet=rs0"
         sleep infinity
 
 volumes:

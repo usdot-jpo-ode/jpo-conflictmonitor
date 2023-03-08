@@ -1,5 +1,6 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.compile.nullAnalysis.mode": "automatic",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "editor.experimental.pasteActions.enabled": true
 }

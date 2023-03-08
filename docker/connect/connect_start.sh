@@ -7,6 +7,8 @@ echo "Provided Docker Host IP: $DOCKER_HOST_IP"
 echo "------------------------------------------"
 
 
+
+
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="")
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"

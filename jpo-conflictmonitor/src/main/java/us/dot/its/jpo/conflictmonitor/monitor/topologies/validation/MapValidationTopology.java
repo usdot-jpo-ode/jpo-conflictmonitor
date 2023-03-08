@@ -136,11 +136,14 @@ public class MapValidationTopology
                 return KeyValue.pair(key, minDataEvent);
             });
 
-        if (parameters.isDebug()) {
-            minDataStream = minDataStream.peek((key, value) -> {
+        
+        minDataStream = minDataStream.peek((key, value) -> {
+            var rsuId = key.getRsuId();
+            if (rsuId != null && parameters.getDebug(rsuId)) {
                 logger.info("MAP Min Data Event {}", key);
-            });
-        }
+            }
+        });
+       
             
         minDataStream.to(parameters.getMinimumDataTopicName(),
             Produced.with(
@@ -174,17 +177,21 @@ public class MapValidationTopology
             )
             .toStream();
 
-        if (parameters.isDebug()) {
-            countStream = countStream.peek((windowedKey, value) -> {
+
+        countStream = countStream.peek((windowedKey, value) -> {
+            var rsuId = windowedKey.key().getRsuId();
+            if (rsuId != null && parameters.getDebug(rsuId)) {
                 logger.info("Map Count {} {}", windowedKey, value);
-            });
-        }
+            }
+        });
+        
 
         KStream<RsuIntersectionKey, MapBroadcastRateEvent> eventStream = countStream            
             .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
-                    return (counts < parameters.getLowerBound() || counts > parameters.getUpperBound());
+                    String rsuId = windowedKey.key().getRsuId();
+                    return (counts < parameters.getLowerBound(rsuId) || counts > parameters.getUpperBound(rsuId));
                 }
                 return false;
             })
@@ -206,11 +213,14 @@ public class MapValidationTopology
                 return KeyValue.pair(windowedKey.key(), event);
             });
 
-        if (parameters.isDebug()) {
-            eventStream = eventStream.peek((key, event) -> {
+        
+        eventStream = eventStream.peek((key, event) -> {
+            var rsuId = key.getRsuId();
+            if (rsuId != null && parameters.getDebug(rsuId)) {
                 logger.info("MAP Broadcast Rate {}, {}", key, event);
-            });
-        }
+            }
+        });
+        
 
         eventStream.to(parameters.getBroadcastRateTopicName(),
             Produced.with(
