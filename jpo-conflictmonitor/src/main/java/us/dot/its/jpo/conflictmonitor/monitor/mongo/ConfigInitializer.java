@@ -1,8 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.mongo;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +14,13 @@ import org.springframework.stereotype.Component;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultBooleanConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultDoubleConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultIntConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultLongConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultStringConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 
 @Component
 public class ConfigInitializer {

@@ -8,8 +8,7 @@ import java.lang.annotation.ElementType;
 /**
  * Conflict Monitor Configuration Data field-level annotation
  * 
- * <p><b>Field-level annotatation.</b>
- * Marks default value fields in a config parameters class be
+ * <p>Marks default value fields in a config parameters class be
  * stored in the database with metadata (category, units and description) and
  * whether to receive updates at runtime.
  */

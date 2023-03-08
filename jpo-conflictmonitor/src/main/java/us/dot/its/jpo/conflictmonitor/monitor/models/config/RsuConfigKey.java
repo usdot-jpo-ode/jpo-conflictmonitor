@@ -1,15 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.config;
 
-import static org.apache.commons.lang3.StringUtils.rightPad;
-
-import java.util.Objects;
-
-import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
