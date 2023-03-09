@@ -28,8 +28,8 @@ public abstract class Notification {
 
     private static final Logger logger = LoggerFactory.getLogger(Notification.class);
 
-    private final long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
-    public final String notificationType;
+    private long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    public String notificationType;
     public String notificationText;
     public String notificationHeading;
 

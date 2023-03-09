@@ -9,15 +9,13 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public abstract class Assessment{
     
-    private long assessmentGeneratedAt;
+    private long assessmentGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     private String assessmentType = "";
 
     public Assessment(){
-        this.assessmentGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     }
 
     public Assessment(String assessmentType){
-        this.assessmentGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
         this.assessmentType = assessmentType;
     }
     
