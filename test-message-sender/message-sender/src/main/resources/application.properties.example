@@ -3,5 +3,7 @@
 # Don't commit the mapbox token to github!
 
 server.port=8088
+spring.profiles.active=messageSender
 
 mapbox.tile.endpoint=https://api.mapbox.com/styles/v1/[USERNAME]/[STYLEID]/tiles/{z}/{x}/{y}?access_token=[ACCESSTOKEN]
+

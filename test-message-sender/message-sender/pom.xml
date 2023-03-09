@@ -15,23 +15,26 @@
 		<start-class>us.dot.its.jpo.ode.messagesender.TestMessageSenderApplication</start-class>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>usdot.jpo.ode</groupId>
-			<artifactId>script-runner</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>usdot.jpo.ode</groupId>
+			<artifactId>script-runner</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		
 

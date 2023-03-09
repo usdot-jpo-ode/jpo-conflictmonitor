@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
 import us.dot.its.jpo.ode.model.OdeMapData;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.converter.map.MapProcessedJsonConverter;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.DeserializedRawMap;
 import us.dot.its.jpo.geojsonconverter.validator.JsonValidatorResult;
@@ -73,7 +76,7 @@ public class TestController {
     @PostMapping(value = "/script", consumes = "*/*", produces = "*/*")
     public @ResponseBody ResponseEntity<String> runScript(@RequestBody String script) {
         logger.info("runScript");
-        try (var scanner = new Scanner(script)) {
+        try {
             scriptRunner.scheduleScript(script);
             return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body("running script");
         } catch (Exception e) {
@@ -81,6 +84,23 @@ public class TestController {
                     .body(ExceptionUtils.getStackTrace(e));
         }
     }
-
+    
+    @PostMapping(value = "/convertHexLogToScript", consumes = "*/*", produces = "*/*")
+    public @ResponseBody ResponseEntity<String> convertHexLogToScript(@RequestBody String hexScript) {
+        logger.info("convertHexLogToScript");
+        var mapper = DateJsonMapper.getInstance();
+        try {
+            var hexLog = new HexLog();
+            try (MappingIterator<HexLogItem> iterator = mapper.readerFor(HexLogItem.class).readValues(hexScript)) {
+                while (iterator.hasNext()) {
+                    hexLog.add(iterator.next());
+                }
+            }
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(hexLog));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+                    .body(ExceptionUtils.getStackTrace(e));
+        }
+    }
    
 }
