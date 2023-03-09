@@ -16,8 +16,8 @@ import lombok.Getter;
 @Generated
 public abstract class Event {
     
-    private final long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
-    private final String eventType;
+    private long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    private String eventType;
 
     public Event(String eventType){
         this.eventType = eventType;
