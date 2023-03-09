@@ -10,7 +10,7 @@
 
     <logger name="us.dot.its.jpo.ode.messagesender" level="DEBUG"/>
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
