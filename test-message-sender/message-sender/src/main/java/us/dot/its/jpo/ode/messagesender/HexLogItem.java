@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class HexLogItem {
-    long timestamp;
+    long timeStamp;
     String dir;
     String hexMessage;
 }

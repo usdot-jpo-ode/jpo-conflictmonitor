@@ -85,6 +85,11 @@ public class TestController {
         }
     }
     
+
+    /**
+     * @param hexScript - Line-delimited JSON with format: { "timeStamp": milliseconds, "dir": "S" or "R", "hexMessage": "00142846F..."}
+     * @return Script for script-runner with templated relative timestamps
+     */
     @PostMapping(value = "/convertHexLogToScript", consumes = "*/*", produces = "*/*")
     public @ResponseBody ResponseEntity<String> convertHexLogToScript(@RequestBody String hexScript) {
         logger.info("convertHexLogToScript");
