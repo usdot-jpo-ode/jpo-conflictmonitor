@@ -50,6 +50,18 @@ declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTra
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
+declare -A CmSpatTimeChangeDetailsNotification=([name]="topic.CmSpatTimeChangeDetailsNotification" [collection]="CmSpatTimeChangeDetailsNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt")
+declare -A CmLaneDirectionOfTravelNotification=([name]="topic.CmLaneDirectionOfTravelNotification" [collection]="CmLaneDirectionOfTravelNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt")
+declare -A CmConnectionOfTravelNotification=([name]="topic.CmConnectionOfTravelNotification" [collection]="CmConnectionOfTravelNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt")
+declare -A CmAppHealthNotifications=([name]="topic.CmAppHealthNotification" [collection]="CmAppHealthNotifications"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt")
+declare -A CmSignalStateConflictNotification=([name]="topic.CmSignalStateConflictNotification" [collection]="CmSignalStateConflictNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt")
+declare -A CmSignalGroupAlignmentNotification=([name]="topic.CmSignalGroupAlignmentNotification" [collection]="CmSignalGroupAlignmentNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt")
 
 function createSink() {
     local -n topic=$1
@@ -125,6 +137,13 @@ createSink CmSpatTimeChangeDetailsEvent
 createSink CmMapBroadcastRateEvents
 createSink CmLaneDirectionOfTravelAssessment
 createSink CmSpatBroadcastRateEvents
+
+createSink CmSpatTimeChangeDetailsNotification
+createSink CmLaneDirectionOfTravelNotification
+createSink CmConnectionOfTravelNotification
+createSink CmAppHealthNotifications
+createSink CmSignalStateConflictNotification
+createSink CmSignalGroupAlignmentNotification
 
 
 
