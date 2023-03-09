@@ -31,6 +31,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -47,6 +48,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 @Component
+@Profile("!test")
 public class ConfigTopology
     implements ConfigStreamsAlgorithm {
 

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexInfo;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 
 @Configuration
 @DependsOn("mongoTemplate") 
+@Profile("!test")
 public class MongoCollectionsConfig {
     private static final Logger logger = LoggerFactory.getLogger(MongoCollectionsConfig.class);
 

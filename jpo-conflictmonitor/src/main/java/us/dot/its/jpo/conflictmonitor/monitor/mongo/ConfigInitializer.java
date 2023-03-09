@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -23,6 +24,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultLongConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultStringConfig;
 
 @Component
+@Profile("!test")
 public class ConfigInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigInitializer.class);
