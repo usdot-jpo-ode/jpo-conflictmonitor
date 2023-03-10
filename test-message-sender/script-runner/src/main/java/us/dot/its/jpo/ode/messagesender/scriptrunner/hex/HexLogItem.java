@@ -1,4 +1,4 @@
-package us.dot.its.jpo.ode.messagesender;
+package us.dot.its.jpo.ode.messagesender.scriptrunner.hex;
 
 import lombok.Data;
 

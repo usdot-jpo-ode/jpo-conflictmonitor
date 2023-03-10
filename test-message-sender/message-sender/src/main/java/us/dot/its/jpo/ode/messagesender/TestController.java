@@ -21,6 +21,9 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
+import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLog;
+import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
+import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogItem;
 import us.dot.its.jpo.ode.model.OdeMapData;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.converter.map.MapProcessedJsonConverter;
@@ -85,31 +88,7 @@ public class TestController {
         }
     }
 
-    @Autowired
-    HexLogConverter hexLogConverter;
     
-
-    /**
-     * @param hexScript - Line-delimited JSON with format: { "timeStamp": milliseconds, "dir": "S" or "R", "hexMessage": "00142846F..."}
-     * @return Script for script-runner with templated relative timestamps
-     */
-    @PostMapping(value = "/convertHexLogToScript", consumes = "*/*", produces = "*/*")
-    public @ResponseBody ResponseEntity<String> convertHexLogToScript(@RequestBody String hexScript) {
-        logger.info("convertHexLogToScript");
-        var mapper = DateJsonMapper.getInstance();
-        try {
-            var hexLog = new HexLog();
-            try (MappingIterator<HexLogItem> iterator = mapper.readerFor(HexLogItem.class).readValues(hexScript)) {
-                while (iterator.hasNext()) {
-                    hexLog.add(iterator.next());
-                }
-            }
-           String result = hexLogConverter.convertHexLogToScript(hexLog);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(result));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
-                    .body(ExceptionUtils.getStackTrace(e));
-        }
-    }
+   
    
 }

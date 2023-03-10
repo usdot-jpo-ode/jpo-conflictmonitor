@@ -1,12 +1,17 @@
-package us.dot.its.jpo.ode.messagesender;
+package us.dot.its.jpo.ode.messagesender.scriptrunner.hex;
 
 import lombok.Getter;
 
+
+/**
+ * Includes J2735 Message Frame IDs found in the Utah test data.
+ */
 public enum DSRCmsgID {
     MAP(18, "0012", 44920, "topic.OdeMapJson"), 
     SPAT(19, "0013", 44910, "topic.OdeSpatJson"), 
     BSM(20, "0014", 46800, "topic.OdeBsmJson"), 
-    RTCM(28, "001C", 0, "")
+    RTCM(28, "001C", 0, ""),
+    TEST_MESSAGE_01(241, "00F1", 0, "")
     ;
 
     @Getter private int msgId;
