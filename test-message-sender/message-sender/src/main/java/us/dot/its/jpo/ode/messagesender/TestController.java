@@ -84,6 +84,9 @@ public class TestController {
                     .body(ExceptionUtils.getStackTrace(e));
         }
     }
+
+    @Autowired
+    HexLogConverter hexLogConverter;
     
 
     /**
@@ -101,7 +104,8 @@ public class TestController {
                     hexLog.add(iterator.next());
                 }
             }
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(hexLog));
+           String result = hexLogConverter.convertHexLogToScript(hexLog);
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(result));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
                     .body(ExceptionUtils.getStackTrace(e));
