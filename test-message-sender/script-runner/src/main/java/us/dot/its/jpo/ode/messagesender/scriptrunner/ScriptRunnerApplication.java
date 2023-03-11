@@ -3,13 +3,17 @@ package us.dot.its.jpo.ode.messagesender.scriptrunner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -17,7 +21,7 @@ import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
 
 @SpringBootApplication
 @Profile("!messageSender")
-public class ScriptRunnerApplication implements CommandLineRunner {
+public class ScriptRunnerApplication implements ApplicationRunner  {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptRunnerApplication.class);
 
@@ -27,17 +31,24 @@ public class ScriptRunnerApplication implements CommandLineRunner {
 	}
 
 	final String USAGE = 
-		"\nCommand line script runner usage:\n" +
-		"\n" +
-		"Run Script:\n" +
+		"\nUsage:\n\n" +
+		"Run Script:\n\n" +
 		"  Executable jar:\n" +
-		"    $ java -jar target/script-runner-cli.jar [filename]\n" +
+		"    $ java -jar script-runner-cli.jar <filename>\n\n" +
 		"  Maven:\n" +
-		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=[filename]\n" +
-		"\n" +
-		"Convert hex log to script:\n" +
+		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=<filename>\n\n" +
+		"Send hex log to ODE and create script:\n\n" +
 		"  Executable jar:\n" +
-		"   $ java -jar target/script-runner-cli.jar [docker host ip] [input filepath] [output filepath]\n";
+		"   $ java -jar script-runner-cli.jar --infile=<filename> --outfile=<filename> --ip=<docker host ip>\n\n" +
+		"  Maven:\n" +
+		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=\"--infile=<filename> --outfile=<filename> --ip=<docker host ip>\"\n\n" +
+		"  Options: \n" +
+		"    --infile=<filename>  : Input hex log file (Required)\n" +
+		"                           Formatted as line-delimited JSON like\n" + 
+		"                           { \"timeStamp\": milliseconds, \"dir\": \"S\" or \"R\", \"hexMessage\": \00142846F...\"}\n\n" +
+		"    --outfile=<filename> : Output file to save JSON received from ODE as script (Optional)\n\n" +
+		"    --ip=<docker host ip>: IP address of docker host to send UDP packets to (Optional)\n" +
+		"                           (Uses DOCKER_HOST_IP env variable if not specified)\n";
 		
 	@Autowired
 	ScriptRunner scriptRunner;
@@ -49,14 +60,12 @@ public class ScriptRunnerApplication implements CommandLineRunner {
 	ThreadPoolTaskScheduler scheduler;
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(ApplicationArguments appArgs) throws Exception {
 		
-		if (args.length != 1 && args.length != 3) {
-			logger.info(USAGE);
-			scheduler.shutdown();
-			System.exit(0);
-		}
+		String[] args = appArgs.getSourceArgs();
+		if (args.length == 0) exitUsage();
 
+		/// If there is only one argument, run a script
 		if (args.length == 1) {
 			logger.info("\nRunning Script");
 			String filePath = args[0];
@@ -65,13 +74,41 @@ public class ScriptRunnerApplication implements CommandLineRunner {
 			System.exit(0);
 		}
 
-		if (args.length == 3) {
-			logger.info("\nConverting Hex Log to Script");
-			String dockerHostIp = args[0];
-			String inputFilePath = args[1];
-			String outputFilePath = args[2];
-			convertHexLogToScript(dockerHostIp, inputFilePath, outputFilePath);
+		// Check for options needed to run hex log
+		Set<String> optionNames = appArgs.getOptionNames();
+		for (String optionName : optionNames) {
+			logger.info("Option: {} = {}", optionName, appArgs.getOptionValues(optionName));
 		}
+
+		boolean missingOptions = false;
+		if (!optionNames.contains("infile")) {
+			logger.info("Missing option --infile=<filename>");
+			missingOptions = true;
+		}
+		String infile = appArgs.getOptionValues("infile").get(0);
+		String outfile = optionNames.contains("outfile") ? appArgs.getOptionValues("outfile").get(0) : null;		
+		String ip = optionNames.contains("ip") ? appArgs.getOptionValues("ip").get(0) : null;
+		int delay = optionNames.contains("delay") ? Integer.parseInt(appArgs.getOptionValues("delay").get(0)) : 0;
+
+
+		if (ip == null) {
+			ip = System.getenv("DOCKER_HOST_IP");
+			if (ip == null) {
+				logger.info("Missing option --ip=<docker host ip> or DOCKER_HOST_IP environment variable");
+				missingOptions = true;
+			}
+		}
+		
+		if (missingOptions) exitUsage();
+
+		convertHexLogToScript(ip, infile, outfile, delay);
+		
+	}
+
+	private void exitUsage() {
+		logger.info(USAGE);
+		scheduler.shutdown();
+		System.exit(0);
 	}
 
 	
@@ -88,21 +125,22 @@ public class ScriptRunnerApplication implements CommandLineRunner {
 		scheduler.shutdown();
 	}
 
-	private void convertHexLogToScript(String dockerHostIp, String inputFilePath, String outputFilePath) throws IOException {
+	private void convertHexLogToScript(String dockerHostIp, String inputFilePath, String outputFilePath, int delay) throws IOException {
 		logger.info("Docker Host IP: {}", dockerHostIp);
 		logger.info("Input File Path: {}", inputFilePath);
 		logger.info("Output File Path: {}", outputFilePath);
+		logger.info("Delay: {}", delay);
 		var inputFile = new File(inputFilePath);
 		if (!inputFile.exists()) {
 			logger.warn("Input file {} does not exist.", inputFilePath);
 			System.exit(1);
 		}
-		var outputFile = new File(outputFilePath);
+		var outputFile = outputFilePath != null ? new File(outputFilePath) : null;
 		scheduler.setWaitForTasksToCompleteOnShutdown(true);
 		
-		hexLogRunner.convertHexLogToScript(dockerHostIp, inputFile, outputFile);
+		hexLogRunner.convertHexLogToScript(dockerHostIp, inputFile, outputFile, delay);
 		
-		// scheduler.shutdown();
+		scheduler.shutdown();
 	}
 
 }

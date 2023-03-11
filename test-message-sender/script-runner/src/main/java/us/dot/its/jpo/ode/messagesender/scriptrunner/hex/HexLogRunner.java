@@ -50,9 +50,9 @@ public class HexLogRunner {
      * @param inputFile - File containing a json hex log
      * @throws IOException
      */
-    public void convertHexLogToScript(String dockerHostIp, File inputFile, File outputFile) throws IOException {
+    public void convertHexLogToScript(String dockerHostIp, File inputFile, File outputFile, int delay) throws IOException {
         logger.info("Running hex log, inputFile {}, outputFile: {}", inputFile, outputFile);
-        listeners.startSavingToFile(outputFile);
+        
         var mapper = DateJsonMapper.getInstance();
 
         // Get the earliest timestamp in the hexScript
@@ -67,8 +67,9 @@ public class HexLogRunner {
             }
         }
         logger.info("Earliest timestamp: {}", earliestTimestamp);
-
-        final long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis() + delay;
+        logger.info("Start time: {}", startTime);
+        listeners.startSavingToFile(outputFile, startTime);
 
         // Schedule sending hex messages to ODE
         try (MappingIterator<HexLogItem> iterator = mapper.readerFor(HexLogItem.class).readValues(inputFile)) {
@@ -101,11 +102,12 @@ public class HexLogRunner {
         final Instant sendInstant = Instant.ofEpochMilli(sendTime);
         var job = new SendHexJob();
         job.setSendTime(sendTime);
+        job.setStartTime(startTime);
         job.setMsgId(msgId);
         job.setHexMessage(hexMessage);
         job.setDockerHostIp(dockerHostIp);
         scheduler.schedule(job, sendInstant);
-        logger.info("Scheduled {} job at {}", msgId, sendTime);
+        logger.info("Scheduled {} job at {}", msgId, sendTime - startTime);
     }
 
 

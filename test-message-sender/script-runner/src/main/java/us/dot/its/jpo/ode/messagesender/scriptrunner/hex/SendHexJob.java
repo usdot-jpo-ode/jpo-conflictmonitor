@@ -21,6 +21,7 @@ public class SendHexJob implements Runnable {
 
     private DSRCmsgID msgId;
     private long sendTime;
+    private long startTime;
     private String hexMessage;
     private String dockerHostIp;
     
@@ -33,7 +34,7 @@ public class SendHexJob implements Runnable {
             byte[] buf = Hex.decodeHex(hexMessage);
             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, udpPort);
             socket.send(packet);
-            logger.info("{}: Sent {} to udp {}:{}", sendTime, msgId, dockerHostIp, udpPort);
+            logger.info("{}: Sent {} to udp {}:{}", sendTime - startTime, msgId, dockerHostIp, udpPort);
         } catch (IOException | DecoderException e) {
             logger.error("Error sending hex message to UDP port", e);
         }

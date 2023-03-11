@@ -30,9 +30,9 @@ public class KafkaListeners {
     }
 
 
-    public void startSavingToFile(File outputFile) {
+    public void startSavingToFile(File outputFile, long startTime) {
         this.outputFile = outputFile;
-        startTime = System.currentTimeMillis();
+        this.startTime = startTime;
     }
 
 
@@ -54,11 +54,10 @@ public class KafkaListeners {
     void listen(DSRCmsgID msgId, String message)  {
         final long now = System.currentTimeMillis();
         final long offsetTime = now - startTime;
-        var formattedMessage = String.format("%s,%s,%s%n", msgId, offsetTime, message);
-        
-        logger.info("Received {} message", msgId);
-        
+        logger.info("{}: Received {} message", offsetTime, msgId);        
         if (outputFile != null) {
+            
+            var formattedMessage = String.format("%s,%s,%s%n", msgId, offsetTime, message);
             if (!outputFile.exists()) {
                 try {
                     outputFile.createNewFile();
@@ -66,7 +65,7 @@ public class KafkaListeners {
                     throw new RuntimeException("Error creating file", e);
                 }
             }
-            logger.info("Writing {} message to file", msgId);
+            logger.info("{}: Writing {} message to file", offsetTime, msgId);
             try {
                 FileUtils.writeStringToFile(outputFile, formattedMessage, StandardCharsets.UTF_8, true);
             } catch (IOException e) {
