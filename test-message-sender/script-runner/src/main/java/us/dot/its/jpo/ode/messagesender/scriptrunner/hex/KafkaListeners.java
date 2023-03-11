@@ -115,8 +115,9 @@ public class KafkaListeners {
                 }
             }
             logger.info("{}: Writing {} message to file {}", offsetTime, msgId, msgFile.getName());
+            String formattedMessage = String.format("%s%n", message);
             try {
-                FileUtils.writeStringToFile(msgFile, message, StandardCharsets.UTF_8, true);
+                FileUtils.writeStringToFile(msgFile, formattedMessage, StandardCharsets.UTF_8, true);
             } catch (IOException e) {
                 logger.error("Error writing to file", e);
             }
