@@ -32,23 +32,37 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 
 	final String USAGE = 
 		"\nUsage:\n\n" +
+		"The tool can run in two modes: either run a script, or send a hex log to the ODE and create a script.\n\n" +
 		"Run Script:\n\n" +
 		"  Executable jar:\n" +
 		"    $ java -jar script-runner-cli.jar <filename>\n\n" +
 		"  Maven:\n" +
 		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=<filename>\n\n" +
+		"  <filename> : (Required in script run mode) Input ODE JSON script file\n" +
+		"               Formatted as line-delimited CSV/JSON like:\n" + 
+		"               <BSM or MAP or SPAT>,<millisecond offset>,<Templated ODE JSON>\n\n" +
 		"Send hex log to ODE and create script:\n\n" +
 		"  Executable jar:\n" +
-		"   $ java -jar script-runner-cli.jar --infile=<filename> --outfile=<filename> --ip=<docker host ip>\n\n" +
+		"   $ java -jar script-runner-cli.jar --infile=<filename> --outfile=<filename> --ip=<docker host ip> ...\n\n" +
 		"  Maven:\n" +
-		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=\"--infile=<filename> --outfile=<filename> --ip=<docker host ip>\"\n\n" +
+		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=\"--infile=<filename> --outfile=<filename> ...\"\n\n" +
 		"  Options: \n" +
-		"    --infile=<filename>  : Input hex log file (Required)\n" +
-		"                           Formatted as line-delimited JSON like\n" + 
-		"                           { \"timeStamp\": milliseconds, \"dir\": \"S\" or \"R\", \"hexMessage\": \00142846F...\"}\n\n" +
-		"    --outfile=<filename> : Output file to save JSON received from ODE as script (Optional)\n\n" +
-		"    --ip=<docker host ip>: IP address of docker host to send UDP packets to (Optional)\n" +
-		"                           (Uses DOCKER_HOST_IP env variable if not specified)\n";
+		"    --hexfile=<filename> : (Required in hex log mode) Input hex log file\n" +
+		"                           formatted as line-delimited JSON like\n" + 
+		"                           { \"timeStamp\": <epoch milliseconds>, \"dir\": <\"S\" or \"R\">, \"hexMessage\": \00142846F...\" }\n\n" +
+		"    --outfile=<filename> : (Optional) Output file to save JSON received from the ODE as a script,\n" +
+		"                           optionally substituting placeholders for timestamps\n\n" +
+		"    --placeholders       : (Optional) If present substitute placeholders in the output script:\n\n" +
+		"                           @ISO_DATE_TIME@ for 'odeReceivedAt'\n" +
+		"                           @MINUTE_OF_YEAR@ for 'timeStamp' and 'intersection.moy' in SPATs\n" +
+		"                           @MILLI_OF_MINUTE@ for 'intersection.timeStamp' in SPATs and 'secMark' in BSMs\n" +
+		"						    @TEMP_ID@ for 'coreData.id' in BSMs\n\n" +
+		"    --mapfile=<filename> : (Optional) Output file to save MAPs as line-delimited JSON\n\n" +
+		"    --spatfile=<filename>: (Optional) Output file to save SPATs as line-delimited JSON\n\n" +
+		"    --bsmfile=<filename> : (Optional) Output file to save BSMs as line-delimited JSON\n\n" +
+		"    --ip=<docker host ip>: (Optional) IP address of docker host to send UDP packets to\n\n" +
+		"                           Uses DOCKER_HOST_IP env variable if not specified.\n\n";
+
 		
 	@Autowired
 	ScriptRunner scriptRunner;
@@ -81,14 +95,18 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		}
 
 		boolean missingOptions = false;
-		if (!optionNames.contains("infile")) {
-			logger.info("Missing option --infile=<filename>");
+		if (!optionNames.contains("hexfile")) {
+			logger.info("Missing option --hexfile=<filename>");
 			missingOptions = true;
 		}
-		String infile = appArgs.getOptionValues("infile").get(0);
+		String infile = appArgs.getOptionValues("hexfile").get(0);
 		String outfile = optionNames.contains("outfile") ? appArgs.getOptionValues("outfile").get(0) : null;		
 		String ip = optionNames.contains("ip") ? appArgs.getOptionValues("ip").get(0) : null;
 		int delay = optionNames.contains("delay") ? Integer.parseInt(appArgs.getOptionValues("delay").get(0)) : 0;
+		boolean placeholders = optionNames.contains("placeholders");
+		String mapfile = optionNames.contains("mapfile") ? appArgs.getOptionValues("mapfile").get(0) : null;
+		String spatfile = optionNames.contains("spatfile") ? appArgs.getOptionValues("spatfile").get(0) : null;
+		String bsmfile = optionNames.contains("bsmfile") ? appArgs.getOptionValues("bsmfile").get(0) : null;
 
 
 		if (ip == null) {
@@ -101,7 +119,7 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		
 		if (missingOptions) exitUsage();
 
-		convertHexLogToScript(ip, infile, outfile, delay);
+		convertHexLogToScript(ip, infile, outfile, delay, placeholders, mapfile, spatfile, bsmfile);
 		
 	}
 
@@ -125,21 +143,30 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		scheduler.shutdown();
 	}
 
-	private void convertHexLogToScript(String dockerHostIp, String inputFilePath, String outputFilePath, int delay) throws IOException {
+	private void convertHexLogToScript(String dockerHostIp, String inputFilePath, String outputFilePath, int delay,
+			boolean placeholders, String mapFilePath, String spatFilePath, String bsmFilePath) throws IOException {
 		logger.info("Docker Host IP: {}", dockerHostIp);
 		logger.info("Input File Path: {}", inputFilePath);
 		logger.info("Output File Path: {}", outputFilePath);
 		logger.info("Delay: {}", delay);
+		logger.info("Placeholders: {}", placeholders);
+		logger.info("MAP File Path: {}", mapFilePath);
+		logger.info("SPAT File Path: {}", spatFilePath);
+		logger.info("BSM File Path: {}", bsmFilePath);
+
 		var inputFile = new File(inputFilePath);
 		if (!inputFile.exists()) {
 			logger.warn("Input file {} does not exist.", inputFilePath);
 			System.exit(1);
 		}
 		var outputFile = outputFilePath != null ? new File(outputFilePath) : null;
+		var mapFile = mapFilePath != null ? new File(mapFilePath) : null;
+		var spatFile = spatFilePath != null ? new File(spatFilePath) : null;
+		var bsmFile = bsmFilePath != null ? new File(bsmFilePath) : null;
+		
+		
+		hexLogRunner.convertHexLogToScript(dockerHostIp, inputFile, outputFile, delay, placeholders, mapFile, spatFile, bsmFile);
 		scheduler.setWaitForTasksToCompleteOnShutdown(true);
-		
-		hexLogRunner.convertHexLogToScript(dockerHostIp, inputFile, outputFile, delay);
-		
 		scheduler.shutdown();
 	}
 

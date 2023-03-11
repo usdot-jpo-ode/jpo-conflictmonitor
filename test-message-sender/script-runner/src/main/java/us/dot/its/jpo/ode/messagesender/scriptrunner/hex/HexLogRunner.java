@@ -50,7 +50,8 @@ public class HexLogRunner {
      * @param inputFile - File containing a json hex log
      * @throws IOException
      */
-    public void convertHexLogToScript(String dockerHostIp, File inputFile, File outputFile, int delay) throws IOException {
+    public void convertHexLogToScript(String dockerHostIp, File inputFile, File outputFile, int delay,
+        boolean placeholders, File mapFile, File spatFile, File bsmFile) throws IOException {
         logger.info("Running hex log, inputFile {}, outputFile: {}", inputFile, outputFile);
         
         var mapper = DateJsonMapper.getInstance();
@@ -69,7 +70,8 @@ public class HexLogRunner {
         logger.info("Earliest timestamp: {}", earliestTimestamp);
         final long startTime = System.currentTimeMillis() + delay;
         logger.info("Start time: {}", startTime);
-        listeners.startSavingToFile(outputFile, startTime);
+
+        listeners.startSavingToFile(outputFile, startTime, placeholders, mapFile, spatFile, bsmFile);
 
         // Schedule sending hex messages to ODE
         try (MappingIterator<HexLogItem> iterator = mapper.readerFor(HexLogItem.class).readValues(inputFile)) {
