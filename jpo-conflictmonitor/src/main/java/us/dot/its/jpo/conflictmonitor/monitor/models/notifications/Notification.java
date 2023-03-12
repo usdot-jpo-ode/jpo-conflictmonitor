@@ -28,7 +28,7 @@ public abstract class Notification {
 
     private static final Logger logger = LoggerFactory.getLogger(Notification.class);
 
-    private long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    public long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     public String notificationType;
     public String notificationText;
     public String notificationHeading;
@@ -40,7 +40,7 @@ public abstract class Notification {
     /**
      * When the notification expires.
      */
-    private ZonedDateTime notificationExpiresAt;
+    public ZonedDateTime notificationExpiresAt;
 
     /**
      * @return A string that uniquely identifies the notification 
