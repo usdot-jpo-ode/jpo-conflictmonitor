@@ -123,5 +123,5 @@ The hex messages are UPER encoded J2735 MessageFrames.
 Example command line to schedule sending a hex log through the system and generate ODE JSON files.
 
 ```bash
-java -jar script-runner-cli.jar --ip=172.25.0.112 --hexfile=et20220818-181134.log --outfile=et20220818-181134.csv --delay=60000 --placeholders --mapfile=map.jsonl --spatfile=spat.jsonl --bsmfile=bsm.jsonl
+java -jar script-runner-cli.jar --ip=172.25.0.112 --hexfile=input.log --outfile=output.csv --delay=60000 --placeholders --mapfile=map.jsonl --spatfile=spat.jsonl --bsmfile=bsm.jsonl
 ```
