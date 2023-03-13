@@ -66,7 +66,7 @@ public class SpatTimeChangeDetailStateTest {
         event.setEventState(eventState);
         state.setStateTimeSpeed(Collections.singletonList(event));
 
-        // Consturct expected SpatTimeChangeDetailState
+        // Construct expected SpatTimeChangeDetailState
         SpatTimeChangeDetailState expectedResult = new SpatTimeChangeDetailState();
         if (signalGroup != null) {
             expectedResult.setSignalGroup(signalGroup.intValue());
