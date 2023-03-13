@@ -115,6 +115,7 @@ Hex log format is line delimited JSON:
 ```json
 { "timeStamp": <epoch milliseconds>, "dir": <"S" or "R">, "hexMessage": "00142846F..." }
 { "timeStamp": <epoch milliseconds>, "dir": <"S" or "R">, "hexMessage": "00142846F..." }
+...
 ```
 
 The hex messages are UPER encoded J2735 MessageFrames.
