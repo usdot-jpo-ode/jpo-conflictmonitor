@@ -44,9 +44,19 @@ declare -A CmSignalStateEvent=([name]="topic.CmSignalStateEvent" [collection]="C
     [convert_timestamp]=true [timefield]="eventGeneratedAt")
 declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEvent" [collection]="CmSpatTimeChangeDetailsEvent"
     [convert_timestamp]=true [timefield]="eventGeneratedAt")
+declare -A CmMapBroadcastRateEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
+    [convert_timestamp]=false [timefield]="eventGeneratedAt")
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
+    [convert_timestamp]=false [timefield]="eventGeneratedAt")
+declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
+    [convert_timestamp]=false [timefield]="eventGeneratedAt")
+declare -A CmMapBroadcastRateEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
     [convert_timestamp]=false [timefield]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
+declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
+declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmsignalStateEventAssessment" [collection]="CmsignalStateEventAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
@@ -134,9 +144,14 @@ createSink CmConnectionOfTravelEvent
 createSink CmLaneDirectionOfTravelEvent
 createSink CmSignalStateEvent
 createSink CmSpatTimeChangeDetailsEvent
+createSink CmSpatMinimumDataEvents
 createSink CmMapBroadcastRateEvents
+createSink CmMapMinimumDataEvents
 createSink CmLaneDirectionOfTravelAssessment
+createSink CmConnectionOfTravelAssessment
+createSink CmsignalStateEventAssessment
 createSink CmSpatBroadcastRateEvents
+createSink CMBsmEvents
 
 createSink CmSpatTimeChangeDetailsNotification
 createSink CmLaneDirectionOfTravelNotification
