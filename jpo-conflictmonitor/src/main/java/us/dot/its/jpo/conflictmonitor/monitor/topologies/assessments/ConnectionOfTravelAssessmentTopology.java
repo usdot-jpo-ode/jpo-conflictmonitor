@@ -119,6 +119,8 @@ public class ConnectionOfTravelAssessmentTopology
         if(parameters.isDebug()){
             connectionOfTravelEvents.print(Printed.toSysOut());
         }
+
+        connectionOfTravelEvents.print(Printed.toSysOut());
         
         
 
@@ -152,6 +154,8 @@ public class ConnectionOfTravelAssessmentTopology
             connectionOfTravelAssessmentStream.print(Printed.toSysOut());
         }
 
+        connectionOfTravelAssessmentStream.print(Printed.toSysOut());
+
         connectionOfTravelAssessmentStream.to(
             parameters.getConnectionOfTravelAssessmentOutputTopicName(), 
             Produced.with(Serdes.String(),
@@ -165,7 +169,7 @@ public class ConnectionOfTravelAssessmentTopology
                     if(assessmentGroup.getEventCount() >= parameters.getMinimumNumberOfEvents() && assessmentGroup.getConnectionID() < 0){
                         ConnectionOfTravelNotification notification = new ConnectionOfTravelNotification();
                         notification.setAssessment(value);
-                        notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane " + assessmentGroup.getIngressLaneID() + "and egress Lane " + assessmentGroup.getEgressLaneID()+".");
+                        notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane: " + assessmentGroup.getIngressLaneID() + " and egress lane: " + assessmentGroup.getEgressLaneID()+".");
                         notification.setNotificationHeading("Connection of Travel Notification");
                         result.add(new KeyValue<>(key, notification));
                     }

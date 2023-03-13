@@ -122,7 +122,7 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             ConnectionOfTravelNotification notification = assessmentResults.get(0).value;
             assertEquals(notification.getNotificationHeading(), "Connection of Travel Notification");
             assertEquals(notification.getNotificationType(), "ConnectionOfTravelNotification");
-            assertEquals(notification.getNotificationText(), "Connection of Travel Notification, Unknown Lane connection between ingress lane 12and egress Lane 5.");
+            assertEquals(notification.getNotificationText(), "Connection of Travel Notification, Unknown Lane connection between ingress lane: 12 and egress lane: 5.");
 
             ConnectionOfTravelAssessment notificationAssessment = notification.getAssessment();
             
