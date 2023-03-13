@@ -48,6 +48,10 @@ declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [co
     [convert_timestamp]=false [timefield]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
+declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
+declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmsignalStateEventAssessment" [collection]="CmsignalStateEventAssessment"
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="")
 declare -A CmSpatTimeChangeDetailsNotification=([name]="topic.CmSpatTimeChangeDetailsNotification" [collection]="CmSpatTimeChangeDetailsNotification"
@@ -136,6 +140,8 @@ createSink CmSignalStateEvent
 createSink CmSpatTimeChangeDetailsEvent
 createSink CmMapBroadcastRateEvents
 createSink CmLaneDirectionOfTravelAssessment
+createSink CmConnectionOfTravelAssessment
+createSink CmsignalStateEventAssessment
 createSink CmSpatBroadcastRateEvents
 
 createSink CmSpatTimeChangeDetailsNotification
