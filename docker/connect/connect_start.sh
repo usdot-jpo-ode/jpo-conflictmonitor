@@ -44,13 +44,13 @@ declare -A CmSignalStateEvent=([name]="topic.CmSignalStateEvent" [collection]="C
     [convert_timestamp]=true [timefield]="eventGeneratedAt")
 declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEvent" [collection]="CmSpatTimeChangeDetailsEvent"
     [convert_timestamp]=true [timefield]="eventGeneratedAt")
-declare -A CmMapBroadcastRateEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
+declare -A CmSpatMinimumDataEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
     [convert_timestamp]=false [timefield]="eventGeneratedAt")
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="eventGeneratedAt")
-declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
+declare -A CmMapMinimumDataEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
     [convert_timestamp]=false [timefield]="eventGeneratedAt")
-declare -A CmMapBroadcastRateEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
+declare -A CMBsmEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
     [convert_timestamp]=false [timefield]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt")
@@ -66,7 +66,7 @@ declare -A CmLaneDirectionOfTravelNotification=([name]="topic.CmLaneDirectionOfT
     [convert_timestamp]=false [timefield]="notificationGeneratedAt")
 declare -A CmConnectionOfTravelNotification=([name]="topic.CmConnectionOfTravelNotification" [collection]="CmConnectionOfTravelNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt")
-declare -A CmAppHealthNotifications=([name]="topic.CmAppHealthNotification" [collection]="CmAppHealthNotifications"
+declare -A CmAppHealthNotifications=([name]="topic.CmAppHealthNotifications" [collection]="CmAppHealthNotifications"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt")
 declare -A CmSignalStateConflictNotification=([name]="topic.CmSignalStateConflictNotification" [collection]="CmSignalStateConflictNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt")
