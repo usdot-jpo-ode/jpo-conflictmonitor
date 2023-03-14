@@ -83,6 +83,8 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmSignalGroupAlignmentNotifications
       cleanupPolicy: compact
+    - name: topic.CmIntersectionReferenceAlignmentNotifications
+      cleanupPolicy: compact
     - name: topic.CmLaneDirectionOfTravelAssessment
       cleanupPolicy: delete
       retentionMs: 300000
@@ -92,6 +94,8 @@ kafka.topics:
       cleanupPolicy: delete
       retentionMs: 3000
     - name: topic.CmIntersectionConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmNotification
       cleanupPolicy: compact
 
 # Mongo properties
@@ -212,6 +216,17 @@ repartition:
   debug: false
   bsmInputTopicName: topic.OdeBsmJson
   bsmRepartitionOutputTopicName: topic.BsmJsonRepartition
+
+notification:
+  algorithm: defaultNotificationAlgorithm
+  debug: false
+  notificationOutputTopicName: topic.CmNotifications
+  connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
+  laneDirectionOfTravelNotificationTopicName: topic.CmLaneDirectionOfTravelNotification
+  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotifications
+  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotifications
+  signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
+  spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
 
 # Signal State Event Assessment
 signal.state.event.assessment:
