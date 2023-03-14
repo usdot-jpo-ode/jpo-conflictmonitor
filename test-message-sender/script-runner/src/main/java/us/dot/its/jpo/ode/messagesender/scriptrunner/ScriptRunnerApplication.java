@@ -49,7 +49,7 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		"  Options: \n" +
 		"    --hexfile=<filename> : (Required in hex log mode) Input hex log file\n" +
 		"                           formatted as line-delimited JSON like\n" + 
-		"                           { \"timeStamp\": <epoch milliseconds>, \"dir\": <\"S\" or \"R\">, \"hexMessage\": \00142846F...\" }\n\n" +
+		"                           { \"timeStamp\": <epoch milliseconds>, \"dir\": <\"S\" or \"R\">, \"hexMessage\": \"00142846F...\" }\n\n" +
 		"    --outfile=<filename> : (Optional) Output file to save JSON received from the ODE as a script,\n" +
 		"                           optionally substituting placeholders for timestamps\n\n" +
 		"    --placeholders       : (Optional) If present substitute placeholders in the output script:\n\n" +
@@ -60,8 +60,9 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		"    --mapfile=<filename> : (Optional) Output file to save MAPs as line-delimited JSON\n\n" +
 		"    --spatfile=<filename>: (Optional) Output file to save SPATs as line-delimited JSON\n\n" +
 		"    --bsmfile=<filename> : (Optional) Output file to save BSMs as line-delimited JSON\n\n" +
-		"    --ip=<docker host ip>: (Optional) IP address of docker host to send UDP packets to\n\n" +
-		"                           Uses DOCKER_HOST_IP env variable if not specified.\n\n";
+		"    --ip=<docker host ip>: (Optional) IP address of docker host to send UDP packets to\n" +
+		"                           Uses DOCKER_HOST_IP env variable if not specified.\n\n" +
+		"    --delay=<milliseconds> : (Optional) Delay in milliseconds before starting to send messages.\n\n";
 
 		
 	@Autowired
