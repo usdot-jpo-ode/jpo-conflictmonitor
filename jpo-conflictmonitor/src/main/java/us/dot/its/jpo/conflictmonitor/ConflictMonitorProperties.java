@@ -29,6 +29,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
@@ -876,7 +877,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       } else if (SystemUtils.IS_OS_WINDOWS) {
          streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "C:/temp/ode");
       }
-      // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")
+      // streamProps.put(StreamsConfig.STATE_DIR_CONFIG, "/var/lib/")\
+
+      // Increase max.block.ms and delivery.timeout.ms for streams
+      final int FIVE_MINUTES_MS = 5 * 60 * 1000;
+      streamProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, FIVE_MINUTES_MS);
+      streamProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, FIVE_MINUTES_MS);
+
+      // Disable batching
+      streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+
       return streamProps;
    }
 
