@@ -75,15 +75,15 @@ kafka.topics:
     - name: topic.CmKafkaStateChangeEvents
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmAppHealthNotifications
+    - name: topic.CmAppHealthNotification
       cleanupPolicy: compact
     - name: topic.CmSpatTimeChangeDetailsNotification
       cleanupPolicy: compact
     - name: topic.CmSignalStateConflictNotification
       cleanupPolicy: compact
-    - name: topic.CmSignalGroupAlignmentNotifications
+    - name: topic.CmSignalGroupAlignmentNotification
       cleanupPolicy: compact
-    - name: topic.CmIntersectionReferenceAlignmentNotifications
+    - name: topic.CmIntersectionReferenceAlignmentNotification
       cleanupPolicy: compact
     - name: topic.CmLaneDirectionOfTravelAssessment
       cleanupPolicy: delete
@@ -184,8 +184,8 @@ map.spat.message.assessment:
   signalGroupAlignmentEventTopicName: topic.CmSignalGroupAlignmentEvents
   intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
-  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotifications
-  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotifications
+  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
+  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
 
 # MAP Time Change Details
@@ -220,11 +220,11 @@ repartition:
 notification:
   algorithm: defaultNotificationAlgorithm
   debug: false
-  notificationOutputTopicName: topic.CmNotifications
+  notificationOutputTopicName: topic.CmNotification
   connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
   laneDirectionOfTravelNotificationTopicName: topic.CmLaneDirectionOfTravelNotification
-  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotifications
-  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotifications
+  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
+  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
 

@@ -32,6 +32,7 @@ public abstract class Notification {
 
     @Id
     public String id;
+    public String key;
     public long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     public String notificationType;
     public String notificationText;

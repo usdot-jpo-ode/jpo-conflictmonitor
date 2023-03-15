@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
-import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,7 +11,14 @@ public class IntersectionReferenceAlignmentNotification extends Notification {
         super("IntersectionReferenceAlignmentNotification");
     }
 
-    @Getter @Setter private IntersectionReferenceAlignmentEvent event;
+    @Getter private IntersectionReferenceAlignmentEvent event;
+
+    public void setEvent(IntersectionReferenceAlignmentEvent event){
+        if(event != null){
+            this.event = event;
+            this.key = getUniqueId();
+        }
+    }
 
     @Override
     @JsonIgnore

@@ -3,8 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,7 +12,14 @@ public class SignalStateConflictNotification extends Notification {
         super("SignalStateConflictNotification");
     }
 
-    @Getter @Setter private SignalStateConflictEvent event;
+    @Getter private SignalStateConflictEvent event;
+
+    public void setEvent(SignalStateConflictEvent event){
+        if(event != null){
+            this.event = event;
+            this.key = getUniqueId();
+        }
+    }
 
     @Override
     @JsonIgnore

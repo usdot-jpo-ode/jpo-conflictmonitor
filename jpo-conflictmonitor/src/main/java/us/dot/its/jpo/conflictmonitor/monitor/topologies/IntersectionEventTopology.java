@@ -276,7 +276,6 @@ public class IntersectionEventTopology
         while(bsmRange.hasNext()){
             KeyValue<Windowed<String>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
-            //System.out.println(getBsmID(next.value));
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
             }
@@ -299,7 +298,6 @@ public class IntersectionEventTopology
 
         KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(timeFrom, timeTo);
 
-        //System.out.println("Start Millis: " + startMillis + "End Millis: " + endMillis);
 
         SpatAggregator spatAggregator = new SpatAggregator();
         while(spatRange.hasNext()){
@@ -348,7 +346,6 @@ public class IntersectionEventTopology
                 
 
                 if(value.getStartingBsm() == null || value.getEndingBsm() == null){
-                    System.out.println("Detected BSM Event is Missing Start or End BSM Exiting.");
                     return result;
                 }
 
@@ -368,11 +365,7 @@ public class IntersectionEventTopology
                     ProcessedSpat firstSpat = spats.getSpats().get(0);
                     String ip = firstSpat.getOriginIp();
                     int intersectionId = firstSpat.getIntersectionId();
-                    // RsuIntersectionKey rsuIntersectionKey = new RsuIntersectionKey(ip, intersectionId);
-                    // String mapLookupKey = rsuIntersectionKey.toString();
                     String mapLookupKey = "{\"rsuId\":\""+ip+"\",\"intersectionId\":"+intersectionId+"}";
-                    // String mapLookupKey = ip +":"+ intersectionId;
-                    System.out.println(mapLookupKey);
                     map = getMap(mapStore, mapLookupKey);
 
                     
@@ -413,10 +406,10 @@ public class IntersectionEventTopology
                 for(LaneDirectionOfTravelEvent event: events){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
-
                 return result;
             }
         );
+
 
         laneDirectionOfTravelEventStream.to(
             conflictMonitorProps.getKafkatopicCmLaneDirectionOfTravelEvent(), 
@@ -436,6 +429,7 @@ public class IntersectionEventTopology
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
                 return result;
+                
             }
         );
 

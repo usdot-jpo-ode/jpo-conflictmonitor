@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
-import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,8 +14,14 @@ public class LaneDirectionOfTravelNotification extends Notification {
     }
 
     
-    @Getter @Setter private LaneDirectionOfTravelAssessment assessment;
+    @Getter private LaneDirectionOfTravelAssessment assessment;
     
+    public void setAssessment(LaneDirectionOfTravelAssessment assessment){
+        if(assessment != null){
+            this.assessment = assessment;
+            this.key = getUniqueId();
+        }
+    }
 
 
     @Override

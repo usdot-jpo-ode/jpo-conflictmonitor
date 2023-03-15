@@ -3,8 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
-import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,7 +12,14 @@ public class ConnectionOfTravelNotification extends Notification {
         super("ConnectionOfTravelNotification");
     }
 
-    @Getter @Setter private ConnectionOfTravelAssessment assessment;
+    @Getter private ConnectionOfTravelAssessment assessment;
+
+    public void setAssessment(ConnectionOfTravelAssessment assessment){
+        if(assessment != null){
+            this.assessment = assessment;
+            this.key = getUniqueId();
+        }
+    }
 
     @Override
     @JsonIgnore

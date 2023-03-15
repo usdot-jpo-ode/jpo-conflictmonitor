@@ -8,13 +8,12 @@ import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.stereotype.Component;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -84,37 +83,6 @@ public class NotificationTopology implements NotificationStreamsAlgorithm {
     public Topology buildTopology() {
 
         StreamsBuilder builder = new StreamsBuilder();
- 
-        // KStream<String, OdeBsmData> bsmRepartitionStream = 
-        // builder.stream(
-        //     parameters.getBsmInputTopicName(), 
-        //     Consumed.with(
-        //         Serdes.String(),
-        //         JsonSerdes.OdeBsm())
-        //     );
-
-
-        // KStream<BsmIntersectionKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
-        //     J2735BsmCoreData core = ((J2735Bsm) value.getPayload().getData()).getCoreData();
-        //     String ip = ((OdeBsmMetadata)value.getMetadata()).getOriginIp();
-        //     return new BsmIntersectionKey(ip);
-        // });
-
-        // bsmRekeyedStream.to(
-        //     parameters.getBsmRepartitionOutputTopicName(), 
-        //     Produced.with(
-        //         JsonSerdes.BsmIntersectionKey(),
-        //         JsonSerdes.OdeBsm(),
-        //         new RsuIdPartitioner<BsmIntersectionKey, OdeBsmData>()
-        //     )
-        // );
-
-        // topic.CmConnectionOfTravelNotification
-        // topic.CmLaneDirectionOfTravelNotification
-        // topic.CmIntersectionReferenceAlignmentNotifications
-        // topic.CmSignalGroupAlignmentNotifications
-        // topic.CmSignalStateConflictNotification
-        // topic.CmSpatTimeChangeDetailsNotification
 
         KStream<String, Notification> cotStream = builder.stream(parameters.getConnectionOfTravelNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification()));
         KStream<String, Notification> allNotifications = cotStream
@@ -125,7 +93,10 @@ public class NotificationTopology implements NotificationStreamsAlgorithm {
             .merge(builder.stream(parameters.getSpatTimeChangeDetailsNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())));        
 
         allNotifications.to(parameters.getNotificationOutputTopicName(), Produced.with(Serdes.String(), JsonSerdes.Notification()));
-
+        if(parameters.isDebug()){
+            allNotifications.print(Printed.toSysOut());
+        }
+        
 
 
     return builder.build();

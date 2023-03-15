@@ -7,13 +7,6 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
@@ -21,16 +14,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAl
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapSpatMessageAssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.NotificationTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.SignalStateEventAssessmentTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details.SpatTimeChangeDetailsNotificationTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
-
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -39,11 +24,11 @@ import java.util.List;
 public class NotificationTopologyTest {
     String connectionOfTravelTopicName = "topic.CmConnectionOfTravelNotification";
     String laneDirectionOfTravelTopicName = "topic.CmLaneDirectionOfTravelNotification";
-    String intersectionReferenceAlignmentTopicName = "topic.CmIntersectionReferenceAlignmentNotifications";
+    String intersectionReferenceAlignmentTopicName = "topic.CmIntersectionReferenceAlignmentNotification";
     String signalGroupAlignmentTopicName = "topic.CmSignalGroupAlignmentNotifications";
     String signalStateConflictTopicName = "topic.CmSignalStateConflictNotification";
     String spatTimeChangeDetailsTopicName = "topic.CmSpatTimeChangeDetailsNotification";
-    String notificationTopicName = "topic.CmNotifications";
+    String notificationTopicName = "topic.CmNotification";
 
 
     @Test
@@ -58,17 +43,6 @@ public class NotificationTopologyTest {
         parameters.setSignalStateConflictNotificationTopicName(signalStateConflictTopicName);
         parameters.setSpatTimeChangeDetailsNotificationTopicName(spatTimeChangeDetailsTopicName);
         parameters.setNotificationOutputTopicName(notificationTopicName);
-
-
-
-        // topic.CmConnectionOfTravelNotification
-        // topic.CmLaneDirectionOfTravelNotification
-        // topic.CmIntersectionReferenceAlignmentNotifications
-        // topic.CmSignalGroupAlignmentNotifications
-        // topic.CmSignalStateConflictNotification
-        // topic.CmSpatTimeChangeDetailsNotification
-
-
         parameters.setDebug(false);
         
 
@@ -136,21 +110,13 @@ public class NotificationTopologyTest {
                 Serdes.String().deserializer(), 
                 JsonSerdes.Notification().deserializer());
             
-            
-
-
-            
-            
-
 
             List<KeyValue<String, Notification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
-            System.out.println(notificationResults);
 
             
             
             assertEquals(6, notificationResults.size());
  
-            // // System.out.println(notificationResults);
             for(KeyValue<String, Notification> notificationKeyValue: notificationResults){
                 assertEquals("12109", notificationKeyValue.key);
                 Notification notification = notificationKeyValue.value;
@@ -171,7 +137,6 @@ public class NotificationTopologyTest {
                     assertEquals((SignalStateConflictNotification) notification, sscNotification);
                 }
                 else if(type.equals("TimeChangeDetailsNotification")){
-                    System.out.println(type);
                     assertEquals((TimeChangeDetailsNotification) notification, tcdNotification);          
                 }
                 else{

@@ -16,12 +16,10 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Initializer;
-import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
@@ -30,7 +28,6 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.apache.kafka.streams.kstream.Printed;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
@@ -106,7 +103,6 @@ public class LaneDirectionOfTravelAssessmentTopology
         }
 
         logger.info("Started LaneDirectionOfTravelAssessmentTopology.");
-        System.out.println("Started Events Topology");
     }
 
     public Topology buildTopology() {
@@ -121,9 +117,6 @@ public class LaneDirectionOfTravelAssessmentTopology
                     JsonSerdes.LaneDirectionOfTravelEvent())
                     .withTimestampExtractor(new LaneDirectionOfTravelTimestampExtractor())
                 );
-
-        
-        KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
 
         Initializer<LaneDirectionOfTravelAggregator> laneDirectionOfTravelAssessmentInitializer = ()->{
             LaneDirectionOfTravelAggregator agg = new LaneDirectionOfTravelAggregator();
@@ -184,7 +177,7 @@ public class LaneDirectionOfTravelAssessmentTopology
                 return result;
             }
         );
-    
+
     
         KTable<String, LaneDirectionOfTravelNotification> laneDirectionOfTravelNotificationTable = 
             laneDirectionOfTravelNotificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelAssessmentNotification()))

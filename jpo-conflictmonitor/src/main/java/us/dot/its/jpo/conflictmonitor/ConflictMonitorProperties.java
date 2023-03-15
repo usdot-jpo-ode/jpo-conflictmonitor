@@ -45,7 +45,6 @@ import org.thymeleaf.util.StringUtils;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
@@ -57,6 +56,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
@@ -140,6 +141,12 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private RepartitionAlgorithmFactory repartitionAlgorithmFactory;
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
+
+   private NotificationAlgorithmFactory notificationAlgorithmFactory;
+   private String notificationAlgorithm;
+   private NotificationParameters notificationAlgorithmParameters;
+
+   
 
    private IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
    private String intersectionEventAlgorithm;
@@ -553,6 +560,35 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    public void setRepartitionAlgorithmParameters(RepartitionParameters repartitionAlgorithmParameters) {
       this.repartitionAlgorithmParameters = repartitionAlgorithmParameters;
    }
+
+   public NotificationAlgorithmFactory getNotificationAlgorithmFactory() {
+      return notificationAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setNotificationAlgorithmFactory(NotificationAlgorithmFactory notificationAlgorithmFactory) {
+      this.notificationAlgorithmFactory = notificationAlgorithmFactory;
+   }
+
+   public String getNotificationAlgorithm() {
+      return notificationAlgorithm;
+   }
+
+   @Value("${notification.algorithm}")
+   public void setNotificationAlgorithm(String notificationAlgorithm) {
+      this.notificationAlgorithm = notificationAlgorithm;
+   }
+
+   public NotificationParameters getNotificationAlgorithmParameters() {
+      return notificationAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setNotificationAlgorithmParameters(NotificationParameters notificationAlgorithmParameters) {
+      this.notificationAlgorithmParameters = notificationAlgorithmParameters;
+   }
+
+   
 
    public Boolean isVerboseJson() {
       return this.verboseJson;
