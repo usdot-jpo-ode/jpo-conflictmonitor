@@ -15,8 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmLaneDirectionOfTravelAssessment")
 public class LaneDirectionOfTravelAssessment extends Assessment{
     private long timestamp;
-    private int roadRegulatorID;
-    private int intersectionID;
     private List<LaneDirectionOfTravelAssessmentGroup> laneDirectionOfTravelAssessmentGroup = new ArrayList<>();
     
     public LaneDirectionOfTravelAssessment(){
@@ -33,22 +31,6 @@ public class LaneDirectionOfTravelAssessment extends Assessment{
     }
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
-    }
-
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
-    } 
-       
-    public int getIntersectionID() {
-        return intersectionID;
-    }
-
-    public void setIntersectionID(int intersectionID) {
-        this.intersectionID = intersectionID;
     }
 
     public List<LaneDirectionOfTravelAssessmentGroup> getLaneDirectionOfTravelAssessmentGroup() {

@@ -17,6 +17,8 @@ public class ConnectionOfTravelNotification extends Notification {
     public void setAssessment(ConnectionOfTravelAssessment assessment){
         if(assessment != null){
             this.assessment = assessment;
+            this.setIntersectionID(assessment.getIntersectionID());
+            this.setRoadRegulatorID(assessment.getRoadRegulatorID());
             this.key = getUniqueId();
         }
     }

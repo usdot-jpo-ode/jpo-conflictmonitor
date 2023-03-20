@@ -12,9 +12,9 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
@@ -293,8 +293,8 @@ public class IntersectionEventTopology
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
 
-        long startMillis = start.toEpochMilli();
-        long endMillis = end.toEpochMilli();
+        // long startMillis = start.toEpochMilli();
+        // long endMillis = end.toEpochMilli();
 
         KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(timeFrom, timeTo);
 
@@ -334,7 +334,9 @@ public class IntersectionEventTopology
                     JsonSerdes.BsmEvent())
                 );
 
+        bsmEventStream.print(Printed.toSysOut());
 
+ 
         // Join Spats, Maps and BSMS
         KStream<String, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
             (key, value)->{

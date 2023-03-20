@@ -37,6 +37,8 @@ public abstract class Notification {
     public String notificationType;
     public String notificationText;
     public String notificationHeading;
+    public int intersectionID;
+    public int roadRegulatorID;
 
     public Notification(String notificationType) {
         this.notificationType = notificationType;

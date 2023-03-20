@@ -19,6 +19,8 @@ public class LaneDirectionOfTravelNotification extends Notification {
     public void setAssessment(LaneDirectionOfTravelAssessment assessment){
         if(assessment != null){
             this.assessment = assessment;
+            this.setIntersectionID(assessment.getIntersectionID());
+            this.setRoadRegulatorID(assessment.getRoadRegulatorID());
             this.key = getUniqueId();
         }
     }

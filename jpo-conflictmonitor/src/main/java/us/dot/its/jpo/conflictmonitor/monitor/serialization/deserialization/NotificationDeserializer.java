@@ -17,7 +17,6 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class NotificationDeserializer implements Deserializer<Notification> {
     private static Logger logger = LoggerFactory.getLogger(Notification.class);
 
@@ -30,37 +29,42 @@ public class NotificationDeserializer implements Deserializer<Notification> {
         }
         try {
             JsonNode actualObj = mapper.readTree(data);
-
-            // // // Deserialize the metadata
-            String type = actualObj.get("notificationType").asText("");
-            if(type.equals("ConnectionOfTravelNotification")){
-                return (Notification)mapper.treeToValue(actualObj, ConnectionOfTravelNotification.class);
-            }
-            else if(type.equals("IntersectionReferenceAlignmentNotification")){
-                return (Notification)mapper.treeToValue(actualObj, IntersectionReferenceAlignmentNotification.class);
-            }
-            else if(type.equals("LaneDirectionOfTravelAssessmentNotification")){
-                return (Notification)mapper.treeToValue(actualObj, LaneDirectionOfTravelNotification.class);
-            }
-            else if(type.equals("SignalGroupAlignmentNotification")){
-                return (Notification)mapper.treeToValue(actualObj, SignalGroupAlignmentNotification.class);
-            }
-            else if(type.equals("SignalStateConflictNotification")){
-                return (Notification)mapper.treeToValue(actualObj, SignalStateConflictNotification.class);
-            }
-            else if(type.equals("TimeChangeDetailsNotification")){
-                return (Notification)mapper.treeToValue(actualObj, TimeChangeDetailsNotification.class);
-            }
-            else{
-                System.out.println("Cannot Deserialize: " + type);
-            }
-
-            return null;
+            Notification notification = deserializeNotification(actualObj);
+            System.out.println(notification);
+            return notification;
         } catch (IOException e) {
-            System.out.println("Notification Deserialization Failed");
             String errMsg = String.format("Exception deserializing for topic %s: %s", topic, e.getMessage());
             logger.error(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
+    }
+
+    public Notification deserializeNotification(JsonNode actualObj) {
+        try {
+            // // // Deserialize the metadata
+            String type = actualObj.get("notificationType").asText("");
+            if (type.equals("ConnectionOfTravelNotification")) {
+                return (Notification) mapper.treeToValue(actualObj, ConnectionOfTravelNotification.class);
+            } else if (type.equals("IntersectionReferenceAlignmentNotification")) {
+                return (Notification) mapper.treeToValue(actualObj, IntersectionReferenceAlignmentNotification.class);
+            } else if (type.equals("LaneDirectionOfTravelAssessmentNotification")) {
+                return (Notification) mapper.treeToValue(actualObj, LaneDirectionOfTravelNotification.class);
+            } else if (type.equals("SignalGroupAlignmentNotification")) {
+                return (Notification) mapper.treeToValue(actualObj, SignalGroupAlignmentNotification.class);
+            } else if (type.equals("SignalStateConflictNotification")) {
+                return (Notification) mapper.treeToValue(actualObj, SignalStateConflictNotification.class);
+            } else if (type.equals("TimeChangeDetailsNotification")) {
+                return (Notification) mapper.treeToValue(actualObj, TimeChangeDetailsNotification.class);
+            } else {
+                System.out.println("Cannot Deserialize: " + type);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Notification Deserialization Failed");
+            String errMsg = String.format("Exception deserializing=%s", e.getMessage());
+            logger.error(errMsg, e);
+            throw new RuntimeException(errMsg, e);
+        }
+        return null;
     }
 }

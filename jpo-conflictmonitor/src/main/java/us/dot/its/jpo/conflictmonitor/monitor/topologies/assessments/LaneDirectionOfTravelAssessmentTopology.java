@@ -183,7 +183,7 @@ public class LaneDirectionOfTravelAssessmentTopology
             laneDirectionOfTravelNotificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelAssessmentNotification()))
             .reduce(
                 (oldValue, newValue)->{
-                        return oldValue;
+                        return newValue;
                 },
             Materialized.<String, LaneDirectionOfTravelNotification, KeyValueStore<Bytes, byte[]>>as("LaneDirectionOfTravelAssessmentNotification")
             .withKeySerde(Serdes.String())

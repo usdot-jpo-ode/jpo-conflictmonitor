@@ -224,7 +224,7 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.IntersectionReferenceAlignmentNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
-                            return oldValue;
+                            return newValue;
                         },
                         Materialized
                                 .<String, IntersectionReferenceAlignmentNotification, KeyValueStore<Bytes, byte[]>>as(
@@ -285,7 +285,7 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalGroupAlignmentNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
-                            return oldValue;
+                            return newValue;
                         },
                         Materialized
                                 .<String, SignalGroupAlignmentNotification, KeyValueStore<Bytes, byte[]>>as(
@@ -366,9 +366,9 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                 Produced.with(Serdes.String(),
                         JsonSerdes.SignalStateConflictEvent()));
 
-        // if(parameters.isDebug()){
-            // signalStateConflictEventStream.print(Printed.toSysOut());
-        // }
+        if(parameters.isDebug()){
+            signalStateConflictEventStream.print(Printed.toSysOut());
+        }
 
         KStream<String, SignalStateConflictNotification> signalStateConflictNotificationStream = signalStateConflictEventStream
                 .flatMap(
@@ -384,15 +384,15 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                             return result;
                         });
 
-        // if(parameters.isDebug()){
-            // signalStateConflictNotificationStream.print(Printed.toSysOut());
-        // }
+        if(parameters.isDebug()){
+            signalStateConflictNotificationStream.print(Printed.toSysOut());
+        }
 
         KTable<String, SignalStateConflictNotification> signalStateConflictNotificationTable = signalStateConflictNotificationStream
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateConflictNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
-                            return oldValue;
+                            return newValue;
                         },
                         Materialized
                                 .<String, SignalStateConflictNotification, KeyValueStore<Bytes, byte[]>>as(

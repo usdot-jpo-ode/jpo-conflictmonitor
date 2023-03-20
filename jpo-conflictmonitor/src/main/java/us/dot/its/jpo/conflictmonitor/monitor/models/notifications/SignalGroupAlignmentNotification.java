@@ -16,6 +16,8 @@ public class SignalGroupAlignmentNotification extends Notification {
     public void setEvent(SignalGroupAlignmentEvent event){
         if(event != null){
             this.event = event;
+            this.setIntersectionID(event.getIntersectionID());
+            this.setRoadRegulatorID(event.getRoadRegulatorID());
             this.key = getUniqueId();
         }
     }

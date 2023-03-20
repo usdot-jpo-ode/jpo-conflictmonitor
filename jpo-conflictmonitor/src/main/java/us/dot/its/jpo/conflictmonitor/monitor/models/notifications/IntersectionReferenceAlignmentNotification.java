@@ -16,6 +16,8 @@ public class IntersectionReferenceAlignmentNotification extends Notification {
     public void setEvent(IntersectionReferenceAlignmentEvent event){
         if(event != null){
             this.event = event;
+            this.setIntersectionID(event.getIntersectionID());
+            this.setRoadRegulatorID(event.getRoadRegulatorID());
             this.key = getUniqueId();
         }
     }

@@ -31,8 +31,8 @@ public class ConnectionOfTravelAssessmentTopologyTest {
     String kafkaTopicConnectionOfTravelAssessment = "topic.CmConnectionOfTravelAssessment";
     String kafkaTopicConnectionOfTravelAssessmentNotification = "topic.CmConnectionOfTravelNotification";
     String ConnectionOfTravelEventKey = "12109";
-    String ConnectionOfTravelEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorId\":-1,\"intersectionId\":12109,\"ingressLaneId\":12,\"egressLaneId\":5,\"connectionId\":1}";
-    String ConnectionOfTravelMissingEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorId\":-1,\"intersectionId\":12109,\"ingressLaneId\":12,\"egressLaneId\":5,\"connectionId\":-1}";
+    String ConnectionOfTravelEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorID\":-1,\"intersectionID\":12109,\"ingressLaneID\":12,\"egressLaneID\":5,\"connectionID\":1}";
+    String ConnectionOfTravelMissingEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorID\":-1,\"intersectionID\":12109,\"ingressLaneID\":12,\"egressLaneID\":5,\"connectionID\":-1}";
     
     @Test
     public void testConnectionOfTravelAssessment() {
@@ -69,16 +69,17 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             assertEquals(assessmentResults.size(),1);
 
             ConnectionOfTravelAssessment output = assessmentResults.get(0).value;
-            
+            System.out.println("Connection of Travel Assessment: " + output);
             List<ConnectionOfTravelAssessmentGroup> groups = output.getConnectionOfTravelAssessment();
             
             assertEquals(groups.size(), 1);
 
             ConnectionOfTravelAssessmentGroup group = groups.get(0);
-            assertEquals(1,group.getConnectionID());
+            System.out.println("ConnectionID: " + group.getConnectionID());
+            assertEquals(1, group.getConnectionID());
             assertEquals(5, group.getEgressLaneID());
             assertEquals(12, group.getIngressLaneID());
-            assertEquals(1,group.getEventCount());
+            assertEquals(1, group.getEventCount());
         }
     }
 

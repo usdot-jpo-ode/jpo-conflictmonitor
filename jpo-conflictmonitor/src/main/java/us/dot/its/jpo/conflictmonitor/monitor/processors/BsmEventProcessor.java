@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
+import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
 public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
 
@@ -36,6 +38,12 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
 
     @Override
     public void process(String key, OdeBsmData value) {
+        if(!validateBSM(value)){
+            System.out.println("BSM Is not Valid");
+            return;
+        }
+
+
         // Key the BSM's based upon vehicle ID.
         key = key + "_" + ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
         
@@ -75,5 +83,48 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
                 }
             }
         }
+    }
+
+    private boolean validateBSM(OdeBsmData bsm){
+        J2735BsmCoreData core = ((J2735Bsm)bsm.getPayload().getData()).getCoreData();
+        OdeBsmMetadata metadata = (OdeBsmMetadata)bsm.getMetadata();
+
+        if(core.getPosition().getLongitude() == null){
+            return false;
+        }
+
+        if(core.getPosition().getLatitude() == null){
+            return false;
+        }
+
+        if(core.getId() == null){
+            return false;
+        }
+
+        if(core.getSecMark() == null){
+            return false;
+        }
+
+        if(core.getSpeed() == null){
+            return false;
+        }
+
+        if(core.getHeading() == null){
+            return false;
+        }
+
+        if(metadata.getBsmSource().name() == null){
+            return false;
+        }
+
+        if(metadata.getOriginIp() == null){
+            return false;
+        }
+
+        if(metadata.getRecordGeneratedAt() == null){
+            return false;
+        }
+
+        return true;
     }
 }

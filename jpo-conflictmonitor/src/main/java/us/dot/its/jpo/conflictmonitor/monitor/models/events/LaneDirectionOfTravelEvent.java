@@ -10,8 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmLaneDirectionOfTravelEvent")
 public class LaneDirectionOfTravelEvent extends Event{
     private long timestamp;
-    private int roadRegulatorID;
-    private int intersectionID;
     private int laneID;
     private int laneSegmentNumber;
     private double laneSegmentInitialLatitude;
@@ -33,22 +31,6 @@ public class LaneDirectionOfTravelEvent extends Event{
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
-    }
-
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
-    }
-
-    public int getIntersectionID() {
-        return intersectionID;
-    }
-
-    public void setIntersectionID(int intersectionID) {
-        this.intersectionID = intersectionID;
     }
 
     public int getLaneID() {
@@ -133,7 +115,7 @@ public class LaneDirectionOfTravelEvent extends Event{
 
     @JsonIgnore
     public String getKey(){
-        return this.intersectionID + "";
+        return this.getIntersectionID() + "";
     }
 
     @Override
@@ -145,18 +127,18 @@ public class LaneDirectionOfTravelEvent extends Event{
         }
         LaneDirectionOfTravelEvent laneDirectionOfTravelEvent = (LaneDirectionOfTravelEvent) o;
         return 
-            timestamp == laneDirectionOfTravelEvent.timestamp &&
-            roadRegulatorID == laneDirectionOfTravelEvent.roadRegulatorID &&
-            intersectionID == laneDirectionOfTravelEvent.intersectionID &&
-            laneID == laneDirectionOfTravelEvent.laneID &&
-            laneSegmentNumber == laneDirectionOfTravelEvent.laneSegmentNumber &&
-            laneSegmentInitialLatitude == laneDirectionOfTravelEvent.laneSegmentInitialLatitude &&
-            laneSegmentInitialLongitude == laneDirectionOfTravelEvent.laneSegmentInitialLongitude &&
-            laneSegmentFinalLongitude == laneDirectionOfTravelEvent.laneSegmentFinalLongitude &&
-            expectedHeading == laneDirectionOfTravelEvent.expectedHeading &&
-            medianVehicleHeading == laneDirectionOfTravelEvent.medianVehicleHeading &&
-            medianDistanceFromCenterline == laneDirectionOfTravelEvent.medianDistanceFromCenterline &&
-            aggregateBSMCount == laneDirectionOfTravelEvent.aggregateBSMCount;
+            this.getTimestamp() == laneDirectionOfTravelEvent.getTimestamp() &&
+            this.getRoadRegulatorID() == laneDirectionOfTravelEvent.getRoadRegulatorID() &&
+            this.getIntersectionID() == laneDirectionOfTravelEvent.getIntersectionID() &&
+            this.getLaneID() == laneDirectionOfTravelEvent.getLaneID() &&
+            this.getLaneSegmentNumber() == laneDirectionOfTravelEvent.getLaneSegmentNumber() &&
+            this.getLaneSegmentInitialLatitude() == laneDirectionOfTravelEvent.getLaneSegmentInitialLatitude() &&
+            this.getLaneSegmentInitialLongitude() == laneDirectionOfTravelEvent.getLaneSegmentInitialLongitude() &&
+            this.getLaneSegmentFinalLongitude() == laneDirectionOfTravelEvent.getLaneSegmentFinalLongitude() &&
+            this.getExpectedHeading() == laneDirectionOfTravelEvent.getExpectedHeading() &&
+            this.getMedianVehicleHeading() == laneDirectionOfTravelEvent.getMedianVehicleHeading() &&
+            this.getMedianDistanceFromCenterline() == laneDirectionOfTravelEvent.getMedianDistanceFromCenterline() &&
+            this.getAggregateBSMCount() == laneDirectionOfTravelEvent.getAggregateBSMCount();
     }
 
     @Override
