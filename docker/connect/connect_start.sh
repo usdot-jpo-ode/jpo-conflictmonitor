@@ -139,42 +139,41 @@ function createSink() {
 
     curl -X PUT http://localhost:8083/connectors/MongoSink.${name}/config -H "Content-Type: application/json" -d "$connectConfig"
 }
-1678897255345
-1678897255055
-# createSink OdeRawEncodedBSMJson
-# createSink OdeBsmJson
 
-# createSink OdeMapJson
-# createSink ProcessedMap
-# createSink OdeRawEncodedMAPJson
+createSink OdeRawEncodedBSMJson
+createSink OdeBsmJson
 
-# createSink OdeRawEncodedSPATJson
-# createSink OdeSpatJson
-# createSink ProcessedSpat
+createSink OdeMapJson
+createSink ProcessedMap
+createSink OdeRawEncodedMAPJson
 
-# createSink CmSignalStopEvent
-# createSink CmSignalStateConflictEvents
-# createSink CmIntersectionReferenceAlignmentEvents
-# createSink CmSignalGroupAlignmentEvents
-# createSink CmConnectionOfTravelEvent
-# createSink CmLaneDirectionOfTravelEvent
-# createSink CmSignalStateEvent
-# createSink CmSpatTimeChangeDetailsEvent
-# createSink CmSpatMinimumDataEvents
-# createSink CmMapBroadcastRateEvents
-# createSink CmMapMinimumDataEvents
-# createSink CmLaneDirectionOfTravelAssessment
-# createSink CmConnectionOfTravelAssessment
-# createSink CmsignalStateEventAssessment
-# createSink CmSpatBroadcastRateEvents
-# createSink CMBsmEvents
+createSink OdeRawEncodedSPATJson
+createSink OdeSpatJson
+createSink ProcessedSpat
 
-# createSink CmSpatTimeChangeDetailsNotification
-# createSink CmLaneDirectionOfTravelNotification
-# createSink CmConnectionOfTravelNotification
-# createSink CmAppHealthNotifications
-# createSink CmSignalStateConflictNotification
-# createSink CmSignalGroupAlignmentNotification
+createSink CmSignalStopEvent
+createSink CmSignalStateConflictEvents
+createSink CmIntersectionReferenceAlignmentEvents
+createSink CmSignalGroupAlignmentEvents
+createSink CmConnectionOfTravelEvent
+createSink CmLaneDirectionOfTravelEvent
+createSink CmSignalStateEvent
+createSink CmSpatTimeChangeDetailsEvent
+createSink CmSpatMinimumDataEvents
+createSink CmMapBroadcastRateEvents
+createSink CmMapMinimumDataEvents
+createSink CmLaneDirectionOfTravelAssessment
+createSink CmConnectionOfTravelAssessment
+createSink CmsignalStateEventAssessment
+createSink CmSpatBroadcastRateEvents
+createSink CMBsmEvents
+
+createSink CmSpatTimeChangeDetailsNotification
+createSink CmLaneDirectionOfTravelNotification
+createSink CmConnectionOfTravelNotification
+createSink CmAppHealthNotifications
+createSink CmSignalStateConflictNotification
+createSink CmSignalGroupAlignmentNotification
 
 createSink CmNotification
 
