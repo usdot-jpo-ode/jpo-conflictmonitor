@@ -7,20 +7,12 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.LaneDirectionOfTravelAssessmentTopology;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -120,12 +112,6 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
 
-
-            TestOutputTopic<String, LaneDirectionOfTravelAssessment> outputTopic = driver.createOutputTopic(
-                kafkaTopicLaneDirectionOfTravelAssessment, 
-                Serdes.String().deserializer(), 
-                JsonSerdes.LaneDirectionOfTravelAssessment().deserializer());
-
             TestOutputTopic<String, LaneDirectionOfTravelNotification> notificationOutputTopic = driver.createOutputTopic(
                 laneDirectionOfTravelAssessmentNotificationOutputTopicName, 
                 Serdes.String().deserializer(), 
@@ -189,12 +175,6 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
                 kafkaTopicLaneDirectionOfTravelEvent, 
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
-
-
-            TestOutputTopic<String, LaneDirectionOfTravelAssessment> outputTopic = driver.createOutputTopic(
-                kafkaTopicLaneDirectionOfTravelAssessment, 
-                Serdes.String().deserializer(), 
-                JsonSerdes.LaneDirectionOfTravelAssessment().deserializer());
 
             TestOutputTopic<String, LaneDirectionOfTravelNotification> notificationOutputTopic = driver.createOutputTopic(
                 laneDirectionOfTravelAssessmentNotificationOutputTopicName, 

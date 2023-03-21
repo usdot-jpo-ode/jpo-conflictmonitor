@@ -27,8 +27,8 @@ public class SignalGroupAlignmentNotification extends Notification {
     public String getUniqueId() {
         return String.format("%s_%s_%s", 
             this.getNotificationType(), 
-            event.getSourceID(),
-            event.getEventType()
+            event.getRoadRegulatorID(),
+            event.getIntersectionID()
             );
     }
 }

@@ -28,9 +28,10 @@ public class TimeChangeDetailsNotification extends Notification {
     @Override
     @JsonIgnore
     public String getUniqueId() {
-        return String.format("%s_%s_%s", 
+        return String.format("%s_%s_%s_%s", 
             this.getNotificationType(),
             event.getRoadRegulatorID(),
+            event.getIntersectionID(),
             event.getSignalGroup()          
         );
     }

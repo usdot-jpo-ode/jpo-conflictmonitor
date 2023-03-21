@@ -26,13 +26,12 @@ public class SignalStateConflictNotification extends Notification {
     @Override
     @JsonIgnore
     public String getUniqueId() {
-        return String.format("%s_%s_%s_%s_%s_%s", 
+        return String.format("%s_%s_%s_%s_%s", 
             this.getNotificationType(),
             event.getFirstConflictingSignalGroup(),
             event.getSecondConflictingSignalGroup(),
             event.getIntersectionID(),
-            event.getRoadRegulatorID(),
-            event.getEventType()
+            event.getRoadRegulatorID()
         );
     }
 }

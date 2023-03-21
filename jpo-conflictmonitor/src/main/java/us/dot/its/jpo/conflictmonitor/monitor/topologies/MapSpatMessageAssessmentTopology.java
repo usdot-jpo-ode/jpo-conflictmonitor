@@ -7,7 +7,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
@@ -245,6 +244,14 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
 
                     event.setSourceID(key);
                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(value.getSpat()));
+                    
+                    if(value.getSpat().getIntersectionId()!= null){
+                        event.setIntersectionID(value.getSpat().getIntersectionId());
+                    }
+
+                    if(value.getSpat().getRegion() != null){
+                        event.setRoadRegulatorID(value.getSpat().getRegion());
+                    }
 
                     Set<Integer> mapSignalGroups = new HashSet<>();
                     Set<Integer> spatSignalGroups = new HashSet<>();

@@ -26,9 +26,10 @@ public class ConnectionOfTravelNotification extends Notification {
     @Override
     @JsonIgnore
     public String getUniqueId() {
-        return String.format("%s_%s", 
-            this.getNotificationType(), 
-            assessment.getAssessmentType()
+        return String.format("%s_%s_%s", 
+            this.getNotificationType(),
+            this.getIntersectionID(),
+            this.getRoadRegulatorID()
         );
     }
 }
