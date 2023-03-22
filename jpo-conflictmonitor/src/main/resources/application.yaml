@@ -11,6 +11,30 @@ spring.kafka.bootstrap-servers: localhost:9092
 kafkaStateChangeEventTopic: topic.CmKafkaStateChangeEvents
 appHealthNotificationTopic: topic.CmAppHealthNotifications
 
+# BSM
+kafkaTopicOdeBsmJson: topic.OdeBsmJson
+kafkaTopicCmBsmEvent: topic.CMBsmEvents
+kafkaTopicBsmRepartition: topic.BsmJsonRepartition
+
+
+# SPAT
+kafkaTopicSpatGeoJson: spatgeojson-geojson-joined-repartition # topic.SpatGeoJson
+kafkaTopicProcessedSpat: topic.ProcessedSpat
+
+
+# MAP
+kafkaTopicOdeMapJson: topic.OdeMapJson
+kafkaTopicMapGeoJson: topic.MapGeoJson
+kafkaTopicProcessedMap: topic.ProcessedMap
+
+
+#Vehicle Events
+kafkaTopicCmLaneDirectionOfTravelEvent: topic.CmLaneDirectionOfTravelEvent
+kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
+kafkaTopicCmSignalStateEvent: topic.CmSignalStateEvent
+kafakTopicCmVehicleStopEvent: topic.CmSignalStopEvent 
+
+
 # Custom kafka properties
 kafka.topics:
   autoCreateTopics: true  # Override auto-create in test properties
