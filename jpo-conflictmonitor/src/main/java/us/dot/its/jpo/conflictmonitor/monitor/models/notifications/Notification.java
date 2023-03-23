@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,6 +48,7 @@ public abstract class Notification {
      * for purposes of suppressing duplicates within the Conflict Monitor.  
      * It should not depend on the absolute values of any timestamp fields.
      */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public abstract String getUniqueId();
 
     @Override
