@@ -288,6 +288,13 @@ intersection.reference.alignment.notification:
   algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
   properties: debug
 
+# BSM Events
+bsm.event:
+  algorithm: defaultBsmEventAlgorithm
+  inputTopic: topic.OdeBsmJson
+  outputTopic: topic.CMBsmEvents
+  debug: false
+
 # Config parameters
 config:
   defaultTopicName: topic.CmDefaultConfig

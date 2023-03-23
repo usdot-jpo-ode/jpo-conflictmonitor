@@ -68,6 +68,8 @@ public class MonitorServiceControllerTest {
     @Mock MapSpatMessageAssessmentAlgorithm mapSpatMessageAssessmentAlgorithm;
     MapSpatMessageAssessmentParameters mapSpatMessageAssessmentParameters = new MapSpatMessageAssessmentParameters();
 
+    
+
     @Test
     public void testConstructor() {
 
