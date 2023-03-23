@@ -11,6 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
@@ -68,7 +71,9 @@ public class MonitorServiceControllerTest {
     @Mock MapSpatMessageAssessmentAlgorithm mapSpatMessageAssessmentAlgorithm;
     MapSpatMessageAssessmentParameters mapSpatMessageAssessmentParameters = new MapSpatMessageAssessmentParameters();
 
-    
+    @Mock BsmEventAlgorithmFactory bsmEventAlgorithmFactory;
+    @Mock BsmEventAlgorithm bsmEventAlgorithm;
+    BsmEventParameters bsmEventParameters = new BsmEventParameters();
 
     @Test
     public void testConstructor() {
@@ -100,6 +105,12 @@ public class MonitorServiceControllerTest {
         when(mapSpatMessageAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapSpatMessageAssessmentAlgorithm);
         when(conflictMonitorProperties.getMapSpatMessageAssessmentParameters()).thenReturn(mapSpatMessageAssessmentParameters);
 
+        when(conflictMonitorProperties.getBsmEventAlgorithmFactory()).thenReturn(bsmEventAlgorithmFactory);
+        bsmEventParameters.setAlgorithm(defaultAlgo);
+        when(bsmEventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmEventAlgorithm);
+        when(conflictMonitorProperties.getBsmEventParameters()).thenReturn(bsmEventParameters);
+        
+
         var monitorServiceController = new MonitorServiceController(
                 conflictMonitorProperties,
                 kafkaTemplate,
@@ -116,7 +127,7 @@ public class MonitorServiceControllerTest {
         verify(spatValidationAlgorithm, times(1)).start();
         verify(spatTimeChangeDetailsAlgorithm, times(1)).start();
         verify(mapSpatMessageAssessmentAlgorithm, times(1)).start();
-
+        verify(bsmEventAlgorithm, times(1)).start();
     }
     
 }
