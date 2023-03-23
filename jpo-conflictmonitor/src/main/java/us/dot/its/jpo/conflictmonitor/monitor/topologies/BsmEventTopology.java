@@ -42,7 +42,7 @@ public class BsmEventTopology implements BsmEventStreamsAlgorithm {
         bsmEventBuilder.addSink(BSM_SINK, parameters.getOutputTopic(), Serdes.String().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
 
         StoreBuilder<TimestampedKeyValueStore<String, BsmEvent>> storeBuilder = Stores.timestampedKeyValueStoreBuilder(
-            Stores.persistentTimestampedKeyValueStore("bsm-event-state-store"),
+            Stores.persistentTimestampedKeyValueStore(parameters.getStateStoreName()),
             Serdes.String(),
             JsonSerdes.BsmEvent()
         );

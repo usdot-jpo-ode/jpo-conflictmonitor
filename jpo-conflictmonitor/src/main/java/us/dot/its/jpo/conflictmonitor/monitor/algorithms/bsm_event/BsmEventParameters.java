@@ -35,4 +35,10 @@ public class BsmEventParameters {
         description = "The name of the Timestamped KeyValue Store for BSMs",
         updateType = READ_ONLY)
     String stateStoreName;
+
+    @ConfigData(key = "bsm.event.algorithm", 
+        description = "The algorithm to use for BSM event detection",
+        updateType = READ_ONLY)
+    String algorithm;
+    
 }

@@ -20,6 +20,9 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -222,13 +225,20 @@ public class MonitorServiceController {
 
             //BSM Topology sends a message every time a vehicle drives through the intersection. 
             final String bsmEvent = "bsmEvent";
-            final Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-            final KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties(bsmEvent));
-            streams.setStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
-            streams.setUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, healthTopic));
-            Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-            streams.start(); 
-            streamsMap.put(bsmEvent, streams);
+            final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
+            final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
+            final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
+            final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
+            if (bsmEventAlgorithm instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)bsmEventAlgorithm;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmEvent));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, healthTopic));
+                algoMap.put(bsmEvent, streamsAlgo);
+            }
+            bsmEventAlgorithm.setParameters(bsmEventParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(bsmEventAlgorithm::stop));
+            bsmEventAlgorithm.start();
 
 
             // // the message ingest topology tracks and stores incoming messages for further processing

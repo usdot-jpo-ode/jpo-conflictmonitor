@@ -40,6 +40,8 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
@@ -144,7 +146,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private String appHealthNotificationTopic;
 
-   
+   private BsmEventAlgorithmFactory bsmEventAlgorithmFactory;
+   private String bsmEventAlgorithm;
+   private BsmEventParameters bsmEventParameters;
 
 
    @Autowired
@@ -442,6 +446,16 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    public void setRepartitionAlgorithmParameters(RepartitionParameters repartitionAlgorithmParameters) {
       this.repartitionAlgorithmParameters = repartitionAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setBsmEventAlgorithmFactory(BsmEventAlgorithmFactory bsmEventAlgorithmFactory) {
+      this.bsmEventAlgorithmFactory = bsmEventAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setBsmEventParameters(BsmEventParameters bsmEventParameters) {
+      this.bsmEventParameters = bsmEventParameters;
    }
 
 

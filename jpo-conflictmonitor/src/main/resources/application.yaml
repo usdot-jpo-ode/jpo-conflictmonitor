@@ -293,6 +293,7 @@ bsm.event:
   algorithm: defaultBsmEventAlgorithm
   inputTopic: topic.OdeBsmJson
   outputTopic: topic.CMBsmEvents
+  stateStoreName: bsm-event-state-store
   debug: false
 
 # Config parameters
