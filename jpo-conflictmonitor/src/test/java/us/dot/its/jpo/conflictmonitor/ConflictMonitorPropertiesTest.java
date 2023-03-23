@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor;
+package us.dot.its.jpo.conflictmonitor;
 
 import org.apache.kafka.streams.StreamsConfig;
 import org.junit.Test;
