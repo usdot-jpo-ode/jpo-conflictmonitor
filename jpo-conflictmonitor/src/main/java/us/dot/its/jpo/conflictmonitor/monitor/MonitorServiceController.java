@@ -42,6 +42,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
@@ -101,9 +105,9 @@ public class MonitorServiceController {
         final ConfigInitializer configWriter,
         final ConnectSourceCreator connectSourceCreator) {
        
-        String bsmStoreName = "BsmWindowStore";
-        String spatStoreName = "SpatWindowStore";
-        String mapStoreName = "ProcessedMapWindowStore";
+        // String bsmStoreName = "BsmWindowStore";
+        // String spatStoreName = "SpatWindowStore";
+        // String mapStoreName = "ProcessedMapWindowStore";
 
         final String stateChangeTopic = conflictMonitorProps.getKafkaStateChangeEventTopic();
         final String healthTopic = conflictMonitorProps.getAppHealthNotificationTopic();
@@ -243,35 +247,27 @@ public class MonitorServiceController {
 
             // // the message ingest topology tracks and stores incoming messages for further processing
             final String messageIngest = "messageIngest";
-            final var messageIngestTopology = MessageIngestTopology.build(
-                conflictMonitorProps.getKafkaTopicOdeBsmJson(),
-                bsmStoreName,
-                conflictMonitorProps.getKafkaTopicProcessedSpat(),
-                spatStoreName,
-                conflictMonitorProps.getKafkaTopicProcessedMap(),
-                mapStoreName
-            );
+            final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
+            final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
+            final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
+            final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
+            if (messageIngestAlgorithm instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
+                algoMap.put(messageIngest, streamsAlgo);
+            }
+            messageIngestAlgorithm.setParameters(messageIngestParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
+            messageIngestAlgorithm.start();
             
-            final var messageIngestStreams = new KafkaStreams(messageIngestTopology, conflictMonitorProps.createStreamProperties(messageIngest));
-            messageIngestStreams.setStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
-            messageIngestStreams.setUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
-            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestStreams::close));
-            messageIngestStreams.start();
-            streamsMap.put(messageIngest, messageIngestStreams);
+            
 
             
             Thread.sleep(20000);
             
-            final ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore =
-                messageIngestStreams.store(StoreQueryParameters.fromNameAndType(bsmStoreName, QueryableStoreTypes.windowStore()));
 
-            final ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore =
-                messageIngestStreams.store(StoreQueryParameters.fromNameAndType(spatStoreName, QueryableStoreTypes.windowStore()));
-
-            final ReadOnlyKeyValueStore<String, ProcessedMap> mapKeyValueStore =
-                messageIngestStreams.store(StoreQueryParameters.fromNameAndType(mapStoreName, QueryableStoreTypes.keyValueStore()));
-
-            
             
             // Get Algorithms used by intersection event topology
 
@@ -317,9 +313,14 @@ public class MonitorServiceController {
             if (intersectionAlgo instanceof IntersectionEventStreamsAlgorithm) {
                 final var streamsAlgo = (IntersectionEventStreamsAlgorithm)intersectionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(intersectionEvent));
-                streamsAlgo.setBsmWindowStore(bsmWindowStore);
-                streamsAlgo.setSpatWindowStore(spatWindowStore);
-                streamsAlgo.setMapStore(mapKeyValueStore);
+                if (messageIngestAlgorithm instanceof StreamsTopology) {
+                    final var messageIngestStreams = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
+                    streamsAlgo.setBsmWindowStore(messageIngestStreams.getBsmWindowStore());
+                    streamsAlgo.setSpatWindowStore(messageIngestStreams.getSpatWindowStore());
+                    streamsAlgo.setMapStore(messageIngestStreams.getMapStore());
+                } else {
+                    logger.error("Message Ingest Algorithm is not a StreamsTopology.  Unable to set streams stores for IntersectionEventTopology.");
+                }
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, intersectionEvent, stateChangeTopic, healthTopic));
                 streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, intersectionEvent, healthTopic));
                 algoMap.put(intersectionEvent, streamsAlgo);
@@ -372,7 +373,7 @@ public class MonitorServiceController {
             // Connection Of Travel Assessment Topology
             final String connectionOfTravelAssessment = "connectionOfTravelAssessment";
             final ConnectionOfTravelAssessmentAlgorithmFactory cotaAlgoFactory = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmFactory();
-            final String connectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
+            final String connectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithm();
             final ConnectionOfTravelAssessmentAlgorithm connectionofTravelAssessmentAlgo = cotaAlgoFactory.getAlgorithm(connectionOfTravelAssessmentAlgorithm);
             final ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgoParams = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmParameters();
             if (connectionofTravelAssessmentAlgo instanceof StreamsTopology) {

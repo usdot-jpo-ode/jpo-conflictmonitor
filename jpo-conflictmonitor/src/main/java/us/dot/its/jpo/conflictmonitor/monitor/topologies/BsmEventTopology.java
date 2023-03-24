@@ -77,14 +77,19 @@ public class BsmEventTopology implements BsmEventStreamsAlgorithm {
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
         if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
-        logger.info("Started Repartition Topology");
+        logger.info("Started BsmEvent Topology");
         
     }
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stop'");
+        logger.info("Stopping BsmEvent Topology.");
+        if (streams != null) {
+            streams.close();
+            streams.cleanUp();
+            streams = null;
+        }
+        logger.info("Stopped BsmEvent Topology.");
     }
 
     @Override

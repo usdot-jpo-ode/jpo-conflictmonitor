@@ -53,6 +53,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
@@ -147,9 +149,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String appHealthNotificationTopic;
 
    private BsmEventAlgorithmFactory bsmEventAlgorithmFactory;
-   private String bsmEventAlgorithm;
    private BsmEventParameters bsmEventParameters;
 
+   private MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
+   private MessageIngestParameters messageIngestParameters;
 
    @Autowired
    public void setIntersectionEventAlgorithmFactory(IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory) {
@@ -456,6 +459,16 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    public void setBsmEventParameters(BsmEventParameters bsmEventParameters) {
       this.bsmEventParameters = bsmEventParameters;
+   }
+
+   @Autowired
+   public void setMessageIngestAlgorithmFactory(MessageIngestAlgorithmFactory messageIngestAlgorithmFactory) {
+      this.messageIngestAlgorithmFactory = messageIngestAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setMessageIngestParameters(MessageIngestParameters messageIngestParameters) {
+      this.messageIngestParameters = messageIngestParameters;
    }
 
 

@@ -15,12 +15,38 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgor
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
@@ -75,6 +101,41 @@ public class MonitorServiceControllerTest {
     @Mock BsmEventAlgorithm bsmEventAlgorithm;
     BsmEventParameters bsmEventParameters = new BsmEventParameters();
 
+    @Mock MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
+    @Mock MessageIngestAlgorithm messageIngestAlgorithm;
+    MessageIngestParameters messageIngestParameters = new MessageIngestParameters();
+
+    @Mock LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
+    @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
+    LaneDirectionOfTravelParameters laneDirectionOfTravelParameters = new LaneDirectionOfTravelParameters();
+
+    @Mock ConnectionOfTravelAlgorithmFactory connectionOfTravelAlgorithmFactory;
+    @Mock ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
+    ConnectionOfTravelParameters connectionOfTravelParameters = new ConnectionOfTravelParameters();
+
+    @Mock SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
+    @Mock SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm;
+    SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters = new SignalStateVehicleCrossesParameters();
+
+    @Mock SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
+    @Mock SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
+    SignalStateVehicleStopsParameters signalStateVehicleStopsParameters = new SignalStateVehicleStopsParameters();
+
+    @Mock IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
+    @Mock IntersectionEventAlgorithm intersectionEventAlgorithm;
+    
+    @Mock SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
+    @Mock SignalStateEventAssessmentAlgorithm signalStateEventAssessmentAlgorithm;
+    SignalStateEventAssessmentParameters signalStateEventAssessmentParameters = new SignalStateEventAssessmentParameters();
+
+    @Mock LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
+    @Mock LaneDirectionOfTravelAssessmentAlgorithm laneDirectionOfTravelAssessmentAlgorithm;
+    LaneDirectionOfTravelAssessmentParameters laneDirectionOfTravelAssessmentParameters = new LaneDirectionOfTravelAssessmentParameters();
+
+    @Mock ConnectionOfTravelAssessmentAlgorithmFactory connectionOfTravelAssessmentAlgorithmFactory;
+    @Mock ConnectionOfTravelAssessmentAlgorithm connectionOfTravelAssessmentAlgorithm;
+    ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentParameters = new ConnectionOfTravelAssessmentParameters();
+    
     @Test
     public void testConstructor() {
 
@@ -109,7 +170,50 @@ public class MonitorServiceControllerTest {
         bsmEventParameters.setAlgorithm(defaultAlgo);
         when(bsmEventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmEventAlgorithm);
         when(conflictMonitorProperties.getBsmEventParameters()).thenReturn(bsmEventParameters);
+
+        when(conflictMonitorProperties.getMessageIngestAlgorithmFactory()).thenReturn(messageIngestAlgorithmFactory);
+        messageIngestParameters.setAlgorithm(defaultAlgo);
+        when(messageIngestAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(messageIngestAlgorithm);
+        when(conflictMonitorProperties.getMessageIngestParameters()).thenReturn(messageIngestParameters);
+
+        when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithmFactory()).thenReturn(laneDirectionOfTravelAlgorithmFactory);
+        when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithm()).thenReturn(defaultAlgo);
+        when(laneDirectionOfTravelAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(laneDirectionOfTravelAlgorithm);
+        when(conflictMonitorProperties.getLaneDirectionOfTravelParameters()).thenReturn(laneDirectionOfTravelParameters);
+
+        when(conflictMonitorProperties.getConnectionOfTravelAlgorithmFactory()).thenReturn(connectionOfTravelAlgorithmFactory);
+        when(conflictMonitorProperties.getConnectionOfTravelAlgorithm()).thenReturn(defaultAlgo);
+        when(connectionOfTravelAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(connectionOfTravelAlgorithm);
+        when(conflictMonitorProperties.getConnectionOfTravelParameters()).thenReturn(connectionOfTravelParameters);
+
+        when(conflictMonitorProperties.getSignalStateVehicleCrossesAlgorithmFactory()).thenReturn(signalStateVehicleCrossesAlgorithmFactory);
+        when(conflictMonitorProperties.getSignalStateVehicleCrossesAlgorithm()).thenReturn(defaultAlgo);
+        when(signalStateVehicleCrossesAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(signalStateVehicleCrossesAlgorithm);
+        when(conflictMonitorProperties.getSignalStateVehicleCrossesParameters()).thenReturn(signalStateVehicleCrossesParameters);
+
+        when(conflictMonitorProperties.getSignalStateVehicleStopsAlgorithmFactory()).thenReturn(signalStateVehicleStopsAlgorithmFactory);
+        when(conflictMonitorProperties.getSignalStateVehicleStopsAlgorithm()).thenReturn(defaultAlgo);
+        when(signalStateVehicleStopsAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(signalStateVehicleStopsAlgorithm);
+        when(conflictMonitorProperties.getSignalStateVehicleStopsParameters()).thenReturn(signalStateVehicleStopsParameters);
+
+        when(conflictMonitorProperties.getIntersectionEventAlgorithmFactory()).thenReturn(intersectionEventAlgorithmFactory);
+        when(conflictMonitorProperties.getIntersectionEventAlgorithm()).thenReturn(defaultAlgo);
+        when(intersectionEventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(intersectionEventAlgorithm);
         
+        when(conflictMonitorProperties.getSignalStateEventAssessmentAlgorithmFactory()).thenReturn(signalStateEventAssessmentAlgorithmFactory);
+        when(conflictMonitorProperties.getSignalStateEventAssessmentAlgorithm()).thenReturn(defaultAlgo);
+        when(signalStateEventAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(signalStateEventAssessmentAlgorithm);
+        when(conflictMonitorProperties.getSignalStateEventAssessmentAlgorithmParameters()).thenReturn(signalStateEventAssessmentParameters);
+
+        when(conflictMonitorProperties.getLaneDirectionOfTravelAssessmentAlgorithmFactory()).thenReturn(laneDirectionOfTravelAssessmentAlgorithmFactory);
+        when(conflictMonitorProperties.getLaneDirectionOfTravelAssessmentAlgorithm()).thenReturn(defaultAlgo);
+        when(laneDirectionOfTravelAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(laneDirectionOfTravelAssessmentAlgorithm);
+        when(conflictMonitorProperties.getLaneDirectionOfTravelAssessmentAlgorithmParameters()).thenReturn(laneDirectionOfTravelAssessmentParameters);
+
+        when(conflictMonitorProperties.getConnectionOfTravelAssessmentAlgorithmFactory()).thenReturn(connectionOfTravelAssessmentAlgorithmFactory);
+        when(conflictMonitorProperties.getConnectionOfTravelAssessmentAlgorithm()).thenReturn(defaultAlgo);
+        when(connectionOfTravelAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(connectionOfTravelAssessmentAlgorithm);
+        when(conflictMonitorProperties.getConnectionOfTravelAssessmentAlgorithmParameters()).thenReturn(connectionOfTravelAssessmentParameters);
 
         var monitorServiceController = new MonitorServiceController(
                 conflictMonitorProperties,
@@ -128,6 +232,11 @@ public class MonitorServiceControllerTest {
         verify(spatTimeChangeDetailsAlgorithm, times(1)).start();
         verify(mapSpatMessageAssessmentAlgorithm, times(1)).start();
         verify(bsmEventAlgorithm, times(1)).start();
+        verify(messageIngestAlgorithm, times(1)).start();
+        verify(intersectionEventAlgorithm, times(1)).start();
+        verify(signalStateEventAssessmentAlgorithm, times(1)).start();
+        verify(laneDirectionOfTravelAssessmentAlgorithm, times(1)).start();
+        verify(connectionOfTravelAssessmentAlgorithm, times(1)).start();
     }
     
 }

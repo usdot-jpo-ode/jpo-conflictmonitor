@@ -296,6 +296,17 @@ bsm.event:
   stateStoreName: bsm-event-state-store
   debug: false
 
+# Message Ingest
+message.ingest:
+  algorithm: defaultMessageIngestAlgorithm
+  debug: false
+  bsmTopic: topic.OdeBsmJson
+  spatTopic: topic.ProcessedSpat
+  mapTopic: topic.ProcessedMap
+  bsmStoreName: BsmWindowStore
+  spatStoreName: SpatWindowStore
+  mapStoreName: ProcessedMapWindowStore
+
 # Config parameters
 config:
   defaultTopicName: topic.CmDefaultConfig
