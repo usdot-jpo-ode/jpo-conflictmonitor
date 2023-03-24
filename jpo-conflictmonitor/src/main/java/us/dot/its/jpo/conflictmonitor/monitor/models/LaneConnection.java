@@ -31,13 +31,16 @@ public class LaneConnection {
     private GeometryFactory geometryFactory;
     private int signalGroup;
     private int interpolationPoints;
+    public final static int DEFAULT_INTERPOLATION_POINTS = 10;
 
     public LaneConnection() {
         // Parameterless constructor for unit tests
+        this.geometryFactory = JTSFactoryFinder.getGeometryFactory();
+        interpolationPoints = DEFAULT_INTERPOLATION_POINTS;
     }
 
     public LaneConnection(OdePosition3D referencePoint, J2735GenericLane ingress, J2735GenericLane egress, int signalGroup) {
-        this(referencePoint, ingress, egress, signalGroup, 10);
+        this(referencePoint, ingress, egress, signalGroup, DEFAULT_INTERPOLATION_POINTS);
     }
 
     public LaneConnection(OdePosition3D referencePoint, J2735GenericLane ingress, J2735GenericLane egress, int signalGroup, int interpolationPoints) {

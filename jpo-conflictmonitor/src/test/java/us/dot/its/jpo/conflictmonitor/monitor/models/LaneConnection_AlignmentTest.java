@@ -1,6 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -17,10 +16,10 @@ import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.LineString;
 
 /**
- * Unit test for {@link LaneConnection#alignInputLanes()}
+ * Unit tests for {@link LaneConnection#alignInputLanes()} and {@link LaneConnection#getConnectingLineString()}.
  */
 @RunWith(Parameterized.class)
-public class LaneConnectionTest_alignInputLanes {
+public class LaneConnection_AlignmentTest {
     
     @Test
     public void testAlignInputLanes() {
@@ -32,12 +31,24 @@ public class LaneConnectionTest_alignInputLanes {
         assertThat(laneConnection.getEgressPath(), equalTo(expectedAlignedEgress));
     }
 
+    @Test
+    public void testGetConnectingLineString() {
+        LaneConnection laneConnection = new LaneConnection();
+        laneConnection.setIngressPath(ingressPath);
+        laneConnection.setEgressPath(egressPath);
+        laneConnection.alignInputLanes();
+        laneConnection.getConnectingLineString();
+        assertThat(laneConnection.getConnectingPath(), notNullValue());
+        var connectingPath = laneConnection.getConnectingPath();
+        assertThat(connectingPath.getCoordinates(), arrayWithSize(LaneConnection.DEFAULT_INTERPOLATION_POINTS + 2));
+    }
+
     LineString ingressPath;
     LineString egressPath;
     LineString expectedAlignedIngress;
     LineString expectedAlignedEgress;
 
-    public LaneConnectionTest_alignInputLanes(LineString ingressPath, LineString egressPath, 
+    public LaneConnection_AlignmentTest(LineString ingressPath, LineString egressPath, 
         LineString expectedAlignedIngress, LineString expectedAlignedEgress) {
         this.ingressPath = ingressPath;
         this.egressPath = egressPath;
@@ -55,6 +66,7 @@ public class LaneConnectionTest_alignInputLanes {
         });
     }
 
+    // Get a line string with fixed x coordinate
     private static LineString getLineString(double y1, double y2) {
         var x = 2;
         var coordinates = new Coordinate[] {new CoordinateXY(x, y1), new CoordinateXY(x, y2)};
