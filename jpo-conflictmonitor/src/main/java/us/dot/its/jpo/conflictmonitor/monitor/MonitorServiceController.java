@@ -3,11 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StoreQueryParameters;
-import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
 
+import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
@@ -69,13 +65,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import lombok.Getter;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service

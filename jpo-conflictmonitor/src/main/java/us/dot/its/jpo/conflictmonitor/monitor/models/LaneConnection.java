@@ -32,6 +32,10 @@ public class LaneConnection {
     private int signalGroup;
     private int interpolationPoints;
 
+    public LaneConnection() {
+        // Parameterless constructor for unit tests
+    }
+
     public LaneConnection(OdePosition3D referencePoint, J2735GenericLane ingress, J2735GenericLane egress, int signalGroup) {
         this(referencePoint, ingress, egress, signalGroup, 10);
     }

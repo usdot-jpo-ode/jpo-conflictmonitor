@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -21,26 +22,33 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
@@ -50,11 +58,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_st
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
@@ -78,31 +89,31 @@ public class MonitorServiceControllerTest {
     @Mock ConnectSourceCreator connectSourceCreator;
 
     @Mock RepartitionAlgorithmFactory repartitionAlgorithmFactory;
-    @Mock RepartitionAlgorithm repartitionAlgorithm;
+    @Mock RepartitionStreamsAlgorithm repartitionAlgorithm;
     RepartitionParameters repartitionParameters = new RepartitionParameters();
 
     @Mock MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
-    @Mock MapValidationAlgorithm mapValidationAlgorithm;
+    @Mock MapValidationStreamsAlgorithm mapValidationAlgorithm;
     MapValidationParameters mapValidationParameters = new MapValidationParameters();
 
     @Mock SpatValidationStreamsAlgorithmFactory spatValidationStreamsAlgorithmFactory;
-    @Mock SpatValidationAlgorithm spatValidationAlgorithm;
+    @Mock SpatValidationStreamsAlgorithm spatValidationAlgorithm;
     SpatValidationParameters spatValidationParameters = new SpatValidationParameters();
 
     @Mock SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
-    @Mock SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgorithm;
+    @Mock SpatTimeChangeDetailsStreamsAlgorithm spatTimeChangeDetailsAlgorithm;
     SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters = new SpatTimeChangeDetailsParameters();
 
     @Mock MapSpatMessageAssessmentAlgorithmFactory mapSpatMessageAssessmentAlgorithmFactory;
-    @Mock MapSpatMessageAssessmentAlgorithm mapSpatMessageAssessmentAlgorithm;
+    @Mock MapSpatMessageAssessmentStreamsAlgorithm mapSpatMessageAssessmentAlgorithm;
     MapSpatMessageAssessmentParameters mapSpatMessageAssessmentParameters = new MapSpatMessageAssessmentParameters();
 
     @Mock BsmEventAlgorithmFactory bsmEventAlgorithmFactory;
-    @Mock BsmEventAlgorithm bsmEventAlgorithm;
+    @Mock BsmEventStreamsAlgorithm bsmEventAlgorithm;
     BsmEventParameters bsmEventParameters = new BsmEventParameters();
 
     @Mock MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
-    @Mock MessageIngestAlgorithm messageIngestAlgorithm;
+    @Mock MessageIngestStreamsAlgorithm messageIngestAlgorithm;
     MessageIngestParameters messageIngestParameters = new MessageIngestParameters();
 
     @Mock LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
@@ -122,18 +133,18 @@ public class MonitorServiceControllerTest {
     SignalStateVehicleStopsParameters signalStateVehicleStopsParameters = new SignalStateVehicleStopsParameters();
 
     @Mock IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
-    @Mock IntersectionEventAlgorithm intersectionEventAlgorithm;
+    @Mock IntersectionEventStreamsAlgorithm intersectionEventAlgorithm;
     
     @Mock SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
-    @Mock SignalStateEventAssessmentAlgorithm signalStateEventAssessmentAlgorithm;
+    @Mock SignalStateEventAssessmentStreamsAlgorithm signalStateEventAssessmentAlgorithm;
     SignalStateEventAssessmentParameters signalStateEventAssessmentParameters = new SignalStateEventAssessmentParameters();
 
     @Mock LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
-    @Mock LaneDirectionOfTravelAssessmentAlgorithm laneDirectionOfTravelAssessmentAlgorithm;
+    @Mock LaneDirectionOfTravelAssessmentStreamsAlgorithm laneDirectionOfTravelAssessmentAlgorithm;
     LaneDirectionOfTravelAssessmentParameters laneDirectionOfTravelAssessmentParameters = new LaneDirectionOfTravelAssessmentParameters();
 
     @Mock ConnectionOfTravelAssessmentAlgorithmFactory connectionOfTravelAssessmentAlgorithmFactory;
-    @Mock ConnectionOfTravelAssessmentAlgorithm connectionOfTravelAssessmentAlgorithm;
+    @Mock ConnectionOfTravelAssessmentStreamsAlgorithm connectionOfTravelAssessmentAlgorithm;
     ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentParameters = new ConnectionOfTravelAssessmentParameters();
     
     @Test
