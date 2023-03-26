@@ -28,7 +28,7 @@ public class BsmEventTopology implements BsmEventStreamsAlgorithm {
     private static final Logger logger = LoggerFactory.getLogger(BsmEventTopology.class);
     
     // Tracks when a new stream of BSMS arrives through the system. Once the stream of BSM's ends, emits an event containing the start and end BSM's in the chain.
-    private Topology build() {
+    public Topology build() {
         Topology bsmEventBuilder = new Topology();
 
         final String BSM_SOURCE = "BSM Event Source";
