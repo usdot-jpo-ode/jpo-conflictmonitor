@@ -2,6 +2,9 @@
 # including the user name, style ID,  and access token
 # Don't commit the mapbox token to github!
 
+spring.main.web-application-type: SERVLET
 server.port=8088
+spring.profiles.active=messageSender
 
 mapbox.tile.endpoint=https://api.mapbox.com/styles/v1/[USERNAME]/[STYLEID]/tiles/{z}/{x}/{y}?access_token=[ACCESSTOKEN]
+

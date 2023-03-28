@@ -31,9 +31,13 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
 
     @Override
     public void init(ProcessorContext context) {
-        super.init(context);
-        stateStore = (TimestampedKeyValueStore<String, BsmEvent>) context.getStateStore(fStoreName);
-        context.schedule(fPunctuationInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
+        try {
+            super.init(context);
+            stateStore = (TimestampedKeyValueStore<String, BsmEvent>) context.getStateStore(fStoreName);
+            context.schedule(fPunctuationInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
+        } catch (Exception e) {
+            logger.error("Error initializing BsmEventProcessor", e);
+        }
     }
 
     @Override
@@ -43,33 +47,36 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
             return;
         }
 
+        try {
+            // Key the BSM's based upon vehicle ID.
+            key = key + "_" + ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
+            
+            ValueAndTimestamp<BsmEvent> record = stateStore.get(key);
+            
+            if (record != null) {
+                BsmEvent event = record.value();
+                long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
 
-        // Key the BSM's based upon vehicle ID.
-        key = key + "_" + ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
-        
-        ValueAndTimestamp<BsmEvent> record = stateStore.get(key);
-        
-        if (record != null) {
-            BsmEvent event = record.value();
-            long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
-
-            // If the new record is older than the last start bsm. Use the last start bsm instead.
-            if(newRecTime < BsmTimestampExtractor.getBsmTimestamp(event.getStartingBsm())){
-                // If there is no ending BSM make the previous start bsm the end bsm 
-                if(event.getEndingBsm() == null){
-                    event.setEndingBsm(event.getStartingBsm());
+                // If the new record is older than the last start bsm. Use the last start bsm instead.
+                if(newRecTime < BsmTimestampExtractor.getBsmTimestamp(event.getStartingBsm())){
+                    // If there is no ending BSM make the previous start bsm the end bsm 
+                    if(event.getEndingBsm() == null){
+                        event.setEndingBsm(event.getStartingBsm());
+                    }
+                    event.setStartingBsm(value);
+                }else if(event.getEndingBsm() == null || newRecTime > BsmTimestampExtractor.getBsmTimestamp(event.getEndingBsm())){
+                    // If the new record is more recent than the old record
+                    event.setEndingBsm(value);
                 }
-                event.setStartingBsm(value);
-            }else if(event.getEndingBsm() == null || newRecTime > BsmTimestampExtractor.getBsmTimestamp(event.getEndingBsm())){
-                // If the new record is more recent than the old record
-                event.setEndingBsm(value);
+                event.setEndingBsmTimestamp(context().timestamp());
+                stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
+            } else {
+                BsmEvent event = new BsmEvent(value);
+                event.setStartingBsmTimestamp(context.timestamp());
+                stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
             }
-            event.setEndingBsmTimestamp(context().timestamp());
-            stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
-        } else {
-            BsmEvent event = new BsmEvent(value);
-            event.setStartingBsmTimestamp(context.timestamp());
-            stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
+        } catch (Exception e) {
+            logger.error("Error in BsmEventProcessor.process", e);
         }
     }
 
@@ -82,6 +89,8 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
                     stateStore.delete(record.key);
                 }
             }
+        } catch (Exception e) {
+            logger.error("Error in BsmEventProcessor.punctuate", e);
         }
     }
 

@@ -4,10 +4,14 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+@EqualsAndHashCode
+@ToString
 public class SpatTimeChangeDetailState {
     private long minEndTime;
     private long maxEndTime;
@@ -17,13 +21,24 @@ public class SpatTimeChangeDetailState {
     @JsonIgnore
     public static SpatTimeChangeDetailState fromMovementState(MovementState state){
         SpatTimeChangeDetailState newState = new SpatTimeChangeDetailState();
-        newState.setSignalGroup(state.getSignalGroup());
+        if (state.getSignalGroup() != null) {
+            newState.setSignalGroup(state.getSignalGroup());
+        }
 
         List<MovementEvent> events =  state.getStateTimeSpeed();
-        if(events.size() > 0){
-            newState.setMaxEndTime(events.get(0).getTiming().getMaxEndTime().toInstant().toEpochMilli());
-            newState.setMinEndTime(events.get(0).getTiming().getMinEndTime().toInstant().toEpochMilli());
-            newState.setEventState(events.get(0).getEventState());
+
+        if(events != null && events.size() > 0){
+            var event = events.get(0);
+            if (event.getTiming() != null) {
+                var timing = event.getTiming();
+                if (timing.getMaxEndTime() != null) {
+                    newState.setMaxEndTime(timing.getMaxEndTime().toInstant().toEpochMilli());
+                }
+                if (timing.getMinEndTime() != null) {
+                    newState.setMinEndTime(timing.getMinEndTime().toInstant().toEpochMilli());
+                }
+            }
+            newState.setEventState(event.getEventState());
         }
         
         return newState;
