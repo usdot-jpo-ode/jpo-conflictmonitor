@@ -5,8 +5,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,14 +14,24 @@ public class TimeChangeDetailsNotification extends Notification {
         super("TimeChangeDetailsNotification");
     }
 
-    @Getter @Setter private TimeChangeDetailsEvent event;
+    @Getter private TimeChangeDetailsEvent event;
+
+    public void setEvent(TimeChangeDetailsEvent event){
+        if(event != null){
+            this.event = event;
+            this.setIntersectionID(event.getIntersectionID());
+            this.setRoadRegulatorID(event.getRoadRegulatorID());
+            this.key = getUniqueId();
+        }
+    }
 
     @Override
     @JsonIgnore
     public String getUniqueId() {
-        return String.format("%s_%s_%s", 
+        return String.format("%s_%s_%s_%s", 
             this.getNotificationType(),
             event.getRoadRegulatorID(),
+            event.getIntersectionID(),
             event.getSignalGroup()          
         );
     }

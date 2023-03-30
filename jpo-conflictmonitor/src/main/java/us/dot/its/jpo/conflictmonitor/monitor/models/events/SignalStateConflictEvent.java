@@ -10,8 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmSignalStateConflictEvent")
 public class SignalStateConflictEvent extends Event{
     private long timestamp;
-    private int roadRegulatorID;
-    private int intersectionID;
     private J2735MovementPhaseState conflictType;
     private int firstConflictingSignalGroup;
     private J2735MovementPhaseState firstConflictingSignalState;
@@ -28,22 +26,6 @@ public class SignalStateConflictEvent extends Event{
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
-    }
-
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
-    }
-
-    public int getIntersectionID() {
-        return intersectionID;
-    }
-
-    public void setIntersectionID(int intersectionID) {
-        this.intersectionID = intersectionID;
     }
 
     public J2735MovementPhaseState getConflictType() {
@@ -95,14 +77,14 @@ public class SignalStateConflictEvent extends Event{
         }
         SignalStateConflictEvent signalStateConflictEvent = (SignalStateConflictEvent) o;
         return 
-        timestamp == signalStateConflictEvent.timestamp &&
-            roadRegulatorID == signalStateConflictEvent.roadRegulatorID &&
-            intersectionID == signalStateConflictEvent.intersectionID &&
-            conflictType == signalStateConflictEvent.conflictType &&
-            firstConflictingSignalState == signalStateConflictEvent.firstConflictingSignalState &&
-            secondConflictingSignalGroup == signalStateConflictEvent.secondConflictingSignalGroup &&
-            secondConflictingSignalState == signalStateConflictEvent.secondConflictingSignalState &&
-            firstConflictingSignalGroup == signalStateConflictEvent.firstConflictingSignalGroup;
+        timestamp == signalStateConflictEvent.getTimestamp() &&
+            this.getRoadRegulatorID() == signalStateConflictEvent.getRoadRegulatorID() &&
+            this.getIntersectionID() == signalStateConflictEvent.getIntersectionID() &&
+            this.getConflictType() == signalStateConflictEvent.getConflictType() &&
+            this.getFirstConflictingSignalState() == signalStateConflictEvent.getFirstConflictingSignalState() &&
+            this.getSecondConflictingSignalGroup() == signalStateConflictEvent.getSecondConflictingSignalGroup() &&
+            this.getSecondConflictingSignalState() == signalStateConflictEvent.getSecondConflictingSignalState() &&
+            this.getFirstConflictingSignalGroup() == signalStateConflictEvent.getFirstConflictingSignalGroup();
     }
 
     @Override

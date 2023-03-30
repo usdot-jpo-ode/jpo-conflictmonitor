@@ -38,6 +38,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
@@ -132,6 +135,23 @@ public class MonitorServiceController {
             repartitionAlgo.setParameters(repartitionParams);
             Runtime.getRuntime().addShutdownHook(new Thread(repartitionAlgo::stop));
             repartitionAlgo.start();
+
+
+            final String notification = "notification";
+            final NotificationAlgorithmFactory notificationAlgoFactory = conflictMonitorProps.getNotificationAlgorithmFactory();
+            final String notAlgo = conflictMonitorProps.getNotificationAlgorithm();
+            final NotificationAlgorithm notificationAlgo = notificationAlgoFactory.getAlgorithm(notAlgo);
+            final NotificationParameters notificationParams = conflictMonitorProps.getNotificationAlgorithmParameters();
+            if (notificationAlgo instanceof StreamsTopology) {     
+                final var streamsAlgo = (StreamsTopology)notificationAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(notification));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, notification, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, notification, healthTopic));
+                algoMap.put(notification, streamsAlgo);
+            }
+            notificationAlgo.setParameters(notificationParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(notificationAlgo::stop));
+            notificationAlgo.start();
            
 
             // Map Broadcast Rate Topology

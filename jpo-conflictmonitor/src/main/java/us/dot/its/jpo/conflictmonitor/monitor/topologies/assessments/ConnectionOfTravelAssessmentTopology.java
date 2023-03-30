@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentConstants.*;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -17,7 +16,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
@@ -27,10 +25,7 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.SlidingWindows;
-import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -119,8 +114,6 @@ public class ConnectionOfTravelAssessmentTopology
         if(parameters.isDebug()){
             connectionOfTravelEvents.print(Printed.toSysOut());
         }
-        
-        
 
         Initializer<ConnectionOfTravelAggregator> connectionOfTravelAssessmentInitializer = ()->{
             ConnectionOfTravelAggregator agg = new ConnectionOfTravelAggregator();
@@ -152,6 +145,8 @@ public class ConnectionOfTravelAssessmentTopology
             connectionOfTravelAssessmentStream.print(Printed.toSysOut());
         }
 
+        connectionOfTravelAssessmentStream.print(Printed.toSysOut());
+
         connectionOfTravelAssessmentStream.to(
             parameters.getConnectionOfTravelAssessmentOutputTopicName(), 
             Produced.with(Serdes.String(),
@@ -165,7 +160,7 @@ public class ConnectionOfTravelAssessmentTopology
                     if(assessmentGroup.getEventCount() >= parameters.getMinimumNumberOfEvents() && assessmentGroup.getConnectionID() < 0){
                         ConnectionOfTravelNotification notification = new ConnectionOfTravelNotification();
                         notification.setAssessment(value);
-                        notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane " + assessmentGroup.getIngressLaneID() + "and egress Lane " + assessmentGroup.getEgressLaneID()+".");
+                        notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane: " + assessmentGroup.getIngressLaneID() + " and egress lane: " + assessmentGroup.getEgressLaneID()+".");
                         notification.setNotificationHeading("Connection of Travel Notification");
                         result.add(new KeyValue<>(key, notification));
                     }
@@ -181,7 +176,7 @@ public class ConnectionOfTravelAssessmentTopology
             notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ConnectionOfTravelNotification()))
             .reduce(
                 (oldValue, newValue)->{
-                        return oldValue;
+                        return newValue;
                 },
             Materialized.<String, ConnectionOfTravelNotification, KeyValueStore<Bytes, byte[]>>as("ConnectionOfTravelNotification")
             .withKeySerde(Serdes.String())

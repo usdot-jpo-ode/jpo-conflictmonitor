@@ -33,6 +33,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMin
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.NotificationDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
@@ -44,6 +45,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirection
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -244,6 +246,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<TimeChangeDetailsNotification>(),
             new JsonDeserializer<>(TimeChangeDetailsNotification.class)
+        );
+    }
+
+    public static Serde<Notification> Notification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<Notification>(),
+            new NotificationDeserializer()
         );
     }
 

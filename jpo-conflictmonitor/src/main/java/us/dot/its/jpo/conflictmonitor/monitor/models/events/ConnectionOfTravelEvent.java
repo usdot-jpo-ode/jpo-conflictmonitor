@@ -3,20 +3,20 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Document("CmConnectionOfTravelEvent")
 public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
-    private int roadRegulatorId;
-    private int intersectionId;
-    private int ingressLaneId;
-    private int egressLaneId;
-    private int connectionId; // unknown value allowed
+    private int ingressLaneID;
+    private int egressLaneID;
+    private int connectionID; // unknown value allowed
 
     public ConnectionOfTravelEvent(){
         super("ConnectionOfTravel");
@@ -30,49 +30,33 @@ public class ConnectionOfTravelEvent extends Event{
         this.timestamp = timestamp;
     }
 
-    public int getRoadRegulatorId() {
-        return roadRegulatorId;
+    public int getIngressLaneID() {
+        return ingressLaneID;
     }
 
-    public void setRoadRegulatorId(int roadRegulatorId) {
-        this.roadRegulatorId = roadRegulatorId;
+    public void setIngressLaneID(int ingressLaneId) {
+        this.ingressLaneID = ingressLaneId;
     }
 
-    public int getIntersectionId() {
-        return intersectionId;
+    public int getEgressLaneID() {
+        return egressLaneID;
     }
 
-    public void setIntersectionId(int intersectionId) {
-        this.intersectionId = intersectionId;
+    public void setEgressLaneID(int egressLaneId) {
+        this.egressLaneID = egressLaneId;
     }
 
-    public int getIngressLaneId() {
-        return ingressLaneId;
+    public int getConnectionID() {
+        return connectionID;
     }
 
-    public void setIngressLaneId(int ingressLaneId) {
-        this.ingressLaneId = ingressLaneId;
-    }
-
-    public int getEgressLaneId() {
-        return egressLaneId;
-    }
-
-    public void setEgressLaneId(int egressLaneId) {
-        this.egressLaneId = egressLaneId;
-    }
-
-    public int getConnectionId() {
-        return connectionId;
-    }
-
-    public void setConnectionId(int connectionId) {
-        this.connectionId = connectionId;
+    public void setConnectionID(int connectionId) {
+        this.connectionID = connectionId;
     }
 
     @JsonIgnore
     public String getKey(){
-        return this.intersectionId + "_" + this.ingressLaneId + "_" + this.egressLaneId;
+        return this.getIntersectionID() + "_" + this.getIngressLaneID() + "_" + this.getEgressLaneID();
     }
 
     @Override
@@ -85,12 +69,12 @@ public class ConnectionOfTravelEvent extends Event{
         
         ConnectionOfTravelEvent connectionOfTravelEvent = (ConnectionOfTravelEvent) o;
         return 
-            timestamp == connectionOfTravelEvent.timestamp &&
-            roadRegulatorId == connectionOfTravelEvent.roadRegulatorId &&
-            intersectionId == connectionOfTravelEvent.intersectionId &&
-            ingressLaneId == connectionOfTravelEvent.ingressLaneId &&
-            egressLaneId == connectionOfTravelEvent.egressLaneId &&
-            connectionId == connectionOfTravelEvent.connectionId;
+            this.getTimestamp() == connectionOfTravelEvent.getTimestamp() &&
+            this.getRoadRegulatorID() == connectionOfTravelEvent.getRoadRegulatorID() &&
+            this.getIntersectionID() == connectionOfTravelEvent.getIntersectionID() &&
+            this.getIngressLaneID() == connectionOfTravelEvent.getIngressLaneID() &&
+            this.getEgressLaneID() == connectionOfTravelEvent.getEgressLaneID() &&
+            this.getConnectionID() == connectionOfTravelEvent.getConnectionID();
             
     }
 

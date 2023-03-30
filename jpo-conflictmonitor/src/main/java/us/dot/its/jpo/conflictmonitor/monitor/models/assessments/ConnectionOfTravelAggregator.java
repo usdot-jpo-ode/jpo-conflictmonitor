@@ -46,15 +46,18 @@ public class ConnectionOfTravelAggregator {
         ConnectionOfTravelAssessment assessment = new ConnectionOfTravelAssessment();
         ArrayList<ConnectionOfTravelAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<String,ConnectionOfTravelAssessmentGroup> connectionGroupLookup = new HashMap<>(); // laneId, Segment Index
-
+        int intersectionID = -1;
+        int roadRegulatorID = -1;
         for(ConnectionOfTravelEvent event : this.events){
             String eventKey = getEventKey(event);
+            intersectionID = event.getIntersectionID();
+            roadRegulatorID = event.getRoadRegulatorID();
             ConnectionOfTravelAssessmentGroup connectionGroup = connectionGroupLookup.get(eventKey);
             if(connectionGroup == null){
                 connectionGroup = new ConnectionOfTravelAssessmentGroup();
-                connectionGroup.setIngressLaneID(event.getIngressLaneId());
-                connectionGroup.setEgressLaneID(event.getEgressLaneId());
-                connectionGroup.setConnectionID(event.getConnectionId());
+                connectionGroup.setIngressLaneID(event.getIngressLaneID());
+                connectionGroup.setEgressLaneID(event.getEgressLaneID());
+                connectionGroup.setConnectionID(event.getConnectionID());
                 assessmentGroups.add(connectionGroup);
                 connectionGroupLookup.put(eventKey,connectionGroup);
             }
@@ -63,12 +66,13 @@ public class ConnectionOfTravelAggregator {
         
         assessment.setConnectionOfTravelAssessmentGroups(assessmentGroups);
         assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
-
+        assessment.setIntersectionID(intersectionID);
+        assessment.setRoadRegulatorID(roadRegulatorID);
         return assessment;
     }
 
     public String getEventKey(ConnectionOfTravelEvent event){
-        return event.getIngressLaneId() + "-" + event.getEgressLaneId();
+        return event.getIngressLaneID() + "-" + event.getEgressLaneID();
     }
 
     public ArrayList<ConnectionOfTravelEvent> getEvents() {

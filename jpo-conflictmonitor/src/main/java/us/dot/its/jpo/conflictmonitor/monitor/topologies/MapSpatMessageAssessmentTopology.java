@@ -7,7 +7,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
@@ -224,7 +223,7 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.IntersectionReferenceAlignmentNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
-                            return oldValue;
+                            return newValue;
                         },
                         Materialized
                                 .<String, IntersectionReferenceAlignmentNotification, KeyValueStore<Bytes, byte[]>>as(
@@ -245,6 +244,14 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
 
                     event.setSourceID(key);
                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(value.getSpat()));
+                    
+                    if(value.getSpat().getIntersectionId()!= null){
+                        event.setIntersectionID(value.getSpat().getIntersectionId());
+                    }
+
+                    if(value.getSpat().getRegion() != null){
+                        event.setRoadRegulatorID(value.getSpat().getRegion());
+                    }
 
                     Set<Integer> mapSignalGroups = new HashSet<>();
                     Set<Integer> spatSignalGroups = new HashSet<>();
@@ -285,7 +292,7 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalGroupAlignmentNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
-                            return oldValue;
+                            return newValue;
                         },
                         Materialized
                                 .<String, SignalGroupAlignmentNotification, KeyValueStore<Bytes, byte[]>>as(
@@ -366,9 +373,9 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                 Produced.with(Serdes.String(),
                         JsonSerdes.SignalStateConflictEvent()));
 
-        // if(parameters.isDebug()){
-            // signalStateConflictEventStream.print(Printed.toSysOut());
-        // }
+        if(parameters.isDebug()){
+            signalStateConflictEventStream.print(Printed.toSysOut());
+        }
 
         KStream<String, SignalStateConflictNotification> signalStateConflictNotificationStream = signalStateConflictEventStream
                 .flatMap(
@@ -384,15 +391,15 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
                             return result;
                         });
 
-        // if(parameters.isDebug()){
-            // signalStateConflictNotificationStream.print(Printed.toSysOut());
-        // }
+        if(parameters.isDebug()){
+            signalStateConflictNotificationStream.print(Printed.toSysOut());
+        }
 
         KTable<String, SignalStateConflictNotification> signalStateConflictNotificationTable = signalStateConflictNotificationStream
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateConflictNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
-                            return oldValue;
+                            return newValue;
                         },
                         Materialized
                                 .<String, SignalStateConflictNotification, KeyValueStore<Bytes, byte[]>>as(

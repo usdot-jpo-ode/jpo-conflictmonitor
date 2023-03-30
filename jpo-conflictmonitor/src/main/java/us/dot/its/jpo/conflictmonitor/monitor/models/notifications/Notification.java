@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.annotation.Id;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,10 +30,16 @@ public abstract class Notification {
 
     private static final Logger logger = LoggerFactory.getLogger(Notification.class);
 
+
+    @Id
+    public String id;
+    public String key;
     public long notificationGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     public String notificationType;
     public String notificationText;
     public String notificationHeading;
+    public int intersectionID;
+    public int roadRegulatorID;
 
     public Notification(String notificationType) {
         this.notificationType = notificationType;

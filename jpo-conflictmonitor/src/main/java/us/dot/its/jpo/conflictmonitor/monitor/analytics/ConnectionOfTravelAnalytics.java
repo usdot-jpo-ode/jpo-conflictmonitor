@@ -27,16 +27,19 @@ public class ConnectionOfTravelAnalytics implements ConnectionOfTravelAlgorithm{
 
         ConnectionOfTravelEvent event = new ConnectionOfTravelEvent();
         //event.setTimestamp(BsmTimestampExtractor.getBsmTimestamp(path.getIngressBsm()));
-        event.setRoadRegulatorId(path.getIntersection().getRoadRegulatorId());
-        event.setIntersectionId(path.getIntersection().getIntersectionId());
-        event.setIngressLaneId(ingressLane.getId());
-        event.setEgressLaneId(egressLane.getId());
+        event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
+        event.setIntersectionID(path.getIntersection().getIntersectionId());
+        event.setIngressLaneID(ingressLane.getId());
+        event.setEgressLaneID(egressLane.getId());
+        event.setIntersectionID(path.getIntersection().getIntersectionId());
+        event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
+
 
         LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
         if(connection != null){
-            event.setConnectionId(connection.getConnectionId());
+            event.setConnectionID(connection.getConnectionId());
         }else{
-            event.setConnectionId(-1);
+            event.setConnectionID(-1);
         }
         
         

@@ -3,8 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,18 +12,26 @@ public class SignalStateConflictNotification extends Notification {
         super("SignalStateConflictNotification");
     }
 
-    @Getter @Setter private SignalStateConflictEvent event;
+    @Getter private SignalStateConflictEvent event;
+
+    public void setEvent(SignalStateConflictEvent event){
+        if(event != null){
+            this.event = event;
+            this.setIntersectionID(event.getIntersectionID());
+            this.setRoadRegulatorID(event.getRoadRegulatorID());
+            this.key = getUniqueId();
+        }
+    }
 
     @Override
     @JsonIgnore
     public String getUniqueId() {
-        return String.format("%s_%s_%s_%s_%s_%s", 
+        return String.format("%s_%s_%s_%s_%s", 
             this.getNotificationType(),
             event.getFirstConflictingSignalGroup(),
             event.getSecondConflictingSignalGroup(),
             event.getIntersectionID(),
-            event.getRoadRegulatorID(),
-            event.getEventType()
+            event.getRoadRegulatorID()
         );
     }
 }

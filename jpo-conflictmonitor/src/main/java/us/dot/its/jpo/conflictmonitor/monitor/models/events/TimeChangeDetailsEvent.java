@@ -12,8 +12,6 @@ enum TimeMarkType {
 
 public class TimeChangeDetailsEvent extends Event{
 
-    private int roadRegulatorID;
-    private int intersectionID;
     private int signalGroup;
     private long firstSpatTimestamp;
     private long secondSpatTimestamp;
@@ -24,22 +22,6 @@ public class TimeChangeDetailsEvent extends Event{
 
     public TimeChangeDetailsEvent(){
         super("TimeChangeDetails");
-    }
-
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
-    }
-
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
-    }
-
-    public int getIntersectionID() {
-        return intersectionID;
-    }
-
-    public void setIntersectionID(int intersectionID) {
-        this.intersectionID = intersectionID;
     }
 
     public int getSignalGroup() {
@@ -107,16 +89,16 @@ public class TimeChangeDetailsEvent extends Event{
         }
         TimeChangeDetailsEvent timeChangeDetailsEvent = (TimeChangeDetailsEvent) o;
         return 
-            roadRegulatorID == timeChangeDetailsEvent.roadRegulatorID &&
-            intersectionID == timeChangeDetailsEvent.intersectionID &&
-            signalGroup == timeChangeDetailsEvent.signalGroup &&
-            firstSpatTimestamp == timeChangeDetailsEvent.firstSpatTimestamp &&
-            secondSpatTimestamp == timeChangeDetailsEvent.secondSpatTimestamp &&
-            secondSpatTimestamp == timeChangeDetailsEvent.secondSpatTimestamp &&
-            firstTimeMarkType == timeChangeDetailsEvent.firstTimeMarkType &&
-            secondTimeMarkType == timeChangeDetailsEvent.secondTimeMarkType &&
-            firstConflictingTimemark == timeChangeDetailsEvent.firstConflictingTimemark &&
-            secondConflictingTimemark == timeChangeDetailsEvent.secondConflictingTimemark;
+            this.getRoadRegulatorID() == timeChangeDetailsEvent.getRoadRegulatorID() &&
+            this.getIntersectionID() == timeChangeDetailsEvent.getIntersectionID() &&
+            this.getSignalGroup() == timeChangeDetailsEvent.getSignalGroup() &&
+            this.getFirstSpatTimestamp() == timeChangeDetailsEvent.getFirstSpatTimestamp() &&
+            this.getSecondSpatTimestamp() == timeChangeDetailsEvent.getSecondSpatTimestamp() &&
+            this.getSecondSpatTimestamp() == timeChangeDetailsEvent.getSecondSpatTimestamp() &&
+            this.getFirstTimeMarkType() == timeChangeDetailsEvent.getFirstTimeMarkType() &&
+            this.getSecondTimeMarkType() == timeChangeDetailsEvent.getSecondTimeMarkType() &&
+            this.getFirstConflictingTimemark() == timeChangeDetailsEvent.getFirstConflictingTimemark() &&
+            this.getSecondConflictingTimemark() == timeChangeDetailsEvent.getSecondConflictingTimemark();
     }
 
     @Override
