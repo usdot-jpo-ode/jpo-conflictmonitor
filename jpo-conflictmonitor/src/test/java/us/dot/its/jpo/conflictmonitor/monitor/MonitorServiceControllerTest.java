@@ -41,6 +41,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
@@ -91,6 +94,10 @@ public class MonitorServiceControllerTest {
     @Mock RepartitionAlgorithmFactory repartitionAlgorithmFactory;
     @Mock RepartitionStreamsAlgorithm repartitionAlgorithm;
     RepartitionParameters repartitionParameters = new RepartitionParameters();
+
+    @Mock NotificationAlgorithmFactory notificationAlgorithmFactory;
+    @Mock NotificationStreamsAlgorithm notificationAlgorithm;
+    NotificationParameters notificationParameters = new NotificationParameters();
 
     @Mock MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
     @Mock MapValidationStreamsAlgorithm mapValidationAlgorithm;
@@ -157,6 +164,11 @@ public class MonitorServiceControllerTest {
         when(repartitionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(repartitionAlgorithm);
         when(conflictMonitorProperties.getRepartitionAlgorithmParameters()).thenReturn(repartitionParameters);
         
+        when(conflictMonitorProperties.getNotificationAlgorithmFactory()).thenReturn(notificationAlgorithmFactory);
+        when(conflictMonitorProperties.getNotificationAlgorithm()).thenReturn(defaultAlgo);
+        when(notificationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(notificationAlgorithm);
+        when(conflictMonitorProperties.getNotificationAlgorithmParameters()).thenReturn(notificationParameters);
+
         when(conflictMonitorProperties.getMapValidationAlgorithmFactory()).thenReturn(mapValidationAlgorithmFactory);
         when(conflictMonitorProperties.getMapValidationAlgorithm()).thenReturn(defaultAlgo);
         when(mapValidationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapValidationAlgorithm);

@@ -488,8 +488,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    
 
-   public Boolean isVerboseJson() {
-      return this.verboseJson;
+   
    @Autowired
    public void setBsmEventAlgorithmFactory(BsmEventAlgorithmFactory bsmEventAlgorithmFactory) {
       this.bsmEventAlgorithmFactory = bsmEventAlgorithmFactory;
