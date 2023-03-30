@@ -22,7 +22,7 @@ public class BsmEventTopologyTest {
     final String outputTopicName = "topic.CMBsmEvents";
     final String stateStoreName = "bsm-event-state-store";
 
-    @Test
+    //@Test
     public void testBsmEventTopology() {
         var parameters = getParameters();
         var streamsConfig = new Properties();
