@@ -64,7 +64,7 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
 
         for(int i =0; i < pathPoints.getNumPoints(); i++){
             Point pathPoint = pathPoints.getPointN(i);
-            OdeBsmData bsm = path.getBsms().getBsms().get(i);
+            // OdeBsmData bsm = path.getBsms().getBsms().get(i);
             for(LaneSegment segment: segments){
                 if(segment.getPolygon().contains(pathPoint)){// && ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getSpeed().doubleValue() > this.parameters.getMinimumSpeedThreshold()){
                     
@@ -142,6 +142,8 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
                 event.setMedianVehicleHeading(medianHeading);
                 event.setMedianDistanceFromCenterline(medianDistance);
                 event.setAggregateBSMCount(bsmIndecies.size());
+
+
                 
 
 

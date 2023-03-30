@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SignalStateStopEvent extends Event{
     
     private long timestamp;
-    private int roadRegulatorID;
     private int ingressLane;
     private int egressLane;
     private int connectionID;
@@ -32,14 +31,6 @@ public class SignalStateStopEvent extends Event{
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public int getRoadRegulatorID() {
-        return roadRegulatorID;
-    }
-
-    public void setRoadRegulatorID(int roadRegulatorID) {
-        this.roadRegulatorID = roadRegulatorID;
     }
 
     public int getIngressLane() {
@@ -115,7 +106,7 @@ public class SignalStateStopEvent extends Event{
     }
 
     public String getKey(){
-        return this.roadRegulatorID + "_" + this.vehicleID;
+        return this.getRoadRegulatorID() + "_" + this.getVehicleID();
     }
 
     @Override
@@ -127,17 +118,17 @@ public class SignalStateStopEvent extends Event{
         }
         SignalStateStopEvent signalStateStopEvent = (SignalStateStopEvent) o;
         return 
-            timestamp == signalStateStopEvent.timestamp &&
-            roadRegulatorID == signalStateStopEvent.roadRegulatorID &&
-            ingressLane == signalStateStopEvent.ingressLane &&
-            egressLane == signalStateStopEvent.egressLane &&
-            connectionID == signalStateStopEvent.connectionID &&
-            eventState == signalStateStopEvent.eventState &&
-            vehicleID == signalStateStopEvent.vehicleID &&
-            latitude == signalStateStopEvent.latitude &&
-            longitude == signalStateStopEvent.longitude &&
-            heading == signalStateStopEvent.heading &&
-            speed == signalStateStopEvent.speed;
+            this.getTimestamp() == signalStateStopEvent.getTimestamp() &&
+            this.getRoadRegulatorID() == signalStateStopEvent.getRoadRegulatorID() &&
+            this.getIngressLane() == signalStateStopEvent.getIngressLane() &&
+            this.getEgressLane() == signalStateStopEvent.getEgressLane() &&
+            this.getConnectionID() == signalStateStopEvent.getConnectionID() &&
+            this.getEventState() == signalStateStopEvent.getEventState() &&
+            this.getVehicleID() == signalStateStopEvent.getVehicleID() &&
+            this.getLatitude() == signalStateStopEvent.getLatitude() &&
+            this.getLongitude() == signalStateStopEvent.getLongitude() &&
+            this.getHeading() == signalStateStopEvent.getHeading() &&
+            this.getSpeed() == signalStateStopEvent.getSpeed();
     }
 
     @Override

@@ -11,6 +11,10 @@ public abstract class Assessment{
     
     private long assessmentGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     private String assessmentType = "";
+    public int intersectionID;
+    public int roadRegulatorID;
+
+    
 
     public Assessment(){
     }
@@ -19,6 +23,21 @@ public abstract class Assessment{
         this.assessmentType = assessmentType;
     }
     
+    public int getIntersectionID() {
+        return intersectionID;
+    }
+
+    public void setIntersectionID(int intersectionID) {
+        this.intersectionID = intersectionID;
+    }
+
+    public int getRoadRegulatorID() {
+        return roadRegulatorID;
+    }
+
+    public void setRoadRegulatorID(int roadRegulatorID) {
+        this.roadRegulatorID = roadRegulatorID;
+    }
 
     public String getAssessmentType() {
         return assessmentType;

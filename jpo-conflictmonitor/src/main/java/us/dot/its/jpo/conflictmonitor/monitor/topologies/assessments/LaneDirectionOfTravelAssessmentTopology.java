@@ -16,12 +16,10 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Initializer;
-import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
@@ -30,7 +28,6 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
@@ -92,7 +89,7 @@ public class LaneDirectionOfTravelAssessmentTopology
 
         
 
-        logger.info("StartingSignalStateEventAssessmentTopology");
+        logger.info("StartingLaneDirectionOfTravelAssessmentTopology");
         Topology topology = buildTopology();
         streams = new KafkaStreams(topology, streamsProperties);
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
@@ -105,8 +102,7 @@ public class LaneDirectionOfTravelAssessmentTopology
             e.printStackTrace();
         }
 
-        logger.info("Started SignalStateEventAssessmentTopology.");
-        System.out.println("Started Events Topology");
+        logger.info("Started LaneDirectionOfTravelAssessmentTopology.");
     }
 
     public Topology buildTopology() {
@@ -121,9 +117,6 @@ public class LaneDirectionOfTravelAssessmentTopology
                     JsonSerdes.LaneDirectionOfTravelEvent())
                     .withTimestampExtractor(new LaneDirectionOfTravelTimestampExtractor())
                 );
-
-
-        KGroupedStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventsGroup = laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()));
 
         Initializer<LaneDirectionOfTravelAggregator> laneDirectionOfTravelAssessmentInitializer = ()->{
             LaneDirectionOfTravelAggregator agg = new LaneDirectionOfTravelAggregator();
@@ -158,7 +151,6 @@ public class LaneDirectionOfTravelAssessmentTopology
 
 
 
-
         // Issue a Notification if the assessment isn't passing. 
         KStream<String, LaneDirectionOfTravelNotification> laneDirectionOfTravelNotificationEventStream = laneDirectionOfTravelAssessmentStream.flatMap(
             (key, value)->{
@@ -168,31 +160,30 @@ public class LaneDirectionOfTravelAssessmentTopology
                         if(Math.abs(group.getMedianHeading() - group.getExpectedHeading()) > group.getTolerance()){
                             LaneDirectionOfTravelNotification notification = new LaneDirectionOfTravelNotification();
                             notification.setAssessment(value);
-                            notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median heading "+group.getMedianHeading()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+group.getTolerance()+" degrees of the expected heading "+group.getExpectedHeading()+" degrees.");
+                            notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median heading: "+Math.round(group.getMedianHeading())+" degrees for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+group.getTolerance()+" degrees of the expected heading "+group.getExpectedHeading()+" degrees.");
                             notification.setNotificationHeading("Lane Direction of Travel Assessment");
                             result.add(new KeyValue<>(key, notification));
                         }
                         if(Math.abs(group.getMedianCenterlineDistance()) > parameters.getDistanceFromCenterlineToleranceCm()){
                             LaneDirectionOfTravelNotification notification = new LaneDirectionOfTravelNotification();
                             notification.setAssessment(value);
-                            notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median distance from centerline "+group.getMedianCenterlineDistance()+" for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+parameters.getDistanceFromCenterlineToleranceCm()+" cm of the center of the lane.");
+                            notification.setNotificationText("Lane Direction of Travel Assessment Notification. The median distance from centerline: "+Math.round(group.getMedianCenterlineDistance())+" cm for segment "+group.getSegmentID()+" of lane "+group.getLaneID()+" is not within the allowed tolerance "+parameters.getDistanceFromCenterlineToleranceCm()+" cm of the center of the lane.");
                             notification.setNotificationHeading("Lane Direction of Travel Assessment");
                             result.add(new KeyValue<>(key, notification));
                         }
                     }
 
-                    
                 }
                 return result;
             }
         );
-    
+
     
         KTable<String, LaneDirectionOfTravelNotification> laneDirectionOfTravelNotificationTable = 
             laneDirectionOfTravelNotificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelAssessmentNotification()))
             .reduce(
                 (oldValue, newValue)->{
-                        return oldValue;
+                        return newValue;
                 },
             Materialized.<String, LaneDirectionOfTravelNotification, KeyValueStore<Bytes, byte[]>>as("LaneDirectionOfTravelAssessmentNotification")
             .withKeySerde(Serdes.String())

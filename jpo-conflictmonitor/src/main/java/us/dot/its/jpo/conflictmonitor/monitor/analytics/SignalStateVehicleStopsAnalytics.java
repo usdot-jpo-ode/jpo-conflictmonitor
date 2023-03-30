@@ -71,6 +71,8 @@ public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStops
         
 
         SignalStateStopEvent event = new SignalStateStopEvent();
+        event.setIntersectionID(path.getIntersection().getIntersectionId());
+        event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
         
         
         return event;

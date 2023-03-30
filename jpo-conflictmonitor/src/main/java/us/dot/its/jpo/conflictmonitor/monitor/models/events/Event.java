@@ -10,14 +10,19 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 @Generated
 public abstract class Event {
     
     private long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     private String eventType;
+    private int intersectionID;
+    private int roadRegulatorID;
+    
 
     public Event(String eventType){
         this.eventType = eventType;

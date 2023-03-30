@@ -7,20 +7,12 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.ConnectionOfTravelAssessmentTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.LaneDirectionOfTravelAssessmentTopology;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -31,8 +23,8 @@ public class ConnectionOfTravelAssessmentTopologyTest {
     String kafkaTopicConnectionOfTravelAssessment = "topic.CmConnectionOfTravelAssessment";
     String kafkaTopicConnectionOfTravelAssessmentNotification = "topic.CmConnectionOfTravelNotification";
     String ConnectionOfTravelEventKey = "12109";
-    String ConnectionOfTravelEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorId\":-1,\"intersectionId\":12109,\"ingressLaneId\":12,\"egressLaneId\":5,\"connectionId\":1}";
-    String ConnectionOfTravelMissingEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorId\":-1,\"intersectionId\":12109,\"ingressLaneId\":12,\"egressLaneId\":5,\"connectionId\":-1}";
+    String ConnectionOfTravelEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorID\":-1,\"intersectionID\":12109,\"ingressLaneID\":12,\"egressLaneID\":5,\"connectionID\":1}";
+    String ConnectionOfTravelMissingEvent = "{\"eventGeneratedAt\":1673914223688,\"eventType\":\"ConnectionOfTravel\",\"timestamp\":0,\"roadRegulatorID\":-1,\"intersectionID\":12109,\"ingressLaneID\":12,\"egressLaneID\":5,\"connectionID\":-1}";
     
     @Test
     public void testConnectionOfTravelAssessment() {
@@ -69,16 +61,17 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             assertEquals(assessmentResults.size(),1);
 
             ConnectionOfTravelAssessment output = assessmentResults.get(0).value;
-            
+            System.out.println("Connection of Travel Assessment: " + output);
             List<ConnectionOfTravelAssessmentGroup> groups = output.getConnectionOfTravelAssessment();
             
             assertEquals(groups.size(), 1);
 
             ConnectionOfTravelAssessmentGroup group = groups.get(0);
-            assertEquals(1,group.getConnectionID());
+            System.out.println("ConnectionID: " + group.getConnectionID());
+            assertEquals(1, group.getConnectionID());
             assertEquals(5, group.getEgressLaneID());
             assertEquals(12, group.getIngressLaneID());
-            assertEquals(1,group.getEventCount());
+            assertEquals(1, group.getEventCount());
         }
     }
 
@@ -122,7 +115,7 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             ConnectionOfTravelNotification notification = assessmentResults.get(0).value;
             assertEquals(notification.getNotificationHeading(), "Connection of Travel Notification");
             assertEquals(notification.getNotificationType(), "ConnectionOfTravelNotification");
-            assertEquals(notification.getNotificationText(), "Connection of Travel Notification, Unknown Lane connection between ingress lane 12and egress Lane 5.");
+            assertEquals(notification.getNotificationText(), "Connection of Travel Notification, Unknown Lane connection between ingress lane: 12 and egress lane: 5.");
 
             ConnectionOfTravelAssessment notificationAssessment = notification.getAssessment();
             

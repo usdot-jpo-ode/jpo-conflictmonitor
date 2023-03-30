@@ -67,6 +67,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         SignalStateEvent event = new SignalStateEvent();
         event.setTimestamp(bsmTime);
         event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
+        event.setIntersectionID(path.getIntersection().getIntersectionId());
         event.setConnectionID(connectionId);
         event.setEventState(signalState);
         event.setIngressLane(ingressLane.getId());
@@ -77,6 +78,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         event.setHeading(bsmData.getCoreData().getHeading().doubleValue());
         event.setSpeed(bsmData.getCoreData().getSpeed().doubleValue());
         event.setSignalGroup(signalGroup);
+        
         return event;
     }
 

@@ -7,20 +7,12 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel_assessment.LaneDirectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.LaneDirectionOfTravelAssessmentTopology;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -120,12 +112,6 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
 
-
-            TestOutputTopic<String, LaneDirectionOfTravelAssessment> outputTopic = driver.createOutputTopic(
-                kafkaTopicLaneDirectionOfTravelAssessment, 
-                Serdes.String().deserializer(), 
-                JsonSerdes.LaneDirectionOfTravelAssessment().deserializer());
-
             TestOutputTopic<String, LaneDirectionOfTravelNotification> notificationOutputTopic = driver.createOutputTopic(
                 laneDirectionOfTravelAssessmentNotificationOutputTopicName, 
                 Serdes.String().deserializer(), 
@@ -140,7 +126,7 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
             LaneDirectionOfTravelNotification output = notificationResults.get(0).value;
             
             assertEquals(output.getNotificationHeading(), "Lane Direction of Travel Assessment");
-            assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median heading 174.25 for segment 8 of lane 12 is not within the allowed tolerance 20.0 degrees of the expected heading 100.25 degrees.");
+            assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median heading: 174 degrees for segment 8 of lane 12 is not within the allowed tolerance 20.0 degrees of the expected heading 100.25 degrees.");
             assertEquals(output.getNotificationType(), "LaneDirectionOfTravelAssessmentNotification");
 
             LaneDirectionOfTravelAssessment outputAssessment = output.getAssessment();
@@ -190,12 +176,6 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
 
-
-            TestOutputTopic<String, LaneDirectionOfTravelAssessment> outputTopic = driver.createOutputTopic(
-                kafkaTopicLaneDirectionOfTravelAssessment, 
-                Serdes.String().deserializer(), 
-                JsonSerdes.LaneDirectionOfTravelAssessment().deserializer());
-
             TestOutputTopic<String, LaneDirectionOfTravelNotification> notificationOutputTopic = driver.createOutputTopic(
                 laneDirectionOfTravelAssessmentNotificationOutputTopicName, 
                 Serdes.String().deserializer(), 
@@ -209,8 +189,9 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
 
             LaneDirectionOfTravelNotification output = notificationResults.get(0).value;
             
+            System.out.println(output.getNotificationText());
             assertEquals(output.getNotificationHeading(), "Lane Direction of Travel Assessment");
-            assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median distance from centerline 96.50633375287359 for segment 8 of lane 12 is not within the allowed tolerance 50.0 cm of the center of the lane.");
+            assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median distance from centerline: 97 cm for segment 8 of lane 12 is not within the allowed tolerance 50.0 cm of the center of the lane.");
             assertEquals(output.getNotificationType(), "LaneDirectionOfTravelAssessmentNotification");
 
             LaneDirectionOfTravelAssessment outputAssessment = output.getAssessment();
