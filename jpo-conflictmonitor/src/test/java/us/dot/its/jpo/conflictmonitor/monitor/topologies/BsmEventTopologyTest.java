@@ -16,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.OdeGeoRegion;
 
 import java.time.Instant;
@@ -59,33 +60,41 @@ public class BsmEventTopologyTest {
 
             final Instant startTime = Instant.ofEpochMilli(1674356320000L);
             final int periodMillis = 100;
-            final int totalTimeSeconds = 30;
-            List<Instant> instants = TopologyTestUtils.getInstants(startTime, periodMillis, totalTimeSeconds);
+            final int totalTimeSeconds = 1;
+            List<Instant> instants = TopologyTestUtils.getInstantsExclusive(startTime, periodMillis, totalTimeSeconds);
+            final String id1 = "BSMID1";
             for (var currentInstant : instants) {
-                OdeBsmData bsm = bsmAtInstant(currentInstant);
-                inputTopic.pipeInput(null, bsm, currentInstant);
+                logger.info("Send BSM at {}", currentInstant);
+                OdeBsmData bsm = bsmAtInstant(currentInstant, id1);
+                inputTopic.pipeInput(id1, bsm, currentInstant);
             }
 
-            // Simulate 15 seconds of no BSMs
-            final Instant noBsmTime = startTime.plusSeconds(45);
-            OdeBsmData gapBsm = bsmAtInstant(noBsmTime);
-            inputTopic.pipeInput(null, gapBsm, noBsmTime);
+            // Simulate a long enough period of no BSMs followed by a different BSM ID to advance stream time
+            final Instant newBsm = startTime.plusSeconds(15);
+            final String id2 = "BSMID2";
+            OdeBsmData gapBsm = bsmAtInstant(newBsm, id2);
+            inputTopic.pipeInput(id2, gapBsm, newBsm);
 
-//            // Include an invalid BSM for validation coverage
-//            OdeBsmData invalidBsm = bsmAtInstant(startTime);
-//            invalidBsm.setPayload(null);
-//            inputTopic.pipeInput(null, invalidBsm, startTime);
-//
-//            // Include a BSM with an earlier timestamp than the previous BSM for validation coverage
-//            final Instant oldTime = startTime.minusSeconds(100);
-//            OdeBsmData oldBsm = bsmAtInstant(oldTime);
-//            inputTopic.pipeInput(null, oldBsm, oldTime);
+            // Include an invalid BSM for validation coverage
+            OdeBsmData invalidBsm = bsmAtInstant(startTime, id2);
+            ((J2735Bsm)invalidBsm.getPayload().getData()).getCoreData().setPosition(null);
+            inputTopic.pipeInput(id2, invalidBsm, startTime);
+
+            // Include a BSM with an earlier timestamp than the previous BSM for validation coverage
+            final Instant oldTime = startTime.minusSeconds(100);
+            OdeBsmData oldBsm = bsmAtInstant(oldTime, id2);
+            inputTopic.pipeInput(id2, oldBsm, oldTime);
 
             var output = outputTopic.readKeyValuesToList();
-            assertThat(output, hasSize(greaterThan(0)));
-            for (var outputItem : output) {
-                logger.info("Output: {}", outputItem);
-            }
+            assertThat(output, hasSize(1));
+            var outputItem = output.iterator().next();
+            logger.info("BSM Event: {}", outputItem);
+            var key = outputItem.key;
+            assertThat(key, endsWith(id1));
+            var value = outputItem.value;
+            assertThat(value.getEndingBsmTimestamp(), notNullValue());
+            assertThat(value.getStartingBsmTimestamp(), notNullValue());
+            assertThat(value.getEndingBsmTimestamp() - value.getStartingBsmTimestamp(), equalTo(1000L));
         }
     }
 

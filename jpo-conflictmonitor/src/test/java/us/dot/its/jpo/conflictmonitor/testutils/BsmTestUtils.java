@@ -24,7 +24,7 @@ public class BsmTestUtils {
         return (int)minDuration.toMillis();
     }
 
-    public static OdeBsmData bsmAtInstant(Instant instant) {
+    public static OdeBsmData bsmAtInstant(Instant instant, String id) {
         var bsm = validBsm();
         var coreData = ((J2735Bsm)bsm.getPayload().getData()).getCoreData();
         var metadata = (OdeBsmMetadata)bsm.getMetadata();
@@ -33,6 +33,7 @@ public class BsmTestUtils {
         metadata.setOdeReceivedAt(strDateTime);
         metadata.setRecordGeneratedAt(strDateTime);
         coreData.setSecMark(milliOfMinute(instant));
+        coreData.setId(id);
         return bsm;
     }
 

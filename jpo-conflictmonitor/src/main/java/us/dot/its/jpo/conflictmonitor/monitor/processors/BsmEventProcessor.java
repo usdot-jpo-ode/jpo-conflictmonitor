@@ -27,7 +27,6 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
 
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventProcessor.class);
-    
     private final String fStoreName = "bsm-event-state-store";
     private final Duration fPunctuationInterval = Duration.ofSeconds(10); // Check Every 10 Seconds
     private final long fSuppressTimeoutMillis = Duration.ofSeconds(10).toMillis(); // Emit event if no data for the last 10 seconds
@@ -57,7 +56,7 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
         long timestamp = inputRecord.timestamp();
 
         if(!validateBSM(value)){
-            System.out.println("BSM Is not Valid");
+            logger.info("BSM Is not Valid: {}", value);
             return;
         }
 
@@ -101,8 +100,9 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 KeyValue<String, ValueAndTimestamp<BsmEvent>> item = iterator.next();
                 var key = item.key;
                 var value = item.value.value();
-                var itemTimestamp = item.value.timestamp();
-                if (timestamp - itemTimestamp > fSuppressTimeoutMillis) {
+                var itemTimestamp = value.getEndingBsmTimestamp() != null ? value.getEndingBsmTimestamp() : timestamp;
+                var offset = timestamp - itemTimestamp;
+                if (offset > fSuppressTimeoutMillis) {
                     context().forward(new Record<>(key, value, timestamp));
                     stateStore.delete(key);
                 }
@@ -126,6 +126,8 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
         if (core == null) return false;
 
         OdeBsmMetadata metadata = (OdeBsmMetadata)bsm.getMetadata();
+
+        if (core.getPosition() == null) return false;
 
         if(core.getPosition().getLongitude() == null){
             return false;

@@ -98,9 +98,7 @@ public class MonitorServiceController {
         final ConfigInitializer configWriter,
         final ConnectSourceCreator connectSourceCreator) {
        
-        // String bsmStoreName = "BsmWindowStore";
-        // String spatStoreName = "SpatWindowStore";
-        // String mapStoreName = "ProcessedMapWindowStore";
+
 
         final String stateChangeTopic = conflictMonitorProps.getKafkaStateChangeEventTopic();
         final String healthTopic = conflictMonitorProps.getAppHealthNotificationTopic();
@@ -275,7 +273,7 @@ public class MonitorServiceController {
             
 
             
-            Thread.sleep(20000);
+            //Thread.sleep(20000);
             
 
             
