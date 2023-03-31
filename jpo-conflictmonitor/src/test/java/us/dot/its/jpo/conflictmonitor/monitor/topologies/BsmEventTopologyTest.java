@@ -38,7 +38,7 @@ public class BsmEventTopologyTest {
     public void testBsmEventTopology() {
         var parameters = getParameters();
         var streamsConfig = new Properties();
-        streamsConfig.getProperty(
+        streamsConfig.setProperty(
             StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, 
             BsmTimestampExtractor.class.getName());
         
