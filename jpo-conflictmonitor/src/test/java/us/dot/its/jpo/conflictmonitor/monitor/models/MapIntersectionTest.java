@@ -2,7 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models;
 
 import org.junit.Test;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.models.LaneTestUtil.*;
+import static us.dot.its.jpo.conflictmonitor.testutils.LaneTestUtil.*;
 import us.dot.its.jpo.ode.plugin.j2735.J2735IntersectionGeometry;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 

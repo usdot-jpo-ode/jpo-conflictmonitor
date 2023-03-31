@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies;
+package us.dot.its.jpo.conflictmonitor.testutils;
 
 import java.time.Duration;
 import java.time.Instant;

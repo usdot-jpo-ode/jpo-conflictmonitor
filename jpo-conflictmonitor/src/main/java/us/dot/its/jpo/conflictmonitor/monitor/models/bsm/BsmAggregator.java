@@ -6,12 +6,16 @@ import java.util.Comparator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class BsmAggregator {
-    //private final long retainBsmSeconds = 60;
 
+
+    @Getter
+    @Setter
     private ArrayList<OdeBsmData> bsms = new ArrayList<OdeBsmData>();
 
     private Comparator<OdeBsmData> bsmComparator = new Comparator<OdeBsmData>() {
@@ -48,13 +52,7 @@ public class BsmAggregator {
         return this;
     }
 
-    public ArrayList<OdeBsmData> getBsms() {
-        return bsms;
-    }
 
-    public void setBsmList(ArrayList<OdeBsmData> bsms) {
-        this.bsms = bsms;
-    }
 
     @Override
     public String toString() {

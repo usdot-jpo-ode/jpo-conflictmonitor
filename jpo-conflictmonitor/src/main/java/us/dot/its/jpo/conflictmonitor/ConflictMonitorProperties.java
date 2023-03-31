@@ -463,34 +463,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       return notificationAlgorithmFactory;
    }
 
-   @Autowired
-   public void setNotificationAlgorithmFactory(NotificationAlgorithmFactory notificationAlgorithmFactory) {
-      this.notificationAlgorithmFactory = notificationAlgorithmFactory;
-   }
-
-   public String getNotificationAlgorithm() {
-      return notificationAlgorithm;
-   }
-
-   @Value("${notification.algorithm}")
-   public void setNotificationAlgorithm(String notificationAlgorithm) {
-      this.notificationAlgorithm = notificationAlgorithm;
-   }
-
-   public NotificationParameters getNotificationAlgorithmParameters() {
-      return notificationAlgorithmParameters;
-   }
-
-   @Autowired
-   public void setNotificationAlgorithmParameters(NotificationParameters notificationAlgorithmParameters) {
-      this.notificationAlgorithmParameters = notificationAlgorithmParameters;
-   }
-
    
-
-   public Boolean isVerboseJson() {
-      return this.verboseJson;
-   }
+   
 
    @Autowired
    public void setNotificationAlgorithmFactory(NotificationAlgorithmFactory notificationAlgorithmFactory) {

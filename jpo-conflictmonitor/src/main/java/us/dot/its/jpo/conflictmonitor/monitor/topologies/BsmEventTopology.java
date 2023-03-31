@@ -1,10 +1,14 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.processor.PunctuationType;
+import org.apache.kafka.streams.processor.api.ProcessorSupplier;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
@@ -19,8 +23,10 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEve
 import java.util.Properties;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.ode.model.OdeBsmData;
 
 @Component(DEFAULT_BSM_EVENT_ALGORITHM)
 public class BsmEventTopology implements BsmEventStreamsAlgorithm {
@@ -29,6 +35,7 @@ public class BsmEventTopology implements BsmEventStreamsAlgorithm {
     
     // Tracks when a new stream of BSMS arrives through the system. Once the stream of BSM's ends, emits an event containing the start and end BSM's in the chain.
     public Topology build() {
+
         Topology bsmEventBuilder = new Topology();
 
         final String BSM_SOURCE = "BSM Event Source";
@@ -36,9 +43,27 @@ public class BsmEventTopology implements BsmEventStreamsAlgorithm {
         final String BSM_SINK = "BSM Event Sink";
 
 
-        bsmEventBuilder.addSource(BSM_SOURCE, Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
-        //bsmEventBuilder.addSource(AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(), Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), inputTopic);
-        bsmEventBuilder.addProcessor(BSM_PROCESSOR, BsmEventProcessor::new, BSM_SOURCE);
+
+
+        //bsmEventBuilder.addSource(BSM_SOURCE, Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
+        bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(),
+                Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
+
+//        bsmEventBuilder.addProcessor(BSM_PROCESSOR, () -> {
+//            var processor = new BsmEventProcessor();
+//            processor.setPunctuationType(punctuationType);
+//            return processor;
+//        }, BSM_SOURCE);
+
+
+        bsmEventBuilder.addProcessor(BSM_PROCESSOR,
+                () -> {
+                        var processor = new BsmEventProcessor();
+                        processor.setPunctuationType(punctuationType);
+                        return processor;
+                    },
+                BSM_SOURCE);
+
         bsmEventBuilder.addSink(BSM_SINK, parameters.getOutputTopic(), Serdes.String().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
 
         StoreBuilder<TimestampedKeyValueStore<String, BsmEvent>> storeBuilder = Stores.timestampedKeyValueStoreBuilder(
@@ -126,4 +151,8 @@ public class BsmEventTopology implements BsmEventStreamsAlgorithm {
     public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
+
+    @Setter
+    @Getter
+    public PunctuationType punctuationType = PunctuationType.WALL_CLOCK_TIME;
 }

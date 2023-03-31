@@ -31,10 +31,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatB
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.NotificationDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -53,13 +51,13 @@ public class JsonSerdes {
     public static Serde<OdeBsmData> OdeBsm() {
         return Serdes.serdeFrom(
             new JsonSerializer<OdeBsmData>(), 
-            new OdeBsmDataJsonDeserializer());
+            new JsonDeserializer<>(OdeBsmData.class));
     }
 
     public static Serde<BsmAggregator> BsmDataAggregator() {
         return Serdes.serdeFrom(
             new JsonSerializer<BsmAggregator>(), 
-            new BsmAggregatorDeserializer());
+            new JsonDeserializer<>(BsmAggregator.class));
     }
 
     public static Serde<BsmEvent> BsmEvent(){

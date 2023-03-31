@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.*;
 
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.models.LaneTestUtil.*;
+import static us.dot.its.jpo.conflictmonitor.testutils.LaneTestUtil.*;
 
 /**
  * Unit tests for {@link LaneConnection}

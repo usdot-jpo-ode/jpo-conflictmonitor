@@ -2,10 +2,13 @@ package us.dot.its.jpo.conflictmonitor.monitor.processors;
 
 import java.time.Duration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.processor.AbstractProcessor;
-import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.PunctuationType;
+import org.apache.kafka.streams.processor.api.ContextualProcessor;
+import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
@@ -16,10 +19,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
+import us.dot.its.jpo.ode.model.OdeBsmPayload;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
-public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
+public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, String, BsmEvent> {
 
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventProcessor.class);
@@ -29,19 +33,29 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
     private final long fSuppressTimeoutMillis = Duration.ofSeconds(10).toMillis(); // Emit event if no data for the last 10 seconds
     private TimestampedKeyValueStore<String, BsmEvent> stateStore;
 
+    @Setter
+    @Getter
+    private PunctuationType punctuationType;
+
+
+
     @Override
-    public void init(ProcessorContext context) {
+    public void init(ProcessorContext<String, BsmEvent> context) {
         try {
             super.init(context);
             stateStore = (TimestampedKeyValueStore<String, BsmEvent>) context.getStateStore(fStoreName);
-            context.schedule(fPunctuationInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
+            context.schedule(fPunctuationInterval, punctuationType, this::punctuate);
         } catch (Exception e) {
             logger.error("Error initializing BsmEventProcessor", e);
         }
     }
 
     @Override
-    public void process(String key, OdeBsmData value) {
+    public void process(Record<String, OdeBsmData> inputRecord) {
+        String key = inputRecord.key();
+        OdeBsmData value = inputRecord.value();
+        long timestamp = inputRecord.timestamp();
+
         if(!validateBSM(value)){
             System.out.println("BSM Is not Valid");
             return;
@@ -68,12 +82,13 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
                     // If the new record is more recent than the old record
                     event.setEndingBsm(value);
                 }
-                event.setEndingBsmTimestamp(context().timestamp());
-                stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
+
+                event.setEndingBsmTimestamp(timestamp);
+                stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
             } else {
                 BsmEvent event = new BsmEvent(value);
-                event.setStartingBsmTimestamp(context.timestamp());
-                stateStore.put(key, ValueAndTimestamp.make(event, context().timestamp()));
+                event.setStartingBsmTimestamp(timestamp);
+                stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
             }
         } catch (Exception e) {
             logger.error("Error in BsmEventProcessor.process", e);
@@ -83,10 +98,13 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
     private void punctuate(long timestamp) {
         try (KeyValueIterator<String, ValueAndTimestamp<BsmEvent>> iterator = stateStore.all()) {
             while (iterator.hasNext()) {
-                KeyValue<String, ValueAndTimestamp<BsmEvent>> record = iterator.next();
-                if (context().timestamp() - record.value.timestamp() > fSuppressTimeoutMillis) {
-                    context().forward(record.key, record.value.value());
-                    stateStore.delete(record.key);
+                KeyValue<String, ValueAndTimestamp<BsmEvent>> item = iterator.next();
+                var key = item.key;
+                var value = item.value.value();
+                var itemTimestamp = item.value.timestamp();
+                if (timestamp - itemTimestamp > fSuppressTimeoutMillis) {
+                    context().forward(new Record<>(key, value, timestamp));
+                    stateStore.delete(key);
                 }
             }
         } catch (Exception e) {
@@ -94,8 +112,19 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
         }
     }
 
-    private boolean validateBSM(OdeBsmData bsm){
+    public boolean validateBSM(OdeBsmData bsm){
+        if (bsm == null) return false;
+        if (bsm.getPayload() == null) return false;
+        if (!(bsm.getPayload() instanceof OdeBsmPayload)) return false;
+        if (bsm.getMetadata() == null) return false;
+        if (!(bsm.getMetadata() instanceof OdeBsmMetadata)) return false;
+        if (bsm.getPayload().getData() == null) return false;
+        if (!(bsm.getPayload().getData() instanceof J2735Bsm)) return false;
+
+
         J2735BsmCoreData core = ((J2735Bsm)bsm.getPayload().getData()).getCoreData();
+        if (core == null) return false;
+
         OdeBsmMetadata metadata = (OdeBsmMetadata)bsm.getMetadata();
 
         if(core.getPosition().getLongitude() == null){
@@ -122,7 +151,7 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
             return false;
         }
 
-        if(metadata.getBsmSource().name() == null){
+        if(metadata.getBsmSource() == null){
             return false;
         }
 
@@ -130,10 +159,17 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
             return false;
         }
 
-        if(metadata.getRecordGeneratedAt() == null){
+        if (metadata.getRecordGeneratedAt() == null){
+            return false;
+        }
+
+        if (metadata.getOdeReceivedAt() == null) {
             return false;
         }
 
         return true;
     }
+
+
+
 }

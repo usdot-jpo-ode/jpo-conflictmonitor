@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models;
+package us.dot.its.jpo.conflictmonitor.testutils;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
