@@ -38,6 +38,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.DefaultConfigListener;
@@ -50,16 +51,12 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 @Component
 @Profile("!test")
 public class ConfigTopology
+    extends BaseStreamsTopology<ConfigParameters>
     implements ConfigStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigTopology.class);
 
-    ConfigParameters parameters;
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
-    StateListener stateListener;
-    StreamsUncaughtExceptionHandler exceptionHandler;
+
     
     final Multimap<String, DefaultConfigListener> defaultListeners =
         Multimaps.synchronizedMultimap(ArrayListMultimap.create());
@@ -197,73 +194,16 @@ public class ConfigTopology
         intersectionListeners.put(key, handler);
     }
 
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-        if (streamsProperties == null) {
-            throw new IllegalStateException("Streams properties are not set.");
-        }
-        if (streams != null && streams.state().isRunningOrRebalancing()) {
-            throw new IllegalStateException("Start called while streams is already running.");
-        }
-        logger.info("Starting ConfigTopology.");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-        logger.info("Started ConfigTopology.");
-        
- 
-    }
+
 
     @Override
-    public void stop() {
-        logger.info("Stopping ConfigTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped ConfigTopology.");
+    protected Logger getLogger() {
+        return logger;
     }
 
-    @Override
-    public void setParameters(ConfigParameters parameters) {
-        this.parameters = parameters;
-    }
 
-    @Override
-    public ConfigParameters getParameters() {
-        return parameters;
-    }
 
-    @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-        this.streamsProperties = streamsProperties;
-    }
 
-    @Override
-    public Properties getStreamsProperties() {
-       return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
-
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
 
     public Topology buildTopology() {
         

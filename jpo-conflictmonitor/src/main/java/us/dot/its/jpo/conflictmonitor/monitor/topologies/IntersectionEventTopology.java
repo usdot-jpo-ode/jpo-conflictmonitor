@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
@@ -55,14 +56,13 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_eve
 
 @Component(DEFAULT_INTERSECTION_EVENT_ALGORITHM)
 public class IntersectionEventTopology
+    extends BaseStreamsTopology<Void>
     implements IntersectionEventStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(IntersectionEventTopology.class);
 
 
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
+
     ConflictMonitorProperties conflictMonitorProps;
 
     ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
@@ -78,10 +78,16 @@ public class IntersectionEventTopology
     SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
 
 
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
+
+
 
     @Override
-    public void start() {
-        if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");       
+    protected void validate() {
+        if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");
         if (bsmWindowStore == null) throw new IllegalStateException("bsmWindowStore is not set.");
         if (spatWindowStore == null) throw new IllegalStateException("spatWindowStore is not set.");
         if (mapStore == null) throw new IllegalStateException("mapStore is not set.");
@@ -94,25 +100,10 @@ public class IntersectionEventTopology
         if (signalStateVehicleStopsAlgorithm == null) throw new IllegalStateException("SignalStateVehicleStopsAlgorithm is not set");
         if (signalStateVehicleStopsParameters == null) throw new IllegalStateException("SignalStateVehicleStopsParameters is not set");
         if (streams != null && streams.state().isRunningOrRebalancing()) throw new IllegalStateException("Start called while streams is already running.");
-        logger.info("Starting IntersectionEventTopology.");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-        logger.info("Started IntersectionEventTopology.");
     }
 
-    @Override
-    public void stop() {
-        logger.info("Stopping IntersectionEventTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped IntersectionEventTopology.");
-    }
+
+
 
     @Override
     public ConflictMonitorProperties getConflictMonitorProperties() {
@@ -124,20 +115,7 @@ public class IntersectionEventTopology
         this.conflictMonitorProps = conflictMonitorProps;
     }
 
-    @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-        this.streamsProperties = streamsProperties;
-    }
 
-    @Override
-    public Properties getStreamsProperties() {
-       return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
 
 
     @Override
@@ -320,7 +298,7 @@ public class IntersectionEventTopology
         return (ProcessedMap) mapStore.get(key);
     }
 
-
+    @Override
     public Topology buildTopology() {
         
         StreamsBuilder builder = new StreamsBuilder();
@@ -489,23 +467,6 @@ public class IntersectionEventTopology
         return builder.build();
     }
 
-    StateListener stateListener;
-
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    
-
-   
-    StreamsUncaughtExceptionHandler exceptionHandler;
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
-    
 
     
 }

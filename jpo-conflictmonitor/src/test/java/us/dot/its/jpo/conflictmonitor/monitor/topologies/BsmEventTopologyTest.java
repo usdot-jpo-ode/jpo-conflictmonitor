@@ -17,7 +17,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.ode.plugin.j2735.OdeGeoRegion;
 
 import java.time.Instant;
 import java.util.List;
@@ -45,7 +44,7 @@ public class BsmEventTopologyTest {
         var bsmEventTopology = new BsmEventTopology();
         bsmEventTopology.setParameters(parameters);
         bsmEventTopology.setPunctuationType(PunctuationType.STREAM_TIME);
-        Topology topology = bsmEventTopology.build();
+        Topology topology = bsmEventTopology.buildTopology();
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
             
             var inputTopic = driver.createInputTopic(inputTopicName,

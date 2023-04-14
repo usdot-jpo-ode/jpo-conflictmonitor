@@ -32,9 +32,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.NotificationDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
@@ -69,7 +66,7 @@ public class JsonSerdes {
     public static Serde<VehicleEvent> VehicleEvent(){
         return Serdes.serdeFrom(
           new JsonSerializer<VehicleEvent>(),
-          new VehicleEventDeserializer());
+          new JsonDeserializer<>(VehicleEvent.class));
     }
 
     public static Serde<MapBroadcastRateEvent> MapBroadcastRateEvent() {
@@ -135,7 +132,7 @@ public class JsonSerdes {
     public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
         return Serdes.serdeFrom(
             new JsonSerializer<SpatTimeChangeDetailAggregator>(),
-            new SpatTimeChangeDetailAggregatorDeserializer());
+            new JsonDeserializer<>(SpatTimeChangeDetailAggregator.class));
     }
 
     public static Serde<SpatMap> SpatMap() {
@@ -250,7 +247,7 @@ public class JsonSerdes {
     public static Serde<Notification> Notification() {
         return Serdes.serdeFrom(
             new JsonSerializer<Notification>(),
-            new NotificationDeserializer()
+            new JsonDeserializer<>(Notification.class)
         );
     }
 
