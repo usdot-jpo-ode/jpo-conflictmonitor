@@ -1,10 +1,12 @@
-version: '3'
+version: '3.9'
 services:
   conflictmonitor:
     build: .
     image: jpo-conflictmonitor:latest
     depends_on:
       mongodb_container:
+        condition: service_healthy
+      connect:
         condition: service_healthy
     ports:
       - "8082:8082"
@@ -24,7 +26,7 @@ services:
     environment:
       - MONGO_REPLICA_SET_NAME=rs0
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - mongodb_data_container:/MongoDB_data/db
     healthcheck:

@@ -408,8 +408,8 @@ public class MonitorServiceController {
             }
             
             // Restore properties
-            configTopology.initializeProperties();
-            logger.info("Initialized properties from MongoDB");
+            configTopology.initializePropertiesAsync();
+            logger.info("Started initializing properties from MongoDB");
 
             
             logger.info("All services started!");

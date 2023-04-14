@@ -164,8 +164,32 @@ public class ConfigTopology
         return configs;
     }
 
+    public void initializePropertiesAsync() {
+        new Thread(this::initializeProperties).start();
+    }
+
     @Override
     public void initializeProperties() {
+
+        if (streams == null) {
+            logger.error("Streams is null");
+            return;
+        }
+        while (streams.state() != KafkaStreams.State.RUNNING) {
+            logger.info("Waiting for streams to start running...");
+            if (streams.state() == KafkaStreams.State.ERROR) {
+                logger.error("Streams is in error state");
+                return;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.info("Interrupted while waiting for streams to start", e);
+            }
+
+        }
+
+        // Wait until stream thread has started
         for (var key : defaultListeners.keySet()) {
             var defaultConfig = getDefaultConfig(key);
             if (defaultConfig != null) {
