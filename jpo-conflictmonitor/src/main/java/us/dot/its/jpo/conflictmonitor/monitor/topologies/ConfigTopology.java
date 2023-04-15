@@ -172,9 +172,10 @@ public class ConfigTopology
     public void initializeProperties() {
 
         if (streams == null) {
-            logger.error("Streams is null");
-            return;
+            throw new RuntimeException("Cant initialize, streams is null");
         }
+
+        // Wait until stream thread has started
         while (streams.state() != KafkaStreams.State.RUNNING) {
             logger.info("Waiting for streams to start running...");
             if (streams.state() == KafkaStreams.State.ERROR) {
@@ -189,7 +190,7 @@ public class ConfigTopology
 
         }
 
-        // Wait until stream thread has started
+
         for (var key : defaultListeners.keySet()) {
             var defaultConfig = getDefaultConfig(key);
             if (defaultConfig != null) {
