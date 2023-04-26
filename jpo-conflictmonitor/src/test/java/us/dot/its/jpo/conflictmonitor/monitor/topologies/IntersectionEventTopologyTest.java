@@ -34,6 +34,10 @@ import static org.hamcrest.Matchers.*;
 public class IntersectionEventTopologyTest {
 
     final String bsmEventTopic = "topic.CMBsmEvents";
+    final String laneDirectionOfTravelTopic = "topic.CmLaneDirectionOfTravelEvent";
+    final String connectionOfTravelTopic = "topic.CmConnectionOfTravelEvent";
+    final String signalStateTopic = "topic.CmSignalStateEvent";
+    final String signalStopTopic = "topic.CmSignalStopEvent";
 
     Properties streamsProperties = new Properties();
     @Mock ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
@@ -52,6 +56,10 @@ public class IntersectionEventTopologyTest {
     public void testIntersectionEventTopology() {
         ConflictMonitorProperties conflictMonitorProperties = new ConflictMonitorProperties();
         conflictMonitorProperties.setKafkaTopicCmBsmEvent(bsmEventTopic);
+        conflictMonitorProperties.setKafkaTopicCmLaneDirectionOfTravelEvent(laneDirectionOfTravelTopic);
+        conflictMonitorProperties.setKafkaTopicCmConnectionOfTravelEvent(connectionOfTravelTopic);
+        conflictMonitorProperties.setKafkaTopicCmSignalStateEvent(signalStateTopic);
+        conflictMonitorProperties.setKafakTopicCmVehicleStopEvent(signalStopTopic);
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setConflictMonitorProperties(conflictMonitorProperties);
         intersectionEventTopology.setStreamsProperties(streamsProperties);
@@ -69,7 +77,14 @@ public class IntersectionEventTopologyTest {
         Topology topology = intersectionEventTopology.buildTopology();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsProperties)) {
-            var bsmInputTopic = driver.createInputTopic(bsmEventTopic, Serdes.String().serializer(), JsonSerdes.BsmEvent().serializer());
+            var bsmInputTopic = driver.createInputTopic(
+                    bsmEventTopic,
+                    Serdes.String().serializer(),
+                    JsonSerdes.BsmEvent().serializer());
+            var connectionOfTravelOutputTopic = driver.createOutputTopic(
+                    connectionOfTravelTopic,
+                    Serdes.String().deserializer(),
+                    JsonSerdes.ConnectionOfTravelEvent().deserializer());
             BsmEvent event = new BsmEvent();
             bsmInputTopic.pipeInput("1", event);
         }

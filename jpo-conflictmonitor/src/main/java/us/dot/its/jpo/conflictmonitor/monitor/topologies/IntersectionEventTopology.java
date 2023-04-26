@@ -390,7 +390,7 @@ public class IntersectionEventTopology
             }
         );
 
-
+        logger.info("LaneDirectionOfTravelEventStream: {}", laneDirectionOfTravelEventStream);
         laneDirectionOfTravelEventStream.to(
             conflictMonitorProps.getKafkaTopicCmLaneDirectionOfTravelEvent(), 
             Produced.with(Serdes.String(),
