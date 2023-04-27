@@ -20,10 +20,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_st
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
+import java.time.Instant;
 import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,9 +54,13 @@ public class IntersectionEventTopologyTest {
     @Mock SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
     SignalStateVehicleStopsParameters signalStateVehicleStopsParameters = new SignalStateVehicleStopsParameters();
 
+    final long startMillis = 1682615309868L;
+    final long endMillis = 1682615347488L;
+    final String bsmId = "A0A0A0";
+
     @Test
     public void testIntersectionEventTopology() {
-        ConflictMonitorProperties conflictMonitorProperties = new ConflictMonitorProperties();
+        var conflictMonitorProperties = new ConflictMonitorProperties();
         conflictMonitorProperties.setKafkaTopicCmBsmEvent(bsmEventTopic);
         conflictMonitorProperties.setKafkaTopicCmLaneDirectionOfTravelEvent(laneDirectionOfTravelTopic);
         conflictMonitorProperties.setKafkaTopicCmConnectionOfTravelEvent(connectionOfTravelTopic);
@@ -86,6 +92,12 @@ public class IntersectionEventTopologyTest {
                     Serdes.String().deserializer(),
                     JsonSerdes.ConnectionOfTravelEvent().deserializer());
             BsmEvent event = new BsmEvent();
+            var startBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId);
+            var endBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId);
+            event.setStartingBsm(startBsm);
+            event.setEndingBsm(endBsm);
+            event.setStartingBsmTimestamp(startMillis);
+            event.setEndingBsmTimestamp(endMillis);
             bsmInputTopic.pipeInput("1", event);
         }
     }
