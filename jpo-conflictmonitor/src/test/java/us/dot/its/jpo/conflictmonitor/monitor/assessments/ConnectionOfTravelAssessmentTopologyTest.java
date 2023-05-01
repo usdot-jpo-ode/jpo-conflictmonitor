@@ -62,7 +62,7 @@ public class ConnectionOfTravelAssessmentTopologyTest {
 
             ConnectionOfTravelAssessment output = assessmentResults.get(0).value;
             System.out.println("Connection of Travel Assessment: " + output);
-            List<ConnectionOfTravelAssessmentGroup> groups = output.getConnectionOfTravelAssessment();
+            List<ConnectionOfTravelAssessmentGroup> groups = output.getConnectionOfTravelAssessmentGroups();
             
             assertEquals(groups.size(), 1);
 
@@ -119,7 +119,7 @@ public class ConnectionOfTravelAssessmentTopologyTest {
 
             ConnectionOfTravelAssessment notificationAssessment = notification.getAssessment();
             
-            List<ConnectionOfTravelAssessmentGroup> groups = notificationAssessment.getConnectionOfTravelAssessment();
+            List<ConnectionOfTravelAssessmentGroup> groups = notificationAssessment.getConnectionOfTravelAssessmentGroups();
             
             assertEquals(groups.size(), 1);
 

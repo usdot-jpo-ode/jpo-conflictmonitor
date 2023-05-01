@@ -6,11 +6,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("CmSignalStateEventAssessment")
+@Getter
+@Setter
 public class SignalStateEventAssessment extends Assessment{
     private long timestamp;
     private List<SignalStateEventAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();
@@ -19,21 +24,7 @@ public class SignalStateEventAssessment extends Assessment{
         super("SignalStateEvent");
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public List<SignalStateEventAssessmentGroup> getSignalStateAssessmentGroup() {
-        return signalStateEventAssessmentGroup;
-    }
-
-    public void setSignalStateAssessmentGroup(List<SignalStateEventAssessmentGroup> signalStateEventAssessmentGroup) {
-        this.signalStateEventAssessmentGroup = signalStateEventAssessmentGroup;
-    }
 
     @JsonIgnore
     public SignalStateEventAssessment add(SignalStateEvent event){
@@ -53,16 +44,6 @@ public class SignalStateEventAssessment extends Assessment{
         return this;
     }
 
-    @Override
-    public String toString() {
-        ObjectMapper mapper = DateJsonMapper.getInstance();
-        String testReturn = "";
-        try {
-            testReturn = (mapper.writeValueAsString(this));
-        } catch (JsonProcessingException e) {
-            System.out.println(e);
-        }
-        return testReturn;
-    }
+
     
 }

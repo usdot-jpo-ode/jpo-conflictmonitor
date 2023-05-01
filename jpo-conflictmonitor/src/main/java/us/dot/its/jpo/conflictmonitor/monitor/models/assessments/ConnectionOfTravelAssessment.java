@@ -6,12 +6,18 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 
 import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmConnectionOfTravelAssessment")
+@Getter
+@Setter
+@Generated
 public class ConnectionOfTravelAssessment extends Assessment{
     private long timestamp;
     private List<ConnectionOfTravelAssessmentGroup> connectionOfTravelAssessmentGroups = new ArrayList<>();
@@ -20,35 +26,11 @@ public class ConnectionOfTravelAssessment extends Assessment{
         super("ConnectionOfTravel");
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public List<ConnectionOfTravelAssessmentGroup> getConnectionOfTravelAssessment() {
-        return connectionOfTravelAssessmentGroups;
-    }
-
-    public void setConnectionOfTravelAssessmentGroups(List<ConnectionOfTravelAssessmentGroup> connectionOfTravelAssessmentGroups) {
-        this.connectionOfTravelAssessmentGroups = connectionOfTravelAssessmentGroups;
-    }
 
     public ConnectionOfTravelAssessment add(ConnectionOfTravelEvent event){
         return this;
     }
 
-    @Override
-    public String toString() {
-        ObjectMapper mapper = DateJsonMapper.getInstance();
-        String testReturn = "";
-        try {
-            testReturn = (mapper.writeValueAsString(this));
-        } catch (JsonProcessingException e) {
-            System.out.println(e);
-        }
-        return testReturn;
-    }
+
 }

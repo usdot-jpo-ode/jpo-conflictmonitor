@@ -115,7 +115,7 @@ public class ConnectionOfTravelAssessmentTopology
         KStream<String, ConnectionOfTravelNotification> notificationEventStream = connectionOfTravelAssessmentStream.flatMap(
             (key, value)->{
                 List<KeyValue<String, ConnectionOfTravelNotification>> result = new ArrayList<KeyValue<String, ConnectionOfTravelNotification>>();
-                for(ConnectionOfTravelAssessmentGroup assessmentGroup: value.getConnectionOfTravelAssessment()){
+                for(ConnectionOfTravelAssessmentGroup assessmentGroup: value.getConnectionOfTravelAssessmentGroups()){
                     if(assessmentGroup.getEventCount() >= parameters.getMinimumNumberOfEvents() && assessmentGroup.getConnectionID() < 0){
                         ConnectionOfTravelNotification notification = new ConnectionOfTravelNotification();
                         notification.setAssessment(value);

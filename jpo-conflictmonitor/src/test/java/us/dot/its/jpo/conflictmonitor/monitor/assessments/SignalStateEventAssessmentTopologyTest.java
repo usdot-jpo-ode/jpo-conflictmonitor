@@ -59,7 +59,7 @@ public class SignalStateEventAssessmentTopologyTest {
 
             SignalStateEventAssessment output = assessmentResults.get(0).value;
 
-            List<SignalStateEventAssessmentGroup> groups = output.getSignalStateAssessmentGroup();
+            List<SignalStateEventAssessmentGroup> groups = output.getSignalStateEventAssessmentGroup();
 
             
             assertEquals(groups.size(), 1);

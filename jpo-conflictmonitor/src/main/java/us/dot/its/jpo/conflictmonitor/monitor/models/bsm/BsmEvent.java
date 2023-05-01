@@ -31,16 +31,4 @@ public class BsmEvent {
         this.endingBsm = endingBsm;
     }
 
-
-    @Override
-    public String toString() {
-        ObjectMapper mapper = DateJsonMapper.getInstance();
-        String testReturn = "";
-        try {
-            testReturn = (mapper.writeValueAsString(this));
-        } catch (JsonProcessingException e) {
-            System.out.println(e);
-        }
-        return testReturn;
-    }
 }

@@ -4,10 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmLaneDirectionOfTravelEvent")
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper=true)
+@Generated
 public class LaneDirectionOfTravelEvent extends Event{
     private long timestamp;
     private int laneID;
@@ -25,131 +33,8 @@ public class LaneDirectionOfTravelEvent extends Event{
         super("LaneDirectionOfTravel");
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public int getLaneID() {
-        return laneID;
-    }
-
-    public void setLaneID(int laneID) {
-        this.laneID = laneID;
-    }
-
-    public int getLaneSegmentNumber() {
-        return laneSegmentNumber;
-    }
-
-    public void setLaneSegmentNumber(int laneSegmentNumber) {
-        this.laneSegmentNumber = laneSegmentNumber;
-    }
-
-    public double getLaneSegmentInitialLatitude() {
-        return laneSegmentInitialLatitude;
-    }
-
-    public void setLaneSegmentInitialLatitude(double laneSegmentInitialLatitude) {
-        this.laneSegmentInitialLatitude = laneSegmentInitialLatitude;
-    }
-
-    public double getLaneSegmentInitialLongitude() {
-        return laneSegmentInitialLongitude;
-    }
-
-    public void setLaneSegmentInitialLongitude(double laneSegmentInitialLongitude) {
-        this.laneSegmentInitialLongitude = laneSegmentInitialLongitude;
-    }
-
-    public double getLaneSegmentFinalLatitude() {
-        return laneSegmentFinalLatitude;
-    }
-
-    public void setLaneSegmentFinalLatitude(double laneSegmentFinalLatitude) {
-        this.laneSegmentFinalLatitude = laneSegmentFinalLatitude;
-    }
-
-    public double getLaneSegmentFinalLongitude() {
-        return laneSegmentFinalLongitude;
-    }
-
-    public void setLaneSegmentFinalLongitude(double laneSegmentFinalLongitude) {
-        this.laneSegmentFinalLongitude = laneSegmentFinalLongitude;
-    }
-
-    public double getExpectedHeading() {
-        return expectedHeading;
-    }
-
-    public void setExpectedHeading(double expectedHeading) {
-        this.expectedHeading = expectedHeading;
-    }
-
-    public double getMedianVehicleHeading() {
-        return medianVehicleHeading;
-    }
-
-    public void setMedianVehicleHeading(double medianVehicleHeading) {
-        this.medianVehicleHeading = medianVehicleHeading;
-    }
-
-    public double getMedianDistanceFromCenterline() {
-        return medianDistanceFromCenterline;
-    }
-
-    public void setMedianDistanceFromCenterline(double medianDistanceFromCenterline) {
-        this.medianDistanceFromCenterline = medianDistanceFromCenterline;
-    }
-
-    public int getAggregateBSMCount() {
-        return aggregateBSMCount;
-    }
-
-    public void setAggregateBSMCount(int aggregateBSMCount) {
-        this.aggregateBSMCount = aggregateBSMCount;
-    }
-
     @JsonIgnore
     public String getKey(){
         return this.getIntersectionID() + "";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof SignalStateEvent)) {
-            return false;
-        }
-        LaneDirectionOfTravelEvent laneDirectionOfTravelEvent = (LaneDirectionOfTravelEvent) o;
-        return 
-            this.getTimestamp() == laneDirectionOfTravelEvent.getTimestamp() &&
-            this.getRoadRegulatorID() == laneDirectionOfTravelEvent.getRoadRegulatorID() &&
-            this.getIntersectionID() == laneDirectionOfTravelEvent.getIntersectionID() &&
-            this.getLaneID() == laneDirectionOfTravelEvent.getLaneID() &&
-            this.getLaneSegmentNumber() == laneDirectionOfTravelEvent.getLaneSegmentNumber() &&
-            this.getLaneSegmentInitialLatitude() == laneDirectionOfTravelEvent.getLaneSegmentInitialLatitude() &&
-            this.getLaneSegmentInitialLongitude() == laneDirectionOfTravelEvent.getLaneSegmentInitialLongitude() &&
-            this.getLaneSegmentFinalLongitude() == laneDirectionOfTravelEvent.getLaneSegmentFinalLongitude() &&
-            this.getExpectedHeading() == laneDirectionOfTravelEvent.getExpectedHeading() &&
-            this.getMedianVehicleHeading() == laneDirectionOfTravelEvent.getMedianVehicleHeading() &&
-            this.getMedianDistanceFromCenterline() == laneDirectionOfTravelEvent.getMedianDistanceFromCenterline() &&
-            this.getAggregateBSMCount() == laneDirectionOfTravelEvent.getAggregateBSMCount();
-    }
-
-    @Override
-    public String toString() {
-        ObjectMapper mapper = DateJsonMapper.getInstance();
-        String testReturn = "";
-        try {
-            testReturn = (mapper.writeValueAsString(this));
-        } catch (JsonProcessingException e) {
-            System.out.println(e);
-        }
-        return testReturn;
     }
 }

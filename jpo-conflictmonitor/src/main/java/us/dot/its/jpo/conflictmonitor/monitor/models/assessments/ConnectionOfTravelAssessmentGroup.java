@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
@@ -11,6 +12,7 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 @Getter
 @Setter
+@Generated
 public class ConnectionOfTravelAssessmentGroup {
     private int ingressLaneID;
     private int egressLaneID;
@@ -24,15 +26,5 @@ public class ConnectionOfTravelAssessmentGroup {
     }
 
 
-    @Override
-    public String toString() {
-        ObjectMapper mapper = DateJsonMapper.getInstance();
-        String testReturn = "";
-        try {
-            testReturn = (mapper.writeValueAsString(this));
-        } catch (JsonProcessingException e) {
-            System.out.println(e);
-        }
-        return testReturn;
-    }
+
 }
