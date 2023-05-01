@@ -250,7 +250,6 @@ public class IntersectionEventTopology
 
         BsmAggregator agg = new BsmAggregator();
 
-        
         while(bsmRange.hasNext()){
             KeyValue<Windowed<String>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
@@ -278,6 +277,7 @@ public class IntersectionEventTopology
 
 
         SpatAggregator spatAggregator = new SpatAggregator();
+
         while(spatRange.hasNext()){
             KeyValue<Windowed<String>, ProcessedSpat> next = spatRange.next();
             long ts = SpatTimestampExtractor.getSpatTimestamp(next.value);

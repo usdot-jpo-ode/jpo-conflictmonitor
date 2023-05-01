@@ -8,8 +8,7 @@ import org.slf4j.Logger;
 
 import java.util.Properties;
 
-public abstract class BaseStreamsTopology<TParams>
-        {
+public abstract class BaseStreamsTopology<TParams> {
 
     protected abstract Logger getLogger();
 
@@ -89,6 +88,14 @@ public abstract class BaseStreamsTopology<TParams>
 
     public KafkaStreams getStreams() {
         return streams;
+    }
+
+    /**
+     * Method for testing
+     * @param streams {@link KafkaStreams}
+     */
+    public void setStreams(KafkaStreams streams) {
+        this.streams = streams;
     }
 
 
