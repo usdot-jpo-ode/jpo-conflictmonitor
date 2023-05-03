@@ -16,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -126,34 +127,24 @@ public class MessageIngestTopology
 
         
 
-        // /*
-        //  * 
-        //  * 
-        //  *  MAP MESSAGES
-        //  * 
-        //  */
-
-        KStream<String, ProcessedMap> mapJsonStream = 
-            builder.stream(
+        //
+        //  MAP MESSAGES
+        //
+        builder.table(
                 parameters.getMapTopic(), 
                 Consumed.with(
-                    Serdes.String(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
-                );
-            
-        // //Group up all of the Maps's based upon the new ID. 
-        KGroupedStream<String, ProcessedMap> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()));
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()),
+                    Materialized.<RsuIntersectionKey, ProcessedMap, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
+            ).transformValues(() -> {
+                // Calculate MAP bounding boxes and add to spatial index
 
-        KTable<String, ProcessedMap> maptable = 
-            mapKeyGroup
-            .reduce(
-                (oldValue, newValue)->{
-                        return newValue;
-                },
-            Materialized.<String, ProcessedMap, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
-            .withKeySerde(Serdes.String())
-            .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
-            );
+            }).toStream(Named.as("topic.ProcessedMapBoundingBox"));
+
+
+
+
+
 
 
         return builder.build();
