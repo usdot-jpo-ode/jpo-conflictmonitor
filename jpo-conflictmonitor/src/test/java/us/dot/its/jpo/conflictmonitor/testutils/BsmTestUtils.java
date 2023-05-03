@@ -37,6 +37,19 @@ public class BsmTestUtils {
         return bsm;
     }
 
+    public static OdeBsmData bsmWithPosition(Instant instant, String id, double longitude, double latitude, double elevation) {
+        var bsm = bsmAtInstant(instant, id);
+        var coreData = ((J2735Bsm)bsm.getPayload().getData()).getCoreData();
+        var lon = BigDecimal.valueOf(longitude);
+        var lat = BigDecimal.valueOf(latitude);
+        var el = BigDecimal.valueOf(elevation);
+        var position = new OdePosition3D(lat, lon, el);
+        coreData.setPosition(position);
+        return bsm;
+    }
+
+
+
     public static OdeBsmData validBsm() {
         final var bsm = new OdeBsmData();
         final var payload = new OdeBsmPayload();

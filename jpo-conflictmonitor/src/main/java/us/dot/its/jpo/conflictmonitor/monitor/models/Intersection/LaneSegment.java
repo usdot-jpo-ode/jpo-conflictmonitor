@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
+import org.locationtech.jts.algorithm.Angle;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -9,19 +10,21 @@ import org.locationtech.jts.geom.Polygon;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 
 public class LaneSegment {
-    private Polygon polygon;
-    private Point startPoint;
-    private Point endPoint;
-    private LineString centerLine;
-    private double heading;
-    private double laneWidth;
+    private final Polygon polygon;
+    private final Point startPoint;
+    private final Point endPoint;
+    private final LineString centerLine;
+    private final double heading;
+    private final double laneWidth;
 
     public LaneSegment(Point startPoint, Point endPoint, double laneWidthCm, boolean ingress, GeometryFactory factory) {
         double headingRadians = 0;
         if(ingress){
-            headingRadians = Math.atan2(startPoint.getY() - endPoint.getY(),startPoint.getX() - endPoint.getX());
+            //headingRadians = Math.atan2(startPoint.getY() - endPoint.getY(),startPoint.getX() - endPoint.getX());
+            headingRadians = Angle.angle(endPoint.getCoordinate(), startPoint.getCoordinate());
         }else{
-            headingRadians = Math.atan2(endPoint.getY() - startPoint.getY(),endPoint.getX() - startPoint.getX()); 
+            //headingRadians = Math.atan2(endPoint.getY() - startPoint.getY(),endPoint.getX() - startPoint.getX());
+            headingRadians = Angle.angle(startPoint.getCoordinate(), endPoint.getCoordinate());
         }
         
         double headingFromNorth = CircleMath.headingXYToHeadingFromNorth(Math.toDegrees(headingRadians));

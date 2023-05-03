@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,8 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
@@ -21,6 +24,8 @@ import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 @Getter
 @Setter
 public class VehiclePath {
+
+    private static final Logger logger = LoggerFactory.getLogger(VehiclePath.class);
     
     private LineString pathPoints;
     private BsmAggregator bsms;
@@ -42,7 +47,11 @@ public class VehiclePath {
 
     public void buildVehiclePath(){
         Coordinate referencePoint = this.intersection.getReferencePoint();
-        
+
+        if (referencePoint == null) {
+            logger.error("Reference point is null");
+            return;
+        }
        
         Coordinate[] vehicleCoords = new Coordinate[bsms.getBsms().size()];
         int index =0;
@@ -69,6 +78,7 @@ public class VehiclePath {
     }
 
     public void calculateIngress(){
+        if (intersection.getStopLines() == null) return;
         LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines());
         if(match != null){
             this.ingressLane = match.getLane();
@@ -77,6 +87,7 @@ public class VehiclePath {
     }
 
     public void calculateEgress(){
+        if (intersection.getStartLines() == null) return;
         LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStartLines());
         if(match != null){
             this.egressLane = match.getLane();
@@ -85,7 +96,7 @@ public class VehiclePath {
     }
 
 
-    public LineVehicleIntersection findLineVehicleIntersection(ArrayList<IntersectionLine> lines){
+    public LineVehicleIntersection findLineVehicleIntersection(List<IntersectionLine> lines){
         double minDistance = Double.MAX_VALUE;
         OdeBsmData matchingBsm = null;
         IntersectionLine bestLine = null;
