@@ -1,9 +1,18 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.map;
 
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.quadtree.Quadtree;
 import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.JTSConverter;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Spatial Index for MAP messages.
@@ -20,13 +29,69 @@ public class MapIndex {
     }
 
     public void insert(ProcessedMap map) {
-        MapFeatureCollection features = map.getMapFeatureCollection();
-        if (features != null) {
-            for (var feature : features.getFeatures()) {
-                var geom = feature.getGeometry();
+        Envelope envelope = getEnvelope(map);
+        quadtree.insert(envelope, map);
+    }
 
+    public Envelope getEnvelope(ProcessedMap map) {
+        MapFeatureCollection features = map.getMapFeatureCollection();
+
+        // Get the overall bounding box of all the line features
+        Envelope envelope = new Envelope();
+        if (features != null && features.getFeatures() != null) {
+            for (var feature : features.getFeatures()) {
+                LineString geom = feature.getGeometry();
+                org.locationtech.jts.geom.LineString jtsGeom = JTSConverter.convertToJTS(geom);
+                Envelope featureEnvelope = jtsGeom.getEnvelopeInternal();
+                envelope.expandToInclude(featureEnvelope);
             }
         }
+        return envelope;
+    }
+
+    public org.locationtech.jts.geom.Polygon getBoundingPolygon(ProcessedMap map) {
+        Envelope envelope = getEnvelope(map);
+        var minX = envelope.getMinX();
+        var minY = envelope.getMinY();
+        var maxX = envelope.getMaxX();
+        var maxY = envelope.getMaxY();
+
+        var coordinates = new CoordinateXY[]{
+                new CoordinateXY(minX, minY),
+                new CoordinateXY(minX, maxY),
+                new CoordinateXY(maxX, maxY),
+                new CoordinateXY(maxX, minY),
+                new CoordinateXY(minX, minY)
+        };
+
+        return JTSConverter.FACTORY.createPolygon(coordinates);
+    }
+
+    /**
+     * Check if a point is inside a MAP bounding box.
+     *
+     * @param coords - Lon/Lat coordinates of the point
+     *
+     * @return If the point is inside a Map bounding box, return the {@link ProcessedMap}, otherwise
+     * return null if no MAP's bounding box contains the point.
+     */
+    public ProcessedMap mapContainingPoint(CoordinateXY coords) {
+        final org.locationtech.jts.geom.Point point = JTSConverter.FACTORY.createPoint(coords);
+        final Envelope pointEnvelope = point.getEnvelopeInternal();
+        pointEnvelope.expandBy(1e-6);
+
+        // Query the spatial index to get candidate MAPs that might contain the point
+        var items = quadtree.query(pointEnvelope);
+
+        // Not all candidates necessarily contain the point, so check to be sure
+        for (var item : items) {
+            ProcessedMap map = (ProcessedMap)item;
+            var boundingPolygon = getBoundingPolygon(map);
+            if (boundingPolygon.contains(point)) {
+                return map;
+            }
+        }
+        return null;
     }
 
 }

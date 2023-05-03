@@ -6,6 +6,8 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -21,9 +23,12 @@ import static org.hamcrest.Matchers.*;
 
 public class MessageIngestTopologyTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopologyTest.class);
+
     final String bsmTopicName = "topic.OdeBsmJson";
     final String spatTopicName = "topic.ProcessedSpat";
     final String mapTopicName = "topic.ProcessedMap";
+    final String mapBoundingBoxTopicName = "topic.CmMapBoundingBox";
     final String bsmStoreName = "BsmWindowStore";
     final String spatStoreName = "SpatWindowStore";
     final String mapStoreName = "ProcessedMapWindowStore";
@@ -52,6 +57,10 @@ public class MessageIngestTopologyTest {
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap().serializer());
 
+            var mapBoundingBoxTopic = driver.createOutputTopic(mapBoundingBoxTopicName,
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(),
+                    Serdes.String().deserializer());
+
             final var mapKey = new RsuIntersectionKey(rsuId, intersectionId);
             final var processedMap = getProcessedMap();
             mapTopic.pipeInput(mapKey, processedMap);
@@ -72,6 +81,11 @@ public class MessageIngestTopologyTest {
                 }
             }
             assertThat("Number of maps", countStoredMaps, equalTo(1));
+
+            var boundingBoxResults = mapBoundingBoxTopic.readKeyValuesToList();
+            assertThat(boundingBoxResults, hasSize(equalTo(1)));
+            var boundingBoxResult = boundingBoxResults.get(0);
+            logger.info("Bounding box key: {}, value: {}", boundingBoxResult.key, boundingBoxResult.value);
          }
     }
 

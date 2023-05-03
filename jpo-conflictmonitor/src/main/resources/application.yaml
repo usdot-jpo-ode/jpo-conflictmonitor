@@ -121,6 +121,8 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmNotification
       cleanupPolicy: compact
+    - name: topic.CmMapBoundingBox
+      cleanupPolicy: compact
 
 # Mongo properties
 spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
@@ -318,6 +320,7 @@ message.ingest:
   bsmTopic: topic.OdeBsmJson
   spatTopic: topic.ProcessedSpat
   mapTopic: topic.ProcessedMap
+  mapBoundingBoxTopic: topic.CmMapBoundingBox
   bsmStoreName: BsmWindowStore
   spatStoreName: SpatWindowStore
   mapStoreName: ProcessedMapWindowStore

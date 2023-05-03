@@ -12,31 +12,23 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
  */
 public class JTSConverter {
 
-    private final static GeometryFactory FACTORY = new GeometryFactory(
+    public final static GeometryFactory FACTORY = new GeometryFactory(
             new PrecisionModel(PrecisionModel.FLOATING));
 
     public static org.locationtech.jts.geom.LineString convertToJTS(LineString lineString) {
-        return (org.locationtech.jts.geom.LineString)convert(lineString);
+        return FACTORY.createLineString(convert(lineString.getCoordinates()));
     }
 
     public static org.locationtech.jts.geom.Point convertToJTS(Point point) {
-        return (org.locationtech.jts.geom.Point)convert(point);
-    }
-
-    public static LineString convertFromJTS(org.locationtech.jts.geom.LineString lineString) {
-        return (LineString)convert(lineString);
-    }
-
-    public static Point convertFromJTS(org.locationtech.jts.geom.Point point) {
-        return (Point)convert(point);
-    }
-
-    private static Geometry convert(Point point) {
         return FACTORY.createPoint(convert(point.getCoordinates()));
     }
 
-    private static Geometry convert(LineString lineString) {
-        return FACTORY.createLineString(convert(lineString.getCoordinates()));
+    public static LineString convertFromJTS(org.locationtech.jts.geom.LineString lineString) {
+        return new LineString(convert(lineString.getCoordinates()));
+    }
+
+    public static Point convertFromJTS(org.locationtech.jts.geom.Point point) {
+        return new Point(convert(point.getCoordinate()));
     }
 
     private static Coordinate convert(double[] c) {
@@ -51,14 +43,6 @@ public class JTSConverter {
             coordinates[i] = convert(ca[i]);
         }
         return coordinates;
-    }
-
-    private static Point convert(org.locationtech.jts.geom.Point point) {
-       return new Point(convert(point.getCoordinate()));
-    }
-
-    private static LineString convert(org.locationtech.jts.geom.LineString lineString) {
-        return new LineString(convert(lineString.getCoordinates()));
     }
 
     private static double[] convert(Coordinate coordinate) {

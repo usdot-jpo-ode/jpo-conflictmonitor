@@ -7,6 +7,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -136,10 +139,17 @@ public class MessageIngestTopology
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()),
                     Materialized.<RsuIntersectionKey, ProcessedMap, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
-            ).transformValues(() -> {
-                // Calculate MAP bounding boxes and add to spatial index
-
-            }).toStream(Named.as("topic.ProcessedMapBoundingBox"));
+            ).mapValues(map -> {
+                mapIndex.insert(map);
+                var boundingPolygon = mapIndex.getBoundingPolygon(map);
+                var wkt = boundingPolygon.toString();
+                return wkt;
+            }).toStream()
+                .to(parameters.getMapBoundingBoxTopic(),
+                        Produced.with(
+                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                                Serdes.String(),
+                                new RsuIdPartitioner<RsuIntersectionKey, String>()));
 
 
 
@@ -176,5 +186,18 @@ public class MessageIngestTopology
     public ReadOnlyKeyValueStore<String, ProcessedMap> getMapStore() {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
+    }
+
+    private MapIndex mapIndex;
+
+
+    @Override
+    public MapIndex getMapIndex() {
+        return mapIndex;
+    }
+
+    @Override
+    public void setMapIndex(MapIndex mapIndex) {
+        this.mapIndex = mapIndex;
     }
 }

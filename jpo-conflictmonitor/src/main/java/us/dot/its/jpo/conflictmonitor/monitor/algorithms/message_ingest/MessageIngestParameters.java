@@ -54,6 +54,11 @@ public class MessageIngestParameters {
         updateType = READ_ONLY)
     String mapTopic;
 
+    @ConfigData(key = "message.ingest.mapBoundingBoxTopic",
+            description = "The Kafka topic to write the MAP bounding box to",
+            updateType = READ_ONLY)
+    String mapBoundingBoxTopic;
+
     @ConfigData(key = "message.ingest.mapStoreName", 
         description = "The name of the state store for MAPs",
         updateType = READ_ONLY)
