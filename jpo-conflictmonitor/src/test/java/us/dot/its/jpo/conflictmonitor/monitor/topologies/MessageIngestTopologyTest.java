@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -39,8 +40,10 @@ public class MessageIngestTopologyTest {
     public void testMessageIngestTopology() throws JsonProcessingException {
         var parameters = getParamters();
         var streamsConfig = new Properties();
+        var mapIndex = new MapIndex();
         var messageIngestTopology = new MessageIngestTopology();
         messageIngestTopology.setParameters(parameters);
+        messageIngestTopology.setMapIndex(mapIndex);
         Topology topology = messageIngestTopology.buildTopology();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
@@ -97,6 +100,7 @@ public class MessageIngestTopologyTest {
         params.setBsmStoreName(bsmStoreName);
         params.setSpatStoreName(spatStoreName);
         params.setMapStoreName(mapStoreName);
+        params.setMapBoundingBoxTopic(mapBoundingBoxTopicName);
         return params;
     }
 
