@@ -16,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParam
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -40,21 +41,18 @@ public class BsmEventTopology
 
 
 
-        //bsmEventBuilder.addSource(BSM_SOURCE, Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
+
         bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(),
                 Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
 
-//        bsmEventBuilder.addProcessor(BSM_PROCESSOR, () -> {
-//            var processor = new BsmEventProcessor();
-//            processor.setPunctuationType(punctuationType);
-//            return processor;
-//        }, BSM_SOURCE);
+
 
 
         bsmEventBuilder.addProcessor(BSM_PROCESSOR,
                 () -> {
                         var processor = new BsmEventProcessor();
                         processor.setPunctuationType(punctuationType);
+                        processor.setMapIndex(mapIndex);
                         return processor;
                     },
                 BSM_SOURCE);
@@ -89,4 +87,25 @@ public class BsmEventTopology
     @Setter
     @Getter
     public PunctuationType punctuationType = PunctuationType.WALL_CLOCK_TIME;
+
+
+    private MapIndex mapIndex;
+
+    @Override
+    public MapIndex getMapIndex() {
+        return mapIndex;
+    }
+
+    @Override
+    public void setMapIndex(MapIndex mapIndex) {
+        this.mapIndex = mapIndex;
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+        if (mapIndex == null) {
+            throw new IllegalArgumentException("MapIndex is not set");
+        }
+    }
 }

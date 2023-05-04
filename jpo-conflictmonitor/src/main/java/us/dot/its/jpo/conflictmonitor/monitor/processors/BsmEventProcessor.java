@@ -12,11 +12,14 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
+import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.model.OdeBsmPayload;
@@ -31,6 +34,10 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
     private final Duration fPunctuationInterval = Duration.ofSeconds(10); // Check Every 10 Seconds
     private final long fSuppressTimeoutMillis = Duration.ofSeconds(10).toMillis(); // Emit event if no data for the last 10 seconds
     private TimestampedKeyValueStore<String, BsmEvent> stateStore;
+
+    @Getter
+    @Setter
+    private MapIndex mapIndex;
 
     @Setter
     @Getter
@@ -68,6 +75,15 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
             
             if (record != null) {
                 BsmEvent event = record.value();
+
+                // There is an existing record.  Get the last position and check whether it is within a MAP bounds.
+                OdeBsmData lastBsm = event.getEndingBsm();
+                boolean lastBsmInMap = false;
+                if (lastBsm != null) {
+                    CoordinateXY lastCoord = BsmUtils.getPosition(lastBsm);
+                    if (mapIndex.mapContainingPoint(lastCoord) != null) lastBsmInMap = true;
+                }
+
                 long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
 
                 // If the new record is older than the last start bsm. Use the last start bsm instead.
@@ -84,6 +100,20 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
 
                 event.setEndingBsmTimestamp(timestamp);
                 stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
+
+                // Check if the new BSM is within the MAP bounds
+                OdeBsmData newBsm = event.getEndingBsm();
+                boolean newBsmInMap = false;
+                if (newBsm != null) {
+                    CoordinateXY newCoord = BsmUtils.getPosition(newBsm);
+                    if (mapIndex.mapContainingPoint(newCoord) != null) newBsmInMap = true;
+                }
+
+                // If the "bsmInMap" status has changed, then emit the event.
+                if (lastBsmInMap != newBsmInMap) {
+                    context().forward(new Record<>(key, event, timestamp));
+                    stateStore.delete(key);
+                }
             } else {
                 BsmEvent event = new BsmEvent(value);
                 event.setStartingBsmTimestamp(timestamp);

@@ -126,9 +126,6 @@ public class MessageIngestTopology
             .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
         );
 
-        // processedSpatStream.print(Printed.toSysOut());
-
-        
 
         //
         //  MAP MESSAGES
@@ -199,5 +196,13 @@ public class MessageIngestTopology
     @Override
     public void setMapIndex(MapIndex mapIndex) {
         this.mapIndex = mapIndex;
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+        if (mapIndex == null) {
+            throw new IllegalArgumentException("MapIndex is not set");
+        }
     }
 }

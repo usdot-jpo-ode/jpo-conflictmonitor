@@ -66,6 +66,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
@@ -92,11 +93,12 @@ public class MonitorServiceController {
     
     @Autowired
     public MonitorServiceController(final ConflictMonitorProperties conflictMonitorProps, 
-        final KafkaTemplate<String, String> kafkaTemplate,
-        final ConfigTopology configTopology, 
-        final ConfigParameters configParameters,
-        final ConfigInitializer configWriter,
-        final ConnectSourceCreator connectSourceCreator) {
+            final KafkaTemplate<String, String> kafkaTemplate,
+            final ConfigTopology configTopology,
+            final ConfigParameters configParameters,
+            final ConfigInitializer configWriter,
+            final ConnectSourceCreator connectSourceCreator,
+            final MapIndex mapIndex) {
        
 
 
@@ -241,6 +243,7 @@ public class MonitorServiceController {
             final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
             final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
             final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
+            bsmEventAlgorithm.setMapIndex(mapIndex);
             if (bsmEventAlgorithm instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)bsmEventAlgorithm;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmEvent));
@@ -259,6 +262,7 @@ public class MonitorServiceController {
             final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
             final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
             final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
+            messageIngestAlgorithm.setMapIndex(mapIndex);
             if (messageIngestAlgorithm instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
