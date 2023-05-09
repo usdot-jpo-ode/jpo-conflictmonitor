@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -33,6 +34,8 @@ public class BsmEventTopologyTest {
     final String outputTopicName = "topic.CMBsmEvents";
     final String stateStoreName = "bsm-event-state-store";
 
+
+
     @Test
     public void testBsmEventTopology() {
         var parameters = getParameters();
@@ -44,6 +47,12 @@ public class BsmEventTopologyTest {
         var bsmEventTopology = new BsmEventTopology();
         bsmEventTopology.setParameters(parameters);
         bsmEventTopology.setPunctuationType(PunctuationType.STREAM_TIME);
+        var streamsProperties = new Properties();
+        bsmEventTopology.setStreamsProperties(streamsProperties);
+        var mapIndex = new MapIndex();
+        bsmEventTopology.setMapIndex(mapIndex);
+        bsmEventTopology.validate();
+
         Topology topology = bsmEventTopology.buildTopology();
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
             

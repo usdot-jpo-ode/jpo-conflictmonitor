@@ -28,8 +28,21 @@ public class MapIndex {
         quadtree = new Quadtree();
     }
 
+    public Quadtree getQuadtree() {
+        return quadtree;
+    }
+
     public void insert(ProcessedMap map) {
         Envelope envelope = getEnvelope(map);
+
+        // If there is already a map covering the envelope, replace it
+        List items = quadtree.query(envelope);
+        if (items != null && items.size() > 0) {
+            for (var item : items) {
+                quadtree.remove(envelope, item);
+            }
+        }
+
         quadtree.insert(envelope, map);
     }
 

@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -46,7 +45,7 @@ public class JTSConverter {
     }
 
     private static double[] convert(Coordinate coordinate) {
-        return (Double.isNaN( coordinate.getZ() ))
+        return Double.isNaN( coordinate.getZ() )
                 ? new double[] { coordinate.x, coordinate.y }
                 : new double[] { coordinate.x, coordinate.y, coordinate.getZ() };
     }

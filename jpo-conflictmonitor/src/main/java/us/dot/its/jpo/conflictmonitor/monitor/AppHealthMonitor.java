@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.State;
+import org.locationtech.jts.index.quadtree.Quadtree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 
 @Getter
@@ -68,6 +70,7 @@ public class AppHealthMonitor {
     @Autowired ConfigParameters configParams;
     @Autowired AlgorithmParameters algorithmParameters;
     @Autowired ConfigTopology configTopology;
+    @Autowired MapIndex mapIndex;
 
   
     public List<Object> parameterObjects() {
@@ -85,13 +88,14 @@ public class AppHealthMonitor {
     public @ResponseBody ResponseEntity<String> summary() {
         try {
             var linkMap = new TreeMap<String, String>();
-            addLinks(linkMap, 
-                "config/default"
-                ,"config/intersection",
-                "topics",
-                "properties",
-                "streams",
-                "connectors"
+            addLinks(linkMap,
+                    "config/default"
+                    ,"config/intersection",
+                    "topics",
+                    "properties",
+                    "streams",
+                    "connectors",
+                    "spatial-indexes"
                 );
             return getJsonResponse(linkMap);
         } catch (Exception ex) {
@@ -230,6 +234,17 @@ public class AppHealthMonitor {
                 conflictMonitorProperties.getConnectURL());
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         return response;
+    }
+
+    @GetMapping(value = "/spatial-indexes")
+    public @ResponseBody ResponseEntity<String> spatial() {
+        if (mapIndex == null) {
+            return getOKResponse("The map index is null");
+        }
+
+        Quadtree quadtree = mapIndex.getQuadtree();
+        var allItems = quadtree.queryAll();
+        return getJsonResponse(allItems);
     }
 
     private Map<String, KafkaStreams> getKafkaStreamsMap() {
