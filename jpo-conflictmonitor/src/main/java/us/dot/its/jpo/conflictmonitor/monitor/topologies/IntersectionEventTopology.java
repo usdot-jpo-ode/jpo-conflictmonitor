@@ -310,7 +310,11 @@ public class IntersectionEventTopology
                 Consumed.with(
                     Serdes.String(),
                     JsonSerdes.BsmEvent())
-                );
+                )
+                    // Filter out BSM Events that aren't inside any MAP bounding box
+                    .filter(
+                            (key, value) -> value != null && value.isInMapBoundingBox()
+            );
 
         bsmEventStream.print(Printed.toSysOut());
 
