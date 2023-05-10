@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.processors;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,6 +121,7 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 }
 
                 event.setEndingBsmTimestamp(timestamp);
+                event.setWallClockTimestamp(Instant.now().toEpochMilli());
                 stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
 
 
@@ -149,6 +151,7 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
         }
 
         event.setStartingBsmTimestamp(timestamp);
+        event.setWallClockTimestamp(Instant.now().toEpochMilli());
         stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
     }
 
@@ -158,7 +161,12 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 KeyValue<String, ValueAndTimestamp<BsmEvent>> item = iterator.next();
                 var key = item.key;
                 var value = item.value.value();
-                var itemTimestamp = value.getEndingBsmTimestamp() != null ? value.getEndingBsmTimestamp() : timestamp;
+                long itemTimestamp;
+                if (PunctuationType.WALL_CLOCK_TIME.equals(punctuationType)) {
+                    itemTimestamp = value.getWallClockTimestamp();
+                } else {
+                    itemTimestamp = value.getEndingBsmTimestamp() != null ? value.getEndingBsmTimestamp() : timestamp;
+                }
                 var offset = timestamp - itemTimestamp;
                 if (offset > fSuppressTimeoutMillis) {
                     context().forward(new Record<>(key, value, timestamp));

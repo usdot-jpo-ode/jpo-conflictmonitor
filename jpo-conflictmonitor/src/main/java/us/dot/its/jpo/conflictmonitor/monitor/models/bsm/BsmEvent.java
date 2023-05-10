@@ -24,7 +24,12 @@ public class BsmEvent {
     private Long endingBsmTimestamp;
     private String wktPath;
     private String wktMapBoundingBox;
-    public boolean inMapBoundingBox;
+    private boolean inMapBoundingBox;
+
+    /**
+     * Timestamp to use with wall clock punctuator
+     */
+    private long wallClockTimestamp;
 
     public BsmEvent() {}
 
