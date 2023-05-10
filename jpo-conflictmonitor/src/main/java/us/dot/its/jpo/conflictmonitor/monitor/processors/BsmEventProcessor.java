@@ -1,6 +1,9 @@
 package us.dot.its.jpo.conflictmonitor.monitor.processors;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +15,10 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
-import org.locationtech.jts.geom.CoordinateXY;
+import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +82,11 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
             if (record != null) {
                 BsmEvent event = record.value();
 
+                // Add the coordinate for the new BSM to the event
+                CoordinateXY newCoord = BsmUtils.getPosition(value);
+                String wktPath = addPointToPath(event.getWktPath(), newCoord);
+                event.setWktPath(wktPath);
+
                 // There is an existing record.  Get the last position and check whether it is within a MAP bounds.
                 OdeBsmData lastBsm = event.getEndingBsm();
                 boolean lastBsmInMap = false;
@@ -93,7 +104,7 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                         event.setEndingBsm(event.getStartingBsm());
                     }
                     event.setStartingBsm(value);
-                }else if(event.getEndingBsm() == null || newRecTime > BsmTimestampExtractor.getBsmTimestamp(event.getEndingBsm())){
+                } else if(event.getEndingBsm() == null || newRecTime > BsmTimestampExtractor.getBsmTimestamp(event.getEndingBsm())){
                     // If the new record is more recent than the old record
                     event.setEndingBsm(value);
                 }
@@ -102,10 +113,8 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
 
                 // Check if the new BSM is within the MAP bounds
-                OdeBsmData newBsm = event.getEndingBsm();
                 boolean newBsmInMap = false;
-                if (newBsm != null) {
-                    CoordinateXY newCoord = BsmUtils.getPosition(newBsm);
+                if (event.getEndingBsm() != null) {
                     if (mapIndex.mapContainingPoint(newCoord) != null) newBsmInMap = true;
                 }
 
@@ -116,6 +125,12 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 }
             } else {
                 BsmEvent event = new BsmEvent(value);
+
+                // Add the coordinate for the new BSM to the event
+                CoordinateXY newCoord = BsmUtils.getPosition(value);
+                String wktPath = addPointToPath(event.getWktPath(), newCoord);
+                event.setWktPath(wktPath);
+
                 event.setStartingBsmTimestamp(timestamp);
                 stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
             }
@@ -202,6 +217,29 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
         return true;
     }
 
-
+    /**
+     * Adds a point to a WKT line string
+     * @param wktPath original WKT LineString or null
+     * @return new WKT LineString with the new point added
+     */
+    public String addPointToPath(final String wktPath, final Coordinate coordinate) throws ParseException {
+        List<Coordinate> coords = new ArrayList<>();
+        if (wktPath != null) {
+            WKTReader wktReader = new WKTReader();
+            Geometry geom = wktReader.read(wktPath);
+            if (geom instanceof Point) {
+                coords.add(geom.getCoordinate());
+            } else if (geom instanceof LineString) {
+                coords.addAll(Arrays.asList(geom.getCoordinates()));
+            }
+        }
+        coords.add(coordinate);
+        GeometryFactory factory = JTSFactoryFinder.getGeometryFactory();
+        if (coords.size() == 1) {
+            return factory.createPoint(coords.get(0)).toText();
+        } else {
+            return factory.createLineString(coords.toArray(new Coordinate[0])).toText();
+        }
+    }
 
 }

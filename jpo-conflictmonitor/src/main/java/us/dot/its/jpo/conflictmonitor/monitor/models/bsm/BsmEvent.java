@@ -8,6 +8,7 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 @Getter
@@ -19,6 +20,7 @@ public class BsmEvent {
     private OdeBsmData endingBsm;
     private Long startingBsmTimestamp;
     private Long endingBsmTimestamp;
+    private String wktPath;
 
     public BsmEvent() {}
 
