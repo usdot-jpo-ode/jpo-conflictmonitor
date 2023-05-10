@@ -82,14 +82,11 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
             if (record != null) {
                 BsmEvent event = record.value();
 
-                // Add the coordinate for the new BSM to the event
-                CoordinateXY newCoord = BsmUtils.getPosition(value);
-                String wktPath = addPointToPath(event.getWktPath(), newCoord);
-                event.setWktPath(wktPath);
                 // Check if the new BSM is within the MAP bounds
+                CoordinateXY newCoord = BsmUtils.getPosition(value);
                 boolean newBsmInMap = (mapIndex.mapContainingPoint(newCoord) != null);
 
-                // There is an existing record.  Get the last position and check whether it is within a MAP bounds.
+                // Get the last position and check whether it is within a MAP bounds.
                 OdeBsmData lastBsm = event.getEndingBsm() != null ? event.getEndingBsm() : event.getStartingBsm();
                 if (lastBsm != null) {
                     CoordinateXY lastCoord = BsmUtils.getPosition(lastBsm);
@@ -104,6 +101,9 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                     }
                 }
 
+                // Add the coordinate for the new BSM to the event
+                String wktPath = addPointToPath(event.getWktPath(), newCoord);
+                event.setWktPath(wktPath);
 
                 long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
 
