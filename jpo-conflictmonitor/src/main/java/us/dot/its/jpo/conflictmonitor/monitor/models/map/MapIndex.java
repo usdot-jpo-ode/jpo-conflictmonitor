@@ -46,7 +46,7 @@ public class MapIndex {
         quadtree.insert(envelope, map);
     }
 
-    public Envelope getEnvelope(ProcessedMap map) {
+    public static Envelope getEnvelope(ProcessedMap map) {
         MapFeatureCollection features = map.getMapFeatureCollection();
 
         // Get the overall bounding box of all the line features
@@ -62,7 +62,7 @@ public class MapIndex {
         return envelope;
     }
 
-    public org.locationtech.jts.geom.Polygon getBoundingPolygon(ProcessedMap map) {
+    public static org.locationtech.jts.geom.Polygon getBoundingPolygon(ProcessedMap map) {
         Envelope envelope = getEnvelope(map);
         var minX = envelope.getMinX();
         var minY = envelope.getMinY();

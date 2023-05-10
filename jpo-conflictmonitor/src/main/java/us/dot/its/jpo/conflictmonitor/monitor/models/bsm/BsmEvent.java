@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,6 +23,8 @@ public class BsmEvent {
     private Long startingBsmTimestamp;
     private Long endingBsmTimestamp;
     private String wktPath;
+    private String wktMapBoundingBox;
+    public boolean inMapBoundingBox;
 
     public BsmEvent() {}
 

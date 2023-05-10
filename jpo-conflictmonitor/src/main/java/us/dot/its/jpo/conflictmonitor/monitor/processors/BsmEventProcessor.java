@@ -86,14 +86,24 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 CoordinateXY newCoord = BsmUtils.getPosition(value);
                 String wktPath = addPointToPath(event.getWktPath(), newCoord);
                 event.setWktPath(wktPath);
+                // Check if the new BSM is within the MAP bounds
+                boolean newBsmInMap = (mapIndex.mapContainingPoint(newCoord) != null);
 
                 // There is an existing record.  Get the last position and check whether it is within a MAP bounds.
                 OdeBsmData lastBsm = event.getEndingBsm() != null ? event.getEndingBsm() : event.getStartingBsm();
-                boolean lastBsmInMap = false;
                 if (lastBsm != null) {
                     CoordinateXY lastCoord = BsmUtils.getPosition(lastBsm);
-                    if (mapIndex.mapContainingPoint(lastCoord) != null) lastBsmInMap = true;
+                    boolean lastBsmInMap = (mapIndex.mapContainingPoint(lastCoord) != null);
+
+                    // If the "bsmInMap" status has changed, then emit the event and start a new event
+                    if (lastBsmInMap != newBsmInMap) {
+                        context().forward(new Record<>(key, event, timestamp));
+                        stateStore.delete(key);
+                        newEvent(value, key, timestamp);
+                        return;
+                    }
                 }
+
 
                 long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
 
@@ -112,31 +122,34 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 event.setEndingBsmTimestamp(timestamp);
                 stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
 
-                // Check if the new BSM is within the MAP bounds
-                boolean newBsmInMap = false;
-                if (event.getEndingBsm() != null) {
-                    if (mapIndex.mapContainingPoint(newCoord) != null) newBsmInMap = true;
-                }
 
-                // If the "bsmInMap" status has changed, then emit the event.
-                if (lastBsmInMap != newBsmInMap) {
-                    context().forward(new Record<>(key, event, timestamp));
-                    stateStore.delete(key);
-                }
             } else {
-                BsmEvent event = new BsmEvent(value);
-
-                // Add the coordinate for the new BSM to the event
-                CoordinateXY newCoord = BsmUtils.getPosition(value);
-                String wktPath = addPointToPath(event.getWktPath(), newCoord);
-                event.setWktPath(wktPath);
-
-                event.setStartingBsmTimestamp(timestamp);
-                stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
+                newEvent(value, key, timestamp);
             }
         } catch (Exception e) {
             logger.error("Error in BsmEventProcessor.process", e);
         }
+    }
+
+    private void newEvent(OdeBsmData value, String key, long timestamp) throws ParseException {
+        BsmEvent event = new BsmEvent(value);
+
+        // Add the coordinate for the new BSM to the event
+        CoordinateXY newCoord = BsmUtils.getPosition(value);
+        String wktPath = addPointToPath(event.getWktPath(), newCoord);
+        event.setWktPath(wktPath);
+
+        // Tag with MAP bounding box if it is in one
+        var map = mapIndex.mapContainingPoint(newCoord);
+        if (map != null) {
+            event.setInMapBoundingBox(true);
+            event.setWktMapBoundingBox(MapIndex.getBoundingPolygon(map).toText());
+        } else {
+            event.setInMapBoundingBox(false);
+        }
+
+        event.setStartingBsmTimestamp(timestamp);
+        stateStore.put(key, ValueAndTimestamp.make(event, timestamp));
     }
 
     private void punctuate(long timestamp) {
