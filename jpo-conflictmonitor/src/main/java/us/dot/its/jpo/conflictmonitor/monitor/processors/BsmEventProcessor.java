@@ -88,7 +88,7 @@ public class BsmEventProcessor extends ContextualProcessor<String, OdeBsmData, S
                 event.setWktPath(wktPath);
 
                 // There is an existing record.  Get the last position and check whether it is within a MAP bounds.
-                OdeBsmData lastBsm = event.getEndingBsm();
+                OdeBsmData lastBsm = event.getEndingBsm() != null ? event.getEndingBsm() : event.getStartingBsm();
                 boolean lastBsmInMap = false;
                 if (lastBsm != null) {
                     CoordinateXY lastCoord = BsmUtils.getPosition(lastBsm);
