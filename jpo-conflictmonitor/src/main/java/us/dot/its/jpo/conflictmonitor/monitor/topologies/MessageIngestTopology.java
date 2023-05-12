@@ -101,7 +101,15 @@ public class MessageIngestTopology
                     Serdes.String(),
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
                     .withTimestampExtractor(new SpatTimestampExtractor())
-                );
+                )   // Filter out null SPATs
+                    .filter((key, value) -> {
+                        if (value == null) {
+                            logger.error("Encountered null SPAT");
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    });
         
 
         // //Change the Spat Feed to use the Key Key + ID + UTC Time String. This should be unique for every Spat message.

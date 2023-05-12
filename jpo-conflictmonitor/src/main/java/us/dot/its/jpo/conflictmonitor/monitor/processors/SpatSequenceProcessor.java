@@ -11,6 +11,8 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
@@ -30,6 +32,8 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 // Pulls incoming spats and holds a buffer of messages.
 // Acts as a Jitter Buffer to ensure messages are properly sequenced and ensure messages are processed in order. 
 public class SpatSequenceProcessor extends ContextualProcessor<String, ProcessedSpat, String, TimeChangeDetailsEvent> {
+
+    private final static Logger logger = LoggerFactory.getLogger(SpatSequenceProcessor.class);
     private KeyValueStore<String, SpatTimeChangeDetailAggregator> stateStore;
     private SpatTimeChangeDetailsParameters parameters;
 
@@ -48,8 +52,11 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
     @Override
     public void process(Record<String, ProcessedSpat> record) {
         ProcessedSpat inputSpat = record.value();
-        // Key the BSM's based upon vehicle ID.
-        //key = key + "_" + ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
+
+        if (inputSpat == null) {
+            logger.error("Null input spat");
+            return;
+        }
         String key = inputSpat.getOriginIp()+"_"+inputSpat.getRegion()+"_"+inputSpat.getIntersectionId();
         SpatTimeChangeDetailAggregator agg = stateStore.get(key);
         

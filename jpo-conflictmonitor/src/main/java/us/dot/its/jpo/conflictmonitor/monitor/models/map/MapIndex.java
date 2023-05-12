@@ -39,6 +39,12 @@ public class MapIndex {
         List items = quadtree.query(envelope);
         if (items != null && items.size() > 0) {
             for (var item : items) {
+                if (item instanceof ProcessedMap) {
+                    var mapItem = (ProcessedMap)item;
+                    Integer intersectionId = mapItem.getProperties().getIntersectionId();
+                    Integer regionId = mapItem.getProperties().getRegion();
+
+                }
                 quadtree.remove(envelope, item);
             }
         }

@@ -13,7 +13,7 @@ public class SpatTimestampExtractor implements TimestampExtractor {
     @Override
     public long extract(ConsumerRecord<Object, Object> record, long partitionTime) {
         ProcessedSpat spat = (ProcessedSpat) record.value();
-        if(spat != null ){
+        if (spat != null) {
             return getSpatTimestamp(spat);
         }
 
@@ -30,7 +30,7 @@ public class SpatTimestampExtractor implements TimestampExtractor {
                 return -1;
             }
             
-        }catch (DateTimeParseException e){
+        }catch (Exception e){
             System.out.println("Spat Timestamp Parsing Failed");
             return -1;
         }
