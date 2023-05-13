@@ -98,15 +98,42 @@ public class MapIndex {
         return JTSConverter.FACTORY.createPolygon(coordinates);
     }
 
+//    /**
+//     * Check if a point is inside a MAP bounding box.
+//     *
+//     * @param coords - Lon/Lat coordinates of the point
+//     *
+//     * @return If the point is inside a Map bounding box, return the {@link ProcessedMap}, otherwise
+//     * return null if no MAP's bounding box contains the point.
+//     */
+//    public ProcessedMap mapContainingPoint(CoordinateXY coords) {
+//        final org.locationtech.jts.geom.Point point = JTSConverter.FACTORY.createPoint(coords);
+//        final Envelope pointEnvelope = point.getEnvelopeInternal();
+//        pointEnvelope.expandBy(1e-6);
+//
+//        // Query the spatial index to get candidate MAPs that might contain the point
+//        var items = quadtree.query(pointEnvelope);
+//
+//        // Not all candidates necessarily contain the point, so check to be sure
+//        for (var item : items) {
+//            ProcessedMap map = (ProcessedMap)item;
+//            var boundingPolygon = getBoundingPolygon(map);
+//            if (boundingPolygon.contains(point)) {
+//                return map;
+//            }
+//        }
+//        return null;
+//    }
+
     /**
-     * Check if a point is inside a MAP bounding box.
+     * List MAPs whose bounding boxes contain the point.
      *
      * @param coords - Lon/Lat coordinates of the point
      *
-     * @return If the point is inside a Map bounding box, return the {@link ProcessedMap}, otherwise
-     * return null if no MAP's bounding box contains the point.
+     * @return A list of {@link ProcessedMap}s that contain the point.
      */
-    public ProcessedMap mapContainingPoint(CoordinateXY coords) {
+    public List<ProcessedMap> mapsContainingPoint(CoordinateXY coords) {
+        List<ProcessedMap> mapList = new ArrayList<>();
         final org.locationtech.jts.geom.Point point = JTSConverter.FACTORY.createPoint(coords);
         final Envelope pointEnvelope = point.getEnvelopeInternal();
         pointEnvelope.expandBy(1e-6);
@@ -119,10 +146,10 @@ public class MapIndex {
             ProcessedMap map = (ProcessedMap)item;
             var boundingPolygon = getBoundingPolygon(map);
             if (boundingPolygon.contains(point)) {
-                return map;
+                mapList.add(map);
             }
         }
-        return null;
+        return mapList;
     }
 
 }

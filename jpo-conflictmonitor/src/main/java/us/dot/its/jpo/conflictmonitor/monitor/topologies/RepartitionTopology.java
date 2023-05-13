@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
+import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionConstants.DEFAULT_REPARTITION_ALGORITHM;
 
@@ -52,8 +53,17 @@ public class RepartitionTopology
 
 
         KStream<BsmIntersectionKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
-            String ip = ((OdeBsmMetadata)value.getMetadata()).getOriginIp();
-            return new BsmIntersectionKey(ip);
+            String ip = "";
+            if (value.getMetadata() != null && value.getMetadata() instanceof OdeBsmMetadata) {
+                ip = ((OdeBsmMetadata) value.getMetadata()).getOriginIp();
+            }
+            String bsmId = "";
+            if (value.getPayload() != null
+                    && value.getPayload().getData() instanceof J2735Bsm
+                    && ((J2735Bsm) value.getPayload().getData()).getCoreData() != null) {
+                bsmId = ((J2735Bsm) value.getPayload().getData()).getCoreData().getId();
+            }
+            return new BsmIntersectionKey(ip, bsmId);
         });
 
         bsmRekeyedStream.to(

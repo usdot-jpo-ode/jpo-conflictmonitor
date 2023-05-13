@@ -308,7 +308,7 @@ intersection.reference.alignment.notification:
 # BSM Events
 bsm.event:
   algorithm: defaultBsmEventAlgorithm
-  inputTopic: topic.OdeBsmJson
+  inputTopic: topic.BsmJsonRepartition
   outputTopic: topic.CMBsmEvents
   stateStoreName: bsm-event-state-store
   debug: false
