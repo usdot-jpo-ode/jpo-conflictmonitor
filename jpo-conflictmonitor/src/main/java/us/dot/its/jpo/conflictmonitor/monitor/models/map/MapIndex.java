@@ -12,7 +12,9 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import static java.util.Objects.equals;
 
 /**
  * Spatial Index for MAP messages.
@@ -34,18 +36,28 @@ public class MapIndex {
 
     public void insert(ProcessedMap map) {
         Envelope envelope = getEnvelope(map);
+        Integer intersectionId = null;
+        Integer regionId = null;
+        if (map.getProperties() != null) {
+            intersectionId = map.getProperties().getIntersectionId();
+            regionId = map.getProperties().getRegion();
+        }
 
-        // If there is already a map covering the envelope, replace it
+        // If there is already a map for the intersection, replace it
         List items = quadtree.query(envelope);
         if (items != null && items.size() > 0) {
             for (var item : items) {
-                if (item instanceof ProcessedMap) {
-                    var mapItem = (ProcessedMap)item;
-                    Integer intersectionId = mapItem.getProperties().getIntersectionId();
-                    Integer regionId = mapItem.getProperties().getRegion();
 
+                if (!(item instanceof ProcessedMap)) continue;
+                var mapItem = (ProcessedMap)item;
+                if (mapItem.getProperties() == null) continue;
+
+                Integer itemIntersectionId = mapItem.getProperties().getIntersectionId();
+                Integer itemRegionId = mapItem.getProperties().getRegion();
+                if (Objects.equals(intersectionId, itemIntersectionId) && Objects.equals(regionId, itemRegionId)) {
+                    quadtree.remove(envelope, item);
                 }
-                quadtree.remove(envelope, item);
+
             }
         }
 
