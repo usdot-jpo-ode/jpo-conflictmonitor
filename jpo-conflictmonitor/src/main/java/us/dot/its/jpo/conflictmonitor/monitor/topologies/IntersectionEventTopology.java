@@ -40,6 +40,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
@@ -304,11 +305,11 @@ public class IntersectionEventTopology
         StreamsBuilder builder = new StreamsBuilder();
 
         
-        KStream<String, BsmEvent> bsmEventStream = 
+        KStream<BsmEventIntersectionKey, BsmEvent> bsmEventStream =
             builder.stream(
                 conflictMonitorProps.getKafkaTopicCmBsmEvent(), 
                 Consumed.with(
-                    Serdes.String(),
+                    JsonSerdes.BsmEventIntersectionKey(),
                     JsonSerdes.BsmEvent())
                 )
                     // Filter out BSM Events that aren't inside any MAP bounding box

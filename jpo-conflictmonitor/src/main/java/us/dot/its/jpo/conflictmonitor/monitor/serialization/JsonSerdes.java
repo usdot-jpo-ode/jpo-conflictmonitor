@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEven
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
@@ -187,6 +188,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<BsmIntersectionKey>(),
             new JsonDeserializer<>(BsmIntersectionKey.class));
+    }
+
+    public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<BsmEventIntersectionKey>(),
+                new JsonDeserializer<>(BsmEventIntersectionKey.class));
     }
 
     public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {
