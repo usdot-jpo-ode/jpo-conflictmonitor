@@ -20,6 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -142,8 +143,8 @@ public class MessageIngestTopology
                 parameters.getMapTopic(), 
                 Consumed.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()),
-                    Materialized.<RsuIntersectionKey, ProcessedMap, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()),
+                    Materialized.<RsuIntersectionKey, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
             ).mapValues(map -> {
                 mapIndex.insert(map);
                 var boundingPolygon = mapIndex.getBoundingPolygon(map);
@@ -188,7 +189,7 @@ public class MessageIngestTopology
     }
 
     @Override
-    public ReadOnlyKeyValueStore<String, ProcessedMap> getMapStore() {
+    public ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> getMapStore() {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }

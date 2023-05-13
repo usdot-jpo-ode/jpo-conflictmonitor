@@ -24,6 +24,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAl
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
@@ -100,18 +101,18 @@ public class MapSpatMessageAssessmentTopology
         );
 
         // Map Input Stream
-        KTable<String, ProcessedMap> mapKTable = builder.table(parameters.getMapInputTopicName(),
+        KTable<String, ProcessedMap<LineString>> mapKTable = builder.table(parameters.getMapInputTopicName(),
                 Materialized.with(
                         Serdes.String(),
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()));
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
         // Join Input BSM Stream with Stream of Spat Messages
         KStream<String, SpatMap> spatJoinedMap = processedSpatStream.leftJoin(mapKTable, (spat, map) -> {
             return new SpatMap(spat, map);
         },
-                Joined.<String, ProcessedSpat, ProcessedMap>as("spat-maps-joined").withKeySerde(Serdes.String())
+                Joined.<String, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined").withKeySerde(Serdes.String())
                         .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-                        .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()));
+                        .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
         // Intersection Reference Alignment Check
         KStream<String, IntersectionReferenceAlignmentEvent> intersectionReferenceAlignmentEventStream = spatJoinedMap

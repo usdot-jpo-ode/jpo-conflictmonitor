@@ -28,11 +28,13 @@ public class Lane {
     private int laneWidthCm;
     private int region;
 
-    public static Lane fromGeoJsonFeature(MapFeature feature, Coordinate referencePoint, int laneWidthCm){
+    public static Lane fromGeoJsonFeature(MapFeature<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString> feature, Coordinate referencePoint, int laneWidthCm){
         
         Lane lane = new Lane();
         lane.setLaneWidthCm(laneWidthCm);
-        lane.setId(feature.getId());
+        if (feature.getId() != null) {
+            lane.setId(feature.getId().intValue());
+        }
         
 
         List<MapNode> nodes = feature.getProperties().getNodes();

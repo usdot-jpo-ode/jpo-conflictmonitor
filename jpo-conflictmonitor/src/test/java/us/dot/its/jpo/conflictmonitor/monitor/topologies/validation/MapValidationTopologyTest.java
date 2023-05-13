@@ -16,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapSharedProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
@@ -74,7 +75,7 @@ public class MapValidationTopologyTest {
 
             var inputTopic = driver.createInputTopic(inputTopicName,
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(), 
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap().serializer()
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson().serializer()
             );
 
             var broadcastRateTopic = driver.createOutputTopic(broadcastRateTopicName,
@@ -146,8 +147,8 @@ public class MapValidationTopologyTest {
 
 
 
-    private ProcessedMap createMap(Instant timestamp) {
-        var map = new ProcessedMap();
+    private ProcessedMap<LineString> createMap(Instant timestamp) {
+        var map = new ProcessedMap<LineString>();
         var props = new MapSharedProperties();
         map.setProperties(props);
         props.setOdeReceivedAt(timestamp.atZone(ZoneOffset.UTC));

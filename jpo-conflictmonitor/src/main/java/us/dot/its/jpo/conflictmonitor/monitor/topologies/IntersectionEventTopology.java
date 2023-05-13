@@ -49,6 +49,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -68,7 +69,7 @@ public class IntersectionEventTopology
 
     ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
     ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore;
-    ReadOnlyKeyValueStore<String, ProcessedMap> mapStore;
+    ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
     ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -170,7 +171,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyKeyValueStore<String, ProcessedMap> getMapStore() {
+    public ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> getMapStore() {
         return mapStore;
     }
 
@@ -185,7 +186,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore) {
+    public void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore) {
         this.mapStore = mapStore;
     }
 
@@ -295,8 +296,8 @@ public class IntersectionEventTopology
     }
 
 
-    private static ProcessedMap getMap(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore, String key){
-        return (ProcessedMap) mapStore.get(key);
+    private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore, String key){
+        return (ProcessedMap<LineString>) mapStore.get(key);
     }
 
     @Override

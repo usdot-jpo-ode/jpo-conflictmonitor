@@ -22,9 +22,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_cr
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 import us.dot.its.jpo.conflictmonitor.testutils.SpatTestUtils;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -57,7 +59,7 @@ public class IntersectionEventTopologyTest {
     @Mock KeyValueIterator<Windowed<String>, OdeBsmData> bsmWindowStoreIterator;
     @Mock ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore;
     @Mock KeyValueIterator<Windowed<String>, ProcessedSpat> spatWindowStoreIterator;
-    @Mock ReadOnlyKeyValueStore<String, ProcessedMap> mapStore;
+    @Mock ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
 
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParameters = new LaneDirectionOfTravelParameters();
@@ -70,15 +72,15 @@ public class IntersectionEventTopologyTest {
 
     final long startMillis = 1682615309868L;
     final long endMillis = 1682615347488L;
-    final String bsmId = "A0A0A0";
+    final BsmIntersectionKey bsmId = new BsmIntersectionKey("127.0.0.1", "A0A0A0");
 
     @Test
     public void testIntersectionEventTopology() {
 
-        final var startBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId);
-        final var endBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId);
-        final KeyValue<Windowed<String>, OdeBsmData> kvStartBsm = new KeyValue<>(new Windowed<>(bsmId, new TimeWindow(startMillis, startMillis + 30000)), startBsm);
-        final KeyValue<Windowed<String>, OdeBsmData> kvEndBsm = new KeyValue<>(new Windowed<>(bsmId, new TimeWindow(startMillis, startMillis + 30000)), endBsm);
+        final var startBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId.getBsmId());
+        final var endBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId.getBsmId());
+        final KeyValue<Windowed<String>, OdeBsmData> kvStartBsm = new KeyValue<>(new Windowed<>(bsmId.getBsmId(), new TimeWindow(startMillis, startMillis + 30000)), startBsm);
+        final KeyValue<Windowed<String>, OdeBsmData> kvEndBsm = new KeyValue<>(new Windowed<>(bsmId.getBsmId(), new TimeWindow(startMillis, startMillis + 30000)), endBsm);
 
         final int intersectionId = 1;
         final ProcessedSpat spat = SpatTestUtils.validSpat(intersectionId);
@@ -104,7 +106,7 @@ public class IntersectionEventTopologyTest {
         when(spatWindowStore.fetchAll(any(Instant.class), any(Instant.class))).thenReturn(spatWindowStoreIterator);
         intersectionEventTopology.setSpatWindowStore(spatWindowStore);
 
-        final var map = new ProcessedMap();
+        final var map = new ProcessedMap<LineString>();
         when(mapStore.get(anyString())).thenReturn(map);
         intersectionEventTopology.setMapStore(mapStore);
 
@@ -125,7 +127,7 @@ public class IntersectionEventTopologyTest {
 
             var bsmInputTopic = driver.createInputTopic(
                     bsmEventTopic,
-                    Serdes.String().serializer(),
+                    JsonSerdes.BsmIntersectionKey().serializer(),
                     JsonSerdes.BsmEvent().serializer());
             var connectionOfTravelOutputTopic = driver.createOutputTopic(
                     connectionOfTravelTopic,

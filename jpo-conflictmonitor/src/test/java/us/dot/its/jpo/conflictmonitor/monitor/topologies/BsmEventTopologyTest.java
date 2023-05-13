@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -34,6 +36,7 @@ public class BsmEventTopologyTest {
     final String outputTopicName = "topic.CMBsmEvents";
     final String stateStoreName = "bsm-event-state-store";
 
+    final String rsuId = "127.0.0.1";
 
 
     @Test
@@ -57,11 +60,11 @@ public class BsmEventTopologyTest {
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
             
             var inputTopic = driver.createInputTopic(inputTopicName,
-                Serdes.String().serializer(),
+                JsonSerdes.BsmIntersectionKey().serializer(),
                 JsonSerdes.OdeBsm().serializer());
 
             var outputTopic = driver.createOutputTopic(outputTopicName,
-                Serdes.String().deserializer(),
+                JsonSerdes.BsmEventIntersectionKey().deserializer(),
                 JsonSerdes.BsmEvent().deserializer()
             );
 
@@ -70,35 +73,35 @@ public class BsmEventTopologyTest {
             final int periodMillis = 100;
             final int totalTimeSeconds = 1;
             List<Instant> instants = TopologyTestUtils.getInstantsExclusive(startTime, periodMillis, totalTimeSeconds);
-            final String id1 = "BSMID1";
+            final BsmIntersectionKey id1 = new BsmIntersectionKey(rsuId, "BSMID1");
             for (var currentInstant : instants) {
                 logger.info("Send BSM at {}", currentInstant);
-                OdeBsmData bsm = bsmAtInstant(currentInstant, id1);
+                OdeBsmData bsm = bsmAtInstant(currentInstant, id1.getBsmId());
                 inputTopic.pipeInput(id1, bsm, currentInstant);
             }
 
             // Simulate a long enough period of no BSMs followed by a different BSM ID to advance stream time
             final Instant newBsm = startTime.plusSeconds(15);
-            final String id2 = "BSMID2";
-            OdeBsmData gapBsm = bsmAtInstant(newBsm, id2);
+            final BsmIntersectionKey id2 = new BsmIntersectionKey(rsuId, "BSMID2");
+            OdeBsmData gapBsm = bsmAtInstant(newBsm, id2.getBsmId());
             inputTopic.pipeInput(id2, gapBsm, newBsm);
 
             // Include an invalid BSM for validation coverage
-            OdeBsmData invalidBsm = bsmAtInstant(startTime, id2);
+            OdeBsmData invalidBsm = bsmAtInstant(startTime, id2.getBsmId());
             ((J2735Bsm)invalidBsm.getPayload().getData()).getCoreData().setPosition(null);
             inputTopic.pipeInput(id2, invalidBsm, startTime);
 
             // Include a BSM with an earlier timestamp than the previous BSM for validation coverage
             final Instant oldTime = startTime.minusSeconds(100);
-            OdeBsmData oldBsm = bsmAtInstant(oldTime, id2);
+            OdeBsmData oldBsm = bsmAtInstant(oldTime, id2.getBsmId());
             inputTopic.pipeInput(id2, oldBsm, oldTime);
 
             var output = outputTopic.readKeyValuesToList();
             assertThat(output, hasSize(1));
             var outputItem = output.iterator().next();
             logger.info("BSM Event: {}", outputItem);
-            var key = outputItem.key;
-            assertThat(key, endsWith(id1));
+            BsmEventIntersectionKey key = outputItem.key;
+            assertThat(key.getBsmId(), endsWith(id1.getBsmId()));
             var value = outputItem.value;
             assertThat(value.getEndingBsmTimestamp(), notNullValue());
             assertThat(value.getStartingBsmTimestamp(), notNullValue());

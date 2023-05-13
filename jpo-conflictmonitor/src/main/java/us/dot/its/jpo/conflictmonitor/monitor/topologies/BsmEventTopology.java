@@ -43,7 +43,7 @@ public class BsmEventTopology
 
 
         bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(),
-                Serdes.String().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
+                JsonSerdes.BsmIntersectionKey().deserializer(), JsonSerdes.OdeBsm().deserializer(), parameters.getInputTopic());
 
 
 
@@ -57,7 +57,7 @@ public class BsmEventTopology
                     },
                 BSM_SOURCE);
 
-        bsmEventBuilder.addSink(BSM_SINK, parameters.getOutputTopic(), Serdes.String().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
+        bsmEventBuilder.addSink(BSM_SINK, parameters.getOutputTopic(), JsonSerdes.BsmEventIntersectionKey().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
 
         StoreBuilder<TimestampedKeyValueStore<String, BsmEvent>> storeBuilder = Stores.timestampedKeyValueStoreBuilder(
             Stores.persistentTimestampedKeyValueStore(parameters.getStateStoreName()),

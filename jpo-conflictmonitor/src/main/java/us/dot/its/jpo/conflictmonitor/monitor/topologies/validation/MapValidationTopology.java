@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 import java.time.Duration;
@@ -48,11 +49,11 @@ public class MapValidationTopology
     public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
-        KStream<RsuIntersectionKey, ProcessedMap> processedMapStream = builder
+        KStream<RsuIntersectionKey, ProcessedMap<LineString>> processedMapStream = builder
             .stream(parameters.getInputTopicName(), 
                 Consumed.with(
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
-                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
                         .withTimestampExtractor(new TimestampExtractorForBroadcastRate())
             );
 

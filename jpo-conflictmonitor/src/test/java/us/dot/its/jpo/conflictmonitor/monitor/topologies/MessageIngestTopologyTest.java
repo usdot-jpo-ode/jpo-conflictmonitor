@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
@@ -13,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -58,7 +60,7 @@ public class MessageIngestTopologyTest {
 
             var mapTopic = driver.createInputTopic(mapTopicName,
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap().serializer());
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson().serializer());
 
             var mapBoundingBoxTopic = driver.createOutputTopic(mapBoundingBoxTopicName,
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(),
@@ -104,9 +106,10 @@ public class MessageIngestTopologyTest {
         return params;
     }
 
-    ProcessedMap getProcessedMap() throws JsonProcessingException {
+    ProcessedMap<LineString> getProcessedMap() throws JsonProcessingException {
         var mapper = DateJsonMapper.getInstance();
-        return mapper.readValue(MAP, ProcessedMap.class);
+        JavaType javaType = mapper.getTypeFactory().constructParametricType(ProcessedMap.class, LineString.class);
+        return mapper.readValue(MAP, javaType);
     }
 
     ProcessedSpat getProcessedSpat() throws JsonProcessingException {

@@ -64,8 +64,8 @@ public class MapIndex {
         quadtree.insert(envelope, map);
     }
 
-    public static Envelope getEnvelope(ProcessedMap map) {
-        MapFeatureCollection features = map.getMapFeatureCollection();
+    public static Envelope getEnvelope(ProcessedMap<LineString> map) {
+        MapFeatureCollection<LineString> features = map.getMapFeatureCollection();
 
         // Get the overall bounding box of all the line features
         Envelope envelope = new Envelope();

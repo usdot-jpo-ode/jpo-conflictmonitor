@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
@@ -74,7 +75,7 @@ public class Intersection {
     //     return intersection; 
     // }
 
-    public static Intersection fromProcessedMap(ProcessedMap map){
+    public static Intersection fromProcessedMap(ProcessedMap<LineString> map){
 
         Intersection intersection = new Intersection();
         ArrayList<Lane> ingressLanes = new ArrayList<>();
@@ -96,8 +97,8 @@ public class Intersection {
 
 
 
-        MapFeatureCollection features = map.getMapFeatureCollection();
-        for(MapFeature feature: features.getFeatures()){
+        MapFeatureCollection<LineString> features = map.getMapFeatureCollection();
+        for(MapFeature<LineString> feature: features.getFeatures()){
             MapProperties props = feature.getProperties();
             Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), laneWidth);
             if(props.getIngressPath()){
@@ -108,7 +109,7 @@ public class Intersection {
             laneLookup.put(lane.getId(), lane);
         }
 
-        for(MapFeature feature: features.getFeatures()){
+        for(MapFeature<LineString> feature: features.getFeatures()){
             if(feature.getProperties().getConnectsTo() != null){
                 for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
                     Lane ingressLane = laneLookup.get(feature.getId());
