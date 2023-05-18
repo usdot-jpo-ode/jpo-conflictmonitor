@@ -19,6 +19,7 @@ import org.apache.kafka.streams.state.WindowStore;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -129,26 +130,26 @@ public class MessageIngestTopology {
         //  * 
         //  */
 
-        KStream<String, ProcessedMap> mapJsonStream = 
+        KStream<String, ProcessedMap<LineString>> mapJsonStream = 
             builder.stream(
                 geoJsonMapTopic, 
                 Consumed.with(
                     Serdes.String(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
                 );
             
         // //Group up all of the Maps's based upon the new ID. 
-        KGroupedStream<String, ProcessedMap> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap()));
+        KGroupedStream<String, ProcessedMap<LineString>> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
-        KTable<String, ProcessedMap> maptable = 
+        KTable<String, ProcessedMap<LineString>> maptable = 
             mapKeyGroup
             .reduce(
                 (oldValue, newValue)->{
                         return newValue;
                 },
-            Materialized.<String, ProcessedMap, KeyValueStore<Bytes, byte[]>>as(mapStroreName)
+            Materialized.<String, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(mapStroreName)
             .withKeySerde(Serdes.String())
-            .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap())
+            .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
             );
 
 

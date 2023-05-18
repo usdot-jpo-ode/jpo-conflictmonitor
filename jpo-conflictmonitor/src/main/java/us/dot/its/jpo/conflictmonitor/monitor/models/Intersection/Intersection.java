@@ -95,8 +95,9 @@ public class Intersection {
 
 
         MapFeatureCollection features = map.getMapFeatureCollection();
-        for(MapFeature feature: features.getFeatures()){
-            MapProperties props = feature.getProperties();
+        for(Object f: features.getFeatures()){
+            MapFeature feature = (MapFeature)f;
+            MapProperties props = (MapProperties)feature.getProperties();
             Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), laneWidth);
             if(props.getIngressPath()){
                 ingressLanes.add(lane);
@@ -106,9 +107,11 @@ public class Intersection {
             laneLookup.put(lane.getId(), lane);
         }
 
-        for(MapFeature feature: features.getFeatures()){
-            if(feature.getProperties().getConnectsTo() != null){
-                for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
+        for(Object f: features.getFeatures()){
+            MapFeature feature = (MapFeature)f;
+            MapProperties props = (MapProperties)feature.getProperties();
+            if(props.getConnectsTo() != null){
+                for(J2735Connection laneConnection: props.getConnectsTo()){
                     Lane ingressLane = laneLookup.get(feature.getId());
                     Lane egressLane = laneLookup.get(laneConnection.getConnectingLane().getLane());
                     int connectionId = -1;

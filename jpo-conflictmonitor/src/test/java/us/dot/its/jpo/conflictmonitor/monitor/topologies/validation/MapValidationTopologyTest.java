@@ -75,7 +75,7 @@ public class MapValidationTopologyTest {
 
             var inputTopic = driver.createInputTopic(inputTopicName,
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(), 
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMap().serializer()
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson().serializer()
             );
 
             var broadcastRateTopic = driver.createOutputTopic(broadcastRateTopicName,

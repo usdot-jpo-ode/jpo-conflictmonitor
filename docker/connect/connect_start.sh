@@ -54,9 +54,9 @@ declare -A CmMapBroadcastRateEvents=([name]="topic.CMBsmEvents" [collection]="CM
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
-declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
+declare -A CmLaneConnectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
-declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmsignalStateEventAssessment" [collection]="CmsignalStateEventAssessment"
+declare -A CmSignalStateEventAssessment=([name]="topic.CmSignalStateEventAssessment" [collection]="CmSignalStateEventAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
@@ -164,7 +164,7 @@ createSink CmMapBroadcastRateEvents
 createSink CmMapMinimumDataEvents
 createSink CmLaneDirectionOfTravelAssessment
 createSink CmConnectionOfTravelAssessment
-createSink CmsignalStateEventAssessment
+createSink CmSignalStateEventAssessment
 createSink CmSpatBroadcastRateEvents
 createSink CMBsmEvents
 
