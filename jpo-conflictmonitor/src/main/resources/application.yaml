@@ -86,7 +86,7 @@ kafka.topics:
     - name: topic.CmIntersectionReferenceAlignmentNotification
       cleanupPolicy: compact
     - name: topic.CmLaneDirectionOfTravelAssessment
-      cleanupPolicy: delete
+      cleanupPolicy: compact
       retentionMs: 300000
     - name: topic.CmDefaultConfig
       cleanupPolicy: compact
