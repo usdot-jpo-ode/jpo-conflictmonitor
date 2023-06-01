@@ -6,6 +6,7 @@ version: ^project.version^
 server.port: 8082
 
 # Kafka properties
+# spring.kafka.bootstrap-servers: localhost:9092
 spring.kafka.bootstrap-servers: localhost:9092
 
 kafkaStateChangeEventTopic: topic.CmKafkaStateChangeEvents
@@ -17,6 +18,9 @@ kafka.topics:
   numPartitions: 1
   numReplicas: 1
   createTopics:
+    - name: topic.CmAppHealthNotifications
+      cleanupPolicy: delete
+      retentionMs: 300000
     - name: topic.CmMapBroadcastRateEvents
       cleanupPolicy: delete
       retentionMs: 300000
@@ -41,7 +45,10 @@ kafka.topics:
     - name: topic.CmSignalStateEvent
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: "topic.CmSignalStopEvent"
+    - name: topic.CmSignalStateEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSpatTimeChangeDetailsEvent"
       cleanupPolicy: delete
       retentionMs: 300000
     - name: "topic.CmSignalGroupAlignmentEvents"
@@ -88,6 +95,9 @@ kafka.topics:
     - name: topic.CmLaneDirectionOfTravelAssessment
       cleanupPolicy: compact
       retentionMs: 300000
+    - name: topic.CmConnectionOfTravelAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
     - name: topic.CmDefaultConfig
       cleanupPolicy: compact
     - name: topic.CmIntersectionConfig
@@ -97,6 +107,8 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmNotification
       cleanupPolicy: compact
+    
+    
 
 # Mongo properties
 spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
@@ -215,7 +227,7 @@ repartition:
   algorithm: defaultRepartitionAlgorithm
   debug: false
   bsmInputTopicName: topic.OdeBsmJson
-  bsmRepartitionOutputTopicName: topic.BsmJsonRepartition
+  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
 
 notification:
   algorithm: defaultNotificationAlgorithm
@@ -233,7 +245,7 @@ signal.state.event.assessment:
   algorithm: defaultSignalStateEventAssessmentAlgorithm
   debug: false
   signalStateEventTopicName: topic.CmSignalStateEvent
-  signalStateEventAssessmentOutputTopicName: topic.CmsignalStateEventAssessment
+  signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
 
