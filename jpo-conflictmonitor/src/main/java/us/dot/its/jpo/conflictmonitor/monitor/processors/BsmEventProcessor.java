@@ -92,7 +92,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
             // List MAPs that the new BSM is within
             CoordinateXY newCoord = BsmUtils.getPosition(value);
-            List<ProcessedMap> mapsContainingNewBsm = mapIndex.mapsContainingPoint(newCoord);
+            List<ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString>> mapsContainingNewBsm = mapIndex.mapsContainingPoint(newCoord);
             // List intersections that the new BSM is in
             Set<IntersectionRegion> newIntersections
                     = mapsContainingNewBsm.stream()
@@ -139,7 +139,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
                 // Create new events for intersections that the BSM is in that haven't been extended already
                 // (it has newly entered the intersection bb)
-                for (ProcessedMap map : mapsContainingNewBsm) {
+                for (ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString> map : mapsContainingNewBsm) {
                     IntersectionRegion intersection = new IntersectionRegion(map);
                     if (!extendedIntersections.contains(intersection)) {
                         newEvent(value, key, timestamp, map);
@@ -183,19 +183,19 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
-    private void newEvents(OdeBsmData value, BsmIntersectionKey key, List<ProcessedMap> mapsContainingNewBsm, long timestamp) throws ParseException {
+    private void newEvents(OdeBsmData value, BsmIntersectionKey key, List<ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString>> mapsContainingNewBsm, long timestamp) throws ParseException {
         if (mapsContainingNewBsm.isEmpty()) {
             // Not in any map.
             // Only create one.
             newEvent(value, key, timestamp);
         } else {
-            for (ProcessedMap map : mapsContainingNewBsm) {
+            for (var map : mapsContainingNewBsm) {
                 newEvent(value, key, timestamp, map);
             }
         }
     }
 
-    private void newEvent(OdeBsmData value, BsmIntersectionKey key, long timestamp, ProcessedMap map) throws ParseException {
+    private void newEvent(OdeBsmData value, BsmIntersectionKey key, long timestamp, ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString> map) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, true);
         event.setWktMapBoundingBox(MapIndex.getBoundingPolygon(map).toText());
         BsmEventIntersectionKey eventKey = new BsmEventIntersectionKey(key, new IntersectionRegion(map));

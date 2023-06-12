@@ -132,8 +132,8 @@ public class MapIndex {
      *
      * @return A list of {@link ProcessedMap}s that contain the point.
      */
-    public List<ProcessedMap> mapsContainingPoint(CoordinateXY coords) {
-        List<ProcessedMap> mapList = new ArrayList<>();
+    public List<ProcessedMap<LineString>> mapsContainingPoint(CoordinateXY coords) {
+        List<ProcessedMap<LineString>> mapList = new ArrayList<>();
         final org.locationtech.jts.geom.Point point = JTSConverter.FACTORY.createPoint(coords);
         final Envelope pointEnvelope = point.getEnvelopeInternal();
         pointEnvelope.expandBy(1e-6);
@@ -143,7 +143,7 @@ public class MapIndex {
 
         // Not all candidates necessarily contain the point, so check to be sure
         for (var item : items) {
-            ProcessedMap map = (ProcessedMap)item;
+            var map = (ProcessedMap<LineString>)item;
             var boundingPolygon = getBoundingPolygon(map);
             if (boundingPolygon.contains(point)) {
                 mapList.add(map);

@@ -14,7 +14,7 @@ appHealthNotificationTopic: topic.CmAppHealthNotifications
 # BSM
 kafkaTopicOdeBsmJson: topic.OdeBsmJson
 kafkaTopicCmBsmEvent: topic.CMBsmEvents
-kafkaTopicBsmRepartition: topic.BsmJsonRepartition
+kafkaTopicBsmRepartition: topic.CmBsmJsonRepartition
 
 
 # SPAT
@@ -77,7 +77,7 @@ kafka.topics:
     - name: "topic.CmSignalStateConflictEvents"
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: "topic.CmBsmJsonRepartition"
+    - name: topic.CmBsmJsonRepartition
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.ProcessedSpat
@@ -241,7 +241,7 @@ repartition:
   algorithm: defaultRepartitionAlgorithm
   debug: false
   bsmInputTopicName: topic.OdeBsmJson
-  bsmRepartitionOutputTopicName: topic.BsmJsonRepartition
+  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
 
 notification:
   algorithm: defaultNotificationAlgorithm
@@ -308,7 +308,7 @@ intersection.reference.alignment.notification:
 # BSM Events
 bsm.event:
   algorithm: defaultBsmEventAlgorithm
-  inputTopic: topic.BsmJsonRepartition
+  inputTopic: topic.CmBsmJsonRepartition
   outputTopic: topic.CMBsmEvents
   stateStoreName: bsm-event-state-store
   debug: false
