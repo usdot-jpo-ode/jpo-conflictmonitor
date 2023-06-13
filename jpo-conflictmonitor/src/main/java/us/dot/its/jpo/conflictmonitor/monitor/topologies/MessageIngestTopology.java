@@ -158,7 +158,27 @@ public class MessageIngestTopology
                                 new RsuIdPartitioner<RsuIntersectionKey, String>()));
 
 
+        KStream<String, ProcessedMap<LineString>> mapJsonStream = 
+            builder.stream(
+                geoJsonMapTopic, 
+                Consumed.with(
+                    Serdes.String(),
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
+                );
+            
+        // //Group up all of the Maps's based upon the new ID. 
+        KGroupedStream<String, ProcessedMap<LineString>> mapKeyGroup = mapJsonStream.groupByKey(Grouped.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
+        KTable<String, ProcessedMap<LineString>> maptable = 
+            mapKeyGroup
+            .reduce(
+                (oldValue, newValue)->{
+                        return newValue;
+                },
+            Materialized.<String, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(mapStroreName)
+            .withKeySerde(Serdes.String())
+            .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
+            );
 
 
 

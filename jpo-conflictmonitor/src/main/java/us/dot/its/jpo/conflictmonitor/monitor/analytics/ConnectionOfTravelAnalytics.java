@@ -8,6 +8,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 
 @Component(DEFAULT_CONNECTION_OF_TRAVEL_ALGORITHM)
@@ -26,7 +27,7 @@ public class ConnectionOfTravelAnalytics implements ConnectionOfTravelAlgorithm{
         }        
 
         ConnectionOfTravelEvent event = new ConnectionOfTravelEvent();
-        //event.setTimestamp(BsmTimestampExtractor.getBsmTimestamp(path.getIngressBsm()));
+        event.setTimestamp(BsmTimestampExtractor.getBsmTimestamp(path.getIngressBsm()));
         event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
         event.setIntersectionID(path.getIntersection().getIntersectionId());
         event.setIngressLaneID(ingressLane.getId());

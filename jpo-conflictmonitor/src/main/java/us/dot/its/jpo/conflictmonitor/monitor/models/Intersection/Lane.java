@@ -13,7 +13,7 @@ import org.locationtech.jts.io.WKTWriter;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapNode;
-
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
 
 
 
@@ -37,7 +37,7 @@ public class Lane {
         }
         
 
-        List<MapNode> nodes = feature.getProperties().getNodes();
+        List<MapNode> nodes = ((MapProperties)feature.getProperties()).getNodes();
         Coordinate[] coordinates = new Coordinate[nodes.size()];
 
         int sumX = 0;
@@ -55,7 +55,7 @@ public class Lane {
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(coordinates);
         LineString lanePoints = new LineString(sequence, lane.getGeometryFactory());
 
-        if(feature.getProperties().getIngressPath()){
+        if(((MapProperties)feature.getProperties()).getIngressPath()){
             lane.setIngress(true);
         }
         else{
