@@ -96,18 +96,18 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setConflictMonitorProperties(conflictMonitorProperties);
         intersectionEventTopology.setStreamsProperties(streamsProperties);
 
-        when(bsmWindowStoreIterator.hasNext()).thenReturn(true, true, false);
-        when(bsmWindowStoreIterator.next()).thenReturn(kvStartBsm, kvEndBsm);
-        when(bsmWindowStore.fetchAll(any(Instant.class), any(Instant.class))).thenReturn(bsmWindowStoreIterator);
+//        when(bsmWindowStoreIterator.hasNext()).thenReturn(true, true, false);
+//        when(bsmWindowStoreIterator.next()).thenReturn(kvStartBsm, kvEndBsm);
+//        when(bsmWindowStore.fetchAll(any(Instant.class), any(Instant.class))).thenReturn(bsmWindowStoreIterator);
         intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
 
-        when(spatWindowStoreIterator.hasNext()).thenReturn(true, false);
-        when(spatWindowStoreIterator.next()).thenReturn(kvSpat);
-        when(spatWindowStore.fetchAll(any(Instant.class), any(Instant.class))).thenReturn(spatWindowStoreIterator);
+//        when(spatWindowStoreIterator.hasNext()).thenReturn(true, false);
+//        when(spatWindowStoreIterator.next()).thenReturn(kvSpat);
+//        when(spatWindowStore.fetchAll(any(Instant.class), any(Instant.class))).thenReturn(spatWindowStoreIterator);
         intersectionEventTopology.setSpatWindowStore(spatWindowStore);
 
         final var map = new ProcessedMap<LineString>();
-        when(mapStore.get(anyString())).thenReturn(map);
+//        when(mapStore.get(anyString())).thenReturn(map);
         intersectionEventTopology.setMapStore(mapStore);
 
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
