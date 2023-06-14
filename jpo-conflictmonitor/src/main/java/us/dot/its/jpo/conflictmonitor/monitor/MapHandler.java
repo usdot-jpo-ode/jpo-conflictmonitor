@@ -36,9 +36,6 @@ public class MapHandler extends AbstractSubscriberProcessor<String, String> {
 	@Override
 	public Object process(String consumedData) {
 		try {
-
-			System.out.println("Received New Map Message");
-
 			OdeMapData map = deserializeMap(consumedData);
 			extractIntersections(map);
 

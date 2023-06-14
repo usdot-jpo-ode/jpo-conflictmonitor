@@ -39,7 +39,6 @@ public class SpatTimeChangeDetailAggregatorDeserializer implements Deserializer<
                 details.add((SpatTimeChangeDetail)JsonUtils.fromJson(detail.toString(), SpatTimeChangeDetail.class));
             }
             aggregator.setSpatTimeChangeDetails(details);
-            //System.out.println(details);
             return aggregator;
         } catch (IOException e) {
             String errMsg = String.format("Exception deserializing for topic %s: %s", topic, e.getMessage());

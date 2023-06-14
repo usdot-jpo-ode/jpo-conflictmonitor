@@ -95,7 +95,6 @@ public class ConnectionOfTravelAssessmentTopology
         if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
         logger.info("Started ConnectionOfTravelAssessmentTopology.");
-        System.out.println("Started Events Topology");
     }
 
     public Topology buildTopology() {

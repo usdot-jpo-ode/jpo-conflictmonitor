@@ -25,7 +25,7 @@ public class SpatGeoJsonHandler extends AbstractSubscriberProcessor<String, Stri
 	public Object process(String consumedData) {
 		try {
 
-			System.out.println("Spat Message: " + consumedData);
+			// System.out.println("Spat Message: " + consumedData);
 
 		} catch (Exception e) {
 			logger.error("Failed to convert received data to GeoJSON: " + consumedData, e);

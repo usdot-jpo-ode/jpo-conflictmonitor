@@ -60,14 +60,12 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             
             assertEquals(assessmentResults.size(),1);
 
-            ConnectionOfTravelAssessment output = assessmentResults.get(0).value;
-            System.out.println("Connection of Travel Assessment: " + output);
+            ConnectionOfTravelAssessment output = assessmentResults.get(0).value;;
             List<ConnectionOfTravelAssessmentGroup> groups = output.getConnectionOfTravelAssessment();
             
             assertEquals(groups.size(), 1);
 
             ConnectionOfTravelAssessmentGroup group = groups.get(0);
-            System.out.println("ConnectionID: " + group.getConnectionID());
             assertEquals(1, group.getConnectionID());
             assertEquals(5, group.getEgressLaneID());
             assertEquals(12, group.getIngressLaneID());
@@ -106,9 +104,6 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             inputTopic.pipeInput(ConnectionOfTravelEventKey, ConnectionOfTravelMissingEvent);
 
             List<KeyValue<String, ConnectionOfTravelNotification>> assessmentResults = outputTopic.readKeyValuesToList();
-
-            System.out.println("Assessment Results");
-            System.out.println(assessmentResults);
             
             assertEquals(assessmentResults.size(),1);
 

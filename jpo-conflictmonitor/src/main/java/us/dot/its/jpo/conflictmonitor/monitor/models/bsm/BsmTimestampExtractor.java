@@ -37,7 +37,6 @@ public class BsmTimestampExtractor implements TimestampExtractor {
             if(secmark > 50000 && time.getSecond() < 10){
                 refTime = refTime.minus(1, ChronoUnit.MINUTES);
             }
-            //System.out.println(time + ", " + secmark + ", " + second + ", " + nanosecond + ", " + refTime + "," + refTime.toInstant().toEpochMilli());
 
             return refTime.toInstant().toEpochMilli();
         }catch (DateTimeParseException e){

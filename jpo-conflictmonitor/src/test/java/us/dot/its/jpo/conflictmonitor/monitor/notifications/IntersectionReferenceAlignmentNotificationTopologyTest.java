@@ -87,8 +87,6 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
             
             KeyValue<String, IntersectionReferenceAlignmentNotification> notificationKeyValue = notificationResults.get(0);
 
-            System.out.println(notificationResults);
-
             assertEquals("12109", notificationKeyValue.key);
 
             IntersectionReferenceAlignmentNotification notification = notificationKeyValue.value;

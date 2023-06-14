@@ -51,7 +51,6 @@ public class MapGeoJsonHandler extends AbstractSubscriberProcessor<String, Strin
 	public Object process(String consumedData) {
 		try {
 
-			System.out.println("Received New GeoJSON Map Message");
 			ObjectMapper mapper = new ObjectMapper();
 
 			JsonNode actualObj = mapper.readTree(consumedData);
@@ -59,14 +58,10 @@ public class MapGeoJsonHandler extends AbstractSubscriberProcessor<String, Strin
 
 			JsonNode featuresNode = actualObj.get("features");
 
-			//System.out.println(featuresNode);
 			GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
 			LineString[] lanes = new LineString[featuresNode.size()];
 			for(int i =0; i < featuresNode.size(); i++){
-				
-
-				//System.out.println(featuresNode.get(i));
 				
 				JsonNode coordinatesNode = featuresNode.get(i).get("geometry").get("coordinates");
 				Coordinate[] coordList = new Coordinate [coordinatesNode.size()]; 

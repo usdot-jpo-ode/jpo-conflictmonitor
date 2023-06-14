@@ -51,9 +51,6 @@ public class VehiclePath {
                 referencePoint.getX(),
                 referencePoint.getY()
             );
-
-            //System.out.println("Reference Long:" + referencePoint.getX() +"Reference Lat: " + referencePoint.getY() + "Bsm Long:" + position.getLongitude() + "BSM Lat: " + position.getLatitude() + "Shifted Position: " + shiftedPosition[0] + "," + shiftedPosition[1]);
-            
             vehicleCoords[index] = new Coordinate(shiftedPosition[0], shiftedPosition[1]);
             index++;
         }

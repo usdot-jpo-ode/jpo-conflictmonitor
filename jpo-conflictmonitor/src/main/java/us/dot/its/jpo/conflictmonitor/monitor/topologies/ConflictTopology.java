@@ -78,7 +78,6 @@ public class ConflictTopology {
         //     //.suppress(Suppressed.untilWindowCloses(BufferConfig.unbounded().shutDownWhenFull()))
         //     .toStream()
         //     .map((windowedKey, count)->{
-        //         System.out.println("Count" + count);
         //         //String start = timeFormatter.format(windowedKey.window().startTime());
         //         //String end = timeFormatter.format(windowedKey.window().endTime());
         //         //String sessionInfo = String.format("Session info started: %s ended: %s with count %s", start, end, count);
@@ -96,10 +95,6 @@ public class ConflictTopology {
         // Join Input BSM Stream with Stream of Spat Messages
         // KStream<String, SpatFeatureCollection> spatJoinedBsms = 
         //     geoJsonSpatStream.leftJoin(bsmtable, (spatGeoJson, bsmAggregator) -> {
-        //         //System.out.println("spat" + spatGeoJson+ "Bsm Aggregator: "+ bsmAggregator.getBsms().size());
-        //         System.out.println("Bsms" + bsmAggregator.getBsms().size());
-        //         System.out.println("Newest" + bsmAggregator.getBsms().first());
-        //         System.out.println("Oldest"+ bsmAggregator.getBsms().last());
 
 
         //         return null;
