@@ -45,7 +45,6 @@ public class OdeBsmDataJsonDeserializer implements Deserializer<OdeBsmData> {
             OdeBsmData returnData = new OdeBsmData(metadataObject, mapPayload);
             return returnData;
         } catch (IOException e) {
-            System.out.println("BSM Deserialization Failed");
             String errMsg = String.format("Exception deserializing for topic %s: %s", topic, e.getMessage());
             logger.error(errMsg, e);
             throw new RuntimeException(errMsg, e);

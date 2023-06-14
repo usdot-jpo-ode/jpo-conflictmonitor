@@ -45,6 +45,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirection
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
@@ -267,6 +269,20 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<IntersectionConfig<?>>(),
             new GenericJsonDeserializer<IntersectionConfig<?>>(IntersectionConfig.class)
+        );
+    }
+
+    public static Serde<SpatBroadcastRateNotification> SpatBroadcastRateNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatBroadcastRateNotification>(),
+            new GenericJsonDeserializer<SpatBroadcastRateNotification>(SpatBroadcastRateNotification.class)
+        );
+    }
+
+    public static Serde<MapBroadcastRateNotification> MapBroadcastRateNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapBroadcastRateNotification>(),
+            new GenericJsonDeserializer<MapBroadcastRateNotification>(MapBroadcastRateNotification.class)
         );
     }
 

@@ -30,7 +30,6 @@ public class NotificationDeserializer implements Deserializer<Notification> {
         try {
             JsonNode actualObj = mapper.readTree(data);
             Notification notification = deserializeNotification(actualObj);
-            System.out.println(notification);
             return notification;
         } catch (IOException e) {
             String errMsg = String.format("Exception deserializing for topic %s: %s", topic, e.getMessage());
@@ -56,11 +55,10 @@ public class NotificationDeserializer implements Deserializer<Notification> {
             } else if (type.equals("TimeChangeDetailsNotification")) {
                 return (Notification) mapper.treeToValue(actualObj, TimeChangeDetailsNotification.class);
             } else {
-                System.out.println("Cannot Deserialize: " + type);
+                logger.info("Cannot Deserialize: " + type);
             }
 
         } catch (IOException e) {
-            System.out.println("Notification Deserialization Failed");
             String errMsg = String.format("Exception deserializing=%s", e.getMessage());
             logger.error(errMsg, e);
             throw new RuntimeException(errMsg, e);

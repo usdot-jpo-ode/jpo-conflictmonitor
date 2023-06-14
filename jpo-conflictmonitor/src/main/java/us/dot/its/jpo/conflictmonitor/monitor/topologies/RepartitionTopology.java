@@ -79,7 +79,6 @@ public class RepartitionTopology implements RepartitionStreamsAlgorithm {
         if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
         logger.info("Started Repartition Topology");
-        System.out.println(parameters.getBsmInputTopicName());
     }
 
     private Topology buildTopology() {

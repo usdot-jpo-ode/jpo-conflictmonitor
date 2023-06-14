@@ -92,7 +92,6 @@ public class SignalStateEventAssessmentTopology
         if (stateListener != null) streams.setStateListener(stateListener);
         streams.start();
         logger.info("Started SignalStateEventAssessmentTopology.");
-        System.out.println("Started Events Topology");
     }
 
     public Topology buildTopology() {

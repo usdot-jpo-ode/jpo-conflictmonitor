@@ -43,7 +43,6 @@ public class BsmEventProcessor extends AbstractProcessor<String, OdeBsmData> {
     @Override
     public void process(String key, OdeBsmData value) {
         if(!validateBSM(value)){
-            System.out.println("BSM Is not Valid");
             return;
         }
 

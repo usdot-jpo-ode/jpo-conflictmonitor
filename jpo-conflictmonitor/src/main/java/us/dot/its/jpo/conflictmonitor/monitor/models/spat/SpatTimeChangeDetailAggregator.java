@@ -11,7 +11,7 @@ public class SpatTimeChangeDetailAggregator {
     public SpatTimeChangeDetailAggregator(int messageBufferSize){
         if(messageBufferSize < 2){
             messageBufferSize = 2;
-            System.out.println("Supplied Message Buffer Size is < 2. Message Buffer size set to 2. Minimum Message buffer size is 2");
+            // System.out.println("Supplied Message Buffer Size is < 2. Message Buffer size set to 2. Minimum Message buffer size is 2");
         }
         this.messageBufferSize = messageBufferSize;
     }

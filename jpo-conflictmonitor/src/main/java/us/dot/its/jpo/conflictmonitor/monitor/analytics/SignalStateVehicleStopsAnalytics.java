@@ -43,7 +43,6 @@ public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStops
         J2735Bsm bsmData = (J2735Bsm)bsm.getPayload().getData();
         if(bsmData != null && bsmData.getCoreData().getSpeed().doubleValue() > parameters.getStopSpeedThreshold()){
             // Don't generate an Event if the vehicle is moving.
-            System.out.println("Vehicle did not stop at light");
             return null;
         }
 
@@ -53,8 +52,6 @@ public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStops
         ProcessedSpat matchingSpat = spats.getSpatAtTime(bsmTime);
 
         if(matchingSpat == null || Math.abs(spats.getSpatTimeDelta(matchingSpat, bsmTime)) > parameters.getSpatBsmMatchWindowMillis()){
-            System.out.println("Spat and BSM Timestamps do not align");
-            System.out.println("Spat Time: " + SpatTimestampExtractor.getSpatTimestamp(matchingSpat) + " BSM Time: " + bsmTime);
             // Don't generate event if the spat time delta is greater than configurable threshold
             return null;
         }
@@ -64,7 +61,7 @@ public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStops
         J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, connection.getSignalGroup());
 
         if(signalState == null){
-            System.out.println("There is no corresponding Signal Group for the provided lane connection");
+            // Don't generate event if no corresponding signal group can be found for the lane connection
             return null;
         }
 

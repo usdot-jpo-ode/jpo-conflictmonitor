@@ -147,6 +147,12 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String notificationAlgorithm;
    private NotificationParameters notificationAlgorithmParameters;
 
+   // Confluent Properties
+   private boolean confluentCloudEnabled = false;
+   private String confluentKey = null;
+   private String confluentSecret = null;
+
+
    
 
    private IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
@@ -589,7 +595,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.notificationAlgorithmParameters = notificationAlgorithmParameters;
    }
 
-   
+   public Boolean getConfluentCloudStatus() {
+		return confluentCloudEnabled;
+	}
 
    public Boolean isVerboseJson() {
       return this.verboseJson;
@@ -863,6 +871,18 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
          }
       }
 
+      String kafkaType = CommonUtils.getEnvironmentVariable("KAFKA_TYPE");
+      if (kafkaType != null) {
+         confluentCloudEnabled = kafkaType.equals("CONFLUENT");
+         if (confluentCloudEnabled) {
+               
+               System.out.println("Enabling Confluent Cloud Integration");
+
+               confluentKey = CommonUtils.getEnvironmentVariable("CONFLUENT_KEY");
+               confluentSecret = CommonUtils.getEnvironmentVariable("CONFLUENT_SECRET");
+         }
+      }
+
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
          String dockerIp = CommonUtils.getEnvironmentVariable("DOCKER_HOST_IP");
@@ -895,7 +915,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 2);
 
-      streamProps.put(StreamsConfig.producerPrefix("acks"), "all");
+      // streamProps.put(StreamsConfig.producerPrefix("acks"), "all");
+      streamProps.put(StreamsConfig.producerPrefix(ProducerConfig.ACKS_CONFIG), "all");
 
       // Reduce cache buffering per topology to 1MB
       streamProps.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 1 * 1024 * 1024L);
@@ -922,6 +943,22 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Disable batching
       streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+      if (confluentCloudEnabled) {
+         streamProps.put("ssl.endpoint.identification.algorithm", "https");
+         streamProps.put("security.protocol", "SASL_SSL");
+         streamProps.put("sasl.mechanism", "PLAIN");
+
+         if (confluentKey != null && confluentSecret != null) {
+             String auth = "org.apache.kafka.common.security.plain.PlainLoginModule required " +
+                 "username=\"" + confluentKey + "\" " +
+                 "password=\"" + confluentSecret + "\";";
+                 streamProps.put("sasl.jaas.config", auth);
+         }
+         else {
+             logger.error("Environment variables CONFLUENT_KEY and CONFLUENT_SECRET are not set. Set these in the .env file to use Confluent Cloud");
+         }
+     }
 
 
       return streamProps;
@@ -974,6 +1011,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       return kafkaBrokers;
    }
 
+   @Value("${spring.kafka.bootstrap-servers}")
    public void setKafkaBrokers(String kafkaBrokers) {
       this.kafkaBrokers = kafkaBrokers;
    }
