@@ -12,7 +12,6 @@ public class AlwaysContinueProductionExceptionHandler implements ProductionExcep
     }
     @Override
     public ProductionExceptionHandlerResponse handle(ProducerRecord<byte[], byte[]> record, Exception exception) {
-        System.out.println("Handled Error");
         return ProductionExceptionHandlerResponse.CONTINUE;
     }
 }

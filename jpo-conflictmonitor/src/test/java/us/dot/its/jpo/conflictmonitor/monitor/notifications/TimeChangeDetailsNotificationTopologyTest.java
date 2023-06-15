@@ -83,11 +83,7 @@ public class TimeChangeDetailsNotificationTopologyTest {
             List<KeyValue<String, TimeChangeDetailsNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
             assertEquals(1, notificationResults.size());
  
-            // System.out.println(notificationResults);
-            
             KeyValue<String, TimeChangeDetailsNotification> notificationKeyValue = notificationResults.get(0);
-
-            // System.out.println(notificationResults);
 
             assertEquals("12109", notificationKeyValue.key);
 

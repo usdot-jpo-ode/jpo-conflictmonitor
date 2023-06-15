@@ -21,7 +21,6 @@ public class IntersectionLine {
             
             return new IntersectionLine(startPoint, heading, lane);
         }else{
-            System.out.println("Unable to Create Intersection Line. Lane has less than 2 points.");
             return null;
         }
         

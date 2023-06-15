@@ -177,12 +177,10 @@ public class SignalGroupAlignmentNotificationTopologyTest {
 
 
             
-            System.out.println(notificationResults);
             assertEquals(2, notificationResults.size());
             
             KeyValue<String, SignalStateConflictNotification> notificationKeyValue = notificationResults.get(0);
 
-            // System.out.println(notificationResults);
 
             assertEquals("12109", notificationKeyValue.key);
 
@@ -190,7 +188,6 @@ public class SignalGroupAlignmentNotificationTopologyTest {
 
             assertEquals("SignalStateConflictNotification", notification.getNotificationType());
 
-            System.out.println(notification);
 
             assertEquals("Signal State Conflict Notification, generated because corresponding signal state conflict event was generated.", notification.getNotificationText());
 

@@ -191,13 +191,13 @@ public class LaneConnection {
 
         if (connectingPath.intersects(otherConnection.connectingPath)) {
             if (this.signalGroup == otherConnection.signalGroup) {
-                System.out.println("Conflict Detected between " + this.ingress.getLaneID() + ","
-                        + this.egress.getLaneID() + " and " + otherConnection.ingress.getLaneID() + ","
-                        + otherConnection.egress.getLaneID());
-                System.out.println("First Path");
-                printConnectingPath();
-                System.out.println("Second Path");
-                otherConnection.printConnectingPath();
+                // System.out.println("Conflict Detected between " + this.ingress.getLaneID() + ","
+                //         + this.egress.getLaneID() + " and " + otherConnection.ingress.getLaneID() + ","
+                //         + otherConnection.egress.getLaneID());
+                // System.out.println("First Path");
+                // printConnectingPath();
+                // System.out.println("Second Path");
+                // otherConnection.printConnectingPath();
 
                 return true;
             }

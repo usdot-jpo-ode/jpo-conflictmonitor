@@ -42,8 +42,6 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         ProcessedSpat matchingSpat = spats.getSpatAtTime(bsmTime);
 
         if(matchingSpat == null || Math.abs(spats.getSpatTimeDelta(matchingSpat, bsmTime)) > parameters.getSpatBsmMatchWindowMillis()){
-            System.out.println("Spat and BSM Timestamps do not align");
-            System.out.println("Spat Time: " + SpatTimestampExtractor.getSpatTimestamp(matchingSpat) + " BSM Time: " + bsmTime);
             // Don't generate event if the spat time delta is greater than configurable threshold
             return null;
         }

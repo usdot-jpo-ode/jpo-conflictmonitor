@@ -28,8 +28,6 @@ public class MapIntersection {
         this.laneConnections = new ArrayList<>();
 
         extractConnections();
-        // String wkt = getConnectionsAsWKT();
-        //System.out.println(wkt);
         getPathAsLatLong();
     }
 

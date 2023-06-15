@@ -189,7 +189,6 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
 
             LaneDirectionOfTravelNotification output = notificationResults.get(0).value;
             
-            System.out.println(output.getNotificationText());
             assertEquals(output.getNotificationHeading(), "Lane Direction of Travel Assessment");
             assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median distance from centerline: 97 cm for segment 8 of lane 12 is not within the allowed tolerance 50.0 cm of the center of the lane.");
             assertEquals(output.getNotificationType(), "LaneDirectionOfTravelAssessmentNotification");

@@ -82,11 +82,11 @@ public class ConfigTopologyTest {
 
             defaultTopic.pipeInput(key, defaultConfig);
             var defaultStore = driver.getKeyValueStore(defaultStateStore);
-            var iterator = defaultStore.all();
-            while (iterator.hasNext()) {
-                var item = iterator.next();
-                System.out.println(item.key + " " + item.value);
-            }
+            // var iterator = defaultStore.all();
+            // while (iterator.hasNext()) {
+            //     var item = iterator.next();
+            //     System.out.println(item.key + " " + item.value);
+            // }
             var defaultResult = defaultStore.get(key);
             
             assertThat("default state store", defaultResult, equalTo(defaultConfig));            

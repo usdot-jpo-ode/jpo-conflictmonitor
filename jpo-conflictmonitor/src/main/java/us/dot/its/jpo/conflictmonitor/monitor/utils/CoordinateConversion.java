@@ -70,18 +70,12 @@ public class CoordinateConversion {
             geoCalc.setStartingPosition(new DirectPosition2D(0,0));
             geoCalc.setDestinationPosition(new DirectPosition2D(offsetX, offsetY));
         } catch (TransformException e) {
-            System.out.println("Failed to offset in Geodeteic Calculator");
             e.printStackTrace();
         }
         
         
         double azimuth = geoCalc.getAzimuth();
         double orthDistance = geoCalc.getOrthodromicDistance();
-
-        System.out.println(Math.toDegrees(direction) + ", " + azimuth+", " +  distance + ", "+  orthDistance);
-        
-
-
 
         Point2D convertedPoint = geoCalc.getDestinationGeographicPoint();
         double output[] = {convertedPoint.getX(), convertedPoint.getY()}; 
