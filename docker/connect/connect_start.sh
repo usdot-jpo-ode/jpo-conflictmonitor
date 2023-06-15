@@ -44,13 +44,13 @@ declare -A CmSignalStateEvent=([name]="topic.CmSignalStateEvent" [collection]="C
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEvent" [collection]="CmSpatTimeChangeDetailsEvent"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
-declare -A CmMapBroadcastRateEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
+declare -A CmSpatMinimumDataEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
     [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
     [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
-declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
+declare -A CmMapMinimumDataEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
     [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
-declare -A CmMapBroadcastRateEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
+declare -A CmBsmEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
