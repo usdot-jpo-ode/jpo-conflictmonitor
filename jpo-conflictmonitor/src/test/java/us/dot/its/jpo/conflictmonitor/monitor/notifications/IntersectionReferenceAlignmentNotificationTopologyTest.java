@@ -104,7 +104,7 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
             assertEquals(1, event.getSpatIntersectionIds().size());
             assertTrue(event.getSpatIntersectionIds().contains(12109));
 
-            assertEquals(null,event.getMapRoadRegulatorIds());
+            assertTrue(event.getMapIntersectionIds().contains(12109));
             
             
         }

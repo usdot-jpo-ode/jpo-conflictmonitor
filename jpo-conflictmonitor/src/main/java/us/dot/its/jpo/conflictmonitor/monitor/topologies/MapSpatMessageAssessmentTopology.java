@@ -25,6 +25,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateCo
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
@@ -125,13 +126,11 @@ public class MapSpatMessageAssessmentTopology
 
                             if (value.getMap() != null) {
                                 ProcessedMap map = value.getMap();
-                                Set<Integer> intersectionIds = new HashSet<>();
+                                event.setMapRoadRegulatorIds(getAsSet(-1));
+                                event.setMapIntersectionIds(getAsSet(map.getProperties().getIntersectionId()));
+                                event.setIntersectionID(map.getProperties().getIntersectionId());
+                                event.setRoadRegulatorID(-1);
 
-                                // TODO
-                                // for(MapFeature feature: map.getFeatures()){
-                                // intersectionIds.add(feature.getId());
-                                // }
-                                // event.setMapRoadRegulatorIds(intersectionIds);
 
                             }
 
@@ -140,6 +139,12 @@ public class MapSpatMessageAssessmentTopology
                                 event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
                                 event.setSpatRoadRegulatorIds(getAsSet(spat.getRegion()));
                                 event.setSpatIntersectionIds(getAsSet(spat.getIntersectionId()));
+                                event.setIntersectionID(spat.getIntersectionId());
+                                if(spat.getRegion() != null){
+                                    event.setRoadRegulatorID(spat.getRegion());
+                                }else{
+                                    event.setRoadRegulatorID(-1);
+                                }
                             }
 
                             if (!event.getSpatRoadRegulatorIds().equals(event.getMapRoadRegulatorIds()) ||
