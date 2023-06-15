@@ -1,5 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.State;
+import org.apache.kafka.streams.kstream.Windowed;
 import org.locationtech.jts.index.quadtree.Quadtree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 @Getter
 @Setter
@@ -71,6 +77,7 @@ public class AppHealthMonitor {
     @Autowired AlgorithmParameters algorithmParameters;
     @Autowired ConfigTopology configTopology;
     @Autowired MapIndex mapIndex;
+    @Autowired IntersectionEventTopology intersectionEventTopology;
 
   
     public List<Object> parameterObjects() {
@@ -95,7 +102,8 @@ public class AppHealthMonitor {
                     "properties",
                     "streams",
                     "connectors",
-                    "spatial-indexes"
+                    "spatial-indexes",
+                    "spat-window-store"
                 );
             return getJsonResponse(linkMap);
         } catch (Exception ex) {
@@ -247,6 +255,45 @@ public class AppHealthMonitor {
         return getJsonResponse(allItems);
     }
 
+    @GetMapping(value = "/spat-window-store")
+    public @ResponseBody ResponseEntity<String> spatWindowStore() {
+        var spatWindowStore = intersectionEventTopology.getSpatWindowStore();
+        var intersectionMap = new IntersectionSpatMap();
+        var formatter = DateTimeFormatter.ISO_DATE_TIME;
+       try (var spatIterator = spatWindowStore.all()) {
+           while (spatIterator.hasNext()) {
+               var kvp = spatIterator.next();
+               Windowed<String> key = kvp.key;
+               Instant startTime = key.window().startTime();
+               Instant endTime = key.window().endTime();
+               ProcessedSpat value = kvp.value;
+               Integer intersectionId = value.getIntersectionId();
+               TreeMap<String, List<ProcessedSpat>> spats = null;
+               if (intersectionMap.containsKey(intersectionId)) {
+                   spats = intersectionMap.get(intersectionId);
+               } else {
+                   spats = new TreeMap<String, List<ProcessedSpat>>();
+                   intersectionMap.put(intersectionId, spats);
+               }
+               String window = String.format("%s / %s", formatter.format(startTime.atZone(ZoneOffset.UTC)), formatter.format(endTime.atZone(ZoneOffset.UTC)));
+               List<ProcessedSpat> spatList = null;
+               if (spats.containsKey(window)) {
+                   spatList = spats.get(window);
+               } else {
+                   spatList = new ArrayList<ProcessedSpat>();
+                   spats.put(window, spatList);
+               }
+               spatList.add(value);
+           }
+       }
+       return getJsonResponse(intersectionMap);
+    }
+
+//    @GetMapping(value = "/bsm-window-store")
+//    public @ResponseBody ResponseEntity<String> bsmWindowStore() {
+//
+//    }
+
     private Map<String, KafkaStreams> getKafkaStreamsMap() {
 
         
@@ -312,5 +359,9 @@ public class AppHealthMonitor {
     private String baseUrl() {
         return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }
+
+    public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, List<ProcessedSpat>>> {}
+
+
 
 }

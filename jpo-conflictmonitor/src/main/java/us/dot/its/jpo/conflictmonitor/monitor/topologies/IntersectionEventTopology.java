@@ -241,6 +241,7 @@ public class IntersectionEventTopology
     }
 
     private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
+        logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -264,18 +265,24 @@ public class IntersectionEventTopology
         bsmRange.close();
         agg.sort();
 
+        logger.info("Found {} BSMs", agg.getBsms().size());
+
         return agg;
     }
 
     private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start, Instant end){
 
+        logger.info("getSpatByTime: Start: {}, {}", start, end);
+
         Instant timeFrom = start.minusSeconds(60);
-        Instant timeTo = start.plusSeconds(60);
+        Instant timeTo = end.plusSeconds(60);
 
         // long startMillis = start.toEpochMilli();
         // long endMillis = end.toEpochMilli();
 
         KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(timeFrom, timeTo);
+
+
 
 
         SpatAggregator spatAggregator = new SpatAggregator();
@@ -292,8 +299,11 @@ public class IntersectionEventTopology
         spatRange.close();
         spatAggregator.sort();
 
+        logger.info("Found {} SPATs", spatAggregator.getSpats().size());
+
         return spatAggregator;
     }
+
 
 
     private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore, String key){
@@ -372,10 +382,10 @@ public class IntersectionEventTopology
                 }
 
 
-                System.out.println("Detected Vehicle Event");
-                System.out.println("Vehicle ID: " + ((J2735Bsm)value.getStartingBsm().getPayload().getData()).getCoreData().getId());
-                System.out.println("Captured Bsms:  " + bsms.getBsms().size());
-                System.out.println("Captured Spats: " + spats.getSpats().size());
+                logger.info("Detected Vehicle Event");
+                logger.info("Vehicle ID: " + ((J2735Bsm)value.getStartingBsm().getPayload().getData()).getCoreData().getId());
+                logger.info("Captured Bsms:  " + bsms.getBsms().size());
+                logger.info("Captured Spats: " + spats.getSpats().size());
                 return result;
             }
         );

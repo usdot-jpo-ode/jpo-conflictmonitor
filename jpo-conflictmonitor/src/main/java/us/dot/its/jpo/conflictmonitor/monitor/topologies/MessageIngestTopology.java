@@ -125,7 +125,7 @@ public class MessageIngestTopology
 
         // //Take the Spats's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         // //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        spatKeyGroup.windowedBy(TimeWindows.of(Duration.ofSeconds(30)).grace(Duration.ofSeconds(30)))
+        spatKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofSeconds(30), Duration.ofSeconds(30)))
         .reduce(
             (oldValue, newValue)->{
                     return newValue;
