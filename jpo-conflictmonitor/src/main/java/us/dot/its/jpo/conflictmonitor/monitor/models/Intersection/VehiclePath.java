@@ -1,7 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -9,6 +12,8 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
@@ -16,7 +21,11 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 
+@Getter
+@Setter
 public class VehiclePath {
+
+    private static final Logger logger = LoggerFactory.getLogger(VehiclePath.class);
     
     private LineString pathPoints;
     private BsmAggregator bsms;
@@ -38,7 +47,11 @@ public class VehiclePath {
 
     public void buildVehiclePath(){
         Coordinate referencePoint = this.intersection.getReferencePoint();
-        
+
+        if (referencePoint == null) {
+            logger.error("Reference point is null");
+            return;
+        }
        
         Coordinate[] vehicleCoords = new Coordinate[bsms.getBsms().size()];
         int index =0;
@@ -62,7 +75,8 @@ public class VehiclePath {
     }
 
     public void calculateIngress(){
-        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines(), bsms);
+        if (intersection.getStopLines() == null) return;
+        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines());
         if(match != null){
             this.ingressLane = match.getLane();
             this.ingressBsm = match.getBsm();
@@ -70,7 +84,8 @@ public class VehiclePath {
     }
 
     public void calculateEgress(){
-        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStartLines(), bsms);
+        if (intersection.getStartLines() == null) return;
+        LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStartLines());
         if(match != null){
             this.egressLane = match.getLane();
             this.egressBsm = match.getBsm();
@@ -78,7 +93,7 @@ public class VehiclePath {
     }
 
 
-    public LineVehicleIntersection findLineVehicleIntersection(ArrayList<IntersectionLine> lines, BsmAggregator bsms){
+    public LineVehicleIntersection findLineVehicleIntersection(List<IntersectionLine> lines){
         double minDistance = Double.MAX_VALUE;
         OdeBsmData matchingBsm = null;
         IntersectionLine bestLine = null;
@@ -109,75 +124,13 @@ public class VehiclePath {
         }
     }
     
-    public Lane getIngressLane() {
-        return ingressLane;
-    }
 
-    public void setIngressLane(Lane ingressLane) {
-        this.ingressLane = ingressLane;
-    }
-
-    public Lane getEgressLane() {
-        return egressLane;
-    }
-
-    public void setEgressLane(Lane egressLane) {
-        this.egressLane = egressLane;
-    }
-
-    public OdeBsmData getIngressBsm() {
-        return ingressBsm;
-    }
-
-    public void setIngressBsm(OdeBsmData ingressBsm) {
-        this.ingressBsm = ingressBsm;
-    }
-
-    public OdeBsmData getEgressBsm() {
-        return egressBsm;
-    }
-
-    public void setEgressBsm(OdeBsmData egressBsm) {
-        this.egressBsm = egressBsm;
-    }
-
-    public LineString getPathPoints() {
-        return pathPoints;
-    }
-
-    public void setPathPoints(LineString pathPoints) {
-        this.pathPoints = pathPoints;
-    }
-
-    public BsmAggregator getBsms() {
-        return bsms;
-    }
-
-    public void setBsms(BsmAggregator bsms) {
-        this.bsms = bsms;
-    }
-
-    public Intersection getIntersection() {
-        return intersection;
-    }
-
-    public void setIntersection(Intersection intersection) {
-        this.intersection = intersection;
-    }
-
-    public GeometryFactory getGeometryFactory() {
-        return geometryFactory;
-    }
-
-    public void setGeometryFactory(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
-    }
     
     public String getVehiclePathAsWkt() {
         WKTWriter writer = new WKTWriter(2);
         String wtkOut = "wtk\n";
         writer.setFormatted(true);
-        
+
         wtkOut += "\"" + writer.writeFormatted(this.pathPoints) + "\"\n";
 
         return wtkOut;

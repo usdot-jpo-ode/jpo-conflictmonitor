@@ -21,6 +21,13 @@
     <java.version>11</java.version>
     <!-- Resource delimeter for build properties in application.yaml -->
     <resource.delimeter>^</resource.delimeter>
+
+    <!-- Jacoco/Sonar properties -->
+    <jacoco.version>0.8.8</jacoco.version>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.coverage.jacoco.xmReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmReportPaths>
+    <sonar.language>java</sonar.language>
   </properties>
   <dependencies>
     <!-- Spring Boot Dependencies -->
@@ -113,6 +120,19 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jacoco</groupId>
+      <artifactId>jacoco-maven-plugin</artifactId>
+      <version>${jacoco.version}</version>
+      <scope>test</scope>
+   </dependency>
+   <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.2.0</version>
+      <scope>test</scope>
+  </dependency>
+
+   <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
       <version>${geotools.version}</version>
@@ -168,16 +188,24 @@
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>3.9.0.2155</version>
+      </plugin>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <jvmArguments>${argLine}</jvmArguments>
+        </configuration>
         <executions>
-                <execution>
-                    <id>build-info</id>
-                    <goals>
-                        <goal>build-info</goal>
-                    </goals>
-                </execution>
-            </executions>
+            <execution>
+                <id>build-info</id>
+                <goals>
+                    <goal>build-info</goal>
+                </goals>
+            </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -198,6 +226,27 @@
       </plugin>
 
       <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <executions>
+          <execution>
+            <id>jacoco-initialize</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-site</id>
+            <phase>package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.3.0</version>
@@ -213,7 +262,7 @@
                 </configuration>
             </execution>
         </executions>
-    </plugin>
+      </plugin>
 
 
     </plugins>

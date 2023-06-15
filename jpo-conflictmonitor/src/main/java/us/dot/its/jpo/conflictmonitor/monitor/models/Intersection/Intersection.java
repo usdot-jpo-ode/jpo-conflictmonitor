@@ -2,7 +2,9 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
@@ -15,16 +17,16 @@ import org.locationtech.jts.io.WKTWriter;
 public class Intersection {
     
     
-    private ArrayList<Lane> ingressLanes;
-    private ArrayList<Lane> egressLanes;
-    private ArrayList<IntersectionLine> stopLines;
-    private ArrayList<IntersectionLine> startLines;
+    private List<Lane> ingressLanes;
+    private List<Lane> egressLanes;
+    private List<IntersectionLine> stopLines;
+    private List<IntersectionLine> startLines;
     private Coordinate referencePoint;
     private Integer intersectionId;
     private Integer roadRegulatorId;
     private ArrayList<LaneConnection> laneConnections;
 
-    public static Intersection fromProcessedMap(ProcessedMap map){
+    public static Intersection fromProcessedMap(ProcessedMap<LineString> map){
 
         Intersection intersection = new Intersection();
         ArrayList<Lane> ingressLanes = new ArrayList<>();
@@ -32,6 +34,7 @@ public class Intersection {
         ArrayList<LaneConnection> laneConnections = new ArrayList<>();
         HashMap<Integer, Lane> laneLookup = new HashMap<>();
 
+        if (map.getProperties() == null) return intersection;
 
         intersection.setIntersectionId(map.getProperties().getIntersectionId());
         if(map.getProperties().getRegion() != null){
@@ -45,10 +48,9 @@ public class Intersection {
 
 
 
-        MapFeatureCollection features = map.getMapFeatureCollection();
-        for(Object f: features.getFeatures()){
-            MapFeature feature = (MapFeature)f;
-            MapProperties props = (MapProperties)feature.getProperties();
+        MapFeatureCollection<LineString> features = map.getMapFeatureCollection();
+        for(MapFeature<LineString> feature: features.getFeatures()){
+            MapProperties props = feature.getProperties();
             Lane lane = Lane.fromGeoJsonFeature(feature, intersection.getReferencePoint(), laneWidth);
             if(props.getIngressPath()){
                 ingressLanes.add(lane);
@@ -58,11 +60,9 @@ public class Intersection {
             laneLookup.put(lane.getId(), lane);
         }
 
-        for(Object f: features.getFeatures()){
-            MapFeature feature = (MapFeature)f;
-            MapProperties props = (MapProperties)feature.getProperties();
-            if(props.getConnectsTo() != null){
-                for(J2735Connection laneConnection: props.getConnectsTo()){
+        for(MapFeature<LineString> feature: features.getFeatures()){
+            if(feature.getProperties().getConnectsTo() != null){
+                for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
                     Lane ingressLane = laneLookup.get(feature.getId());
                     Lane egressLane = laneLookup.get(laneConnection.getConnectingLane().getLane());
                     int connectionId = -1;
@@ -137,7 +137,7 @@ public class Intersection {
         return connections;
     }
 
-    public ArrayList<Lane> getIngressLanes() {
+    public List<Lane> getIngressLanes() {
         return ingressLanes;
     }
 
@@ -146,7 +146,7 @@ public class Intersection {
         this.updateStopLines(); // automatically update Stop Line Locations when new ingress Lanes are assigned.
     }
 
-    public ArrayList<Lane> getEgressLanes() {
+    public List<Lane> getEgressLanes() {
         return egressLanes;
     }
 
@@ -156,26 +156,26 @@ public class Intersection {
     }
 
     public int getIntersectionId() {
-        return intersectionId;
+        return intersectionId != null ? intersectionId : 0;
     }
 
     public void setIntersectionId(int intersectionId) {
         this.intersectionId = intersectionId;
     }
 
-    public ArrayList<IntersectionLine> getStopLines() {
+    public List<IntersectionLine> getStopLines() {
         return stopLines;
     }
 
-    public void setStopLines(ArrayList<IntersectionLine> stopLines) {
+    public void setStopLines(List<IntersectionLine> stopLines) {
         this.stopLines = stopLines;
     }
 
-    public ArrayList<IntersectionLine> getStartLines() {
+    public List<IntersectionLine> getStartLines() {
         return startLines;
     }
 
-    public void setStartLines(ArrayList<IntersectionLine> startLines) {
+    public void setStartLines(List<IntersectionLine> startLines) {
         this.startLines = startLines;
     }
 

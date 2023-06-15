@@ -2,14 +2,30 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 
-public class BsmIntersectionKey implements RsuIdKey{
+@EqualsAndHashCode
+@Getter
+@Setter
+public class BsmIntersectionKey implements RsuIdKey {
+
+    private static final Logger logger = LoggerFactory.getLogger(BsmIntersectionKey.class);
 
     private String rsuId;
+    private String bsmId;
 
-    public BsmIntersectionKey(String rsuId){
+    public BsmIntersectionKey() {}
+
+    public BsmIntersectionKey(String rsuId, String bsmId){
         this.rsuId = rsuId;
+        this.bsmId = bsmId;
     }
 
     @Override
@@ -17,34 +33,16 @@ public class BsmIntersectionKey implements RsuIdKey{
         return this.rsuId;
     }
 
-    public void setRsuId(String rsuId) {
-        this.rsuId = rsuId;
-    }
-
-     @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof BsmIntersectionKey)) {
-            return false;
-        }
-        BsmIntersectionKey bsmIntersectionKey = (BsmIntersectionKey) o;
-        return Objects.equals(rsuId, bsmIntersectionKey.rsuId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(rsuId);
-    }
-    
-
-
-
     @Override
     public String toString() {
-        return "{" +
-            " rsuId='" + getRsuId() + "'" +
-            "}";
+        var mapper = DateJsonMapper.getInstance();
+        String json = "";
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            logger.error("Error writing BsmIntersectionKey as JSON string", e);
+        }
+        return json;
     }
     
 

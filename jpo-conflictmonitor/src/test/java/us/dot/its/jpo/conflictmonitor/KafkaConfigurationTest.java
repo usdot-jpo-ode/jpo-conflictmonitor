@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor;
+package us.dot.its.jpo.conflictmonitor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

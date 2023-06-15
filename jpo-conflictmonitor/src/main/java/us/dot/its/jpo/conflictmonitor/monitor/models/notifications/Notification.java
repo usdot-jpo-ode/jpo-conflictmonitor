@@ -2,10 +2,13 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import java.time.ZonedDateTime;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.app_health.KafkaStreamsAnomalyNotification;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 /**
@@ -21,6 +25,20 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
  * <p>Notifications are informational messages that signal
  * an anomaly or error condition.
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "notificationType"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ConnectionOfTravelNotification.class, name = "ConnectionOfTravelNotification"),
+        @JsonSubTypes.Type(value = IntersectionReferenceAlignmentNotification.class, name = "IntersectionReferenceAlignmentNotification"),
+        @JsonSubTypes.Type(value = LaneDirectionOfTravelNotification.class, name = "LaneDirectionOfTravelAssessmentNotification"),
+        @JsonSubTypes.Type(value = SignalGroupAlignmentNotification.class, name = "SignalGroupAlignmentNotification"),
+        @JsonSubTypes.Type(value = SignalStateConflictNotification.class, name = "SignalStateConflictNotification"),
+        @JsonSubTypes.Type(value = TimeChangeDetailsNotification.class, name = "TimeChangeDetailsNotification"),
+        @JsonSubTypes.Type(value = KafkaStreamsAnomalyNotification.class, name = "AppHealthNotification"),
+})
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -40,6 +58,10 @@ public abstract class Notification {
     public int intersectionID;
     public int roadRegulatorID;
 
+    public Notification() {
+        this.notificationType = this.getClass().getSimpleName();
+    }
+
     public Notification(String notificationType) {
         this.notificationType = notificationType;
     }
@@ -54,6 +76,7 @@ public abstract class Notification {
      * for purposes of suppressing duplicates within the Conflict Monitor.  
      * It should not depend on the absolute values of any timestamp fields.
      */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public abstract String getUniqueId();
 
     @Override

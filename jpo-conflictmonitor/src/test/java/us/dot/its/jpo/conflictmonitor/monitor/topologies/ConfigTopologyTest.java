@@ -3,21 +3,32 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.state.QueryableStoreType;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.any;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ConfigTopologyTest {
 
     final String defaultTopicName = "topic.CmDefaultConfig";
@@ -94,6 +105,34 @@ public class ConfigTopologyTest {
         }
 
     }
+
+    @Test
+    public void testInitializeProperties() {
+        var configTopology = new ConfigTopology();
+        var streams = mock(KafkaStreams.class);
+        when(streams.state()).thenReturn(KafkaStreams.State.ERROR, KafkaStreams.State.CREATED, KafkaStreams.State.RUNNING);
+        configTopology.setStreams(streams);
+        configTopology.initializeProperties();
+
+    }
+
+    @Mock ReadOnlyKeyValueStore<String, DefaultConfig<Integer>> defaultStore;
+
+    @Test
+    public void testGetDefaultConfig() {
+        var configTopology = new ConfigTopology();
+        var parameters = getParameters();
+        configTopology.setParameters(parameters);
+        var streams = mock(KafkaStreams.class);
+        when(streams.store(any())).thenReturn(defaultStore);
+        final DefaultConfig<Integer> defaultConfig = new DefaultConfig<>();
+        when(defaultStore.get(anyString())).thenReturn(defaultConfig);
+        configTopology.setStreams(streams);
+        var result = configTopology.getDefaultConfig(key);
+        assertThat(result, equalTo(defaultConfig));
+    }
+
+
 
     private ConfigParameters getParameters() {
         var parameters = new ConfigParameters();

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.internals.TimeWindow;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MinimumDataEvent;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -17,7 +18,8 @@ import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
 /**
  * Common code for {@link MapValidationTopology} and {@link SpatAssessmentsTopoloby}
  */
-public abstract class BaseValidationTopology {
+public abstract class BaseValidationTopology<TParams>
+    extends BaseStreamsTopology<TParams> {
     
     protected void populateMinDataEvent(
             RsuIntersectionKey key,

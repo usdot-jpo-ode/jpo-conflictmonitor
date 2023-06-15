@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 
+import org.slf4j.Logger;
+
 /**
  * General interface for an algorithm that can be started and stopped.
  * 
@@ -14,6 +16,8 @@ public interface ExecutableAlgorithm {
      * 
      */
     void start();
+
+
 
     /**
      * Stops running the algorithm.

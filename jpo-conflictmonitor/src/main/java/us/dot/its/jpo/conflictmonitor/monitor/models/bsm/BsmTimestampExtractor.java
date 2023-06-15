@@ -9,10 +9,14 @@ import java.time.temporal.TemporalUnit;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.processor.TimestampExtractor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
 public class BsmTimestampExtractor implements TimestampExtractor {
+
+    private static final Logger logger = LoggerFactory.getLogger(BsmTimestampExtractor.class);
 
     @Override
     public long extract(ConsumerRecord<Object, Object> record, long partitionTime) {
@@ -39,8 +43,8 @@ public class BsmTimestampExtractor implements TimestampExtractor {
             }
 
             return refTime.toInstant().toEpochMilli();
-        }catch (DateTimeParseException e){
-            System.out.println("Timestamp Parsing Failed");
+        } catch (Exception e){
+            logger.error("Timestamp Parsing Failed", e);
             return -1;
         }
     }

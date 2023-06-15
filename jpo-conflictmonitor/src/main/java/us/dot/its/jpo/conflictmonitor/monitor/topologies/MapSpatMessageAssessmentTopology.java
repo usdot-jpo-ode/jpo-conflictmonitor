@@ -2,28 +2,20 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.Joined;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Printed;
-import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.KeyValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
@@ -39,71 +31,28 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.*;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
+
 @Component(DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM)
-public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmentStreamsAlgorithm {
+public class MapSpatMessageAssessmentTopology
+        extends BaseStreamsTopology<MapSpatMessageAssessmentParameters>
+        implements MapSpatMessageAssessmentStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MapSpatMessageAssessmentTopology.class);
 
-    MapSpatMessageAssessmentParameters parameters;
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
+
 
     @Override
-    public void setParameters(MapSpatMessageAssessmentParameters parameters) {
-        this.parameters = parameters;
+    protected Logger getLogger() {
+        return logger;
     }
 
-    @Override
-    public MapSpatMessageAssessmentParameters getParameters() {
-        return parameters;
-    }
 
-    @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-        this.streamsProperties = streamsProperties;
-    }
-
-    @Override
-    public Properties getStreamsProperties() {
-        return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-        if (streamsProperties == null) {
-            throw new IllegalStateException("Streams properties are not set.");
-        }
-        if (streams != null && streams.state().isRunningOrRebalancing()) {
-            throw new IllegalStateException("Start called while streams is already running.");
-        }
-        logger.info("Starting MapSpatMessageAssessment Topology.");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-        logger.info("Started MapSpatMessageAssessment. Topology");
-    }
 
     private Set<Integer> getAsSet(Integer input) {
         Set<Integer> outputSet = new HashSet<>();
@@ -418,29 +367,5 @@ public class MapSpatMessageAssessmentTopology implements MapSpatMessageAssessmen
 
     }
 
-    @Override
-    public void stop() {
-        logger.info("Stopping MapSpatMessageAssessmentTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped MapSpatMessageAssessmentTopology.");
-    }
 
-    
-    StateListener stateListener;
-
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    StreamsUncaughtExceptionHandler exceptionHandler;
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
 }

@@ -58,7 +58,7 @@ public class SignalStateEventAggregator {
             
         }
         
-        assessment.setSignalStateAssessmentGroup(assessmentGroups);
+        assessment.setSignalStateEventAssessmentGroup(assessmentGroups);
         assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
 
         return assessment;

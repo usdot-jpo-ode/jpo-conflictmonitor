@@ -1,93 +1,38 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 
-
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.*;
-
-import java.util.Properties;
-
-import org.apache.kafka.streams.KafkaStreams;
-import org.springframework.stereotype.Component;
-
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM;
+
 @Component(DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM)
-public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStreamsAlgorithm {
+public class SpatTimeChangeDetailsTopology
+        extends BaseStreamsTopology<SpatTimeChangeDetailsParameters>
+        implements SpatTimeChangeDetailsStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(SpatTimeChangeDetailsTopology.class);
-
-    SpatTimeChangeDetailsParameters parameters;
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
-
     @Override
-    public void setParameters(SpatTimeChangeDetailsParameters parameters) {
-        this.parameters = parameters;
+    protected Logger getLogger() {
+        return logger;
     }
 
-    @Override
-    public SpatTimeChangeDetailsParameters getParameters() {
-        return parameters;
-    }
+
 
     @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-       this.streamsProperties = streamsProperties;
-    }
-
-    @Override
-    public Properties getStreamsProperties() {
-        return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-        if (streamsProperties == null) {
-            throw new IllegalStateException("Streams properties are not set.");
-        }
-        if (streams != null && streams.state().isRunningOrRebalancing()) {
-            throw new IllegalStateException("Start called while streams is already running.");
-        }
-        logger.info("Starting SpatTimeChangeDetailsTopology.");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        streams.start();
-        logger.info("Started SpatTimeChangeDetailsTopology.");
-
-
-        //Topology topology = BsmEventTopology.build(conflictMonitorProps.getKafkaTopicOdeBsmJson(), conflictMonitorProps.getKafkaTopicCmBsmEvent());
-        // KafkaStreams streams = new KafkaStreams(topology, conflictMonitorProps.createStreamProperties("bsmEvent"));
-        // Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        // streams.start(); 
-    }
-
-    private Topology buildTopology() {
+    public Topology buildTopology() {
         Topology builder = new Topology();
 
         final String SPAT_SOURCE = "Spat Message Source";
@@ -118,29 +63,6 @@ public class SpatTimeChangeDetailsTopology implements SpatTimeChangeDetailsStrea
 
     
 
-    @Override
-    public void stop() {
-        logger.info("Stopping SpatBroadcastRateTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped SpatBroadcastRateTopology.");
-    }
 
-   
-    StateListener stateListener;
 
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    StreamsUncaughtExceptionHandler exceptionHandler;
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
 }

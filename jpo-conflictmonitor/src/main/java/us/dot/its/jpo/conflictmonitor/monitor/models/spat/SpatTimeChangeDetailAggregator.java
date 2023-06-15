@@ -1,17 +1,34 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.spat;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 public class SpatTimeChangeDetailAggregator {
+
+    private final static Logger logger = LoggerFactory.getLogger(SpatTimeChangeDetailAggregator.class);
+
+    @Getter
+    @Setter
     private ArrayList<SpatTimeChangeDetail> spatTimeChangeDetails = new ArrayList<>();
-    private int messageBufferSize;
+
+    @Getter
+    @Setter
+    private int messageBufferSize = 2;
+
+
+    // Parameterless constructor needed by Jackson
+    public SpatTimeChangeDetailAggregator() { }
 
     public SpatTimeChangeDetailAggregator(int messageBufferSize){
         if(messageBufferSize < 2){
             messageBufferSize = 2;
-            // System.out.println("Supplied Message Buffer Size is < 2. Message Buffer size set to 2. Minimum Message buffer size is 2");
+            logger.warn("Supplied Message Buffer Size is < 2. Message Buffer size set to 2. Minimum Message buffer size is 2");
         }
         this.messageBufferSize = messageBufferSize;
     }
@@ -63,22 +80,7 @@ public class SpatTimeChangeDetailAggregator {
     
 
 
-    public ArrayList<SpatTimeChangeDetail> getSpatTimeChangeDetails() {
-        return spatTimeChangeDetails;
-    }
 
-    public void setSpatTimeChangeDetails(ArrayList<SpatTimeChangeDetail> spatTimeChangeDetails) {
-        this.spatTimeChangeDetails = spatTimeChangeDetails;
-    }
-
-    public int getMessageBufferSize() {
-        return messageBufferSize;
-    }
-
-
-    public void setMessageBufferSize(int messageBufferSize) {
-        this.messageBufferSize = messageBufferSize;
-    }
 
 
 }

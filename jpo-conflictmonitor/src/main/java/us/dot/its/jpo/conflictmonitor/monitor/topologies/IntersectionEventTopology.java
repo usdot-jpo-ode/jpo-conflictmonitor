@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Serdes;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
@@ -39,6 +41,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
@@ -47,6 +50,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -55,19 +59,18 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_eve
 
 @Component(DEFAULT_INTERSECTION_EVENT_ALGORITHM)
 public class IntersectionEventTopology
+    extends BaseStreamsTopology<Void>
     implements IntersectionEventStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(IntersectionEventTopology.class);
 
 
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
+
     ConflictMonitorProperties conflictMonitorProps;
 
     ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
     ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore;
-    ReadOnlyKeyValueStore<String, ProcessedMap> mapStore;
+    ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
     ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -78,10 +81,16 @@ public class IntersectionEventTopology
     SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
 
 
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
+
+
 
     @Override
-    public void start() {
-        if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");       
+    protected void validate() {
+        if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");
         if (bsmWindowStore == null) throw new IllegalStateException("bsmWindowStore is not set.");
         if (spatWindowStore == null) throw new IllegalStateException("spatWindowStore is not set.");
         if (mapStore == null) throw new IllegalStateException("mapStore is not set.");
@@ -94,25 +103,10 @@ public class IntersectionEventTopology
         if (signalStateVehicleStopsAlgorithm == null) throw new IllegalStateException("SignalStateVehicleStopsAlgorithm is not set");
         if (signalStateVehicleStopsParameters == null) throw new IllegalStateException("SignalStateVehicleStopsParameters is not set");
         if (streams != null && streams.state().isRunningOrRebalancing()) throw new IllegalStateException("Start called while streams is already running.");
-        logger.info("Starting IntersectionEventTopology.");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-        logger.info("Started IntersectionEventTopology.");
     }
 
-    @Override
-    public void stop() {
-        logger.info("Stopping IntersectionEventTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped IntersectionEventTopology.");
-    }
+
+
 
     @Override
     public ConflictMonitorProperties getConflictMonitorProperties() {
@@ -124,20 +118,7 @@ public class IntersectionEventTopology
         this.conflictMonitorProps = conflictMonitorProps;
     }
 
-    @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-        this.streamsProperties = streamsProperties;
-    }
 
-    @Override
-    public Properties getStreamsProperties() {
-       return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
 
 
     @Override
@@ -191,7 +172,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyKeyValueStore<String, ProcessedMap> getMapStore() {
+    public ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> getMapStore() {
         return mapStore;
     }
 
@@ -206,7 +187,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore) {
+    public void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore) {
         this.mapStore = mapStore;
     }
 
@@ -261,6 +242,7 @@ public class IntersectionEventTopology
     }
 
     private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
+        logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -272,7 +254,6 @@ public class IntersectionEventTopology
 
         BsmAggregator agg = new BsmAggregator();
 
-        
         while(bsmRange.hasNext()){
             KeyValue<Windowed<String>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
@@ -285,54 +266,70 @@ public class IntersectionEventTopology
         bsmRange.close();
         agg.sort();
 
+        logger.info("Found {} BSMs", agg.getBsms().size());
+
         return agg;
     }
 
-    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start, Instant end){
+    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start,
+                                                Instant end, Integer intersection){
 
-        Instant timeFrom = start.minusSeconds(60);
-        Instant timeTo = start.plusSeconds(60);
+        logger.info("getSpatByTime: Start: {}, End: {}, IntersectionId: {}", start, end, intersection);
+
+        //Instant timeFrom = start.minusSeconds(60);
+        //Instant timeTo = end.plusSeconds(60);
 
         // long startMillis = start.toEpochMilli();
         // long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(start, end);
+
+
 
 
         SpatAggregator spatAggregator = new SpatAggregator();
+
         while(spatRange.hasNext()){
             KeyValue<Windowed<String>, ProcessedSpat> next = spatRange.next();
-            long ts = SpatTimestampExtractor.getSpatTimestamp(next.value);
-            
 
-            //if(startMillis <= ts && endMillis >= ts){ Add this back in later once geojson converter timestamps are fixed
+            ProcessedSpat spat = next.value;
+            if (intersection != null && Objects.equals(spat.getIntersectionId(), intersection)) {
                 spatAggregator.add(next.value);
-            //}
+            }
+
+
         }
         spatRange.close();
         spatAggregator.sort();
+
+        logger.info("Found {} SPATs", spatAggregator.getSpats().size());
 
         return spatAggregator;
     }
 
 
-    private static ProcessedMap getMap(ReadOnlyKeyValueStore<String, ProcessedMap> mapStore, String key){
-        return (ProcessedMap) mapStore.get(key);
+
+    private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore, String key){
+        return (ProcessedMap<LineString>) mapStore.get(key);
     }
 
-
+    @Override
     public Topology buildTopology() {
         
         StreamsBuilder builder = new StreamsBuilder();
 
         
-        KStream<String, BsmEvent> bsmEventStream = 
+        KStream<BsmEventIntersectionKey, BsmEvent> bsmEventStream =
             builder.stream(
                 conflictMonitorProps.getKafkaTopicCmBsmEvent(), 
                 Consumed.with(
-                    Serdes.String(),
+                    JsonSerdes.BsmEventIntersectionKey(),
                     JsonSerdes.BsmEvent())
-                );
+                )
+                    // Filter out BSM Events that aren't inside any MAP bounding box
+                    .filter(
+                            (key, value) -> value != null && value.isInMapBoundingBox()
+            );
 
         bsmEventStream.print(Printed.toSysOut());
 
@@ -359,7 +356,8 @@ public class IntersectionEventTopology
 
                 ProcessedMap map = null;
                 BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
-                SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime);
+
+                SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
 
                 
 
@@ -388,10 +386,10 @@ public class IntersectionEventTopology
                 }
 
 
-                System.out.println("Detected Vehicle Event");
-                System.out.println("Vehicle ID: " + ((J2735Bsm)value.getStartingBsm().getPayload().getData()).getCoreData().getId());
-                System.out.println("Captured Bsms:  " + bsms.getBsms().size());
-                System.out.println("Captured Spats: " + spats.getSpats().size());
+                logger.info("Detected Vehicle Event");
+                logger.info("Vehicle ID: " + ((J2735Bsm)value.getStartingBsm().getPayload().getData()).getCoreData().getId());
+                logger.info("Captured Bsms:  " + bsms.getBsms().size());
+                logger.info("Captured Spats: " + spats.getSpats().size());
                 return result;
             }
         );
@@ -412,9 +410,9 @@ public class IntersectionEventTopology
             }
         );
 
-
+        logger.info("LaneDirectionOfTravelEventStream: {}", laneDirectionOfTravelEventStream);
         laneDirectionOfTravelEventStream.to(
-            conflictMonitorProps.getKafkatopicCmLaneDirectionOfTravelEvent(), 
+            conflictMonitorProps.getKafkaTopicCmLaneDirectionOfTravelEvent(), 
             Produced.with(Serdes.String(),
                     JsonSerdes.LaneDirectionOfTravelEvent()));
 
@@ -489,23 +487,6 @@ public class IntersectionEventTopology
         return builder.build();
     }
 
-    StateListener stateListener;
-
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    
-
-   
-    StreamsUncaughtExceptionHandler exceptionHandler;
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
-    
 
     
 }

@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAggregator;
@@ -39,63 +40,22 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEv
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.ConnectionOfTravelTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.MessageIngestTopology;
 
 
 @Component(DEFAULT_CONNECTION_OF_TRAVEL_ASSESSMENT_ALGORITHM)
-public class ConnectionOfTravelAssessmentTopology 
+public class ConnectionOfTravelAssessmentTopology
+    extends BaseStreamsTopology<ConnectionOfTravelAssessmentParameters>
     implements ConnectionOfTravelAssessmentStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionOfTravelAssessmentTopology.class);
 
-    ConnectionOfTravelAssessmentParameters parameters;
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
-    
     @Override
-    public void setParameters(ConnectionOfTravelAssessmentParameters parameters) {
-        this.parameters = parameters;
+    protected Logger getLogger() {
+        return logger;
     }
 
-    @Override
-    public ConnectionOfTravelAssessmentParameters getParameters() {
-        return parameters;
-    }
 
-    @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-       this.streamsProperties = streamsProperties;
-    }
-
-    @Override
-    public Properties getStreamsProperties() {
-        return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-        if (streamsProperties == null) {
-            throw new IllegalStateException("Streams properties are not set.");
-        }
-        if (streams != null && streams.state().isRunningOrRebalancing()) {
-            throw new IllegalStateException("Start called while streams is already running.");
-        }
-        logger.info("StartingConnectionOfTravelAssessmentTopology");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-        logger.info("Started ConnectionOfTravelAssessmentTopology.");
-    }
 
     public Topology buildTopology() {
         var builder = new StreamsBuilder();
@@ -155,7 +115,7 @@ public class ConnectionOfTravelAssessmentTopology
         KStream<String, ConnectionOfTravelNotification> notificationEventStream = connectionOfTravelAssessmentStream.flatMap(
             (key, value)->{
                 List<KeyValue<String, ConnectionOfTravelNotification>> result = new ArrayList<KeyValue<String, ConnectionOfTravelNotification>>();
-                for(ConnectionOfTravelAssessmentGroup assessmentGroup: value.getConnectionOfTravelAssessment()){
+                for(ConnectionOfTravelAssessmentGroup assessmentGroup: value.getConnectionOfTravelAssessmentGroups()){
                     if(assessmentGroup.getEventCount() >= parameters.getMinimumNumberOfEvents() && assessmentGroup.getConnectionID() < 0){
                         ConnectionOfTravelNotification notification = new ConnectionOfTravelNotification();
                         notification.setAssessment(value);
@@ -191,30 +151,6 @@ public class ConnectionOfTravelAssessmentTopology
         return builder.build();
     }    
 
-    @Override
-    public void stop() {
-        logger.info("Stopping ConnectionOfTravelEventAssessmentTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped ConnectionOfTravelEventAssessmentTopology.");
-    }
 
-    StateListener stateListener;
-    
-
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    StreamsUncaughtExceptionHandler exceptionHandler;
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
     
 }

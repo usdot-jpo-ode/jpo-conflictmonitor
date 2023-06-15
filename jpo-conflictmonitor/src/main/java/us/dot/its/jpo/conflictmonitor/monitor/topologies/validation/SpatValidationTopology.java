@@ -1,39 +1,16 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import org.apache.kafka.streams.KafkaStreams;
-import org.springframework.stereotype.Component;
-
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
-
-import java.time.Duration;
-import java.time.ZoneOffset;
-
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.Suppressed;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
-import org.apache.kafka.streams.kstream.TimeWindows;
-import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
@@ -44,6 +21,10 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
+import java.time.Duration;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.DEFAULT_SPAT_VALIDATION_ALGORITHM;
+
 /**
  * Assessments/validations for SPAT messages.
  * <p>Reads {@link ProcessedSpat} messages.
@@ -51,64 +32,17 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
  */
 @Component(DEFAULT_SPAT_VALIDATION_ALGORITHM)
 public class SpatValidationTopology 
-    extends BaseValidationTopology
+    extends BaseValidationTopology<SpatValidationParameters>
     implements SpatValidationStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(SpatValidationTopology.class);
-
-    SpatValidationParameters parameters;
-    Properties streamsProperties;
-    Topology topology;
-    KafkaStreams streams;
-
     @Override
-    public void setParameters(SpatValidationParameters parameters) {
-        this.parameters = parameters;
+    protected Logger getLogger() {
+        return logger;
     }
 
-    @Override
-    public SpatValidationParameters getParameters() {
-        return parameters;
-    }
 
     @Override
-    public void setStreamsProperties(Properties streamsProperties) {
-       this.streamsProperties = streamsProperties;
-    }
-
-    @Override
-    public Properties getStreamsProperties() {
-        return streamsProperties;
-    }
-
-    @Override
-    public KafkaStreams getStreams() {
-        return streams;
-    }
-
-    
-   
-
-    @Override
-    public void start() {
-        if (parameters == null) {
-            throw new IllegalStateException("Start called before setting parameters.");
-        }
-        if (streamsProperties == null) {
-            throw new IllegalStateException("Streams properties are not set.");
-        }
-        if (streams != null && streams.state().isRunningOrRebalancing()) {
-            throw new IllegalStateException("Start called while streams is already running.");
-        }
-        logger.info("Starting SpatBroadcastRateTopology.");
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-        logger.info("Started SpatBroadcastRateTopology.");
-    }
-
     public Topology buildTopology() {
         var builder = new StreamsBuilder();
 
@@ -122,7 +56,7 @@ public class SpatValidationTopology
 
         // Extract validation info for Minimum Data events
         processedSpatStream
-            .filter((key, value) -> !value.getCti4501Conformant())
+            .filter((key, value) -> value != null && !value.getCti4501Conformant())
             .map((key, value) -> {
                 var minDataEvent = new SpatMinimumDataEvent();
                 var valMsgList = value.getValidationMessages();
@@ -218,32 +152,5 @@ public class SpatValidationTopology
     }
 
 
-
-    
-
-    @Override
-    public void stop() {
-        logger.info("Stopping SpatBroadcastRateTopology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped SpatBroadcastRateTopology.");
-    }
-
-    StateListener stateListener;
-
-    @Override
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    StreamsUncaughtExceptionHandler exceptionHandler;
-
-    @Override
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
     
 }

@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.locationtech.jts.io.WKTWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import lombok.Getter;
 import us.dot.its.jpo.ode.plugin.j2735.J2735IntersectionGeometry;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
@@ -15,8 +18,10 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
 
 public class MapIntersection {
 
+    private static final Logger logger = LoggerFactory.getLogger(MapIntersection.class);
+
     private J2735IntersectionGeometry intersectionGeometry;
-    private ArrayList<LaneConnection> laneConnections = new ArrayList<>();
+    @Getter private ArrayList<LaneConnection> laneConnections = new ArrayList<>();
 
     public MapIntersection(J2735IntersectionGeometry intersectionGeometry) {
         this.intersectionGeometry = intersectionGeometry;
@@ -30,9 +35,13 @@ public class MapIntersection {
         List<J2735GenericLane> lanes = this.intersectionGeometry.getLaneSet().getLaneSet();
         OdePosition3D reference = this.intersectionGeometry.getRefPoint();
 
-        Map<Integer, Integer> laneLookup = new HashMap<Integer, Integer>();
-        for (int i = 0; i < lanes.size(); i++) {
-            laneLookup.put(lanes.get(i).getLaneID(), i);
+        Map<Integer, J2735GenericLane> laneLookup = new HashMap<>();
+        for (J2735GenericLane lane : lanes) {
+            if (lane.getLaneID() == null) {
+                logger.error("Lane ID is missing");
+                continue;
+            }
+            laneLookup.put(lane.getLaneID(), lane);
         }
 
         for (J2735GenericLane lane : lanes) {
@@ -47,10 +56,12 @@ public class MapIntersection {
                     if (connection.getSignalGroup() != null) {
                         signalGroup = connection.getSignalGroup();
                     }
-                    
+                    if (!laneLookup.containsKey(connectingLaneID)) {
+                        logger.error("Could not find connecting lane with ID: {}", connectingLaneID);
+                        continue;
+                    }
                     this.laneConnections.add(
-                            new LaneConnection(reference, lane, lanes.get(laneLookup.get(connectingLaneID)), signalGroup, 25));
-
+                            new LaneConnection(reference, lane, laneLookup.get(connectingLaneID), signalGroup, 25));
                 }
             }
 

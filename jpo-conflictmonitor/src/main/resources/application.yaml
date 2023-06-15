@@ -16,6 +16,30 @@ logging.level: INFO
 kafkaStateChangeEventTopic: topic.CmKafkaStateChangeEvents
 appHealthNotificationTopic: topic.CmAppHealthNotifications
 
+# BSM
+kafkaTopicOdeBsmJson: topic.OdeBsmJson
+kafkaTopicCmBsmEvent: topic.CMBsmEvents
+kafkaTopicBsmRepartition: topic.CmBsmJsonRepartition
+
+
+# SPAT
+kafkaTopicSpatGeoJson: spatgeojson-geojson-joined-repartition # topic.SpatGeoJson
+kafkaTopicProcessedSpat: topic.ProcessedSpat
+
+
+# MAP
+kafkaTopicOdeMapJson: topic.OdeMapJson
+kafkaTopicMapGeoJson: topic.MapGeoJson
+kafkaTopicProcessedMap: topic.ProcessedMap
+
+
+#Vehicle Events
+kafkaTopicCmLaneDirectionOfTravelEvent: topic.CmLaneDirectionOfTravelEvent
+kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
+kafkaTopicCmSignalStateEvent: topic.CmSignalStateEvent
+kafakTopicCmVehicleStopEvent: topic.CmSignalStopEvent 
+
+
 # Custom kafka properties
 kafka.topics:
   autoCreateTopics: true  # Override auto-create in test properties
@@ -64,7 +88,7 @@ kafka.topics:
     - name: "topic.CmSignalStateConflictEvents"
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: "topic.CmBsmJsonRepartition"
+    - name: topic.CmBsmJsonRepartition
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.ProcessedSpat
@@ -110,6 +134,8 @@ kafka.topics:
     - name: topic.CmIntersectionConfigTable
       cleanupPolicy: compact
     - name: topic.CmNotification
+      cleanupPolicy: compact
+    - name: topic.CmMapBoundingBox
       cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
@@ -297,6 +323,26 @@ spat.validation:
 intersection.reference.alignment.notification:
   algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
   properties: debug
+
+# BSM Events
+bsm.event:
+  algorithm: defaultBsmEventAlgorithm
+  inputTopic: topic.CmBsmJsonRepartition
+  outputTopic: topic.CMBsmEvents
+  stateStoreName: bsm-event-state-store
+  debug: false
+
+# Message Ingest
+message.ingest:
+  algorithm: defaultMessageIngestAlgorithm
+  debug: false
+  bsmTopic: topic.OdeBsmJson
+  spatTopic: topic.ProcessedSpat
+  mapTopic: topic.ProcessedMap
+  mapBoundingBoxTopic: topic.CmMapBoundingBox
+  bsmStoreName: BsmWindowStore
+  spatStoreName: SpatWindowStore
+  mapStoreName: ProcessedMapWindowStore
 
 # Config parameters
 config:

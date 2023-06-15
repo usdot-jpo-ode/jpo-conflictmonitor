@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEven
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
@@ -31,12 +32,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatB
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.BsmAggregatorDeserializer;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.NotificationDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.OdeBsmDataJsonDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.SpatTimeChangeDetailAggregatorDeserializer;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.VehicleEventDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
@@ -55,13 +51,13 @@ public class JsonSerdes {
     public static Serde<OdeBsmData> OdeBsm() {
         return Serdes.serdeFrom(
             new JsonSerializer<OdeBsmData>(), 
-            new OdeBsmDataJsonDeserializer());
+            new JsonDeserializer<>(OdeBsmData.class));
     }
 
     public static Serde<BsmAggregator> BsmDataAggregator() {
         return Serdes.serdeFrom(
             new JsonSerializer<BsmAggregator>(), 
-            new BsmAggregatorDeserializer());
+            new JsonDeserializer<>(BsmAggregator.class));
     }
 
     public static Serde<BsmEvent> BsmEvent(){
@@ -73,7 +69,7 @@ public class JsonSerdes {
     public static Serde<VehicleEvent> VehicleEvent(){
         return Serdes.serdeFrom(
           new JsonSerializer<VehicleEvent>(),
-          new VehicleEventDeserializer());
+          new JsonDeserializer<>(VehicleEvent.class));
     }
 
     public static Serde<MapBroadcastRateEvent> MapBroadcastRateEvent() {
@@ -139,7 +135,7 @@ public class JsonSerdes {
     public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
         return Serdes.serdeFrom(
             new JsonSerializer<SpatTimeChangeDetailAggregator>(),
-            new SpatTimeChangeDetailAggregatorDeserializer());
+            new JsonDeserializer<>(SpatTimeChangeDetailAggregator.class));
     }
 
     public static Serde<SpatMap> SpatMap() {
@@ -194,6 +190,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<BsmIntersectionKey>(),
             new JsonDeserializer<>(BsmIntersectionKey.class));
+    }
+
+    public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<BsmEventIntersectionKey>(),
+                new JsonDeserializer<>(BsmEventIntersectionKey.class));
     }
 
     public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {
@@ -254,7 +256,7 @@ public class JsonSerdes {
     public static Serde<Notification> Notification() {
         return Serdes.serdeFrom(
             new JsonSerializer<Notification>(),
-            new NotificationDeserializer()
+            new JsonDeserializer<>(Notification.class)
         );
     }
 

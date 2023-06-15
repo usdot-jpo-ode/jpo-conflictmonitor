@@ -11,6 +11,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.ode.plugin.j2735.J2735GenericLane;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeOffsetPointXY;
@@ -19,6 +22,7 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Node_XY;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 
 public class LaneConnection {
+
     private OdePosition3D referencePoint;
 
     private J2735GenericLane ingress;
@@ -31,9 +35,16 @@ public class LaneConnection {
     private GeometryFactory geometryFactory;
     private int signalGroup;
     private int interpolationPoints;
+    public final static int DEFAULT_INTERPOLATION_POINTS = 10;
+
+    public LaneConnection() {
+        // Parameterless constructor for unit tests
+        this.geometryFactory = JTSFactoryFinder.getGeometryFactory();
+        interpolationPoints = DEFAULT_INTERPOLATION_POINTS;
+    }
 
     public LaneConnection(OdePosition3D referencePoint, J2735GenericLane ingress, J2735GenericLane egress, int signalGroup) {
-        this(referencePoint, ingress, egress, signalGroup, 10);
+        this(referencePoint, ingress, egress, signalGroup, DEFAULT_INTERPOLATION_POINTS);
     }
 
     public LaneConnection(OdePosition3D referencePoint, J2735GenericLane ingress, J2735GenericLane egress, int signalGroup, int interpolationPoints) {
@@ -256,6 +267,11 @@ public class LaneConnection {
     }
 
     public void printLineStringLatLongAsCSV(LineString lstring){
+        if (referencePoint == null || referencePoint.getLatitude() == null || referencePoint.getLongitude() == null) {
+            System.out.println("Reference Point not set");
+            return;
+        }
+
         double referenceLongitude = this.referencePoint.getLongitude().doubleValue();
         double referenceLatitude = this.referencePoint.getLatitude().doubleValue();
         
