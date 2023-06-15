@@ -719,20 +719,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    }
 
 
-
-
-   public String getKafkaBrokers() {
-      return kafkaBrokers;
-   }
-
-
-
-   public Environment getEnv() {
-      return env;
-   }
-
-   public void setEnv(Environment env) {
-      this.env = env;
+   @Value("${spring.kafka.bootstrap-servers}")
+   public void setKafkaBrokers(String kafkaBrokers) {
+      this.kafkaBrokers = kafkaBrokers;
    }
 
    @Override
