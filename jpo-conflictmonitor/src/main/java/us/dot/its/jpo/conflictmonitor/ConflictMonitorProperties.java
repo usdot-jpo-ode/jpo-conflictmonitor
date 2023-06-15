@@ -719,13 +719,14 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    }
 
 
-   public String getPluginsLocations() {
-      return pluginsLocations;
-   }
+   // public String getPluginsLocations() {
+      
+   //    return pluginsLocations;
+   // }
 
-   public void setPluginsLocations(String pluginsLocations) {
-      this.pluginsLocations = pluginsLocations;
-   }
+   // public void setPluginsLocations(String pluginsLocations) {
+   //    this.pluginsLocations = pluginsLocations;
+   // }
 
    public String getKafkaBrokers() {
       return kafkaBrokers;
@@ -736,13 +737,13 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.kafkaBrokers = kafkaBrokers;
    }
 
-   public String getKafkaProducerType() {
-      return kafkaProducerType;
-   }
+   // public String getKafkaProducerType() {
+   //    return kafkaProducerType;
+   // }
 
-   public void setKafkaProducerType(String kafkaProducerType) {
-      this.kafkaProducerType = kafkaProducerType;
-   }
+   // public void setKafkaProducerType(String kafkaProducerType) {
+   //    this.kafkaProducerType = kafkaProducerType;
+   // }
 
    public Environment getEnv() {
       return env;
