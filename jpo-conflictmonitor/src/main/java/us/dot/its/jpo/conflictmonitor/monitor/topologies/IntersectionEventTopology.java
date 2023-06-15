@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Serdes;
@@ -270,17 +271,18 @@ public class IntersectionEventTopology
         return agg;
     }
 
-    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start, Instant end){
+    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start,
+                                                Instant end, Integer intersection){
 
-        logger.info("getSpatByTime: Start: {}, {}", start, end);
+        logger.info("getSpatByTime: Start: {}, End: {}, IntersectionId: {}", start, end, intersection);
 
-        Instant timeFrom = start.minusSeconds(60);
-        Instant timeTo = end.plusSeconds(60);
+        //Instant timeFrom = start.minusSeconds(60);
+        //Instant timeTo = end.plusSeconds(60);
 
         // long startMillis = start.toEpochMilli();
         // long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(start, end);
 
 
 
@@ -289,12 +291,13 @@ public class IntersectionEventTopology
 
         while(spatRange.hasNext()){
             KeyValue<Windowed<String>, ProcessedSpat> next = spatRange.next();
-            long ts = SpatTimestampExtractor.getSpatTimestamp(next.value);
-            
 
-            //if(startMillis <= ts && endMillis >= ts){ Add this back in later once geojson converter timestamps are fixed
+            ProcessedSpat spat = next.value;
+            if (intersection != null && Objects.equals(spat.getIntersectionId(), intersection)) {
                 spatAggregator.add(next.value);
-            //}
+            }
+
+
         }
         spatRange.close();
         spatAggregator.sort();
@@ -353,7 +356,8 @@ public class IntersectionEventTopology
 
                 ProcessedMap map = null;
                 BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
-                SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime);
+
+                SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
 
                 
 
