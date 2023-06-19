@@ -15,6 +15,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assess
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
@@ -50,16 +51,6 @@ public class MapSpatMessageAssessmentTopology
     @Override
     protected Logger getLogger() {
         return logger;
-    }
-
-
-
-    private Set<Integer> getAsSet(Integer input) {
-        Set<Integer> outputSet = new HashSet<>();
-        if (input != null) {
-            outputSet.add(input);
-        }
-        return outputSet;
     }
 
     private J2735MovementPhaseState getSpatEventStateBySignalGroup(ProcessedSpat spat, int signalGroup) {
@@ -123,27 +114,49 @@ public class MapSpatMessageAssessmentTopology
 
                             event.setSourceID(key);
 
-                            if (value.getMap() != null) {
+                            RegulatorIntersectionId mapId = new RegulatorIntersectionId();
+                            RegulatorIntersectionId spatId = new RegulatorIntersectionId();
+
+                            if(value.getMap() != null && value.getMap().getProperties() != null){
                                 ProcessedMap map = value.getMap();
-                                Set<Integer> intersectionIds = new HashSet<>();
+                                mapId.setIntersectionId(map.getProperties().getIntersectionId());
+                                mapId.setRoadRegulatorId(map.getProperties().getRegion());
 
-                                // TODO
-                                // for(MapFeature feature: map.getFeatures()){
-                                // intersectionIds.add(feature.getId());
-                                // }
-                                // event.setMapRoadRegulatorIds(intersectionIds);
+                                if(map.getProperties().getIntersectionId() != null){
+                                    event.setIntersectionID(map.getProperties().getIntersectionId());
+                                }
 
+                                
+                                if(map.getProperties().getRegion() != null){
+                                    event.setRoadRegulatorID(map.getProperties().getRegion());
+                                }
+                                
                             }
 
-                            if (value.getSpat() != null) {
+                            if (value.getSpat() != null){
                                 ProcessedSpat spat = value.getSpat();
                                 event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
-                                event.setSpatRoadRegulatorIds(getAsSet(spat.getRegion()));
-                                event.setSpatIntersectionIds(getAsSet(spat.getIntersectionId()));
-                            }
+                                spatId.setIntersectionId(spat.getIntersectionId());
+                                spatId.setRoadRegulatorId(spat.getRegion());
 
-                            if (!event.getSpatRoadRegulatorIds().equals(event.getMapRoadRegulatorIds()) ||
-                                    !event.getSpatIntersectionIds().equals(event.getMapIntersectionIds())) {
+                                if(spat.getIntersectionId() != null){
+                                    event.setIntersectionID(spat.getIntersectionId());
+                                }
+
+                                if(spat.getRegion() != null){
+                                    event.setRoadRegulatorID(spat.getRegion());
+                                }
+                            }
+                            
+                            Set<RegulatorIntersectionId> mapIdSet = new HashSet<>();
+                            mapIdSet.add(mapId);
+                            event.setMapRegulatorIntersectionIds(mapIdSet);
+
+                            Set<RegulatorIntersectionId> spatIdSet = new HashSet<>();
+                            spatIdSet.add(spatId);
+                            event.setSpatRegulatorIntersectionIds(spatIdSet);
+
+                            if (!event.getSpatRegulatorIntersectionIds().equals(event.getMapRegulatorIntersectionIds())) {
                                 events.add(new KeyValue<>(key, event));
                             }
 
