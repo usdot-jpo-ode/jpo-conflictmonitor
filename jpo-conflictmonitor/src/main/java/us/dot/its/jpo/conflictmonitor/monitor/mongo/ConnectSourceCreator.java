@@ -38,7 +38,7 @@ public class ConnectSourceCreator {
     public void createDefaultConfigConnector() {
         final var jsonParams = 
             configParams.getCreateDefaultConnectorJsonParams()
-                .replace("{{DOCKER_HOST_IP}}", properties.getDockerHostIP())
+                .replace("{{DB_HOST_IP}}", properties.getDbHostIP())
                 .replace("{{defaultTopicName}}", configParams.getDefaultTopicName())
                 .replace("{{defaultCollectionName}}", configParams.getDefaultCollectionName());
         final var url = 
@@ -51,7 +51,7 @@ public class ConnectSourceCreator {
      public void createIntersectionConfigConnector() {
         final var jsonParams = 
             configParams.getCreateIntersectionConnectorJsonParams()
-                .replace("{{DOCKER_HOST_IP}}", properties.getDockerHostIP())
+                .replace("{{DB_HOST_IP}}", properties.getDbHostIP())
                 .replace("{{intersectionTopicName}}", configParams.getIntersectionTopicName())
                 .replace("{{intersectionCollectionName}}", configParams.getIntersectionCollectionName());
         final var url = 

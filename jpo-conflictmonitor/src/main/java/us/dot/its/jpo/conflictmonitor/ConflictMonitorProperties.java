@@ -538,8 +538,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Setter(AccessLevel.NONE)
    private String connectURL = null;
 
+   // @Setter(AccessLevel.NONE)
+   // private String dockerHostIP = null;
+
    @Setter(AccessLevel.NONE)
-   private String dockerHostIP = null;
+   private String kafkaBrokerIP = null;
+
+
+   @Setter(AccessLevel.NONE)
+   private String dbHostIP = null;
+
+
 
    private static final String DEFAULT_CONNECT_PORT = "8083";
 
@@ -595,20 +604,30 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       logger.info("Host ID: {}", hostId);
       EventLogger.logger.info("Initializing services on host {}", hostId);
 
+      if(dbHostIP == null){
+         String dbHost = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+
+         if(dbHost == null){
+            logger.warn(
+                  "DB Host IP not defined, Defaulting to localhost.");
+            dbHost = "localhost";
+         }
+         dbHostIP = dbHost;
+      }
+
       if (kafkaBrokers == null) {
 
-         String dockerIp = CommonUtils.getEnvironmentVariable("DOCKER_HOST_IP");
+         String kafkaBroker = CommonUtils.getEnvironmentVariable("KAFKA_BROKER_IP");
 
-         logger.info("ode.kafkaBrokers property not defined. Will try DOCKER_HOST_IP => {}", kafkaBrokers);
+         logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BROKER_IP => {}", kafkaBrokers);
 
-         if (dockerIp == null) {
+         if (kafkaBroker == null) {
             logger.warn(
-                  "Neither ode.kafkaBrokers ode property nor DOCKER_HOST_IP environment variable are defined. Defaulting to localhost.");
-            dockerIp = "localhost";
+                  "Neither ode.kafkaBrokers ode property nor KAFKA_BROKER_IP environment variable are defined. Defaulting to localhost.");
+            kafkaBroker = "localhost";
          }
-         kafkaBrokers = dockerIp + ":" + DEFAULT_KAFKA_PORT;
 
-        
+         kafkaBrokers = kafkaBroker + ":" + DEFAULT_KAFKA_PORT;
       }
 
       String kafkaType = CommonUtils.getEnvironmentVariable("KAFKA_TYPE");
@@ -625,12 +644,13 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String dockerIp = CommonUtils.getEnvironmentVariable("DOCKER_HOST_IP");
-         if (dockerIp == null) {
-            dockerIp = "localhost";
+         String kafkaBroker = CommonUtils.getEnvironmentVariable("KAFKA_BROKER_IP");
+         if (kafkaBroker == null) {
+            kafkaBroker = "localhost";
          }
-         dockerHostIP = dockerIp;
-         connectURL = String.format("http://%s:%s", dockerHostIP, DEFAULT_CONNECT_PORT);
+         // dockerHostIP = dockerIp;
+         kafkaBrokerIP = kafkaBroker;
+         connectURL = String.format("http://%s:%s", kafkaBroker, DEFAULT_CONNECT_PORT);
       }
 
       // List<String> asList = Arrays.asList(this.getKafkaTopicsDisabled());
