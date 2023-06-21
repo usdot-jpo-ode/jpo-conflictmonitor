@@ -359,7 +359,7 @@ config:
     {
       "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
       ,"tasks.max": 3
-      ,"connection.uri": "mongodb://{{DOCKER_HOST_IP}}:27017/?replicaSet=rs0"
+      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
       ,"name": "MongoSource.{{defaultTopicName}}"
       ,"database": "ConflictMonitor"
       ,"collection": "{{defaultCollectionName}}"
@@ -387,7 +387,7 @@ config:
     {
       "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
       ,"tasks.max": 3
-      ,"connection.uri": "mongodb://{{DOCKER_HOST_IP}}:27017/?replicaSet=rs0"
+      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
       ,"name": "MongoSource.{{intersectionTopicName}}"
       ,"database": "ConflictMonitor"
       ,"collection": "{{intersectionCollectionName}}"

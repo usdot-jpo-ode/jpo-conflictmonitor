@@ -144,7 +144,8 @@ public class ConflictMonitorPropertiesTest {
         assertThat(properties.getKafkaBrokers(), notNullValue());
         assertThat(properties.getHostId(), notNullValue());
         assertThat(properties.getConnectURL(), notNullValue());
-        assertThat(properties.getDockerHostIP(), notNullValue());
+        assertThat(properties.getDbHostIP(), notNullValue());
+        assertThat(properties.getKafkaBrokerIP(), notNullValue());
         assertThat(properties.getKafkaTopicOdeBsmJson(), notNullValue());
         assertThat(properties.getKafkaTopicOdeMapJson(), notNullValue());
         assertThat(properties.getKafkaTopicCmBsmEvent(), notNullValue());
