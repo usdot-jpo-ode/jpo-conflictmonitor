@@ -24,11 +24,10 @@ hr {
 
 #map {
     background-color: black;
-    width:50%;
+    width:60%;
 }
 
 .side {
-    width:17%;
     display: flex;
     flex-direction: column;
     height:100%;
