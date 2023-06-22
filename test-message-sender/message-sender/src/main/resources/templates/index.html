@@ -17,7 +17,7 @@
 
 <body>
     <div class="container">
-        <div class="side">
+        <div style="display:none">
             <h3 class="sideHeader">SPAT Template</h3>
             <div class="sideItem jsonDocument" id="spatTemplate" contenteditable="true" spellcheck="false">
                 Spat document
@@ -25,8 +25,8 @@
             <h3 class="sideHeader">BSM Template</h3>
             <div class="sideItem jsonDocument" id="bsmTemplate" contenteditable="true" spellcheck="false">
             </div>
-            
-            
+
+
         </div>
         <div class="side" style="width: 20%">
             
@@ -41,7 +41,7 @@
 
         <div id="map">
         </div>
-        <div class="side">
+        <div class="side" style="width: 20%">
             <div class="sideItem">
 
 
@@ -51,13 +51,14 @@
                     <hr />
                     <h3>Upload line-delimited JSON</h3>
                     <label for="ulBsms">BSMs</label>
-                    <input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
+                    <input type="file" id="ulBsms" accept=".json,.jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
                     <br/>
                     <label for="ulSpats">SPATs</label>
-                    <input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
-                    <br/>
-                    <label for="ulProcessedSpats">ProcessedSpats</label>
-                    <input type="file" id="ulProcessedSpats" accept=".json,.jsonl,.ndjson,.csv"/>
+                    <input type="file" id="ulSpats" accept=".json,.jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+<!--                    <br/>-->
+<!--                    <label for="ulProcessedSpats">ProcessedSpats</label>-->
+<!--                    <input type="file" id="ulProcessedSpats" accept=".json,.jsonl,.ndjson,.csv"-->
+<!--                        onchange="uploadProcessedSpats(this);"/>-->
                     
                     <h3>Upload JSON Template</h3>
                     <label for="btnOdeMapJsonUpload">MAP</label>
@@ -65,7 +66,8 @@
                         onchange="uploadOdeMapJson(this);" />
                     <br/>
                     <label for="btnProcessedMapUpload">ProcessedMap</label>
-                    <input type="file" id="btnProcessedMapUpload" accept=".json,.csv" onchange="uploadMapGeojson(this);"/>
+                    <input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
+                           onchange="uploadMapGeojson(this);"/>
                     <br/>
                     <label for="btnOdeSpatJsonUpload">SPAT</label>
                     <input type="file" id="btnOdeSpatJsonUpload" accept=".json"
@@ -228,8 +230,10 @@
 
     const bsmList = [];  /* Array of BSM locations */
     const spatList = [];
+    const processedSpatList = [];
 
     const diffSpatEvents = [];
+    const diffSpatStates = [];
 
     const script = [];
 
@@ -847,6 +851,7 @@
             file.text().then(text => {
                 // Clear existing spats
                 spatList.length = 0;
+                processedSpatList.length = 0;
                 diffSpatEvents.length = 0;
                 const lines = text.split(/\r?\n/);
                 console.log("Read " + lines.length + " spats from file");
@@ -915,6 +920,85 @@
             })
         }
     }
+
+    // function uploadProcessedSpats(e) {
+    //     console.log("uploadProcessedSpats");
+    //     if (e?.files.length > 0) {
+    //         let file = e.files[0];
+    //         file.text().then(text => {
+    //             // Clear existing spats
+    //             spatList.length = 0;
+    //             processedSpatList.length = 0;
+    //             diffSpatEvents.length = 0;
+    //             diffSpatStates.length = 0;
+    //             const lines = text.split(/\r?\n/);
+    //             console.log("Read " + lines.length + " processed spats from file");
+    //
+    //             // Clear the SPAT template
+    //             setSpatTemplate("");
+    //
+    //             for (const line of lines) {
+    //                 if (line) {
+    //                     const json = JSON.parse(line);
+    //                     const spat = extractProcessedSpatData(json);
+    //                     processedSpatList.push(spat);
+    //                 }
+    //             }
+    //
+    //             // Sort by ingest time
+    //             processedSpatList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
+    //
+    //             // Split the spats into an array of streams with the same phase
+    //
+    //             // Get the first phase and start the stream of spats
+    //             const firstSpat = _.head(spatList);
+    //             const firstEvent = firstSpat.states;
+    //             let previousEvent = uniqueProcessedSpatId(firstEvent);
+    //             previousEvent.spats = [];
+    //             previousEvent.spats.push(firstSpat);
+    //             diffSpatStates.push(previousEvent);
+    //
+    //             for (const spat of processedSpatList) {
+    //                 const event = spat.states;
+    //                 // Remove timing
+    //                 const strippedEvent = uniqueProcessedSpatId(event);
+    //                 if (!_.isEqual(strippedEvent, previousEvent)) {
+    //                     // The phase is different, create a new stream
+    //                     previousEvent = strippedEvent;
+    //                     previousEvent.spats = [];
+    //                     previousEvent.spats.push(spat);
+    //                     diffSpatStates.push(previousEvent);
+    //                 } else {
+    //                     // The phase is the same, add to the latest stream
+    //                     previousEvent.spats.push(spat);
+    //                 }
+    //             }
+    //             console.log("Found " + diffSpatStates.length + " diff spat states");
+    //
+    //
+    //             // Group the first stream of each unique spat id with the event
+    //             for (const event of diffSpatStates) {
+    //                 const firstItem = _.head(event.spats);
+    //                 const lastItem = _.last(event.spats);
+    //                 event.firstOdeTime = firstItem.odeReceivedAt;
+    //                 event.lastOdeTime = lastItem.odeReceivedAt;
+    //                 event.firstTimestamp = firstItem.utcTimeStamp;
+    //                 event.lastTimestamp = lastItem.utcTimeStamp;
+    //                 event.odeDurationMs = event.lastOdeTime - event.firstOdeTime;
+    //                 event.durationMs = event.lastTimestamp - event.firstTimestamp;
+    //             }
+    //
+    //
+    //             const earliestOdeTime = _.head(diffSpatEvents).firstOdeTime;
+    //             for (const event of diffSpatEvents) {
+    //                 event.firstOdeTimeOffset = event.firstOdeTime - earliestOdeTime;
+    //             }
+    //
+    //             //console.log(uniqueSpatEvents);
+    //             showSpatTable(diffSpatEvents);
+    //         })
+    //     }
+    // }
 
 
  
