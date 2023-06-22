@@ -55,11 +55,17 @@
                     <br/>
                     <label for="ulSpats">SPATs</label>
                     <input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+                    <br/>
+                    <label for="ulProcessedSpats">ProcessedSpats</label>
+                    <input type="file" id="ulProcessedSpats" accept=".json,.jsonl,.ndjson,.csv"/>
                     
                     <h3>Upload JSON Template</h3>
                     <label for="btnOdeMapJsonUpload">MAP</label>
                     <input type="file" id="btnOdeMapJsonUpload" accept=".json,.csv"
                         onchange="uploadOdeMapJson(this);" />
+                    <br/>
+                    <label for="btnProcessedMapUpload">ProcessedMap</label>
+                    <input type="file" id="btnProcessedMapUpload" accept=".json,.csv" onchange="uploadMapGeojson(this);"/>
                     <br/>
                     <label for="btnOdeSpatJsonUpload">SPAT</label>
                     <input type="file" id="btnOdeSpatJsonUpload" accept=".json"
@@ -669,7 +675,7 @@
     }
 
     function uploadMapGeojson(e) {
-        console.log("uploadMapGeojson");
+        console.log("uploadMapGeojson (ProcessedMap)");
         if (e?.files.length > 0) {
             let file = e.files[0];
             file.text().then(text => {
