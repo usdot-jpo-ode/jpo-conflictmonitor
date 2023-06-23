@@ -1,0 +1,1 @@
+DELETE http://localhost:8083/connectors/MongoSource.topic.CmDefaultConfig HTTP/1.1

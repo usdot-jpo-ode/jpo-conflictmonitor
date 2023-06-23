@@ -1,0 +1,413 @@
+#General Properties
+#==================
+groupId: ^project.groupId^
+artifactId: ^project.artifactId^
+version: ^project.version^
+server.port: 8082
+
+# Kafka properties
+# spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.bootstrap-servers: localhost:9092
+logging.level.org.apache.kafka: INFO
+logging.level: INFO
+log4j.logger.kafka: OFF
+log4j.logger.org.apache.kafka: OFF
+
+
+
+kafkaStateChangeEventTopic: topic.CmKafkaStateChangeEvents
+appHealthNotificationTopic: topic.CmAppHealthNotifications
+
+# BSM
+kafkaTopicOdeBsmJson: topic.OdeBsmJson
+kafkaTopicCmBsmEvent: topic.CMBsmEvents
+kafkaTopicBsmRepartition: topic.CmBsmJsonRepartition
+
+
+# SPAT
+kafkaTopicSpatGeoJson: spatgeojson-geojson-joined-repartition # topic.SpatGeoJson
+kafkaTopicProcessedSpat: topic.ProcessedSpat
+
+
+# MAP
+kafkaTopicOdeMapJson: topic.OdeMapJson
+kafkaTopicMapGeoJson: topic.MapGeoJson
+kafkaTopicProcessedMap: topic.ProcessedMap
+
+
+#Vehicle Events
+kafkaTopicCmLaneDirectionOfTravelEvent: topic.CmLaneDirectionOfTravelEvent
+kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
+kafkaTopicCmSignalStateEvent: topic.CmSignalStateEvent
+kafakTopicCmVehicleStopEvent: topic.CmSignalStopEvent 
+
+
+# Custom kafka properties
+kafka.topics:
+  autoCreateTopics: true  # Override auto-create in test properties
+  numPartitions: 1
+  numReplicas: 1
+  createTopics:
+    - name: topic.CmAppHealthNotifications
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapMinimumDataEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatMinimumDataEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CMBsmEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmConnectionOfTravelEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmLaneDirectionOfTravelEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSpatTimeChangeDetailsEvent"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSignalGroupAlignmentEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmIntersectionReferenceAlignmentEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSignalStateConflictEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmBsmJsonRepartition
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedSpat
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedMap
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.OdeBsmJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateEventAssessment
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmLaneDirectionOfTravelNotification
+      cleanupPolicy: compact
+    - name: topic.CmConnectionOfTravelNotification
+      cleanupPolicy: compact
+    - name: topic.CmKafkaStateChangeEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmAppHealthNotification
+      cleanupPolicy: compact
+    - name: topic.CmSpatTimeChangeDetailsNotification
+      cleanupPolicy: compact
+    - name: topic.CmSignalStateConflictNotification
+      cleanupPolicy: compact
+    - name: topic.CmSignalGroupAlignmentNotification
+      cleanupPolicy: compact
+    - name: topic.CmIntersectionReferenceAlignmentNotification
+      cleanupPolicy: compact
+    - name: topic.CmLaneDirectionOfTravelAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmConnectionOfTravelAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmDefaultConfig
+      cleanupPolicy: compact
+    - name: topic.CmIntersectionConfig
+      cleanupPolicy: delete
+      retentionMs: 3000
+    - name: topic.CmIntersectionConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmNotification
+      cleanupPolicy: compact
+    - name: topic.CmMapBoundingBox
+      cleanupPolicy: compact
+    # - name: topic.CmSpatBroadcastRateNotification
+    #   cleanupPolicy: compact
+    # - name: topic.CmMapBroadcastRateNotification
+    #   cleanupPolicy: compact    
+    
+
+# Mongo properties
+spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
+spring.data.mongodb.database: ConflictMonitor
+
+# TTL initial settings
+mongo.indexes:
+  - name: CmSignalStopEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSignalStateConflictEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmIntersectionReferenceAlignmentEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSignalGroupAlignmentEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmLaneDirectionOfTravelEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmConnectionOfTravelEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSignalStateEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmSpatTimeChangeDetailsEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmMapBroadcastRateEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmLaneDirectionOfTravelAssessment
+    timefield: assessmentGeneratedAt
+    expiretime: 7884000
+  - name: CmSpatBroadcastRateEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+
+
+# Connection of Travel
+connection.of.travel:
+  algorithm: defaultConnectionOfTravelAlgorithm
+  debug: false
+
+# Connection of Travel Assessment
+connection.of.travel.assessment:
+  algorithm: defaultConnectionOfTravelAssessmentAlgorithm
+  debug: false
+  connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
+  connectionOfTravelAssessmentOutputTopicName: topic.CmConnectionOfTravelAssessment
+  connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+
+intersection.event:
+  algorithm: defaultIntersectionEventAlgorithm
+
+# Lane Direction of Travel
+lane.direction.of.travel:
+  algorithm: defaultLaneDirectionOfTravelAlgorithm
+  minimumPointsPerSegment: 5
+  minimumSpeedThreshold: 5
+  debug: false
+
+# Lane Direction of Travel Assessment
+lane.direction.of.travel.assessment:
+  algorithm: defaultLaneDirectionOfTravelAssessmentAlgorithm
+  debug: false
+  laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
+  laneDirectionOfTravelAssessmentOutputTopicName: topic.CmLaneDirectionOfTravelAssessment
+  laneDirectionOfTravelNotificationOutputTopicName: topic.CmLaneDirectionOfTravelNotification
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+  headingToleranceDegrees: 20
+
+# MAP/SPAT Message Assessment
+map.spat.message.assessment:
+  algorithm: defaultMapSpatMessageAssessmentAlgorithm
+  debug: false
+  mapInputTopicName: topic.ProcessedMap
+  spatInputTopicName: topic.ProcessedSpat
+  signalGroupAlignmentEventTopicName: topic.CmSignalGroupAlignmentEvents
+  intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
+  signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
+  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
+  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
+  signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
+
+# MAP Time Change Details
+map.time.change.details:
+  algorithm: defaultMapTimeChangeDetailsAlgorithm
+  debug: false
+  mapTimeChangeDetailsTopicName: topic.CmMapTimeChangeDetailsEvent
+  mapTimeChangeDetailsStateStoreName: map-time-change-detail-state-store
+  jitterBufferSize: 50
+
+# MAP Validation
+map.validation:
+  algorithm: defaultMapValidationAlgorithm
+  inputTopicName: topic.ProcessedMap
+  broadcastRateTopicName: topic.CmMapBroadcastRateEvents
+  minimumDataTopicName: topic.CmMapMinimumDataEvents
+  rollingPeriodSeconds: 10
+  outputIntervalSeconds: 5
+  gracePeriodMilliseconds: 100
+  lowerBound: 9
+  upperBound: 11
+  debug: false
+
+
+# BSM Repartition
+repartition:
+  algorithm: defaultRepartitionAlgorithm
+  debug: false
+  bsmInputTopicName: topic.OdeBsmJson
+  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
+
+notification:
+  algorithm: defaultNotificationAlgorithm
+  debug: false
+  notificationOutputTopicName: topic.CmNotification
+  connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
+  laneDirectionOfTravelNotificationTopicName: topic.CmLaneDirectionOfTravelNotification
+  intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
+  signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
+  signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
+  spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
+
+# Signal State Event Assessment
+signal.state.event.assessment:
+  algorithm: defaultSignalStateEventAssessmentAlgorithm
+  debug: false
+  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+
+# Signal State Vehicle Crosses Analytics
+signal.state.vehicle.crosses:
+  algorithm: defaultSignalStateVehicleCrossesAlgorithm
+  debug: false
+  spatBsmMatchWindowMillis: 500
+
+# Signal State Vehicle Stops Analytics
+signal.state.vehicle.stops:
+  algorithm: defaultSignalStateVehicleStopsAlgorithm
+  debug: false
+  spatBsmMatchWindowMillis: 500
+  stopSpeedThreshold: 5
+
+# SPAT Time Change Details
+spat.time.change.details:
+  algorithm: defaultSpatTimeChangeDetailsAlgorithm
+  notification.algorithm: defaultSpatTimeChangeNotificationAlgorithm
+  debug: false
+  spatInputTopicName: topic.ProcessedSpat
+  spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
+  spatTimeChangeDetailsStateStoreName: spat-time-change-detail-state-store
+  spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
+  jitterBufferSize: 50
+
+# SPAT Validation
+spat.validation:
+  algorithm: defaultSpatValidationAlgorithm
+  inputTopicName: topic.ProcessedSpat
+  broadcastRateTopicName: topic.CmSpatBroadcastRateEvents
+  minimumDataTopicName: topic.CmSpatMinimumDataEvents
+  rollingPeriodSeconds: 10
+  outputIntervalSeconds: 5
+  gracePeriodMilliseconds: 100
+  lowerBound: 90
+  upperBound: 110
+  debug: false
+
+# Intersection Reference Alignment Notification
+intersection.reference.alignment.notification:
+  algorithm: defaultIntersectionReferenceAlignmentNotificationAlgorithm
+  properties: debug
+
+# BSM Events
+bsm.event:
+  algorithm: defaultBsmEventAlgorithm
+  inputTopic: topic.CmBsmJsonRepartition
+  outputTopic: topic.CMBsmEvents
+  stateStoreName: bsm-event-state-store
+  debug: false
+
+# Message Ingest
+message.ingest:
+  algorithm: defaultMessageIngestAlgorithm
+  debug: false
+  bsmTopic: topic.OdeBsmJson
+  spatTopic: topic.ProcessedSpat
+  mapTopic: topic.ProcessedMap
+  mapBoundingBoxTopic: topic.CmMapBoundingBox
+  bsmStoreName: BsmWindowStore
+  spatStoreName: SpatWindowStore
+  mapStoreName: ProcessedMapWindowStore
+
+# Config parameters
+config:
+  defaultTopicName: topic.CmDefaultConfig
+  intersectionTopicName: topic.CmIntersectionConfig
+  defaultStateStore: default-config
+  intersectionStateStore: intersection-config
+  intersectionTableName: topic.CmIntersectionConfigTable
+  defaultCollectionName: CmDefaultConfig
+  intersectionCollectionName: CmIntersectionConfig
+  createDefaultConnectorJsonParams: >
+    {
+      "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
+      ,"tasks.max": 3
+      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
+      ,"name": "MongoSource.{{defaultTopicName}}"
+      ,"database": "ConflictMonitor"
+      ,"collection": "{{defaultCollectionName}}"
+      ,"topic.namespace.map": "{ \"ConflictMonitor.{{defaultCollectionName}}\": \"{{defaultTopicName}}\" }"
+      ,"copy.existing": true
+      ,"publish.full.document.only": true
+      ,"publish.full.document.only.tombstones.on.delete": true
+      ,"change.stream.full.document": "required"
+      ,"pipeline": "[{$addFields:{\"fullDocument.key\":\"$fullDocument._id\"}},{$project:{\"fullDocument._id\":0,\"fullDocument._class\":0}}]"
+      ,"key.converter": "org.apache.kafka.connect.storage.StringConverter"
+      ,"key.converter.schemas.enable": false
+      ,"value.converter": "org.apache.kafka.connect.json.JsonConverter"
+      ,"value.converter.schemas.enable": false
+      ,"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson"
+      ,"output.format.key": "schema"
+      ,"output.format.value": "schema"
+      ,"output.schema.infer.value": true
+      ,"transforms": "ValueToKey,ExtractKey"
+      ,"transforms.ValueToKey.type": "org.apache.kafka.connect.transforms.ValueToKey"
+      ,"transforms.ValueToKey.fields": "key"
+      ,"transforms.ExtractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key"
+      ,"transforms.ExtractKey.field": "key"
+    }
+  createIntersectionConnectorJsonParams: >
+    {
+      "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
+      ,"tasks.max": 3
+      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
+      ,"name": "MongoSource.{{intersectionTopicName}}"
+      ,"database": "ConflictMonitor"
+      ,"collection": "{{intersectionCollectionName}}"
+      ,"topic.namespace.map": "{ \"ConflictMonitor.{{intersectionCollectionName}}\": \"{{intersectionTopicName}}\" }"
+      ,"startup.mode": "copy_existing"
+      ,"publish.full.document.only": true
+      ,"publish.full.document.only.tombstones.on.delete": true
+      ,"change.stream.full.document": "required"
+      ,"pipeline": "[{$addFields:{\"fullDocument.key\":\"$fullDocument._id.key\",\"fullDocument.rsuID\":\"$fullDocument._id.rsuID\"}},{$project:{\"fullDocument._class\":0,\"fullDocument._id\":0}}]"
+      ,"key.converter": "org.apache.kafka.connect.json.JsonConverter"
+      ,"key.converter.schemas.enable": false
+      ,"value.converter": "org.apache.kafka.connect.json.JsonConverter"
+      ,"value.converter.schemas.enable": false
+      ,"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson"
+      ,"output.format.key": "schema"
+      ,"output.format.value": "schema"
+      ,"output.schema.infer.value": true
+      ,"transforms": "ValueToKey"
+      ,"transforms.ValueToKey.type": "org.apache.kafka.connect.transforms.ValueToKey"
+      ,"transforms.ValueToKey.fields": "rsuID,key"
+    }
+
+

@@ -1,0 +1,300 @@
+package us.dot.its.jpo.conflictmonitor.monitor.serialization;
+
+import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
+
+import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
+import us.dot.its.jpo.ode.model.OdeBsmData;
+
+public class JsonSerdes {
+   
+    public static Serde<OdeBsmData> OdeBsm() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<OdeBsmData>(), 
+            new JsonDeserializer<>(OdeBsmData.class));
+    }
+
+    public static Serde<BsmAggregator> BsmDataAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmAggregator>(), 
+            new JsonDeserializer<>(BsmAggregator.class));
+    }
+
+    public static Serde<BsmEvent> BsmEvent(){
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmEvent>(),
+            new JsonDeserializer<>(BsmEvent.class));
+    }
+
+    public static Serde<VehicleEvent> VehicleEvent(){
+        return Serdes.serdeFrom(
+          new JsonSerializer<VehicleEvent>(),
+          new JsonDeserializer<>(VehicleEvent.class));
+    }
+
+    public static Serde<MapBroadcastRateEvent> MapBroadcastRateEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapBroadcastRateEvent>(),
+            new JsonDeserializer<>(MapBroadcastRateEvent.class));
+    }
+
+    public static Serde<SpatBroadcastRateEvent> SpatBroadcastRateEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatBroadcastRateEvent>(),
+            new JsonDeserializer<>(SpatBroadcastRateEvent.class));
+    }
+
+    public static Serde<LaneDirectionOfTravelEvent> LaneDirectionOfTravelEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelEvent>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelEvent.class));
+    }
+
+    public static Serde<ConnectionOfTravelEvent> ConnectionOfTravelEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelEvent>(),
+            new JsonDeserializer<>(ConnectionOfTravelEvent.class));
+    }
+
+    public static Serde<SignalStateEvent> SignalStateEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateEvent>(),
+            new JsonDeserializer<>(SignalStateEvent.class));
+    }
+    
+    public static Serde<SignalStateStopEvent> SignalStateVehicleStopsEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateStopEvent>(),
+            new JsonDeserializer<>(SignalStateStopEvent.class));
+    }
+
+    public static Serde<IntersectionReferenceAlignmentEvent> IntersectionReferenceAlignmentEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<IntersectionReferenceAlignmentEvent>(),
+            new JsonDeserializer<>(IntersectionReferenceAlignmentEvent.class));
+    }
+
+    public static Serde<SignalGroupAlignmentEvent> SignalGroupAlignmentEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalGroupAlignmentEvent>(),
+            new JsonDeserializer<>(SignalGroupAlignmentEvent.class));
+    }
+
+    public static Serde<SignalStateConflictEvent> SignalStateConflictEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateConflictEvent>(),
+            new JsonDeserializer<>(SignalStateConflictEvent.class));
+    }
+
+    public static Serde<TimeChangeDetailsEvent> TimeChangeDetailsEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<TimeChangeDetailsEvent>(),
+            new JsonDeserializer<>(TimeChangeDetailsEvent.class));
+    }
+
+    public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatTimeChangeDetailAggregator>(),
+            new JsonDeserializer<>(SpatTimeChangeDetailAggregator.class));
+    }
+
+    public static Serde<SpatMap> SpatMap() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatMap>(),
+            new JsonDeserializer<>(SpatMap.class));
+    }
+
+    public static Serde<SignalStateAssessment> SignalStateAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateAssessment>(),
+            new JsonDeserializer<>(SignalStateAssessment.class));
+    }
+
+    public static Serde<SignalStateEventAssessment> SignalStateEventAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateEventAssessment>(),
+            new JsonDeserializer<>(SignalStateEventAssessment.class));
+    }
+
+    public static Serde<SignalStateEventAggregator> SignalStateEventAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateEventAggregator>(),
+            new JsonDeserializer<>(SignalStateEventAggregator.class));
+    }
+
+    public static Serde<LaneDirectionOfTravelAssessment> LaneDirectionOfTravelAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelAssessment>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelAssessment.class));
+    }
+
+    public static Serde<LaneDirectionOfTravelAggregator> LaneDirectionOfTravelAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelAggregator>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelAggregator.class));
+    }
+
+    public static Serde<ConnectionOfTravelAssessment> ConnectionOfTravelAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelAssessment>(),
+            new JsonDeserializer<>(ConnectionOfTravelAssessment.class));
+    }
+
+    public static Serde<ConnectionOfTravelAggregator> ConnectionOfTravelAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelAggregator>(),
+            new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
+    }
+
+    public static Serde<BsmIntersectionKey> BsmIntersectionKey() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmIntersectionKey>(),
+            new JsonDeserializer<>(BsmIntersectionKey.class));
+    }
+
+    public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<BsmEventIntersectionKey>(),
+                new JsonDeserializer<>(BsmEventIntersectionKey.class));
+    }
+
+    public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<IntersectionReferenceAlignmentNotification>(),
+            new JsonDeserializer<>(IntersectionReferenceAlignmentNotification.class));
+    }
+
+    public static Serde<MapMinimumDataEvent> MapMinimumDataEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapMinimumDataEvent>(),
+            new JsonDeserializer<>(MapMinimumDataEvent.class)
+        );
+    }
+
+    public static Serde<SpatMinimumDataEvent> SpatMinimumDataEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatMinimumDataEvent>(),
+            new JsonDeserializer<>(SpatMinimumDataEvent.class)
+        );
+    }
+
+    public static Serde<SignalGroupAlignmentNotification> SignalGroupAlignmentNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalGroupAlignmentNotification>(),
+            new JsonDeserializer<>(SignalGroupAlignmentNotification.class)
+        );
+    }
+
+    public static Serde<LaneDirectionOfTravelNotification> LaneDirectionOfTravelAssessmentNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<LaneDirectionOfTravelNotification>(),
+            new JsonDeserializer<>(LaneDirectionOfTravelNotification.class)
+        );
+    }
+
+    public static Serde<ConnectionOfTravelNotification> ConnectionOfTravelNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<ConnectionOfTravelNotification>(),
+            new JsonDeserializer<>(ConnectionOfTravelNotification.class)
+        );
+    }
+
+    public static Serde<SignalStateConflictNotification> SignalStateConflictNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SignalStateConflictNotification>(),
+            new JsonDeserializer<>(SignalStateConflictNotification.class)
+        );
+    }
+
+    public static Serde<TimeChangeDetailsNotification> TimeChangeDetailsNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<TimeChangeDetailsNotification>(),
+            new JsonDeserializer<>(TimeChangeDetailsNotification.class)
+        );
+    }
+
+    public static Serde<Notification> Notification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<Notification>(),
+            new JsonDeserializer<>(Notification.class)
+        );
+    }
+
+    public static Serde<DefaultConfig<?>> DefaultConfig() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<DefaultConfig<?>>(),
+            new GenericJsonDeserializer<DefaultConfig<?>>(DefaultConfig.class)
+        );
+    }
+
+    public static Serde<IntersectionConfig<?>> IntersectionConfig() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<IntersectionConfig<?>>(),
+            new GenericJsonDeserializer<IntersectionConfig<?>>(IntersectionConfig.class)
+        );
+    }
+
+    public static Serde<SpatBroadcastRateNotification> SpatBroadcastRateNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatBroadcastRateNotification>(),
+            new GenericJsonDeserializer<SpatBroadcastRateNotification>(SpatBroadcastRateNotification.class)
+        );
+    }
+
+    public static Serde<MapBroadcastRateNotification> MapBroadcastRateNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapBroadcastRateNotification>(),
+            new GenericJsonDeserializer<MapBroadcastRateNotification>(MapBroadcastRateNotification.class)
+        );
+    }
+
+    public static Serde<RsuConfigKey> RsuConfigKey() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<RsuConfigKey>(),
+            new JsonDeserializer<>(RsuConfigKey.class)
+        );
+    }
+    
+
+    
+}

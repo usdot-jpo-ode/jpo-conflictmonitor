@@ -1,0 +1,25 @@
+package us.dot.its.jpo.conflictmonitor.monitor.models.config;
+
+import java.util.concurrent.ConcurrentSkipListMap;
+
+/**
+ * Thread safe map of RSU ID to a configuration value (String or Number).
+ * 
+ * <p>Keys are naturally ordered.
+ * <p>Null values are not allowed by the underlying data structure.
+ */
+public class ConfigMap<T> extends ConcurrentSkipListMap<String, T> {
+
+    /**
+     * A bit of a hack to allow setting either a String or numeric value 
+     * from code where the generic type is not available.
+     * @param key
+     * @param value
+     */
+    @SuppressWarnings("unchecked")
+    public void putObject(String key, Object value) {
+        this.put(key, (T)value);
+    }
+
+
+}

@@ -1,0 +1,4 @@
+jpo-conflictmonitor/target/**
+.env
+*.log
+.idea/

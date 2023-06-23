@@ -1,0 +1,1461 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <link th:href="@{/style.css}" rel="stylesheet" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.js"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+    <script src=" https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js "></script>
+    <title>Test Message Sender</title>
+</head>
+
+<body>
+    <div class="container">
+        <div style="display:none">
+            <h3 class="sideHeader">SPAT Template</h3>
+            <div class="sideItem jsonDocument" id="spatTemplate" contenteditable="true" spellcheck="false">
+                Spat document
+            </div>
+            <h3 class="sideHeader">BSM Template</h3>
+            <div class="sideItem jsonDocument" id="bsmTemplate" contenteditable="true" spellcheck="false">
+            </div>
+
+
+        </div>
+        <div class="side" style="width: 20%">
+            
+            <h3 class="sideHeader">SPAT Phases</h3>
+            <div class="sideItem tableContainer" id="spatTableContainer" style="padding: 0px" >
+                <table id="spatTable" class="selectTable">
+                </table>
+            </div>
+            <div class="sideItem"></div>
+        </div>
+
+
+        <div id="map">
+        </div>
+        <div class="side" style="width: 20%">
+            <div class="sideItem">
+
+
+                
+                    
+                <div id="uploads">
+                    <hr />
+                    <h3>Upload line-delimited JSON</h3>
+                    <label for="ulBsms">BSMs</label>
+                    <input type="file" id="ulBsms" accept=".json,.jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
+                    <br/>
+                    <label for="ulSpats">SPATs</label>
+                    <input type="file" id="ulSpats" accept=".json,.jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+<!--                    <br/>-->
+<!--                    <label for="ulProcessedSpats">ProcessedSpats</label>-->
+<!--                    <input type="file" id="ulProcessedSpats" accept=".json,.jsonl,.ndjson,.csv"-->
+<!--                        onchange="uploadProcessedSpats(this);"/>-->
+                    
+                    <h3>Upload JSON Template</h3>
+                    <label for="btnOdeMapJsonUpload">MAP</label>
+                    <input type="file" id="btnOdeMapJsonUpload" accept=".json,.csv"
+                        onchange="uploadOdeMapJson(this);" />
+                    <br/>
+                    <label for="btnProcessedMapUpload">ProcessedMap</label>
+                    <input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
+                           onchange="uploadMapGeojson(this);"/>
+                    <br/>
+                    <label for="btnOdeSpatJsonUpload">SPAT</label>
+                    <input type="file" id="btnOdeSpatJsonUpload" accept=".json"
+                        onchange="uploadOdeSpatJson(this);" />
+                    <br/>
+                </div>
+                
+                <hr />
+                
+                    
+
+                    
+                <div id="mapControls">
+                    
+                    <h3>Send MAP</h3>
+                    <button type="button" onclick="startSendingMap();">Start</button>
+                    <button type="button" onclick="stopSendingMap();">Stop</button>
+                    <br />
+                    <input type="range" min="500" max="1500" value="1000" step="50" name="mapInterval"
+                        id="mapInterval" oninput="this.nextElementSibling.value = this.value" />
+                    <output>1000</output>
+                    <br />
+                    <label for="mapInterval">MAP Interval (ms)</label>
+
+                </div>
+                <hr />
+                <div id="spatControls">
+                    
+                    <h3>Send SPAT Template</h3>
+                    <button type="button" onclick="startSendingSpat();">Start</button>
+                    <button type="button" onclick="stopSendingSpat();">Stop</button>
+                    <br/>
+                    
+                    <input type="range" min="50" max="150" value="100" step="5" name="spatInterval"
+                        id="spatInterval" oninput="this.nextElementSibling.value = this.value" />
+                    <output>100</output>
+                    <br />
+                    <label for="spatInterval">SPAT Interval (ms)</label>
+                </div>
+                <div id="rtSpatControls">
+                    <hr />
+                    <h3>Send Selected SPAT Phases (Real Time)</h3>
+                    <button type="button" onclick="sendSpatsRealTime();">Start</button>
+                    <button type="button" onclick="stopSendingSpatsRealTime();">Stop</button>
+                    <label for="spatLoop">Loop</label>
+                    <input type="checkbox" id="spatLoop"/><br/>
+                </div>
+                <hr />
+                <div id="bsmControls">
+                    
+                    <h3>Send BSMs (Real Time)</h3>
+                    <button type="buttom" onclick="sendBsmsRealTime();">Start</button>
+                    <button type="button" onclick="stopSendingBsms();">Stop</button>
+                    <label for="bsmFixedInterval">Fixed Interval</label>
+                    <input type="checkbox" id="bsmFixedInterval" checked /><br/>
+                    <input type="range" min="10" max="1000" value="100" step="10" name="bsmInterval"
+                        id="bsmInterval" oninput="this.nextElementSibling.value = this.value"/>
+                    <output>100</output><br/>
+                    <label for="bsmInterval">BSM Interval (ms)</label>
+                </div>
+                <div>
+                    <hr />
+                    <h3>Send BSMs (All at once)</h3>
+                    <button type="button" onclick="sendBsms();">Send</button>
+                </div>
+                
+                <hr />
+                <div>
+                    <h3>Download line-delimited JSON</h3>
+                    <div>
+                        <button type="button" onclick="downloadBsms();">BSMs</button>
+                        <button type="button" onclick="downloadSpats();">SPATs</button>
+                    </div>
+                    <h3>Download Edited Template JSON</h3>
+                    <div>
+                        <button type="button" onclick="downloadBsmTemplate();">BSM</button>
+                        <button type="button" onclick="downloadSpatTemplate();">SPAT</button>
+                    </div>
+                </div>
+                <hr/>
+                <div id="scriptControls">
+                    <h3>Script</h3>
+                    <button type="button" onclick="clearScript();">Clear</button>
+                    <button type="button" onclick="startRecording();">Start Recording</button>
+                    <button type="button" onclick="stopRecording();">Stop Recording</button>
+                    <button type="button" onclick="downloadScript();">Download</button>
+                    
+                    <button type="button" onclick="runScript();">Run</button>
+                    <br/>
+                    <label for="ulScript">Upload</label>
+                    <input type="file" id="ulScript" accept=".csv,.txt" onchange="uploadScript(this);" />
+                </div>
+
+                <hr />
+            </div>
+
+        </div>
+    </div>
+</body>
+<script>
+
+    var map = L.map('map').setView([39.5952649, -105.0914122], 19);
+
+    /* Base Maps */
+    var osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+    var googUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+    var googAttrib = 'Google Maps';
+
+
+    var oamAttrib = '<a href="http://openaerialmap.org/about/" target="_blank">Open Aerial Map</a>';
+
+    /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-inlining */
+    var mapboxUrl = '[(${mapboxTileEndpoint})]';
+    console.log(mapboxUrl);
+    var mapboxAttrib = 'Mapbox';
+
+    var empty = L.tileLayer('', { maxZoom: 22 });
+    var osm = L.tileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib });
+    var goog = L.tileLayer(googUrl, { maxZoom: 22, attribution: googAttrib });
+    var mapbox = L.tileLayer(mapboxUrl, { maxZoom: 22, attribution: mapboxAttrib });
+
+
+    // Open Aerial Map
+    const oamUrlArr = [
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9d/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc3/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc5/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3dec/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3dee/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9d/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9f/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc0/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc2/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3de9/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3deb/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9a/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9c/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9b/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d75/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9d/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d76/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec2/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec4/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec5/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee7/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee6/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee8/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3efe/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee9/{z}/{x}/{y}',
+        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9c/{z}/{x}/{y}'
+    ];
+    const oamLayerArr = [];
+    for (const oamUrl of oamUrlArr) {
+        oamLayerArr.push(L.tileLayer(oamUrl, { maxZoom: 23, minZoom: 15, attribution: oamAttrib }));
+    }
+    const oam = L.layerGroup(oamLayerArr);
+
+    const drawnItems = new L.FeatureGroup();
+
+    const bsmList = [];  /* Array of BSM locations */
+    const spatList = [];
+    const processedSpatList = [];
+
+    const diffSpatEvents = [];
+    const diffSpatStates = [];
+
+    const script = [];
+
+    const baseMaps = {
+        'No Base Map': empty,  
+        'Google Hybrid': goog,
+        'Mapbox Satellite Streets': mapbox,
+        'Open Street Map (zoom <= 19)': osm,   
+        'Open Aerial Map (zoom >= 15)': oam.addTo(map),  // Show by default
+    };
+
+    const overlayMaps = {
+        'Draw BSM Layer': drawnItems
+    };
+
+
+
+    var layerControl = L.control.layers(baseMaps, overlayMaps, {
+        positiion: 'topright', collapsed: false
+    }).addTo(map);
+
+
+    /* Shape draw controls */
+
+    map.addLayer(drawnItems);
+
+
+
+    var drawControl = new L.Control.Draw({
+        position: 'topleft',
+        draw: {
+            polyline: false,
+            polygon: false,
+            rectangle: false,
+            circle: false,
+            marker: false,
+            circlemarker: {
+                color: '#f00',
+                fillOpacity: 0.9,
+                stroke: false,
+                radius: 5
+            }
+        },
+        edit: {
+            featureGroup: drawnItems,
+            remove: true,
+            edit: false
+        }
+    });
+    map.addControl(drawControl);
+
+
+    map.on(L.Draw.Event.CREATED, function (e) {
+        var type = e.layerType,
+            layer = e.layer;
+        if (type == 'circlemarker') {
+
+            drawnItems.addLayer(layer);
+            console.log('Placed point');
+            console.log(layer);
+
+            const lon = layer._latlng.lng;
+            const lat = layer._latlng.lat;
+
+            /* Save the coordinates with the current timestamp */
+            const ts = Date.now();
+
+            const prevBsm = bsmList.length > 0 ? bsmList[bsmList.length - 1] : null;
+            const prevCoords = prevBsm?.coords;
+            //var prevTimestamp = prevBsm?.timestamp;
+            const prevMsgCnt = prevBsm != null ? prevBsm.msgCnt : 0;
+            const msgCnt = (prevMsgCnt + 1) % 128;
+
+            // Get Origin IP and temp ID from template
+            const bsmTemplate = getCurrentBsmTemplate();
+            const originIp = bsmTemplate.metadata.originIp;
+            const id = bsmTemplate.payload.data.coreData.id;
+
+            let heading = bsmTemplate.payload.data.coreData.heading;
+            let speed = bsmTemplate.payload.data.coreData.speed;
+            const deltaTimestampMillis = 100;
+            if (prevCoords != null) {
+                [heading, speed] = getHeadingAndSpeed(prevCoords, [lon, lat], deltaTimestampMillis);
+                speed = Math.round(speed * 100) / 100;             
+                
+                // Since calculated heading won't be accurate when vehicle is stopped,
+                // use previous heading if speed is < 0.5 m/s
+                if (speed < 0.5) { 
+                    heading = prevBsm.heading;
+                }
+            }
+            const bsm = { odeReceivedAt: ts, timestamp: ts, coords: [lon, lat], heading: heading, speed: speed, id: id, msgCnt: msgCnt, originIp: originIp };
+
+            /* Tag the layer with the bsm timestamp so we can find it to update or delete */
+            layer.bsmTimestamp = ts;
+
+            bsmList.push(bsm);
+            //console.log(bsmList);
+
+            /* Keep circlemarker button in edit mode
+               TODO Figure out some way to do this other than this hack */
+            throw 'Throwing exception to keep the circlemarker in edit mode.  Not ideal but it works.'
+
+        } else {
+            console.log('layerType ' + type + ' not used');
+        }
+    });
+
+
+    map.on('draw:edited', function (e) {
+        /* TODO update bsmList */
+        console.log(e);
+
+    });
+
+    map.on('draw:deleted', function (e) {
+        console.log(e);
+        /* Remove all items */
+        bsmList.length = 0;
+        /* TODO: Don't assume all items were deleted */
+    });
+
+    async function getMapGeojson() {
+        //const response = await fetch('map_wadsworth_and_coalmine.geojson');
+        const response = await fetch('MAP_wadsworth_and_coalmine.json');
+        const mapJson = await response.json();
+        odeMapJsonToGeojson(JSON.stringify(mapJson));
+        // setMapGeojson(mapJson.mapFeatureCollection);
+        // setConnectingLanesGeojson(mapJson.connectingLanesFeatureCollection);
+
+    }
+
+    async function getBsmTemplate() {
+        const response = await fetch('BSMTemplate.json');
+        const text = await response.text();
+        setBsmTemplate(text);
+    }
+
+    function setBsmTemplate(text) {
+        var json = JSON.parse(text);
+        document.getElementById("bsmTemplate").innerText = JSON.stringify(json, null, 1);
+    }
+
+    let geojsonLayer = undefined;
+    let connectingLayer = undefined;
+
+    function setMapGeojson(mapGeojson) {
+        console.log("MAP Geojson:");
+        console.log(mapGeojson);
+        if (geojsonLayer) {
+            map.removeLayer(geojsonLayer);
+            layerControl.removeLayer(geojsonLayer);
+        }
+        geojsonLayer = L.geoJSON(mapGeojson, {
+            style: {
+                color: '#f0f',
+                width: '1px',
+                opacity: 1
+            },
+            onEachFeature: addPropertiesTooltip
+        }).addTo(map);
+        layerControl.addOverlay(geojsonLayer, 'MAP Geojson');
+        map.fitBounds(geojsonLayer.getBounds());
+    }
+
+    function setConnectingLanesGeojson(connectingGeojson) {
+        console.log("MAP Connections:");
+        console.log(connectingGeojson);
+        if (connectingLayer) {
+            map.removeLayer(connectingLayer);
+            layerControl.removeLayer(connectingLayer);
+        }
+        connectingLayer = L.geoJSON(connectingGeojson, {
+            style: {
+                color: '#0f0',
+                width: '1px',
+                opacity: 1
+            },
+            onEachFeature: addPropertiesTooltip
+        }).addTo(map);
+        layerControl.addOverlay(connectingLayer, "Connections");
+    }
+
+    function addPropertiesTooltip(feature, layer) {
+        let popupContent = '';
+        for (const key in feature.properties) {
+            const val = feature.properties[key];
+            // Include numbers only
+            if (_.isNumber(val)) {
+                popupContent += key + ' = ' + val + '<br/>';
+            }
+        }
+        layer.bindPopup(popupContent, { autoClose: false, closeOnClick: false });
+    }
+
+
+    getMapGeojson();
+    getBsmTemplate();
+
+    function sendBsms() {
+        if (bsmList.length < 1) return;
+        console.log("sendBsms with no delay");
+        sendBsmListRealTime(bsmList, true);    // No delay
+    }
+
+    function sendBsmsRealTime() {
+        if (bsmList.length < 1) return;
+        console.log("sendBsmsRealTime");
+        sendBsmListRealTime(bsmList, false);  // Calculate delay
+    }
+
+    const MAX_DELAY = 5000;
+
+    function sendBsmListRealTime(theBsmList, noDelay) {
+        BSM_SEND = true;
+        document.getElementById('bsmControls').style = 'background-color:lightgreen';
+
+
+        const startIn = 0;
+        const now = Date.now();
+        const firstTimestamp = theBsmList[0].odeReceivedAt;
+        let offset = now - firstTimestamp + startIn;
+        for (const bsm of theBsmList) {
+            bsm.timestamp += offset;
+            bsm.odeReceivedAt += offset;
+        }
+
+        const bsmTemplate = getCurrentBsmTemplate();
+
+        let idx = 0;
+
+        // Send each with timer
+        let nextTime = startIn;
+        console.log("Sending BSM in " + nextTime + " ms");
+        let correctionOffset = 0;
+        const bsmFixedInterval = document.getElementById('bsmFixedInterval');
+        const bsmInterval = document.getElementById('bsmInterval');
+        setTimeout(function sendBsmTimed() {
+            if (!BSM_SEND) return;
+            const bsm = theBsmList[idx];
+            const id = bsm.id;
+            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate);
+            sendBsmAsync(postDataItem).then(successCallback, failureCallback);
+            if (idx < theBsmList.length - 1) {
+                ++idx;
+                if (bsmFixedInterval.checked) {
+                    noDelay = false;
+                    nextTime = bsmInterval.value;
+                } else {
+                    const nextBsm = theBsmList[idx];
+                    nextTime = nextBsm.odeReceivedAt - Date.now() - correctionOffset;
+
+                    if (nextTime < 0) {
+                        nextTime = 0;
+                        if (nextTime < -MAX_DELAY) {
+                            correctionOffset = 0;
+                        }
+                    }
+
+                    if (nextTime > MAX_DELAY) {
+                        correctionOffset = nextTime - MAX_DELAY;
+                        nextTime = MAX_DELAY;
+                        //offset = Date.now() - nextBsm.odeReceivedAt;
+                    }
+                    nextTime = noDelay ? 0 : nextTime;
+                }
+                console.log("Sending BSM id = " + id + " in " + nextTime + " ms");
+                setTimeout(sendBsmTimed, noDelay ? 0 : nextTime);
+            } else {
+                console.log("Completed Sending BSMs with id = " + id);
+                stopSendingBsms();
+            }
+        }, nextTime);
+    }
+
+    var BSM_SEND = true;
+
+    function stopSendingBsms() {
+        BSM_SEND = false;
+        document.getElementById('bsmControls').style = '';
+    }
+
+    function buildBsmFromTemplate(bsm, bsmTemplate) {
+        // Copy via serialization
+        const bsmJson = JSON.stringify(bsmTemplate);
+        const bsmObj = JSON.parse(bsmJson);
+        bsmObj.payload.data.coreData.id = bsm.id;
+        bsmObj.payload.data.coreData.msgCnt = bsm.msgCnt;
+        bsmObj.payload.data.coreData.speed = bsm.speed;
+        bsmObj.payload.data.coreData.heading = bsm.heading;       
+        bsmObj.payload.data.coreData.position.longitude = bsm.coords[0];
+        bsmObj.payload.data.coreData.position.latitude = bsm.coords[1];
+        const dt = new Date(bsm.timestamp);
+        const dtMillis = dt.getTime();
+        const dtMinute = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), dt.getHours(), dt.getMinutes(), 0, 0);
+        const minuteMillis = dtMinute.getTime();
+        const millis = dtMillis - minuteMillis;
+        bsmObj.payload.data.coreData.secMark = millis;
+        bsmObj.metadata.originIp = bsm.originIp;
+
+
+        bsmObj.metadata.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
+        return bsmObj;
+    }
+
+    async function sendBsmAsync(postDataItem) {
+        if (RECORD_SCRIPT) {
+            script.push(buildScriptFromBsm(postDataItem));
+        }
+        const response = await fetch('/kafka/topic.OdeBsmJson', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(postDataItem)
+        });
+        return response;
+    }
+
+
+
+
+
+
+
+    function getCurrentBsmTemplate() {
+        let bsmTemplateObj = null;
+        try {
+            let bsmText = document.getElementById("bsmTemplate").innerText;
+            bsmTemplateObj = JSON.parse(bsmText);
+        } catch {
+            /* Ignore exception if there is no bsm template */
+        }
+        return bsmTemplateObj;
+    }
+
+    function successCallback(e) {
+        //console.log("success");
+        //console.log(e);
+    }
+
+    function failureCallback(e) {
+        console.log("failure");
+        console.log(e);
+    }
+
+    function uploadBsms(e) {
+        console.log("uploadBsms");
+
+
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+
+            file.text().then(text => {
+                // Clear exising bsms
+                bsmList.length = 0;
+                const lines = text.split(/\r?\n/);
+
+                // Set the first BSM as the template
+                setBsmTemplate(lines[0]);
+
+                for (const line of lines) {
+                    if (line) {
+                        try {
+                            const json = JSON.parse(line);
+                            var bsm = extractBsmData(json);
+                            bsmList.push(bsm);
+                            addCircleMarker(bsm);
+                        } catch (ex) {
+                            console.error(ex);
+                        }
+                    }
+                }
+
+                console.log("Uploaded " + bsmList.length + " BSMs");
+
+                // Find distinct BSM IDs
+                const idList = bsmList.map((value, idx, arr) => value.id + '');
+                const idSet = new Set();
+                for (const id of idList) {
+                    idSet.add(id);
+                }
+                console.log("idSet");
+                console.log(idSet);
+
+                // Sort by ode ingest time
+                bsmList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
+            });
+        }
+    }
+
+    function extractBsmData(json) {
+        const dtReceivedAtMillis = Date.parse(json.metadata.odeReceivedAt);
+        const dt = new Date(dtReceivedAtMillis);
+        //console.log(dt);
+        const minuteMillis = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(), dt.getUTCHours(), dt.getUTCMinutes(), 0, 0);
+        const coreData = json.payload.data.coreData;
+        const secMark = coreData.secMark;
+        const millis = minuteMillis + secMark;
+
+        const position = coreData.position;
+        const lon = position.longitude;
+        const lat = position.latitude;
+
+        const heading = coreData.heading;
+        const speed = coreData.speed;
+        const id = coreData.id + ''; // Cast to string
+        const msgCnt = coreData.msgCnt;
+
+        const originIp = json.metadata.originIp;
+
+
+        const bsm = { odeReceivedAt: dtReceivedAtMillis, timestamp: millis, coords: [lon, lat], heading: heading, speed: speed, id: id, msgCnt: msgCnt, originIp: originIp };
+        //console.log(bsm);
+        return bsm;
+    }
+
+    
+
+    function addCircleMarker(bsm) {
+        const latlng = L.latLng(bsm.coords[1], bsm.coords[0]);
+        const options = {
+            color: '#f00',
+            fillOpacity: 0.9,
+            stroke: false,
+            radius: 5
+        };
+        const circlemarker = L.circleMarker(latlng, options);
+        drawnItems.addLayer(circlemarker);
+    }
+
+
+
+    function uploadBsmTemplate(e) {
+        console.log("uploadBsmTemplate")
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            file.text().then(text => {
+                setBsmTemplate(text);
+            });
+        }
+    }
+
+    function uploadMapGeojson(e) {
+        console.log("uploadMapGeojson (ProcessedMap)");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            file.text().then(text => {
+                var json = JSON.parse(text);
+                console.log(json);
+                setMapGeojson(json.mapFeatureCollection);
+                setConnectingLanesGeojson(json.connectingLanesFeatureCollection);
+            });
+        }
+    }
+
+    function uploadOdeMapJson(e) {
+        console.log("uploadOdeMapJson");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            console.log("MAP JSON File:");
+            console.log(file);
+            file.text().then(text => odeMapJsonToGeojson(text));
+        }
+    }
+
+    function uploadOdeSpatJson(e) {
+        console.log("uploadOdeSpatJson");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            console.log("SPAT JSON File:");
+            console.log(file);
+            file.text().then(text => setSpatTemplate(text));
+        }
+    }
+
+    var odeMapTemplate;
+
+
+    function odeMapJsonToGeojson(text) {
+        odeMapTemplate = JSON.parse(text);
+        odeMapJsonToGeojsonAsync(text).then(
+            response => response.json(),
+            failureCallback
+        ).then(
+            // Success callback
+            json => {
+                console.log(json);
+                setMapGeojson(json.mapFeatureCollection);
+                setConnectingLanesGeojson(json.connectingLanesFeatureCollection);
+            },
+            failureCallback
+        );
+    }
+
+    async function odeMapJsonToGeojsonAsync(json) {
+        const response = await fetch('/odeMapJsonToGeojson', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: json
+        });
+        return response;
+    }
+
+    var MAP_SEND = true;
+
+    function startSendingMap() {
+        MAP_SEND = true;
+        document.getElementById('mapControls').style = 'background-color:lightgreen';
+        let intervalMs = document.getElementById('mapInterval').value;
+        setTimeout(function sendMapTimed() {
+            if (!MAP_SEND) return;
+            intervalMs = document.getElementById('mapInterval').value;
+            const odeMap = buildMapFromTemplate(odeMapTemplate);
+            console.log("Sending MAP, next " + intervalMs);
+            sendMapAsync(odeMap).then(successCallback, failureCallback);
+            setTimeout(sendMapTimed, intervalMs);
+        }, intervalMs);
+    }
+
+    function stopSendingMap() {
+        MAP_SEND = false;
+        document.getElementById('mapControls').style = '';
+    }
+
+    async function sendMapAsync(odeMap) {
+        if (RECORD_SCRIPT) {
+            script.push(buildScriptFromMap(odeMap));
+        }
+        const response = await fetch('/kafka/topic.OdeMapJson', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(odeMap)
+        });
+    }
+
+    function buildMapFromTemplate() {
+        let mapCopy = JSON.parse(JSON.stringify(odeMapTemplate));
+        const nowMillis = Date.now();
+        mapCopy.metadata.odeReceivedAt = new Date(nowMillis).toISOString();
+        return mapCopy;
+    }
+
+    
+
+    function getHeadingAndSpeed(coords1, coords2, deltaTimestampMillis) {
+        var point1 = turf.point(coords1);
+        var point2 = turf.point(coords2);
+        var heading = Math.round(turf.bearingToAzimuth(turf.bearing(point1, point2)) * 10) / 10;
+        var distanceMeters = turf.distance(point1, point2, { units: 'kilometers' }) * 1000;
+        var tSeconds = deltaTimestampMillis / 1000;
+        var speed = distanceMeters / tSeconds;
+        return [heading, speed];
+    }
+
+    function downloadText(filename, text) {
+        var e = document.createElement('a');
+        e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        e.setAttribute('download', filename);
+        e.style.display = 'none';
+        document.body.appendChild(e);
+        e.click();
+        document.body.removeChild(e);
+    }
+
+    function downloadBsms() {
+        let ldjson = '';
+        const bsmTemplate = getCurrentBsmTemplate();
+        for (const bsm of bsmList) {
+            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate);
+            ldjson += JSON.stringify(postDataItem) + '\n';
+        }
+        downloadText('BSMData.jsonl', ldjson);
+    }
+
+    function downloadSpats() {
+        let ldjson = '';
+        const phases = getSelectedSpatPhases();
+        for (const phase of phases) {
+            const event = diffSpatEvents[phase];
+            const spats = event.spats;
+            for (const spat of spats) {
+                ldjson += JSON.stringify(spat.json) + '\n';
+            }
+        } 
+        downloadText('SPATData.jsonl', ldjson);
+    }
+
+    function downloadBsmTemplate() {
+        const bsmTemplate = getCurrentBsmTemplate();
+        const bsmStr = JSON.stringify(bsmTemplate);
+        downloadText('BSMTemplate.json', bsmStr);
+    }
+
+    function downloadSpatTemplate() {
+        const spatTemplate = getCurrentSpatTemplate();
+        const spatStr = JSON.stringify(spatTemplate);
+        downloadText('SPATTemplate.json', spatStr);
+    }
+
+
+    // ------------------------- SPAT Upload --------------------------------
+
+    function uploadSpats(e) {
+        console.log("uploadSpats");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            file.text().then(text => {
+                // Clear existing spats
+                spatList.length = 0;
+                processedSpatList.length = 0;
+                diffSpatEvents.length = 0;
+                const lines = text.split(/\r?\n/);
+                console.log("Read " + lines.length + " spats from file");
+
+                // Set the first SPAT as the template
+                setSpatTemplate(lines[0])
+                for (const line of lines) {
+                    if (line) {
+                        const json = JSON.parse(line);
+                        const spat = extractSpatData(json);
+                        spatList.push(spat);
+                    }
+                }
+
+                // Sort by ingest time
+                spatList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
+
+                // Split the spats into an array of streams with the same phase
+                 
+                // Get the first phase and start the stream of spats
+                const firstSpat = _.head(spatList);
+                const firstEvent = firstSpat.events;
+                let previousEvent = uniqueSpatId(firstEvent);
+                previousEvent.spats = [];
+                previousEvent.spats.push(firstSpat);
+                diffSpatEvents.push(previousEvent);
+
+                for (const spat of spatList) {
+                    const event = spat.events;
+                    // Remove timing
+                    const strippedEvent = uniqueSpatId(event);
+                    if (!_.isEqual(strippedEvent, previousEvent)) {
+                        // The phase is different, create a new stream
+                        previousEvent = strippedEvent;
+                        previousEvent.spats = [];
+                        previousEvent.spats.push(spat);
+                        diffSpatEvents.push(previousEvent);
+                    } else {
+                        // The phase is the same, add to the latest stream
+                        previousEvent.spats.push(spat);
+                    }
+                }
+                console.log("Found " + diffSpatEvents.length + " diff spat events");
+                
+
+                // Group the first stream of each unique spat id with the event
+                for (const event of diffSpatEvents) {                   
+                    const firstItem = _.head(event.spats);
+                    const lastItem = _.last(event.spats);
+                    event.firstOdeTime = firstItem.odeReceivedAt;
+                    event.lastOdeTime = lastItem.odeReceivedAt;
+                    event.firstTimestamp = firstItem.timestamp;
+                    event.lastTimestamp = lastItem.timestamp;
+                    event.odeDurationMs = event.lastOdeTime - event.firstOdeTime;
+                    event.durationMs = event.lastTimestamp - event.firstTimestamp;
+                }
+                
+
+                const earliestOdeTime = _.head(diffSpatEvents).firstOdeTime;
+                for (const event of diffSpatEvents) {
+                    event.firstOdeTimeOffset = event.firstOdeTime - earliestOdeTime;
+                }
+
+                //console.log(uniqueSpatEvents);
+                showSpatTable(diffSpatEvents);
+            })
+        }
+    }
+
+    // function uploadProcessedSpats(e) {
+    //     console.log("uploadProcessedSpats");
+    //     if (e?.files.length > 0) {
+    //         let file = e.files[0];
+    //         file.text().then(text => {
+    //             // Clear existing spats
+    //             spatList.length = 0;
+    //             processedSpatList.length = 0;
+    //             diffSpatEvents.length = 0;
+    //             diffSpatStates.length = 0;
+    //             const lines = text.split(/\r?\n/);
+    //             console.log("Read " + lines.length + " processed spats from file");
+    //
+    //             // Clear the SPAT template
+    //             setSpatTemplate("");
+    //
+    //             for (const line of lines) {
+    //                 if (line) {
+    //                     const json = JSON.parse(line);
+    //                     const spat = extractProcessedSpatData(json);
+    //                     processedSpatList.push(spat);
+    //                 }
+    //             }
+    //
+    //             // Sort by ingest time
+    //             processedSpatList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
+    //
+    //             // Split the spats into an array of streams with the same phase
+    //
+    //             // Get the first phase and start the stream of spats
+    //             const firstSpat = _.head(spatList);
+    //             const firstEvent = firstSpat.states;
+    //             let previousEvent = uniqueProcessedSpatId(firstEvent);
+    //             previousEvent.spats = [];
+    //             previousEvent.spats.push(firstSpat);
+    //             diffSpatStates.push(previousEvent);
+    //
+    //             for (const spat of processedSpatList) {
+    //                 const event = spat.states;
+    //                 // Remove timing
+    //                 const strippedEvent = uniqueProcessedSpatId(event);
+    //                 if (!_.isEqual(strippedEvent, previousEvent)) {
+    //                     // The phase is different, create a new stream
+    //                     previousEvent = strippedEvent;
+    //                     previousEvent.spats = [];
+    //                     previousEvent.spats.push(spat);
+    //                     diffSpatStates.push(previousEvent);
+    //                 } else {
+    //                     // The phase is the same, add to the latest stream
+    //                     previousEvent.spats.push(spat);
+    //                 }
+    //             }
+    //             console.log("Found " + diffSpatStates.length + " diff spat states");
+    //
+    //
+    //             // Group the first stream of each unique spat id with the event
+    //             for (const event of diffSpatStates) {
+    //                 const firstItem = _.head(event.spats);
+    //                 const lastItem = _.last(event.spats);
+    //                 event.firstOdeTime = firstItem.odeReceivedAt;
+    //                 event.lastOdeTime = lastItem.odeReceivedAt;
+    //                 event.firstTimestamp = firstItem.utcTimeStamp;
+    //                 event.lastTimestamp = lastItem.utcTimeStamp;
+    //                 event.odeDurationMs = event.lastOdeTime - event.firstOdeTime;
+    //                 event.durationMs = event.lastTimestamp - event.firstTimestamp;
+    //             }
+    //
+    //
+    //             const earliestOdeTime = _.head(diffSpatEvents).firstOdeTime;
+    //             for (const event of diffSpatEvents) {
+    //                 event.firstOdeTimeOffset = event.firstOdeTime - earliestOdeTime;
+    //             }
+    //
+    //             //console.log(uniqueSpatEvents);
+    //             showSpatTable(diffSpatEvents);
+    //         })
+    //     }
+    // }
+
+
+ 
+    function setSpatTemplate(text) {
+        const json = JSON.parse(text);
+        document.getElementById("spatTemplate").innerText = JSON.stringify(json, null, 1);
+    }
+
+    function extractSpatData(json) {
+        const metadata = json?.metadata;
+        const dtReceivedAtMillis = Date.parse(metadata.odeReceivedAt);
+        const dt = new Date(dtReceivedAtMillis);
+        const minuteMillis = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(), dt.getUTCHours(), dt.getUTCMinutes(), 0, 0);
+       
+        const payload = json.payload;
+        const data = payload.data;
+        const isl = data.intersectionStateList;
+        const isl2 = isl.intersectionStatelist;
+        const intersection = isl2[0];
+        const secMark = intersection.timeStamp;
+        const millis = minuteMillis + secMark;
+        const movementList = intersection.states?.movementList;
+        const msgCnt = intersection.revision;
+        
+        const events = [];
+
+        
+        for (movement of movementList) {
+            const signalGroup = movement.signalGroup;
+            const eventList = movement.state_time_speed?.movementEventList;
+            // Assume 1 event
+            let eventState;
+            let minEndTime;
+            let maxEndTime;
+            for (const event of eventList) {
+                eventState = event.eventState;
+                minEndTime = event?.timing?.minEndTime;
+                maxEndTime = event?.timing?.maxEndTime;
+            }
+            events.push({
+                signalGroup: signalGroup,
+                eventState: eventState,
+                minEndTime: minEndTime,
+                maxEndTime: maxEndTime
+            });
+            
+        }
+
+        const spat = { 
+            odeReceivedAt: dtReceivedAtMillis, 
+            timestamp: millis,
+            msgCnt: msgCnt,
+            events: events,
+            spatId: serializeSpatId(uniqueSpatId(events)),
+            json: json
+        };
+
+        //console.log(spat);
+        return spat;
+    }
+
+    function uniqueSpatId(event) {
+        const spatId = new Map();
+        for (const item of event) {
+            spatId.set(item.signalGroup, item.eventState);
+        }
+        //console.log(spatId);
+        return spatId;
+    }
+
+    function serializeSpatId(id) {
+        return JSON.stringify(Array.from(id.entries()));
+    }
+
+    function deserializeSpatId(text) {
+        return new Map(JSON.parse(text));
+    }
+
+    
+    
+    function showSpatTable(spatIds) {
+        const tbl = document.getElementById("spatTable");
+        // Clear the old table
+        tbl.innerHTML = '';
+        const tBody = document.createElement("tbody");
+        const hr = document.createElement("tr");
+        const hd1 = document.createElement("th");
+        const hd2 = document.createElement("th");
+        const hd3 = document.createElement("th");
+        const hd4 = document.createElement("th");
+
+        const hText1 = document.createTextNode("x");
+        const hText2 = document.createTextNode("Start (s)");
+        const hText3 = document.createTextNode("Δ (s)");
+        const hText4 = document.createTextNode("State / Signal Groups");
+
+        hd1.appendChild(hText1);
+        hd2.appendChild(hText2);
+        hd3.appendChild(hText3);
+        hd4.appendChild(hText4);
+
+        hr.appendChild(hd1);
+        hr.appendChild(hd2);
+        hr.appendChild(hd3);
+        hr.appendChild(hd4);
+
+        tBody.appendChild(hr);
+
+        for (let idx = 0; idx < spatIds.length; ++idx) {
+            const spatId = spatIds[idx];
+            const groupedStates = groupByEventState(spatId);
+            const rowGroup = document.createElement("tr");
+
+            const selectCell = document.createElement("td");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = 'spatState' + idx;
+            checkbox.checked = false;
+            selectCell.appendChild(checkbox);
+            rowGroup.appendChild(selectCell);
+
+            const tsCell = document.createElement("td");
+            const tsText = document.createTextNode((spatId.firstOdeTimeOffset/1000).toString());
+            tsCell.appendChild(tsText);
+            rowGroup.appendChild(tsCell);
+
+            const dCell = document.createElement("td");
+            const dText = document.createTextNode((Math.round(spatId.odeDurationMs/1000)).toString());
+            dCell.appendChild(dText);
+            rowGroup.appendChild(dCell);
+
+            const groupCell = document.createElement("td");
+            
+            for (const [eventState, signalGroups] of Object.entries(groupedStates)) {
+                const cellText1 = document.createTextNode(_.upperFirst(_.camelCase(eventState)) + ' ');
+                groupCell.appendChild(cellText1);
+                const cellText2 = document.createTextNode(JSON.stringify(signalGroups));
+                groupCell.appendChild(cellText2);
+                groupCell.appendChild(document.createElement("br"));
+            }
+            rowGroup.appendChild(groupCell);
+            tBody.appendChild(rowGroup);
+        }
+
+        tbl.appendChild(tBody);
+    }
+
+    function groupByEventState(spatId) {
+        const eventStateMap = {};
+        for (const [signalGroup, eventState] of spatId) {
+            let signalGroups;
+            if (!eventStateMap.hasOwnProperty(eventState)) {
+                signalGroups = [];
+                eventStateMap[eventState] = signalGroups;
+            } else {
+                signalGroups = eventStateMap[eventState];
+            }
+            signalGroups.push(signalGroup);
+        }
+        return eventStateMap;
+    }
+
+    // -------------------- Send SPAT Template --------------------------
+    var SPAT_SEND = true;
+
+    function startSendingSpat() {
+        SPAT_SEND = true;
+        document.getElementById('spatControls').style = 'background-color:lightgreen';
+        let intervalMs = document.getElementById('spatInterval').value;
+        setTimeout(function sendSpatTimed() {
+            if (!SPAT_SEND) return;
+            intervalMs = document.getElementById('spatInterval').value;
+            const odeSpat = buildSpatFromTemplate(getCurrentSpatTemplate());
+            console.log("Sending SPAT, next " + intervalMs);
+            sendSpatAsync(odeSpat).then(successCallback, failureCallback);
+            setTimeout(sendSpatTimed, intervalMs);
+        }, intervalMs);
+    }
+
+    function stopSendingSpat() {
+        SPAT_SEND = false;
+        document.getElementById('spatControls').style = '';
+    }
+
+    async function sendSpatAsync(odeSpat) {
+        if (RECORD_SCRIPT) {
+            script.push(buildScriptFromSpat(odeSpat));
+        }
+        const response = await fetch('/kafka/topic.OdeSpatJson', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(odeSpat)
+        });
+    }
+
+    function buildSpatFromTemplate(spatTemplate) {
+        let spatCopy = JSON.parse(JSON.stringify(spatTemplate));
+        const nowMillis = Date.now();
+        const dt = new Date(nowMillis);
+        const dtMillis = dt.getTime();
+        const dtMinute = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), dt.getHours(), dt.getMinutes(), 0, 0);
+        const minuteMillis = dtMinute.getTime();
+        const millisOfMinute = dtMillis - minuteMillis;
+        spatCopy.metadata.odeReceivedAt = new Date(nowMillis).toISOString();
+        const dtYear = new Date(dt.getFullYear(), 0, 1, 0, 0, 0, 0);
+        const yearMillis = dtYear.getTime();
+        const secondOfYear = (dtMillis - yearMillis) / 1000;
+        const minuteOfYear = Math.floor(secondOfYear / 60);
+        spatCopy.payload.data.timeStamp = minuteOfYear;
+        for (const intersection of spatCopy.payload.data.intersectionStateList.intersectionStatelist) {
+            intersection.moy = minuteOfYear;
+            intersection.timeStamp = millisOfMinute;
+        }
+        
+        return spatCopy;
+    }
+
+    function getCurrentSpatTemplate() {
+        let spatTemplateObj = null;
+        try {
+            let spatText = document.getElementById("spatTemplate").innerText;
+            spatTemplateObj = JSON.parse(spatText);
+        } catch {
+            // Ignore exception if no spat template
+        }
+        return spatTemplateObj;
+    }
+
+    // --------------------- Send SPATs Real Time ------------------------------
+    var RT_SPAT_SEND = false;
+    function sendSpatsRealTime() {
+        if (diffSpatEvents.length < 1) {
+            console.warn("There aren't any spats to send");
+            return;
+        }
+        
+        // Determine checked SPAT phases
+        const phases = getSelectedSpatPhases();
+        console.log("Selected phases " + phases);
+        if (phases.length == 0) {
+            console.warn("No phases are selected");
+            return;
+        }
+
+        RT_SPAT_SEND = true;
+        document.getElementById('rtSpatControls').style = 'background-color:lightgreen';
+        
+        sendSpatPhasesRealTime(phases);
+
+    }
+
+
+    function stopSendingSpatsRealTime() {
+        RT_SPAT_SEND = false;
+        document.getElementById('rtSpatControls').style = '';
+    }
+
+    function sendSpatPhasesRealTime(phases) {
+        let phaseIdx = 0;
+        let phase = phases[phaseIdx];
+        console.log("Send spat phase " + phase);
+        let event = diffSpatEvents[phase];
+        let spats = event.spats;
+
+        let nextTime = 0;
+        let idx = 0;
+        console.log("Sending SPAT in " + nextTime + " ms");
+        setTimeout(function sendSpatTimed() {
+            if (!RT_SPAT_SEND) return;
+            const spat = JSON.parse(JSON.stringify(spats[idx].json));
+            const dtCurrent = spats[idx].odeReceivedAt;
+            spat.metadata.odeReceivedAt = new Date(Date.now()).toISOString();
+            sendSpatAsync(spat).then(successCallback, failureCallback);
+            if (idx < spats.length - 1) {
+                ++idx;
+                const nextSpat = spats[idx].json;
+                const dtNext = spats[idx].odeReceivedAt;
+                nextTime = dtNext - dtCurrent;           
+                console.log("Sending SPAT in " + nextTime + " ms");
+                setTimeout(sendSpatTimed, nextTime);
+            } else if (phaseIdx < phases.length - 1) {
+                // Start the next phase
+                ++phaseIdx;
+                phase = phases[phaseIdx];
+                event = diffSpatEvents[phase];
+                spats = event.spats;
+                nextTime = 100; // Default time until next phase
+                idx = 0;
+                console.log("Send spat phase " + phase);
+                console.log("Sending SPAT in " + nextTime + " ms");
+                setTimeout(sendSpatTimed, nextTime);
+            } else {
+                console.log("Completed sending SPATs");
+                const spatLoop = document.getElementById('spatLoop').checked;
+                if (spatLoop) {
+                    console.log("Sending SPATs again");
+                    phaseIdx = 0;
+                    idx = 0;
+                    phase = phases[phaseIdx];
+                    event = diffSpatEvents[phase];
+                    spats = event.spats;
+                    nextTime = 100;
+                    setTimeout(sendSpatTimed, nextTime);
+                } else {
+                    stopSendingSpatsRealTime();
+                }
+            }
+        }, nextTime);
+        
+
+    }
+
+
+    // Return a list of indices of checked spat phases
+    function getSelectedSpatPhases() {
+        const tbl = document.getElementById("spatTable");
+        const tBody = tbl.getElementsByTagName("tbody")?.[0];
+        if (!tBody) {
+            log.warn("Table has no body");
+            return [];
+        }
+        const rows = tBody?.getElementsByTagName("tr");
+
+        console.info("Table rows " + rows.length);
+        
+        const phases = [];
+        // Ignore header row
+        for (let idx = 1; idx < rows.length; idx++) {
+            const row = rows[idx];
+            const cell = row.getElementsByTagName("td")[0];
+            const checkbox = cell.childNodes[0];
+            if (checkbox.checked) {
+                phases.push(idx - 1);
+            }
+        }
+        return phases;
+    }
+
+
+    // ------------------------------------ Script ------------------------------
+    var RECORD_SCRIPT = false;
+    var RECORD_START_TIME = 0;
+
+    function clearScript() {
+        script.length = 0;
+        RECORD_START_TIME = 0;
+    }
+
+    function startRecording() {
+        RECORD_SCRIPT = true;
+        scriptControls = document.getElementById('scriptControls').style = 'background-color:lightgreen';
+        RECORD_START_TIME = Date.now();
+    }
+
+    function stopRecording() {
+        RECORD_SCRIPT = false;
+        scriptControls = document.getElementById('scriptControls').style = '';
+    }
+
+    function downloadScript() {
+        let lines = '';
+        for (const line of script) {
+            lines += line + '\n';
+        }
+        downloadText('script.csv', lines);
+    }
+
+    function runScript() {
+        console.log("Run script");
+        if (script.length == 0) {
+            console.warn("No script to run");
+            return;
+        }
+        if (RECORD_SCRIPT) {
+            console.warn("Stop recording to run");
+            return;
+        }
+        console.log("Running script");
+        let lines = '';
+        for (const line of script) {
+            lines += line + '\n';
+        }
+        runScriptAsync(lines).then(successCallback, failureCallback);
+    }
+
+    function uploadScript(e) {
+        console.log("upload Script");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            console.log("Script file:");
+            console.log(file);
+            file.text().then(text => {
+                RECORD_SCRIPT = false;
+                script.length = 0;
+                const lines = text.split(/\r?\n/);
+                script.push(...lines);
+            });
+        }
+    }
+    
+    async function runScriptAsync(lines) {
+        const response = await fetch('/script', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: lines
+        });
+    }
+
+    const ISO_DATE_TIME = '@ISO_DATE_TIME@';
+    const MINUTE_OF_YEAR = '@MINUTE_OF_YEAR@';
+    const MILLI_OF_MINUTE = '@MILLI_OF_MINUTE@';
+    const TEMP_ID = '@TEMP_ID@';
+
+    function buildScriptFromMap(odeMap) {
+        const scriptMap = JSON.parse(JSON.stringify(odeMap))
+        scriptMap.metadata.odeReceivedAt = ISO_DATE_TIME;
+        const strMap = JSON.stringify(scriptMap);
+        const time = Date.now() - RECORD_START_TIME;
+        const scriptLine = "MAP," + time + "," + strMap;
+        return scriptLine;
+    }
+
+    function buildScriptFromSpat(odeSpat) {
+        const scriptSpat = JSON.parse(JSON.stringify(odeSpat))
+        scriptSpat.metadata.odeReceivedAt = ISO_DATE_TIME;
+        scriptSpat.payload.data.timeStamp = MINUTE_OF_YEAR;
+        for (const intersection of scriptSpat.payload.data.intersectionStateList.intersectionStatelist) {
+            intersection.moy = MINUTE_OF_YEAR;
+            intersection.timeStamp = MILLI_OF_MINUTE;
+        }
+        const strSpat = JSON.stringify(scriptSpat);
+        const time = Date.now() - RECORD_START_TIME;
+        const scriptLine = "SPAT," + time + "," + strSpat;
+        return scriptLine;
+    }
+
+    function buildScriptFromBsm(odeBsm) {
+        const scriptBsm = JSON.parse(JSON.stringify(odeBsm))
+        scriptBsm.metadata.odeReceivedAt = ISO_DATE_TIME;
+        scriptBsm.payload.data.coreData.secMark = MILLI_OF_MINUTE;
+        scriptBsm.payload.data.coreData.id = TEMP_ID;
+        const strBsm = JSON.stringify(scriptBsm);
+        const time = Date.now() - RECORD_START_TIME;
+        const scriptLine = "BSM," + time + "," + strBsm;
+        return scriptLine;
+    }
+
+
+
+
+
+</script>
+
+</html>
