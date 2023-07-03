@@ -44,6 +44,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDet
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -257,6 +258,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<Notification>(),
             new JsonDeserializer<>(Notification.class)
+        );
+    }
+
+    public static Serde<Assessment> Assessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<Assessment>(),
+            new JsonDeserializer<>(Assessment.class)
         );
     }
 

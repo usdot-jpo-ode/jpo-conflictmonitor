@@ -120,6 +120,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                             extendedIntersections.add(intersection);
                         } else {
                             // The new point isn't in this map, emit the bsm
+                            System.out.println("Ending Bsm Event, New BSM not in region: " + eventKey.getIntersectionId());
                             context().forward(new Record<>(eventKey, event, timestamp));
                             stateStore.delete(eventKey);
                             exitedIntersections.add(intersection);
@@ -131,6 +132,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                             extendEvent(eventKey, event, newCoord, value, timestamp);
                         } else {
                             // The new BSM is in intersections, emit the stored one
+                            System.out.println("Ending Bsm Event, New BSM in Region: " +eventKey.getIntersectionId());
                             context().forward(new Record<>(eventKey, event, timestamp));
                             stateStore.delete(eventKey);
                         }
@@ -237,6 +239,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                 }
                 var offset = timestamp - itemTimestamp;
                 if (offset > fSuppressTimeoutMillis) {
+                    System.out.println("Ending BSM Event, Time limit reached :"+ key.getIntersectionId());
                     context().forward(new Record<>(key, value, timestamp));
                     stateStore.delete(key);
                 }
