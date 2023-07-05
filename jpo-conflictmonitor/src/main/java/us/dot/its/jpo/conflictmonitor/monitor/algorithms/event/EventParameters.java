@@ -26,5 +26,62 @@ public class EventParameters {
         description = "The name of the topic to output events to", 
         updateType = READ_ONLY)
     String eventOutputTopicName;
+
+
+    @ConfigData(key = "event.signalStateEventTopicName", 
+        description = "The name of the topic to read signal state events from", 
+        updateType = READ_ONLY)
+    String signalStateEventTopicName;
+
+    @ConfigData(key = "event.spatTimeChangeDetailsTopicName", 
+        description = "The name of the topic to read spat time change details events from", 
+        updateType = READ_ONLY)
+    String spatTimeChangeDetailsTopicName;
+
+    @ConfigData(key = "event.spatBroadcastRateTopicName", 
+        description = "The name of the topic to read spat broadcast rate events from", 
+        updateType = READ_ONLY)
+    String spatBroadcastRateTopicName;
+
+    @ConfigData(key = "event.spatMinimumDataTopicName", 
+        description = "The name of the topic to read spat minimum data events from", 
+        updateType = READ_ONLY)
+    String spatMinimumDataTopicName;
+
+    @ConfigData(key = "event.mapBroadcastRateTopicName", 
+        description = "The name of the topic to read map broadcast rate events from", 
+        updateType = READ_ONLY)
+    String mapBroadcastRateTopicName;
+
+    @ConfigData(key = "event.mapMinimumDataTopicName", 
+        description = "The name of the topic to read map minimum data events from", 
+        updateType = READ_ONLY)
+    String mapMinimumDataTopicName;
+
+    @ConfigData(key = "event.signalGroupAlignmentEventTopicName", 
+        description = "The name of the topic to read signal group alignment events from", 
+        updateType = READ_ONLY)
+    String signalGroupAlignmentEventTopicName;
+
+    @ConfigData(key = "event.intersectionReferenceAlignmentEventTopicName", 
+        description = "The name of the topic to read intersection reference alignment events from", 
+        updateType = READ_ONLY)
+    String intersectionReferenceAlignmentEventTopicName;
+
+    @ConfigData(key = "event.signalStateConflictEventTopicName", 
+        description = "The name of the topic to read signal state conflict events from", 
+        updateType = READ_ONLY)
+    String signalStateConflictEventTopicName;
+
+    @ConfigData(key = "event.laneDirectionOfTravelEventTopicName", 
+        description = "The name of the topic to read lane direction of travel events from", 
+        updateType = READ_ONLY)
+    String laneDirectionOfTravelEventTopicName;
+
+    @ConfigData(key = "event.connectionOfTravelEventTopicName", 
+        description = "The name of the topic to read connection of travel events from", 
+        updateType = READ_ONLY)
+    String connectionOfTravelEventTopicName;
+
     
 }

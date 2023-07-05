@@ -9,7 +9,7 @@ public class MapBroadcastRateEvent
     extends BroadcastRateEvent {
 
         public MapBroadcastRateEvent() {
-            super("MapBroadcastRateEvent");
+            super("MapBroadcastRate");
         }
         
     }

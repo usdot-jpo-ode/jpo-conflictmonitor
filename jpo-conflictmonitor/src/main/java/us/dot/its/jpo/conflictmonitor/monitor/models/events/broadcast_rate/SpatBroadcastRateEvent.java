@@ -9,6 +9,6 @@ public class SpatBroadcastRateEvent
     extends BroadcastRateEvent {
 
         public SpatBroadcastRateEvent() {
-            super("SpatBroadcastRateEvent");
+            super("SpatBroadcastRate");
         }
     }

@@ -45,6 +45,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rat
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -265,6 +266,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<Assessment>(),
             new JsonDeserializer<>(Assessment.class)
+        );
+    }
+
+    public static Serde<Event> Event() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<Event>(),
+            new JsonDeserializer<>(Event.class)
         );
     }
 
