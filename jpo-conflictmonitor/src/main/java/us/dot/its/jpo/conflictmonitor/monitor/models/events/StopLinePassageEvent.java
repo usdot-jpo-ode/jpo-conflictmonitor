@@ -12,12 +12,12 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import org.springframework.data.mongodb.core.mapping.Document;
-@Document("CmSignalStateEvent")
+@Document("CmStopLinePassageEvent")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
-public class SignalStateEvent extends Event{
+public class StopLinePassageEvent extends Event{
     private long timestamp;
     private int ingressLane;
     private int egressLane;
@@ -30,8 +30,8 @@ public class SignalStateEvent extends Event{
     private double speed;
     private int signalGroup;
 
-    public SignalStateEvent(){
-        super("SignalState");
+    public StopLinePassageEvent(){
+        super("StopLinePassage");
     }
 
     @JsonIgnore

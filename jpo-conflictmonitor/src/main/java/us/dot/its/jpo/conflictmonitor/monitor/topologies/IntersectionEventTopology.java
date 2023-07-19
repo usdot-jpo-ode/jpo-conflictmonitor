@@ -4,15 +4,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Printed;
@@ -45,11 +41,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -69,7 +65,7 @@ public class IntersectionEventTopology
     ConflictMonitorProperties conflictMonitorProps;
 
     ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
-    ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore;
+    ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
     ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
@@ -167,7 +163,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyWindowStore<String, ProcessedSpat> getSpatWindowStore() {
+    public ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore() {
         return spatWindowStore;
     }
 
@@ -182,7 +178,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setSpatWindowStore(ReadOnlyWindowStore<String, ProcessedSpat> spatStore) {
+    public void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore) {
         this.spatWindowStore = spatStore;
     }
 
@@ -271,37 +267,31 @@ public class IntersectionEventTopology
         return agg;
     }
 
-    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore, Instant start,
+    private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore, Instant start,
                                                 Instant end, Integer intersection){
 
         logger.info("getSpatByTime: Start: {}, End: {}, IntersectionId: {}", start, end, intersection);
 
-        //Instant timeFrom = start.minusSeconds(60);
-        //Instant timeTo = end.plusSeconds(60);
+        KeyValueIterator<Windowed<RsuIntersectionKey>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(start, end);
 
-        // long startMillis = start.toEpochMilli();
-        // long endMillis = end.toEpochMilli();
-
-        KeyValueIterator<Windowed<String>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(start, end);
-
-
-
+        List<ProcessedSpat> allSpats = new ArrayList<>();
 
         SpatAggregator spatAggregator = new SpatAggregator();
 
         while(spatRange.hasNext()){
-            KeyValue<Windowed<String>, ProcessedSpat> next = spatRange.next();
+            KeyValue<Windowed<RsuIntersectionKey>, ProcessedSpat> next = spatRange.next();
 
             ProcessedSpat spat = next.value;
             if (intersection != null && Objects.equals(spat.getIntersectionId(), intersection)) {
-                spatAggregator.add(next.value);
+                spatAggregator.add(spat);
             }
 
-
+            allSpats.add(spat);
         }
         spatRange.close();
         spatAggregator.sort();
 
+        logger.info("Total SPATs: {}", allSpats.size());
         logger.info("Found {} SPATs", spatAggregator.getSpats().size());
 
         return spatAggregator;
@@ -440,12 +430,12 @@ public class IntersectionEventTopology
 
 
         // Perform Analytics of Signal State Vehicle Crossing Intersection
-        KStream<String, SignalStateEvent> signalStateVehicleCrossingEventsStream = vehicleEventsStream.flatMap(
+        KStream<String, StopLinePassageEvent> signalStateVehicleCrossingEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
-                List<KeyValue<String, SignalStateEvent>> result = new ArrayList<KeyValue<String, SignalStateEvent>>();
-                SignalStateEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(signalStateVehicleCrossesParameters, path, value.getSpats());
+                List<KeyValue<String, StopLinePassageEvent>> result = new ArrayList<KeyValue<String, StopLinePassageEvent>>();
+                StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(signalStateVehicleCrossesParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }

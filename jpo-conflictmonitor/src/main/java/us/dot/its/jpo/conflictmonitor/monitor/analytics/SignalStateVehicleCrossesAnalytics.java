@@ -10,7 +10,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
@@ -24,7 +24,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
   
 
     @Override
-    public SignalStateEvent getSignalStateEvent(SignalStateVehicleCrossesParameters parameters, VehiclePath path, SpatAggregator spats){
+    public StopLinePassageEvent getSignalStateEvent(SignalStateVehicleCrossesParameters parameters, VehiclePath path, SpatAggregator spats){
         
 
         Lane ingressLane = path.getIngressLane();
@@ -62,7 +62,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
 
         J2735Bsm bsmData = (J2735Bsm)bsm.getPayload().getData();
 
-        SignalStateEvent event = new SignalStateEvent();
+        StopLinePassageEvent event = new StopLinePassageEvent();
         event.setTimestamp(bsmTime);
         event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
         event.setIntersectionID(path.getIntersection().getIntersectionId());

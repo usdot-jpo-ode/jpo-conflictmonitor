@@ -24,7 +24,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenc
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
@@ -96,10 +96,10 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelEvent.class));
     }
 
-    public static Serde<SignalStateEvent> SignalStateEvent() {
+    public static Serde<StopLinePassageEvent> SignalStateEvent() {
         return Serdes.serdeFrom(
-            new JsonSerializer<SignalStateEvent>(),
-            new JsonDeserializer<>(SignalStateEvent.class));
+            new JsonSerializer<StopLinePassageEvent>(),
+            new JsonDeserializer<>(StopLinePassageEvent.class));
     }
     
     public static Serde<SignalStateStopEvent> SignalStateVehicleStopsEvent() {

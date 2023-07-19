@@ -38,8 +38,8 @@ kafkaTopicProcessedMap: topic.ProcessedMap
 #Vehicle Events
 kafkaTopicCmLaneDirectionOfTravelEvent: topic.CmLaneDirectionOfTravelEvent
 kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
-kafkaTopicCmSignalStateEvent: topic.CmSignalStateEvent
-kafakTopicCmVehicleStopEvent: topic.CmSignalStopEvent 
+kafkaTopicCmSignalStateEvent: topic.CmStopLinePassageEvent
+kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 
 
 # Custom kafka properties
@@ -72,10 +72,10 @@ kafka.topics:
     - name: topic.CmLaneDirectionOfTravelEvent
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmSignalStateEvent
+    - name: topic.CmStopLinePassageEvent
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmSignalStateEvent
+    - name: topic.CmStopLineStopEvent
       cleanupPolicy: delete
       retentionMs: 300000
     - name: "topic.CmSpatTimeChangeDetailsEvent"

@@ -26,6 +26,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 import us.dot.its.jpo.conflictmonitor.testutils.SpatTestUtils;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -57,7 +58,7 @@ public class IntersectionEventTopologyTest {
     Properties streamsProperties = new Properties();
     @Mock ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
     @Mock KeyValueIterator<Windowed<String>, OdeBsmData> bsmWindowStoreIterator;
-    @Mock ReadOnlyWindowStore<String, ProcessedSpat> spatWindowStore;
+    @Mock ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
     @Mock KeyValueIterator<Windowed<String>, ProcessedSpat> spatWindowStoreIterator;
     @Mock ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
 

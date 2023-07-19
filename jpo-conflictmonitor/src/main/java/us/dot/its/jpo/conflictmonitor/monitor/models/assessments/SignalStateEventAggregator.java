@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class SignalStateEventAggregator {
-    private ArrayList<SignalStateEvent> events = new ArrayList<>();
+    private ArrayList<StopLinePassageEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
     private double tolerance;
     private long messageDurationDays;
@@ -25,12 +25,12 @@ public class SignalStateEventAggregator {
     }
 
     @JsonIgnore
-    public SignalStateEventAggregator add(SignalStateEvent event){
+    public SignalStateEventAggregator add(StopLinePassageEvent event){
         events.add(event);
 
-        List<SignalStateEvent> removeEvents = new ArrayList<>();
+        List<StopLinePassageEvent> removeEvents = new ArrayList<>();
 
-        for(SignalStateEvent previousEvents: this.events){
+        for(StopLinePassageEvent previousEvents: this.events){
             if(previousEvents.getTimestamp() + (messageDurationDays * 3600*1000) < event.getTimestamp()){
                 removeEvents.add(previousEvents);
             }else{
@@ -47,7 +47,7 @@ public class SignalStateEventAggregator {
         ArrayList<SignalStateEventAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<Integer,SignalStateEventAssessmentGroup> signalGroupLookup = new HashMap<>(); // laneId, Segment Index
 
-        for(SignalStateEvent event : this.events){
+        for(StopLinePassageEvent event : this.events){
             SignalStateEventAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
             if(signalGroup == null){
                 signalGroup = new SignalStateEventAssessmentGroup();
@@ -64,11 +64,11 @@ public class SignalStateEventAggregator {
         return assessment;
     }
 
-    public ArrayList<SignalStateEvent> getEvents() {
+    public ArrayList<StopLinePassageEvent> getEvents() {
         return events;
     }
 
-    public void setEvents(ArrayList<SignalStateEvent> events) {
+    public void setEvents(ArrayList<StopLinePassageEvent> events) {
         this.events = events;
     }
 
