@@ -28,8 +28,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
@@ -70,7 +70,7 @@ public class IntersectionEventTopology
     ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
     ConnectionOfTravelParameters connectionOfTravelParams;
     StopLinePassageAlgorithm signalStateVehicleCrossesAlgorithm;
-    StopLinePassageParameters signalStateVehicleCrossesParameters;
+    StopLinePassageParameters stopLinePassageParameters;
     SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
     SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
 
@@ -93,7 +93,7 @@ public class IntersectionEventTopology
         if (connectionOfTravelAlgorithm == null) throw new IllegalStateException("ConnectionOfTravelAlgorithm is not set");
         if (connectionOfTravelParams == null) throw new IllegalStateException("ConnectionOfTravelParameters is not set");
         if (signalStateVehicleCrossesAlgorithm == null) throw new IllegalStateException("SignalStateVehicleCrossesAlgorithm is not set");
-        if (signalStateVehicleCrossesParameters == null) throw new IllegalStateException("SignalStateVehicleCrossesParameters is not set");
+        if (stopLinePassageParameters == null) throw new IllegalStateException("SignalStateVehicleCrossesParameters is not set");
         if (signalStateVehicleStopsAlgorithm == null) throw new IllegalStateException("SignalStateVehicleStopsAlgorithm is not set");
         if (signalStateVehicleStopsParameters == null) throw new IllegalStateException("SignalStateVehicleStopsParameters is not set");
         if (streams != null && streams.state().isRunningOrRebalancing()) throw new IllegalStateException("Start called while streams is already running.");
@@ -141,8 +141,8 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public StopLinePassageParameters getSignalStateVehicleCrossesParameters() {
-        return signalStateVehicleCrossesParameters;
+    public StopLinePassageParameters getStopLinePassageParameters() {
+        return stopLinePassageParameters;
     }
 
     @Override
@@ -212,8 +212,8 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setSignalStateVehicleCrossesParameters(StopLinePassageParameters crossesParams) {
-        this.signalStateVehicleCrossesParameters = crossesParams;
+    public void setStopLinePassageParameters(StopLinePassageParameters crossesParams) {
+        this.stopLinePassageParameters = crossesParams;
     }
 
     @Override
@@ -399,7 +399,11 @@ public class IntersectionEventTopology
         // Perform Analytics on Lane direction of Travel Events
         KStream<String, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
+                String rsuId = key.getRsuId();
+                double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
+                double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
+                        headingToleranceDegrees);
 
                 List<KeyValue<String, LaneDirectionOfTravelEvent>> result = new ArrayList<KeyValue<String, LaneDirectionOfTravelEvent>>();
                 ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
@@ -422,7 +426,8 @@ public class IntersectionEventTopology
         // Perform Analytics on Lane direction of Travel Events
         KStream<String, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
+
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
                 List<KeyValue<String, ConnectionOfTravelEvent>> result = new ArrayList<KeyValue<String, ConnectionOfTravelEvent>>();
                 ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
@@ -443,10 +448,10 @@ public class IntersectionEventTopology
         // Perform Analytics of Signal State Vehicle Crossing Intersection
         KStream<String, StopLinePassageEvent> signalStateVehicleCrossingEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
                 List<KeyValue<String, StopLinePassageEvent>> result = new ArrayList<>();
-                StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(signalStateVehicleCrossesParameters, path, value.getSpats());
+                StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
@@ -467,7 +472,7 @@ public class IntersectionEventTopology
         KStream<String, SignalStateStopEvent> signalStateVehicleStopEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
 
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
+                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
                 List<KeyValue<String, SignalStateStopEvent>> result = new ArrayList<KeyValue<String, SignalStateStopEvent>>();
                 SignalStateStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(signalStateVehicleStopsParameters, path, value.getSpats());

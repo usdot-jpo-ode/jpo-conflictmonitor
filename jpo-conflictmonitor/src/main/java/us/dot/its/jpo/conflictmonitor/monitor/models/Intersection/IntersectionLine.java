@@ -1,14 +1,18 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 
+@Getter
+@Setter
 public class IntersectionLine {
     
     private double heading;
-    private Point centerPoint;
+    private Point stopLinePoint;
     private Lane lane;
 
     public static IntersectionLine fromLane(Lane lane){
@@ -26,38 +30,14 @@ public class IntersectionLine {
         
     }
 
-    public IntersectionLine(Point centerPoint, double heading, Lane lane){
-        this.centerPoint = centerPoint;
+    public IntersectionLine(Point stopLinePoint, double heading, Lane lane){
+        this.stopLinePoint = stopLinePoint;
         this.heading = heading;
-        this.lane = lane;
-    }
-
-    public Point getCenterPoint() {
-        return centerPoint;
-    }
-
-    public void setCenterPoint(Point centerPoint) {
-        this.centerPoint = centerPoint;
-    }
-
-    public double getHeading() {
-        return heading;
-    }
-
-    public void setHeading(double heading) {
-        this.heading = heading;
-    }
-
-    public Lane getLane() {
-        return lane;
-    }
-
-    public void setLane(Lane lane) {
         this.lane = lane;
     }
 
     @Override
     public String toString(){
-        return "StopLine - Centerpoint: (" + this.centerPoint.getX() + "," + this.centerPoint.getY() + ") Heading: " + this.heading + " deg";
+        return "StopLine - StopLinePoint: (" + this.stopLinePoint.getX() + "," + this.stopLinePoint.getY() + ") Heading: " + this.heading + " deg";
     }
 }

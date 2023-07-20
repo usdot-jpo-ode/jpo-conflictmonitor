@@ -1,20 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesConstants.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageConstants.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -94,7 +93,6 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
     }
 
     public J2735MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
-        long spatTime = SpatTimestampExtractor.getSpatTimestamp(spat);
         for(MovementState state: spat.getStates()){
             if(state.getSignalGroup() == signalGroup && state.getStateTimeSpeed().size() > 0){
                 return state.getStateTimeSpeed().get(0).getEventState();

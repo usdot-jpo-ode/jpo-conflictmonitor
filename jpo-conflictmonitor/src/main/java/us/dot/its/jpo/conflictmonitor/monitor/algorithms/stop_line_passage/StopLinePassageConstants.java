@@ -1,6 +1,6 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage;
 
-public final class SignalStateVehicleCrossesConstants {
+public final class StopLinePassageConstants {
     public static final String DEFAULT_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM = "defaultSignalStateVehicleCrossesAlgorithm";
     public static final String DEBUG_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM = "debugSignalStateVehicleCrossesAlgorithm";
 }

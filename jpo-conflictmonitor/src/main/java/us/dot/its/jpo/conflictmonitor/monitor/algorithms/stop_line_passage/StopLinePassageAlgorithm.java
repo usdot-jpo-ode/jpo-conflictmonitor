@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;

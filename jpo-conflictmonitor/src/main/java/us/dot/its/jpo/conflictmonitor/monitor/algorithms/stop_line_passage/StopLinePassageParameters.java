@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.Generated;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUtil.getIntersectionValue;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
@@ -47,5 +49,22 @@ public class StopLinePassageParameters {
         units = MILLISECONDS,
         updateType = DEFAULT)
     int spatBsmMatchWindowMillis;
+
+    //
+    // Maps for parameters that can be configured per intersection
+    //
+    final ConfigMap<Double> stopLineMinDistanceMap = new ConfigMap<>();
+    final ConfigMap<Double> headingToleranceMap = new ConfigMap<>();
+
+    //
+    // Intersection-specific properties
+    //
+    public double getStopLineMinDistance(String rsuID) {
+        return getIntersectionValue(rsuID, stopLineMinDistanceMap, stopLineMinDistance);
+    }
+
+    public double getHeadingTolerance(String rsuID) {
+        return getIntersectionValue(rsuID, headingToleranceMap, headingTolerance);
+    }
 
 }

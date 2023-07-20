@@ -17,8 +17,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -116,7 +116,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
         intersectionEventTopology.setConnectionOfTravelParams(connectionOfTravelParameters);
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleCrossesParameters(signalStateVehicleCrossesParameters);
+        intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
         intersectionEventTopology.setSignalStateVehicleStopsParameters(signalStateVehicleStopsParameters);
         Topology topology = intersectionEventTopology.buildTopology();
@@ -262,7 +262,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
         intersectionEventTopology.setConnectionOfTravelParams(connectionOfTravelParameters);
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleCrossesParameters(signalStateVehicleCrossesParameters);
+        intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.validate();
     }
 
@@ -278,7 +278,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
         intersectionEventTopology.setConnectionOfTravelParams(connectionOfTravelParameters);
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleCrossesParameters(signalStateVehicleCrossesParameters);
+        intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
         intersectionEventTopology.validate();
     }
@@ -295,7 +295,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
         intersectionEventTopology.setConnectionOfTravelParams(connectionOfTravelParameters);
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleCrossesParameters(signalStateVehicleCrossesParameters);
+        intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
         intersectionEventTopology.setSignalStateVehicleStopsParameters(signalStateVehicleStopsParameters);
 
@@ -318,7 +318,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
         intersectionEventTopology.setConnectionOfTravelParams(connectionOfTravelParameters);
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleCrossesParameters(signalStateVehicleCrossesParameters);
+        intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
         intersectionEventTopology.setSignalStateVehicleStopsParameters(signalStateVehicleStopsParameters);
         intersectionEventTopology.validate();
@@ -332,7 +332,7 @@ public class IntersectionEventTopologyTest {
         assertThat(intersectionEventTopology.getConnectionOfTravelAlgorithm(), notNullValue());
         assertThat(intersectionEventTopology.getConnectionOfTravelParams(), notNullValue());
         assertThat(intersectionEventTopology.getSignalStateVehicleCrossesAlgorithm(), notNullValue());
-        assertThat(intersectionEventTopology.getSignalStateVehicleCrossesParameters(), notNullValue());
+        assertThat(intersectionEventTopology.getStopLinePassageParameters(), notNullValue());
         assertThat(intersectionEventTopology.getSignalStateVehicleStopsAlgorithm(), notNullValue());
         assertThat(intersectionEventTopology.getSignalStateVehicleStopsParameters(), notNullValue());
     }

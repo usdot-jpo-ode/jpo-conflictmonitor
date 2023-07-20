@@ -61,8 +61,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
@@ -103,7 +103,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String connectionOfTravelAlgorithm;
    private ConnectionOfTravelParameters connectionOfTravelParameters;
 
-   private SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
+   private StopLinePassageAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
    private String signalStateVehicleCrossesAlgorithm;
    private StopLinePassageParameters signalStateVehicleCrossesParameters;
 
@@ -259,7 +259,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateVehicleCrossesAlgorithmFactory(
-         SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory) {
+         StopLinePassageAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory) {
       this.signalStateVehicleCrossesAlgorithmFactory = signalStateVehicleCrossesAlgorithmFactory;
    }
    

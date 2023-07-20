@@ -86,7 +86,16 @@ public class CoordinateConversion {
 
     }
 
-    
+    public static final double CM_PER_FOOT = 30.48;
+
+    /**
+     * Convert feet to centimeters
+     * @param feet length in feet
+     * @return length in centimeters
+     */
+    public static double feetToCM(double feet) {
+        return CM_PER_FOOT * feet;
+    }
 
     
 }
