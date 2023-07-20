@@ -35,10 +35,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_st
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEventKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
@@ -64,9 +62,9 @@ public class IntersectionEventTopology
 
     ConflictMonitorProperties conflictMonitorProps;
 
-    ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
+    ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore;
     ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
-    ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
+    ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
     ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -158,7 +156,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyWindowStore<String, OdeBsmData> getBsmWindowStore() {
+    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore() {
         return bsmWindowStore;
     }
 
@@ -168,12 +166,12 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> getMapStore() {
+    public ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore() {
         return mapStore;
     }
 
     @Override
-    public void setBsmWindowStore(ReadOnlyWindowStore<String, OdeBsmData> bsmStore) {
+    public void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore) {
         this.bsmWindowStore = bsmStore;
     }
 
@@ -183,7 +181,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore) {
+    public void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore) {
         this.mapStore = mapStore;
     }
 
@@ -237,7 +235,7 @@ public class IntersectionEventTopology
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
-    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
         logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
 
         Instant timeFrom = start.minusSeconds(60);
@@ -246,12 +244,12 @@ public class IntersectionEventTopology
         long startMillis = start.toEpochMilli();
         long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<String>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<BsmIntersectionKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
 
         BsmAggregator agg = new BsmAggregator();
 
         while(bsmRange.hasNext()){
-            KeyValue<Windowed<String>, OdeBsmData> next = bsmRange.next();
+            KeyValue<Windowed<BsmIntersectionKey>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
@@ -299,7 +297,7 @@ public class IntersectionEventTopology
 
 
 
-    private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore, String key){
+    private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore, RsuIntersectionKey key){
         return (ProcessedMap<LineString>) mapStore.get(key);
     }
 
@@ -323,13 +321,15 @@ public class IntersectionEventTopology
 
         bsmEventStream.print(Printed.toSysOut());
 
+
+
  
         // Join Spats, Maps and BSMS
-        KStream<String, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
+        KStream<VehicleEventKey, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
             (key, value)->{
 
                 
-                List<KeyValue<String, VehicleEvent>> result = new ArrayList<KeyValue<String, VehicleEvent>>();
+                List<KeyValue<VehicleEventKey, VehicleEvent>> result = new ArrayList<>();
 
                 
                 
@@ -349,14 +349,15 @@ public class IntersectionEventTopology
 
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
 
-                
+                // Find the MAP for the BSMs
+
 
                 if(spats.getSpats().size() > 0){
-                    ProcessedSpat firstSpat = spats.getSpats().get(0);
-                    String ip = firstSpat.getOriginIp();
-                    int intersectionId = firstSpat.getIntersectionId();
-                    String mapLookupKey = "{\"rsuId\":\""+ip+"\",\"intersectionId\":"+intersectionId+"}";
-                    map = getMap(mapStore, mapLookupKey);
+                    RsuIntersectionKey rsuKey = new RsuIntersectionKey();
+                    rsuKey.setRsuId(key.getRsuId());
+                    rsuKey.setIntersectionId(key.getIntersectionId());
+
+                    map = getMap(mapStore, rsuKey);
 
                     
 
@@ -365,7 +366,12 @@ public class IntersectionEventTopology
                         Intersection intersection = Intersection.fromProcessedMap(map);
                         VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
 
-                        String vehicleEventKey = intersection.getIntersectionId() + "_" + vehicleId;
+                        //String vehicleEventKey = intersection.getIntersectionId() + "_" + vehicleId;
+                        VehicleEventKey vehicleEventKey = new VehicleEventKey();
+                        vehicleEventKey.setRsuId(key.getRsuId());
+                        vehicleEventKey.setIntersectionId(key.getIntersectionId());
+                        vehicleEventKey.setVehicleId(vehicleId);
+
                         result.add(new KeyValue<>(vehicleEventKey, event));
     
                         
@@ -377,9 +383,9 @@ public class IntersectionEventTopology
 
 
                 logger.info("Detected Vehicle Event");
-                logger.info("Vehicle ID: " + ((J2735Bsm)value.getStartingBsm().getPayload().getData()).getCoreData().getId());
-                logger.info("Captured Bsms:  " + bsms.getBsms().size());
-                logger.info("Captured Spats: " + spats.getSpats().size());
+                logger.info("Vehicle ID: {}", vehicleId);
+                logger.info("Captured Bsms: {}", bsms.getBsms().size());
+                logger.info("Captured Spats: {}", spats.getSpats().size());
                 return result;
             }
         );

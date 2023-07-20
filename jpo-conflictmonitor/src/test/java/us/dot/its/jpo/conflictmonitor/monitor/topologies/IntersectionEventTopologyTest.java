@@ -56,11 +56,11 @@ public class IntersectionEventTopologyTest {
     final String mapStoreName = "ProcessedMapWindowStore";
 
     Properties streamsProperties = new Properties();
-    @Mock ReadOnlyWindowStore<String, OdeBsmData> bsmWindowStore;
+    @Mock ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore;
     @Mock KeyValueIterator<Windowed<String>, OdeBsmData> bsmWindowStoreIterator;
     @Mock ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
     @Mock KeyValueIterator<Windowed<String>, ProcessedSpat> spatWindowStoreIterator;
-    @Mock ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore;
+    @Mock ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
 
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParameters = new LaneDirectionOfTravelParameters();

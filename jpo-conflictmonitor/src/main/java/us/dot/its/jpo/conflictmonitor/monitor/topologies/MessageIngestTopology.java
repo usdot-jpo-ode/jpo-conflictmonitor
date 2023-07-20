@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
@@ -48,7 +49,6 @@ public class MessageIngestTopology
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
     
-    //public static int rekeyCount = 0;
     public Topology buildTopology() {
 
         StreamsBuilder builder = new StreamsBuilder();
@@ -56,29 +56,23 @@ public class MessageIngestTopology
         /*
          * 
          * 
-         *  BSMS MESSAGES
+         *  BSM MESSAGES
          * 
          */
 
         //BSM Input Stream
-        KStream<Void, OdeBsmData> bsmJsonStream = 
+        KStream<BsmIntersectionKey, OdeBsmData> bsmJsonStream =
             builder.stream(
                 parameters.getBsmTopic(), 
                 Consumed.with(
-                    Serdes.Void(),
+                    JsonSerdes.BsmIntersectionKey(),
                     JsonSerdes.OdeBsm())
                     .withTimestampExtractor(new BsmTimestampExtractor())
                 );
 
-        //Change the BSM Feed to use the Key Key + ID + Msg Count. This should be unique for every BSM message.
-        KStream<String, OdeBsmData> bsmRekeyedStream = bsmJsonStream.selectKey((key, value)->{
-            J2735BsmCoreData core = ((J2735Bsm) value.getPayload().getData()).getCoreData();
-            String ip = ((OdeBsmMetadata)value.getMetadata()).getOriginIp();
-            return ip+"_"+core.getId() +"_"+ BsmTimestampExtractor.getBsmTimestamp(value);
-        });
-
-        //Group up all of the BSM's based upon the new ID. Generally speaking this shouldn't change anything as the BSM's have unique keys
-        KGroupedStream<String, OdeBsmData> bsmKeyGroup = bsmRekeyedStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeBsm()));
+        //Group up all of the BSM's based upon the new ID.
+        KGroupedStream<BsmIntersectionKey, OdeBsmData> bsmKeyGroup =
+                bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionKey(), JsonSerdes.OdeBsm()));
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
@@ -87,26 +81,25 @@ public class MessageIngestTopology
             (oldValue, newValue)->{
                 return newValue;
             },
-            Materialized.<String, OdeBsmData, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
-                    .withKeySerde(Serdes.String())
+            Materialized.<BsmIntersectionKey, OdeBsmData, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
+                    .withKeySerde(JsonSerdes.BsmIntersectionKey())
                     .withValueSerde(JsonSerdes.OdeBsm())
                     .withCachingDisabled()
                     .withLoggingDisabled()
                     .withRetention(Duration.ofMinutes(5))
         );
 
-        // //bsmRekeyedStream.print(Printed.toSysOut());
 
-        // /*
-        //  * 
-        //  * 
-        //  *  SPAT MESSAGES
-        //  * 
-        //  */
-
+         /*
+          *
+          *
+          *  SPAT MESSAGES
+          *
+          */
 
 
-        // //SPaT Input Stream
+
+        // SPaT Input Stream
         KStream<RsuIntersectionKey, ProcessedSpat> processedSpatStream =
             builder.stream(
                 parameters.getSpatTopic(), 
@@ -191,7 +184,7 @@ public class MessageIngestTopology
 
 
     @Override
-    public ReadOnlyWindowStore<String, OdeBsmData> getBsmWindowStore() {
+    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore() {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getBsmStoreName(), QueryableStoreTypes.windowStore()));
     }
@@ -203,7 +196,7 @@ public class MessageIngestTopology
     }
 
     @Override
-    public ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> getMapStore() {
+    public ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore() {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }
