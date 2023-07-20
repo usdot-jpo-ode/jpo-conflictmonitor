@@ -6,9 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.conflictmonitor.monitor.MonitorServiceController;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -25,13 +24,13 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 import java.util.Set;
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM)
-public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCrossesAlgorithm{
+public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(SignalStateVehicleCrossesAnalytics.class);
+    private static final Logger logger = LoggerFactory.getLogger(StopLinePassageAnalytics.class);
   
 
     @Override
-    public StopLinePassageEvent getSignalStateEvent(SignalStateVehicleCrossesParameters parameters, VehiclePath path, SpatAggregator spats){
+    public StopLinePassageEvent getStopLinePassageEvent(StopLinePassageParameters parameters, VehiclePath path, SpatAggregator spats){
         
 
         Lane ingressLane = path.getIngressLane();

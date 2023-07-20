@@ -9,6 +9,7 @@ public enum UnitsEnum {
     PER_PERIOD,
     DEGREES,
     CENTIMETERS,
+    FEET,
     MILES_PER_HOUR,
     NONE
 }

@@ -287,6 +287,8 @@ signal.state.event.assessment:
 # Signal State Vehicle Crosses Analytics
 signal.state.vehicle.crosses:
   algorithm: defaultSignalStateVehicleCrossesAlgorithm
+  stopLineMinDistance: 15
+  headingTolerance: 20
   debug: false
   spatBsmMatchWindowMillis: 500
 

@@ -62,7 +62,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
@@ -105,7 +105,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
    private String signalStateVehicleCrossesAlgorithm;
-   private SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters;
+   private StopLinePassageParameters signalStateVehicleCrossesParameters;
 
    private SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
    private String signalStateVehicleStopsAlgorithm;
@@ -274,7 +274,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateVehicleCrossesParameters(
-         SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters) {
+         StopLinePassageParameters signalStateVehicleCrossesParameters) {
       this.signalStateVehicleCrossesParameters = signalStateVehicleCrossesParameters;
    }
 
