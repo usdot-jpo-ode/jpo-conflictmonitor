@@ -2,8 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesConstants.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import us.dot.its.jpo.conflictmonitor.monitor.MonitorServiceController;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
@@ -21,6 +24,8 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM)
 public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCrossesAlgorithm{
+
+    private static final Logger logger = LoggerFactory.getLogger(SignalStateVehicleCrossesAnalytics.class);
   
 
     @Override
@@ -30,10 +35,12 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         Lane ingressLane = path.getIngressLane();
         Lane egressLane = path.getEgressLane();
 
-        if(ingressLane == null || egressLane == null){
-            // Don't generate an event if the vehicle didn't go through the intersection
+        if (ingressLane == null) {
+            logger.info("No ingress lane found for path {}, can't generate StopLinePassage event", path);
             return null;
         }
+        // Do generate an event if there is no egress lane, this event only concerns whether the vehicle crossed the
+        // stop line on ingress
 
         OdeBsmData bsm = path.getIngressBsm();
 
@@ -69,7 +76,9 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
         event.setConnectionID(connectionId);
         event.setEventState(signalState);
         event.setIngressLane(ingressLane.getId());
-        event.setEgressLane(egressLane.getId());
+        if (egressLane != null) {
+            event.setEgressLane(egressLane.getId());
+        }
         event.setVehicleID(bsmData.getCoreData().getId());
         event.setLongitude(bsmData.getCoreData().getPosition().getLongitude().doubleValue());
         event.setLatitude(bsmData.getCoreData().getPosition().getLongitude().doubleValue());

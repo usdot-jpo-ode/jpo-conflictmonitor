@@ -362,11 +362,15 @@ public class IntersectionEventTopology
                     
 
                     if(map != null){
+
+                        logger.info("Found MAP: {}", map);
                         
                         Intersection intersection = Intersection.fromProcessedMap(map);
+
+                        logger.info("Got Intersection object from MAP: {}", intersection);
+
                         VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
 
-                        //String vehicleEventKey = intersection.getIntersectionId() + "_" + vehicleId;
                         VehicleEventKey vehicleEventKey = new VehicleEventKey();
                         vehicleEventKey.setRsuId(key.getRsuId());
                         vehicleEventKey.setIntersectionId(key.getIntersectionId());
@@ -386,6 +390,7 @@ public class IntersectionEventTopology
                 logger.info("Vehicle ID: {}", vehicleId);
                 logger.info("Captured Bsms: {}", bsms.getBsms().size());
                 logger.info("Captured Spats: {}", spats.getSpats().size());
+
                 return result;
             }
         );
@@ -440,7 +445,7 @@ public class IntersectionEventTopology
             (key, value)->{
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection());
 
-                List<KeyValue<String, StopLinePassageEvent>> result = new ArrayList<KeyValue<String, StopLinePassageEvent>>();
+                List<KeyValue<String, StopLinePassageEvent>> result = new ArrayList<>();
                 StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getSignalStateEvent(signalStateVehicleCrossesParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
