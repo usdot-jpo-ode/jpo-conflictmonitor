@@ -22,6 +22,8 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import java.util.Set;
+
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM)
 public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCrossesAlgorithm{
 
@@ -39,8 +41,7 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
             logger.info("No ingress lane found for path {}, can't generate StopLinePassage event", path);
             return null;
         }
-        // Do generate an event if there is no egress lane, this event only concerns whether the vehicle crossed the
-        // stop line on ingress
+
 
         OdeBsmData bsm = path.getIngressBsm();
 
@@ -53,19 +54,23 @@ public class SignalStateVehicleCrossesAnalytics implements SignalStateVehicleCro
             return null;
         }
 
-        LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-        
-        
-
-        J2735MovementPhaseState signalState = J2735MovementPhaseState.UNAVAILABLE;
-        int connectionId = -1;
         int signalGroup = -1;
-
-        if(connection != null){
-            signalState = getSignalGroupState(matchingSpat, connection.getSignalGroup());
-            connectionId = connection.getConnectionId();
+        int connectionId = -1;
+        if (egressLane != null) {
+            LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
             signalGroup = connection.getSignalGroup();
+            connectionId = connection.getConnectionId();
+        } else {
+            Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+            if (signalGroups.size() == 1) {
+                signalGroup = signalGroups.iterator().next();
+            } else {
+                logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
+                return null;
+            }
         }
+
+        J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
         J2735Bsm bsmData = (J2735Bsm)bsm.getPayload().getData();
 

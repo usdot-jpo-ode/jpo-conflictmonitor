@@ -1,8 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
@@ -119,12 +117,30 @@ public class Intersection {
     }
 
     public LaneConnection getLaneConnection(Lane ingressLane, Lane egressLane){
+        if (ingressLane == null || egressLane == null) {
+            return null;
+        }
         for(LaneConnection laneConnection: this.laneConnections){
-            if(laneConnection.getIngressLane() == ingressLane && laneConnection.getEgressLane() == egressLane){
+
+            if(laneConnection.getIngressLane().getId() == ingressLane.getId() && laneConnection.getEgressLane().getId() == egressLane.getId()){
                 return laneConnection;
             }
         }
         return null;
+    }
+
+    public Set<Integer> getSignalGroupsForIngressLane(Lane ingressLane) {
+
+        Set<Integer> signalGroups = new HashSet<>();
+        if (ingressLane == null) {
+            return signalGroups;
+        }
+        for(LaneConnection laneConnection: this.laneConnections){
+            if(laneConnection.getIngressLane().getId() == ingressLane.getId()){
+                signalGroups.add(laneConnection.getSignalGroup());
+            }
+        }
+        return signalGroups;
     }
 
     public ArrayList<LaneConnection> getLaneConnectionBySignalGroup(int signalGroup){
