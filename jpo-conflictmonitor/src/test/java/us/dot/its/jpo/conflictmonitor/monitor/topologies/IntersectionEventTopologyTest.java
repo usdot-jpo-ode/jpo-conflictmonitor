@@ -20,7 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -69,7 +69,7 @@ public class IntersectionEventTopologyTest {
     StopLinePassageAlgorithm signalStateVehicleCrossesAlgorithm;
     StopLinePassageParameters signalStateVehicleCrossesParameters = new StopLinePassageParameters();
     @Mock SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
-    SignalStateVehicleStopsParameters signalStateVehicleStopsParameters = new SignalStateVehicleStopsParameters();
+    StopLineStopParameters signalStateVehicleStopsParameters = new StopLineStopParameters();
 
     final long startMillis = 1682615309868L;
     final long endMillis = 1682615347488L;

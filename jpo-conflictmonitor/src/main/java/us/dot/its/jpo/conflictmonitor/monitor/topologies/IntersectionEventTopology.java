@@ -31,7 +31,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -72,7 +72,7 @@ public class IntersectionEventTopology
     StopLinePassageAlgorithm signalStateVehicleCrossesAlgorithm;
     StopLinePassageParameters stopLinePassageParameters;
     SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
-    SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
+    StopLineStopParameters signalStateVehicleStopsParameters;
 
 
     @Override
@@ -151,7 +151,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public SignalStateVehicleStopsParameters getSignalStateVehicleStopsParameters() {
+    public StopLineStopParameters getSignalStateVehicleStopsParameters() {
         return signalStateVehicleStopsParameters;
     }
 
@@ -222,7 +222,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters stopsParams) {
+    public void setSignalStateVehicleStopsParameters(StopLineStopParameters stopsParams) {
         this.signalStateVehicleStopsParameters = stopsParams;
     }
 

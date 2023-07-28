@@ -5,7 +5,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_veh
 import org.springframework.stereotype.Component;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -26,7 +26,7 @@ public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStops
    
 
     @Override
-    public StopLineStopEvent getSignalStateStopEvent(SignalStateVehicleStopsParameters parameters, VehiclePath path, SpatAggregator spats){
+    public StopLineStopEvent getSignalStateStopEvent(StopLineStopParameters parameters, VehiclePath path, SpatAggregator spats){
 
         Lane ingressLane = path.getIngressLane();
         Lane egressLane = path.getEgressLane();

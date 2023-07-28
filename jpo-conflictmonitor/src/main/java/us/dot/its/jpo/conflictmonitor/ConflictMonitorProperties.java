@@ -64,7 +64,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_asse
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
@@ -109,7 +109,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
    private String signalStateVehicleStopsAlgorithm;
-   private SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
+   private StopLineStopParameters signalStateVehicleStopsParameters;
 
    private MapSpatMessageAssessmentAlgorithmFactory mapSpatMessageAssessmentAlgorithmFactory;
    private String mapSpatMessageAssessmentAlgorithm;
@@ -296,7 +296,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
 
    @Autowired
-   public void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters signalStateVehicleStopsParameters) {
+   public void setSignalStateVehicleStopsParameters(StopLineStopParameters signalStateVehicleStopsParameters) {
       this.signalStateVehicleStopsParameters = signalStateVehicleStopsParameters;
    }
 

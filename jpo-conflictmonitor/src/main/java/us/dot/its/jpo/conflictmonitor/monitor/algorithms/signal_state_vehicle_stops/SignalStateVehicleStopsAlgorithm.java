@@ -5,5 +5,5 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 
 public interface SignalStateVehicleStopsAlgorithm {
-    StopLineStopEvent getSignalStateStopEvent(SignalStateVehicleStopsParameters parameters, VehiclePath path, SpatAggregator spats);
+    StopLineStopEvent getSignalStateStopEvent(StopLineStopParameters parameters, VehiclePath path, SpatAggregator spats);
 }
