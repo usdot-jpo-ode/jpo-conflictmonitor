@@ -11,26 +11,34 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import org.springframework.data.mongodb.core.mapping.Document;
-@Document("CmSignalStateStopEvent")
+@Document("CmStopLineStopEvent")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
-public class SignalStateStopEvent extends Event{
-    
-    private long timestamp;
+public class StopLineStopEvent extends Event{
+
+    private String source;
     private int ingressLane;
     private int egressLane;
     private int connectionID;
     private J2735MovementPhaseState eventState;
+    private J2735MovementPhaseState initialEventState;
+    private long initialTimestamp;
+    private J2735MovementPhaseState finalEventState;
+    private long finalTimestamp;
     private String vehicleID;
     private double latitude;
     private double longitude;
     private double heading;
     private double speed;
+    private int signalGroup;
+    private double timeStoppedDuringRed;
+    private double timeStoppedDuringYellow;
+    private double timeStoppedDuringGreen;
 
-    public SignalStateStopEvent(){
-        super("SignalStateStop");
+    public StopLineStopEvent(){
+        super("StopLineStop");
     }
 
 
@@ -40,15 +48,5 @@ public class SignalStateStopEvent extends Event{
 
 
 
-    @Override
-    public String toString() {
-        ObjectMapper mapper = DateJsonMapper.getInstance();
-        String testReturn = "";
-        try {
-            testReturn = (mapper.writeValueAsString(this));
-        } catch (JsonProcessingException e) {
-            System.out.println(e);
-        }
-        return testReturn;
-    }
+
 }

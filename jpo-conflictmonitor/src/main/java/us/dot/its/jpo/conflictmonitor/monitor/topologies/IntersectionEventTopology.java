@@ -40,7 +40,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateStopEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -469,13 +469,13 @@ public class IntersectionEventTopology
 
 
         // Perform Analytics of Signal State Vehicle Crossing Intersection
-        KStream<String, SignalStateStopEvent> signalStateVehicleStopEventsStream = vehicleEventsStream.flatMap(
+        KStream<String, StopLineStopEvent> signalStateVehicleStopEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
 
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
-                List<KeyValue<String, SignalStateStopEvent>> result = new ArrayList<KeyValue<String, SignalStateStopEvent>>();
-                SignalStateStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(signalStateVehicleStopsParameters, path, value.getSpats());
+                List<KeyValue<String, StopLineStopEvent>> result = new ArrayList<KeyValue<String, StopLineStopEvent>>();
+                StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(signalStateVehicleStopsParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }
