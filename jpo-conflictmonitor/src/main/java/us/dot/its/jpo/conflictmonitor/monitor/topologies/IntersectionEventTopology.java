@@ -30,8 +30,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -71,7 +71,7 @@ public class IntersectionEventTopology
     ConnectionOfTravelParameters connectionOfTravelParams;
     StopLinePassageAlgorithm signalStateVehicleCrossesAlgorithm;
     StopLinePassageParameters stopLinePassageParameters;
-    SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm;
+    StopLineStopAlgorithm signalStateVehicleStopsAlgorithm;
     StopLineStopParameters signalStateVehicleStopsParameters;
 
 
@@ -146,7 +146,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public SignalStateVehicleStopsAlgorithm getSignalStateVehicleStopsAlgorithm() {
+    public StopLineStopAlgorithm getSignalStateVehicleStopsAlgorithm() {
         return signalStateVehicleStopsAlgorithm;
     }
 
@@ -217,7 +217,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public void setSignalStateVehicleStopsAlgorithm(SignalStateVehicleStopsAlgorithm stopsAlgorithm) {
+    public void setSignalStateVehicleStopsAlgorithm(StopLineStopAlgorithm stopsAlgorithm) {
         this.signalStateVehicleStopsAlgorithm = stopsAlgorithm;
     }
 
@@ -475,7 +475,7 @@ public class IntersectionEventTopology
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
                 List<KeyValue<String, StopLineStopEvent>> result = new ArrayList<KeyValue<String, StopLineStopEvent>>();
-                StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getSignalStateStopEvent(signalStateVehicleStopsParameters, path, value.getSpats());
+                StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(signalStateVehicleStopsParameters, path, value.getSpats());
                 if(event != null){
                     result.add(new KeyValue<>(event.getKey(), event));
                 }

@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
@@ -102,8 +103,9 @@ public class VehiclePath {
 
     /**
      * Find the stop or start line point that the vehicle path passes closest to
-     * Find the stop or start line point that the vehicle path passes closest to
      * @param lines - List of ingress or egress lines with stop or start points
+     * @param minDistanceFeet - Radius of the buffer at stop/start points to include BSMs
+     * @param headingToleranceDegrees - Tolerance for heading to include BSMs
      * @return LineVehicleIntersection
      */
     public LineVehicleIntersection findLineVehicleIntersection(
@@ -115,6 +117,7 @@ public class VehiclePath {
         double minDistance = Double.MAX_VALUE;
         OdeBsmData matchingBsm = null;
         IntersectionLine bestLine = null;
+
 
         for(IntersectionLine line : lines){
             if(this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)){
@@ -140,13 +143,23 @@ public class VehiclePath {
             }
         }
 
+        // Find all BSMs within the buffer distance of the stop point
+        List<OdeBsmData> bsmList = new ArrayList<>();
+        for (OdeBsmData bsm : this.bsms.getBsms()) {
+
+        }
+
         if(bestLine != null){
-            return new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
+            var lineVehicleIntersection = new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
+            lineVehicleIntersection.setBsmList(bsmList);
+            return lineVehicleIntersection;
         } else{
             return null;
         }
     }
-    
+
+
+
 
     
     public String getVehiclePathAsWkt() {

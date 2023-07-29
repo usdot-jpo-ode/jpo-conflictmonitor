@@ -8,8 +8,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 
 
 public interface IntersectionEventAlgorithm extends ExecutableAlgorithm { 
@@ -21,7 +21,7 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     ConnectionOfTravelParameters getConnectionOfTravelParams();
     StopLinePassageAlgorithm getSignalStateVehicleCrossesAlgorithm();
     StopLinePassageParameters getStopLinePassageParameters();
-    SignalStateVehicleStopsAlgorithm getSignalStateVehicleStopsAlgorithm();
+    StopLineStopAlgorithm getSignalStateVehicleStopsAlgorithm();
     StopLineStopParameters getSignalStateVehicleStopsParameters();
 
     void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps);
@@ -31,6 +31,6 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     void setConnectionOfTravelParams(ConnectionOfTravelParameters connTravelParams);
     void setSignalStateVehicleCrossesAlgorithm(StopLinePassageAlgorithm crossesAlgorithm);
     void setStopLinePassageParameters(StopLinePassageParameters crossesParams);
-    void setSignalStateVehicleStopsAlgorithm(SignalStateVehicleStopsAlgorithm stopsAlgorithm);
+    void setSignalStateVehicleStopsAlgorithm(StopLineStopAlgorithm stopsAlgorithm);
     void setSignalStateVehicleStopsParameters(StopLineStopParameters stopsParams);
 }

@@ -1,11 +1,13 @@
 package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsConstants.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopConstants.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -13,6 +15,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -22,18 +25,20 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_STOPS_ALGORITHM)
-public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStopsAlgorithm{
+public class StopLineStopAnalytics implements StopLineStopAlgorithm {
+
+    private static final Logger logger = LoggerFactory.getLogger(StopLineStopAnalytics.class);
    
 
     @Override
-    public StopLineStopEvent getSignalStateStopEvent(StopLineStopParameters parameters, VehiclePath path, SpatAggregator spats){
+    public StopLineStopEvent getStopLineStopEvent(StopLineStopParameters parameters, VehiclePath path, SpatAggregator spats){
 
         Lane ingressLane = path.getIngressLane();
         Lane egressLane = path.getEgressLane();
 
         
-        if(ingressLane == null || egressLane == null){
-            // Don't generate an event if the vehicle didn't go through the intersection
+        if(ingressLane == null){
+            logger.info("No ingress lane found for path {}, can't generate StopLineStop event", path);
             return null;
         }
         
@@ -70,7 +75,12 @@ public class SignalStateVehicleStopsAnalytics implements SignalStateVehicleStops
         StopLineStopEvent event = new StopLineStopEvent();
         event.setIntersectionID(path.getIntersection().getIntersectionId());
         event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
-        
+        event.setIngressLane(ingressLane.getId());
+        if (egressLane != null) {
+            event.setEgressLane(egressLane.getId());
+        }
+        event.setHeading(BsmUtils.getHeading(bsm).orElse(0d));
+        ;
         
         return event;
     }

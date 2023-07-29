@@ -63,8 +63,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_asse
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
@@ -107,7 +107,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String signalStateVehicleCrossesAlgorithm;
    private StopLinePassageParameters signalStateVehicleCrossesParameters;
 
-   private SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
+   private StopLineStopAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
    private String signalStateVehicleStopsAlgorithm;
    private StopLineStopParameters signalStateVehicleStopsParameters;
 
@@ -282,7 +282,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateVehicleStopsAlgorithmFactory(
-         SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory) {
+         StopLineStopAlgorithmFactory signalStateVehicleStopsAlgorithmFactory) {
       this.signalStateVehicleStopsAlgorithmFactory = signalStateVehicleStopsAlgorithmFactory;
    }
 

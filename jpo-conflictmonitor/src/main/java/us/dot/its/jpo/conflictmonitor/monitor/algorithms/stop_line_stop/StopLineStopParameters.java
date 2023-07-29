@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
