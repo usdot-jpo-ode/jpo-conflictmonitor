@@ -31,7 +31,6 @@ public class StopLineStopEvent extends Event{
     private double latitude;
     private double longitude;
     private double heading;
-    private double speed;
     private int signalGroup;
     private double timeStoppedDuringRed;
     private double timeStoppedDuringYellow;

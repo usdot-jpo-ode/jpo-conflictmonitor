@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopConstants.*;
 
+import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -69,16 +70,10 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
         ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
 
-
-        LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-
-        J2735MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, connection.getSignalGroup());
-        J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, connection.getSignalGroup());
-
-
-        
-
         StopLineStopEvent event = new StopLineStopEvent();
+
+        event.setInitialTimestamp(firstTimestamp);
+        event.setFinalTimestamp(lastTimestamp);
         event.setIntersectionID(path.getIntersection().getIntersectionId());
         event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
         event.setIngressLane(ingressLane.getId());
@@ -89,11 +84,20 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         if (optionalHeading.isPresent()) {
             event.setHeading(optionalHeading.get());
         }
-        event.setInitialTimestamp(firstTimestamp);
-        event.setInitialEventState(firstSignalState);
-        event.setFinalTimestamp(lastTimestamp);
-        event.setFinalEventState(lastSignalState);
-        
+        CoordinateXY firstBsmPosition = BsmUtils.getPosition(firstStoppedBsm);
+        event.setLongitude(firstBsmPosition.getX());
+        event.setLatitude(firstBsmPosition.getY());
+
+
+        LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+        if (connection != null) {
+            event.setSignalGroup(connection.getSignalGroup());
+            J2735MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, connection.getSignalGroup());
+            J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, connection.getSignalGroup());
+            event.setInitialEventState(firstSignalState);
+            event.setFinalEventState(lastSignalState);
+        }
+
         return event;
     }
 

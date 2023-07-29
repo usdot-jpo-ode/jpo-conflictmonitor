@@ -188,6 +188,7 @@ public class VehiclePath {
             }
             index++;
         }
+        logger.info("Found {} BSMs in lane {}", bsmsInLane.size(), lane);
         return bsmsInLane;
     }
 
@@ -231,6 +232,7 @@ public class VehiclePath {
 
         var subList = bsmList.subList(startIndex, endIndex);
         filteredBsmList.addAll(subList);
+        logger.info("Found {} stopped BSMs", filteredBsmList.size());
         return filteredBsmList;
     }
 

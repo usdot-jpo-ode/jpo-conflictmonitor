@@ -297,7 +297,7 @@ signal.state.vehicle.stops:
   algorithm: defaultSignalStateVehicleStopsAlgorithm
   debug: false
   spatBsmMatchWindowMillis: 500
-  stopSpeedThreshold: 5
+  stopSpeedThreshold: 1
   upstreamSearchDistance: 100
   minTimeStopped: 1
   headingTolerance: 20
