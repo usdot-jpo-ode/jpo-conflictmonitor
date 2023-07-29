@@ -298,6 +298,9 @@ signal.state.vehicle.stops:
   debug: false
   spatBsmMatchWindowMillis: 500
   stopSpeedThreshold: 5
+  upstreamSearchDistance: 100
+  minTimeStopped: 1
+  headingTolerance: 20
 
 # SPAT Time Change Details
 spat.time.change.details:

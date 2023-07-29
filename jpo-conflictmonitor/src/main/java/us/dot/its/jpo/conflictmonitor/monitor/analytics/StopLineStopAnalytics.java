@@ -22,6 +22,9 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_STOPS_ALGORITHM)
@@ -41,34 +44,37 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             logger.info("No ingress lane found for path {}, can't generate StopLineStop event", path);
             return null;
         }
-        
-        OdeBsmData bsm = path.getIngressBsm();
 
+        // Find stop events within the stopping search distance along the ingress lane.
+        List<OdeBsmData> bsmList = path.findBsmsInIngressLane(ingressLane, parameters.getUpstreamSearchDistance());
+        List<OdeBsmData> stoppedBsmList = path.filterStoppedBsms(bsmList, parameters.getStopSpeedThreshold());
+        if (stoppedBsmList.size() < 2) {
+            logger.info("Fewer than 2 stopped BSMs found for path {}, can't generate StopLineStop event", path);
+            return null;
+        }
+        OdeBsmData firstStoppedBsm = stoppedBsmList.get(0);
+        OdeBsmData lastStoppedBsm = stoppedBsmList.get(stoppedBsmList.size() - 1);
 
-        J2735Bsm bsmData = (J2735Bsm)bsm.getPayload().getData();
-        if(bsmData != null && bsmData.getCoreData().getSpeed().doubleValue() > parameters.getStopSpeedThreshold()){
-            // Don't generate an Event if the vehicle is moving.
+        long firstTimestamp = BsmTimestampExtractor.getBsmTimestamp(firstStoppedBsm);
+        long lastTimestamp = BsmTimestampExtractor.getBsmTimestamp(lastStoppedBsm);
+        long durationStoppedMillis = Math.abs(lastTimestamp - firstTimestamp);
+        logger.info("Stop duration {} ms", durationStoppedMillis);
+        double minTimeStoppedSeconds = parameters.getMinTimeStopped();
+        long minTimeStoppedMillis = Math.round(minTimeStoppedSeconds * 1000);
+        if (durationStoppedMillis < minTimeStoppedMillis) {
+            logger.warn("BSMs stopped for {} milliseconds, less than the minimum time of {} ms required to generate a StopLineStop event", durationStoppedMillis, minTimeStoppedMillis);
             return null;
         }
 
-        
+        ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
+        ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
 
-        long bsmTime = BsmTimestampExtractor.getBsmTimestamp(bsm);
-        ProcessedSpat matchingSpat = spats.getSpatAtTime(bsmTime);
-
-        if(matchingSpat == null || Math.abs(spats.getSpatTimeDelta(matchingSpat, bsmTime)) > parameters.getSpatBsmMatchWindowMillis()){
-            // Don't generate event if the spat time delta is greater than configurable threshold
-            return null;
-        }
 
         LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-        
-        J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, connection.getSignalGroup());
 
-        if(signalState == null){
-            // Don't generate event if no corresponding signal group can be found for the lane connection
-            return null;
-        }
+        J2735MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, connection.getSignalGroup());
+        J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, connection.getSignalGroup());
+
 
         
 
@@ -79,8 +85,14 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());
         }
-        event.setHeading(BsmUtils.getHeading(bsm).orElse(0d));
-        ;
+        Optional<Double> optionalHeading = BsmUtils.getHeading(firstStoppedBsm);
+        if (optionalHeading.isPresent()) {
+            event.setHeading(optionalHeading.get());
+        }
+        event.setInitialTimestamp(firstTimestamp);
+        event.setInitialEventState(firstSignalState);
+        event.setFinalTimestamp(lastTimestamp);
+        event.setFinalEventState(lastSignalState);
         
         return event;
     }

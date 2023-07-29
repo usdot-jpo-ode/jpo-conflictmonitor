@@ -23,10 +23,11 @@ public class BsmUtils {
     }
 
     public static Optional<Double> getHeading(OdeBsmData bsm) {
-        Optional<J2735Bsm> optionalBsm = getJ2735Bsm(bsm);
-        if (optionalBsm.isEmpty()) return Optional.empty();
-        J2735Bsm j2735Bsm = optionalBsm.get();
-        double vehicleHeading = ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getHeading().doubleValue();
+        Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);
+        if (optionalCoreData.isEmpty()) return Optional.empty();
+        J2735BsmCoreData coreData = optionalCoreData.get();
+        if (coreData.getHeading() == null) return Optional.empty();
+        double vehicleHeading = coreData.getHeading().doubleValue();
         return Optional.of(vehicleHeading);
     }
 
@@ -45,5 +46,15 @@ public class BsmUtils {
         J2735Bsm j2735Bsm = optionalBsm.get();
         if (j2735Bsm.getCoreData() == null) return Optional.empty();
         return Optional.of(j2735Bsm.getCoreData());
+    }
+
+    public static Optional<Double> getSpeedMPH(OdeBsmData bsm) {
+        Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);
+        if (optionalCoreData.isEmpty()) return Optional.empty();
+        J2735BsmCoreData coreData = optionalCoreData.get();
+        if (coreData.getSpeed() == null) return Optional.empty();
+        double speedMetersPerSecond = coreData.getSpeed().doubleValue();
+        double speedMPH = speedMetersPerSecond * 2.23694; // convert m/s to mph
+        return Optional.of(speedMPH);
     }
 }

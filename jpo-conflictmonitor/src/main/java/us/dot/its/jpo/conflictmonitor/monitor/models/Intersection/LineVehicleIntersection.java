@@ -16,11 +16,6 @@ public class LineVehicleIntersection {
      */
     private OdeBsmData bsm;
 
-    /**
-     * List of BSMs within the buffer distance of the stop/start point,
-     * and that have the correct heading within the tolerance
-     */
-    private List<OdeBsmData> bsmList;
     
     public LineVehicleIntersection(Lane lane, OdeBsmData bsm) {
         this.lane = lane;
@@ -32,7 +27,6 @@ public class LineVehicleIntersection {
         return "LineVehicleIntersection{" +
                 "lane=" + lane +
                 ", bsm=" + bsm +
-                ", bsmList=" + bsmList +
                 '}';
     }
 }

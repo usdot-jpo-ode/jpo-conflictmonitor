@@ -119,7 +119,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
         intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleStopsParameters(signalStateVehicleStopsParameters);
+        intersectionEventTopology.setStopLineStopParameters(signalStateVehicleStopsParameters);
         Topology topology = intersectionEventTopology.buildTopology();
 
 
@@ -298,7 +298,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
         intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleStopsParameters(signalStateVehicleStopsParameters);
+        intersectionEventTopology.setStopLineStopParameters(signalStateVehicleStopsParameters);
 
         KafkaStreams streams = mock(KafkaStreams.class);
         when(streams.state()).thenReturn(KafkaStreams.State.RUNNING);
@@ -321,7 +321,7 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
         intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
-        intersectionEventTopology.setSignalStateVehicleStopsParameters(signalStateVehicleStopsParameters);
+        intersectionEventTopology.setStopLineStopParameters(signalStateVehicleStopsParameters);
         intersectionEventTopology.validate();
 
         assertThat(intersectionEventTopology.getStreamsProperties(), notNullValue());
@@ -335,7 +335,7 @@ public class IntersectionEventTopologyTest {
         assertThat(intersectionEventTopology.getSignalStateVehicleCrossesAlgorithm(), notNullValue());
         assertThat(intersectionEventTopology.getStopLinePassageParameters(), notNullValue());
         assertThat(intersectionEventTopology.getSignalStateVehicleStopsAlgorithm(), notNullValue());
-        assertThat(intersectionEventTopology.getSignalStateVehicleStopsParameters(), notNullValue());
+        assertThat(intersectionEventTopology.getStopLineStopParameters(), notNullValue());
     }
 
 }

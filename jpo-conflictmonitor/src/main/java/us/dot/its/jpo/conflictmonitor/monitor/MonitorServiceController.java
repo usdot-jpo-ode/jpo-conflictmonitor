@@ -321,7 +321,7 @@ public class MonitorServiceController {
             intersectionAlgo.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
             intersectionAlgo.setStopLinePassageParameters(ssvcParams);
             intersectionAlgo.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
-            intersectionAlgo.setSignalStateVehicleStopsParameters(ssvsParams);
+            intersectionAlgo.setStopLineStopParameters(ssvsParams);
             if (intersectionAlgo instanceof IntersectionEventStreamsAlgorithm) {
                 final var streamsAlgo = (IntersectionEventStreamsAlgorithm)intersectionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(intersectionEvent));

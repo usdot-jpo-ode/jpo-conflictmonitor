@@ -22,7 +22,7 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     StopLinePassageAlgorithm getSignalStateVehicleCrossesAlgorithm();
     StopLinePassageParameters getStopLinePassageParameters();
     StopLineStopAlgorithm getSignalStateVehicleStopsAlgorithm();
-    StopLineStopParameters getSignalStateVehicleStopsParameters();
+    StopLineStopParameters getStopLineStopParameters();
 
     void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps);
     void setLaneDirectionOfTravelAlgorithm(LaneDirectionOfTravelAlgorithm laneAlgorithm);
@@ -32,5 +32,5 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     void setSignalStateVehicleCrossesAlgorithm(StopLinePassageAlgorithm crossesAlgorithm);
     void setStopLinePassageParameters(StopLinePassageParameters crossesParams);
     void setSignalStateVehicleStopsAlgorithm(StopLineStopAlgorithm stopsAlgorithm);
-    void setSignalStateVehicleStopsParameters(StopLineStopParameters stopsParams);
+    void setStopLineStopParameters(StopLineStopParameters stopsParams);
 }

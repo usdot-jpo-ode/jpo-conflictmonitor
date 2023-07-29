@@ -2,16 +2,18 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
 
+import org.locationtech.jts.linearref.LinearLocation;
+import org.locationtech.jts.linearref.LocationIndexedLine;
+import org.locationtech.jts.operation.buffer.BufferOp;
+import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
@@ -143,22 +145,94 @@ public class VehiclePath {
             }
         }
 
-        // Find all BSMs within the buffer distance of the stop point
-        List<OdeBsmData> bsmList = new ArrayList<>();
-        for (OdeBsmData bsm : this.bsms.getBsms()) {
 
-        }
 
         if(bestLine != null){
-            var lineVehicleIntersection = new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
-            lineVehicleIntersection.setBsmList(bsmList);
-            return lineVehicleIntersection;
+            return new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
         } else{
             return null;
         }
     }
 
+    /**
+     * Find the BSMs that are in the ingress lane and within the upstream search distance
+     * @param lane - The ingress lane to search
+     * @param upstreamSearchDistanceFeet - The upstream distance along the lane to search
+     * @return List<OdeBsmData>
+     */
+    public List<OdeBsmData> findBsmsInIngressLane(Lane lane, final double upstreamSearchDistanceFeet) {
+        final double upstreamSearchDistanceCm = CoordinateConversion.feetToCM(upstreamSearchDistanceFeet);
+        final double laneWidthCm = lane.getLaneWidthCm();
+        final double halfLaneWidthCm = laneWidthCm / 2.0;
+        LineString laneCenterline = lane.getPoints();
 
+        // Find the upstream line based on the upstream search distance
+        LocationIndexedLine locationLine = new LocationIndexedLine(laneCenterline);
+        LinearLocation startLocation = locationLine.getStartIndex();
+        Coordinate endPoint = locationLine.extractPoint(startLocation, upstreamSearchDistanceCm);
+        LinearLocation endLocation = locationLine.project(endPoint);
+        LineString upstreamLine = (LineString)locationLine.extractLine(startLocation, endLocation);
+
+        // Construct a buffer around the upstream line based on the lane width
+        BufferParameters bufferParams = new BufferParameters();
+        bufferParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+        Geometry buffer = BufferOp.bufferOp(upstreamLine, halfLaneWidthCm, bufferParams);
+
+        // Find the BSMs that are within the buffer
+        List<OdeBsmData> bsmsInLane = new ArrayList<>();
+        int index = 0;
+        for (OdeBsmData bsm : this.bsms.getBsms()) {
+            Point p = this.pathPoints.getPointN(index);
+            if (buffer.contains(p)) {
+                bsmsInLane.add(bsm);
+            }
+            index++;
+        }
+        return bsmsInLane;
+    }
+
+    /**
+     * Filter the BSMs to include only those during a stoppage.
+     *
+     * <p>Find the first BSM where the speed is below the threshold, and the last BSM where the speed is below the threshold,
+     * and all the BSMs between those two by time.
+     *
+     * @param bsmList
+     * @param stopSpeedThresholdMPH
+     * @return
+     */
+    public List<OdeBsmData> filterStoppedBsms(final List<OdeBsmData> bsmList, final double stopSpeedThresholdMPH) {
+        List<Integer> stoppedBsmIndices = new ArrayList<>();
+
+        // Find indexes of all BSMs below the stop speed threshold
+        for (int i = 0; i < bsmList.size(); i++) {
+            OdeBsmData bsm = bsmList.get(i);
+            Optional<Double> optionalSpeed = BsmUtils.getSpeedMPH(bsm);
+            if (optionalSpeed.isEmpty()) {
+                logger.warn("No speed found in BSM");
+                continue;
+            }
+            double speed = optionalSpeed.get();
+            if (speed <= stopSpeedThresholdMPH) {
+                stoppedBsmIndices.add(i);
+            }
+        }
+
+        List<OdeBsmData> filteredBsmList = new ArrayList<>();
+
+        // Must be at least 2 BSMs to find stop and start timestamps
+        if (stoppedBsmIndices.isEmpty() || stoppedBsmIndices.size() < 2) {
+            return filteredBsmList;
+        }
+
+        // Return all BSMs between the first and last stopped BSMs
+        int startIndex = stoppedBsmIndices.get(0);
+        int endIndex = stoppedBsmIndices.get(stoppedBsmIndices.size() - 1);
+
+        var subList = bsmList.subList(startIndex, endIndex);
+        filteredBsmList.addAll(subList);
+        return filteredBsmList;
+    }
 
 
     
