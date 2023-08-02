@@ -6,6 +6,14 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Optional;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 public class SpatAggregator {
@@ -72,5 +80,62 @@ public class SpatAggregator {
 
     public void setSpatList(ArrayList<ProcessedSpat> spats) {
         this.spats = spats;
+    }
+
+    public String describeSpats(int signalGroupId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SPATs for signal group ");
+        sb.append(signalGroupId);
+        sb.append(":\n");
+        for (ProcessedSpat spat : spats) {
+            long timestamp = SpatTimestampExtractor.getSpatTimestamp(spat);
+            Optional<MovementState> optMovementState = spat.getStates().stream().filter(state -> state.getSignalGroup() == signalGroupId).findFirst();
+            if (optMovementState.isEmpty()) continue;
+            MovementState movementState = optMovementState.get();
+            Optional<MovementEvent> optMovementEvent = movementState.getStateTimeSpeed().stream().findFirst();
+            if (optMovementEvent.isEmpty()) continue;
+            MovementEvent movementEvent = optMovementEvent.get();
+            sb.append(timestamp);
+            sb.append(" ms: ");
+            sb.append(movementEvent.getEventState());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Get statistics for the amount of time during each signal phase while
+     * @return {@link SpatStatistics}
+     */
+    public SpatStatistics getSpatStatistics(int signalGroupId) {
+        long redMillis = 0;
+        long yellowMillis = 0;
+        long greenMillis = 0;
+
+        return new SpatStatistics(redMillis, yellowMillis, greenMillis);
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @ToString
+    public class SpatStatistics {
+        /**
+         * The amount of time (seconds) the event state was ‘stop-and-remain’
+         * while the vehicle was stopped.
+         */
+        private double timeStoppedDuringRed;
+
+        /**
+         * The amount of time (seconds) the event state was ‘protected-clearance’
+         * or ‘permissive-clearance’ while the vehicle was stopped.
+         */
+        private double timeStoppedDuringYellow;
+
+        /**
+         * The amount of time (seconds) the event state was ‘protectedmovement-allowed’ or ‘permissive-movement-allowed’ while the
+         * vehicle was stopped.
+         */
+        private double timeStoppedDuringGreen;
     }
 }

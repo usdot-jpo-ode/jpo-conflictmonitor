@@ -70,6 +70,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
         ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
 
+        var spatStatistics = spats.getSpatStatistics();
+
         StopLineStopEvent event = new StopLineStopEvent();
 
         event.setInitialTimestamp(firstTimestamp);

@@ -56,8 +56,12 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         int connectionId = -1;
         if (egressLane != null) {
             LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-            signalGroup = connection.getSignalGroup();
-            connectionId = connection.getConnectionId();
+            if (connection != null) {
+                signalGroup = connection.getSignalGroup();
+                connectionId = connection.getConnectionId();
+            } else {
+                logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
+            }
         } else {
             Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
             if (signalGroups.size() == 1) {

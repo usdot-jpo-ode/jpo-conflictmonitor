@@ -349,10 +349,12 @@ public class IntersectionEventTopology
 
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
 
-                // Find the MAP for the BSMs
+
 
 
                 if(spats.getSpats().size() > 0){
+
+                    // Find the MAP for the BSMs
                     RsuIntersectionKey rsuKey = new RsuIntersectionKey();
                     rsuKey.setRsuId(key.getRsuId());
                     rsuKey.setIntersectionId(key.getIntersectionId());
