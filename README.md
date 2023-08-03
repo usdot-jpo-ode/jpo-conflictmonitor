@@ -19,8 +19,9 @@ All stakeholders are invited to provide input to these documents. To provide fee
 3.  [Installation](#installation)
 4.  [File Manifest](#file-manifest)
 5.  [Development Setup](#development-setup)
-6.  [Contact Information](#contact-information)
-7.  [Contributing](#contributing)
+6.  [Deployment](#deployment)
+7.  [Contact Information](#contact-information)
+8.  [Contributing](#contributing)
 <!--
 #########################################
 ############# Usage Example #############
@@ -274,6 +275,20 @@ Install the IDE of your choice:
 
 [Back to top](#toc)
 
+<a name="deployment"/>
+
+## 6. Deployment
+
+### Standard Deployment
+
+* The standard deployment has the services provided by `docker-compose.yml` including a MongoDB container as well as the kafka-connector as well.
+
+### Standalone Deployment
+
+* The standalone deployment has the services provided by `docker-compose-standalone.yml` and is intended to only deploy the conflict monitor service with auto-restarting conditions. This deployment requires an existing MongoDB database as well as configurations for kafka connectors for an existing kafka-connector service.
+
+[Back to top](#toc)
+
 <!--
 ###############################################
 ############# Contact Information #############
@@ -281,8 +296,7 @@ Install the IDE of your choice:
  -->
 
 <a name="contact-information"/>
-
-## 6. Contact Information
+## 7. Contact Information
 
 Contact the developers of the GeoJsonConverter application by submitting a [Github issue](https://github.com/usdot-jpo-ode/jpo-geojsonconverter/issues).
 
@@ -305,7 +319,7 @@ permissions and limitations under the [License](http://www.apache.org/licenses/L
 
 <a name="contributing"/>
 
-## 7. Contributing
+## 8. Contributing
 
 Please read our [contributing guide](docs/contributing_guide.md) to learn about our development process, how to propose pull requests and improvements, and how to build and test your changes to this project.
 

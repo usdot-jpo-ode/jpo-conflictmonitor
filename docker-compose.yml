@@ -3,6 +3,7 @@ services:
   conflictmonitor:
     build: .
     image: jpo-conflictmonitor:latest
+    restart: always
     depends_on:
       mongodb_container:
         condition: service_healthy
@@ -24,7 +25,7 @@ services:
   mongodb_container:
     image: mongo:6
     container_name: jpo-conflictmonitor-mongodb-container
-    restart: on-failure
+    restart: always
     environment:
       - MONGO_REPLICA_SET_NAME=rs0
       - DB_HOST_IP=${DB_HOST_IP}
@@ -46,6 +47,7 @@ services:
       context: ./docker/connect
       dockerfile: Dockerfile
     container_name: jpo-conflictmonitor-kafka-connect
+    restart: always
     ports:
       - "8083:8083"
     depends_on:
