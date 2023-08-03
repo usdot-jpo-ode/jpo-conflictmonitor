@@ -8,7 +8,7 @@ import lombok.Data;
 public class SpatMinimumDataEvent extends MinimumDataEvent {
 
     public SpatMinimumDataEvent() {
-        super("SpatMinimumDataEvent");
+        super("SpatMinimumData");
     }
 
 }

@@ -10,6 +10,6 @@ import lombok.Setter;
 public class MapMinimumDataEvent extends MinimumDataEvent {
 
     public MapMinimumDataEvent() {
-        super("MapMinimumDataEvent");
+        super("MapMinimumData");
     }
 }

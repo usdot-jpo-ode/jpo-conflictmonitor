@@ -139,6 +139,10 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmMapBoundingBox
       cleanupPolicy: compact
+    - name: topic.CmEvent
+      cleanupPolicy: compact
+    - name: topic.CmAssessment
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -274,6 +278,32 @@ notification:
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
+
+assessment:
+  algorithm: defaultAssessmentAlgorithm
+  debug: false
+  assessmentOutputTopicName: topic.CmAssessment
+  laneDirectionOfTravelAssessmentTopicName: topic.CmLaneDirectionOfTravelAssessment
+  connectionOfTravelAssessmentTopicName: topic.CmConnectionOfTravelAssessment
+  signalStateEventAssessmentTopicName: topic.CmSignalStateEventAssessment
+
+event:
+  algorithm: defaultEventAlgorithm
+  debug: false
+  eventOutputTopicName: topic.CmEvent
+  signalStateEventTopicName: topic.CmSignalStateEvent
+  spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
+  spatBroadcastRateTopicName: topic.CmSpatBroadcastRateEvents
+  spatMinimumDataTopicName: topic.CmSpatMinimumDataEvents
+  mapBroadcastRateTopicName: topic.CmMapBroadcastRateEvents
+  mapMinimumDataTopicName: topic.CmMapMinimumDataEvents
+  signalGroupAlignmentEventTopicName: topic.CmSignalGroupAlignmentEvents
+  intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
+  signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
+  laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
+  connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
+
+
 
 # Signal State Event Assessment
 signal.state.event.assessment:
