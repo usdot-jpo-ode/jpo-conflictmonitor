@@ -1,13 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 
 @Getter
 @Setter
@@ -20,7 +17,7 @@ public class SignalStateEventAssessmentGroup {
     private int greenEvents;
     
     @JsonIgnore
-    public void addSignalStateEvent(SignalStateEvent event){
+    public void addSignalStateEvent(StopLinePassageEvent event){
         switch(event.getEventState()){
             case UNAVAILABLE:
                 this.darkEvents +=1;

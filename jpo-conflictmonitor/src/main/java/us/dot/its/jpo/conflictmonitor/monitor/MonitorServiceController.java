@@ -51,12 +51,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
@@ -296,16 +296,16 @@ public class MonitorServiceController {
             final ConnectionOfTravelParameters cotParams = conflictMonitorProps.getConnectionOfTravelParameters();
             
             // Setup Signal State Vehicle Crosses Factory
-            final SignalStateVehicleCrossesAlgorithmFactory ssvcAlgoFactory = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithmFactory();
+            final StopLinePassageAlgorithmFactory ssvcAlgoFactory = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithmFactory();
             final String ssvcAlgo = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithm();
-            final SignalStateVehicleCrossesAlgorithm signalStateVehicleCrossesAlgorithm = ssvcAlgoFactory.getAlgorithm(ssvcAlgo);
-            final SignalStateVehicleCrossesParameters ssvcParams = conflictMonitorProps.getSignalStateVehicleCrossesParameters();
+            final StopLinePassageAlgorithm signalStateVehicleCrossesAlgorithm = ssvcAlgoFactory.getAlgorithm(ssvcAlgo);
+            final StopLinePassageParameters ssvcParams = conflictMonitorProps.getSignalStateVehicleCrossesParameters();
             
             // Setup Signal State Vehicle Stops Factory
-            final SignalStateVehicleStopsAlgorithmFactory ssvsAlgoFactory = conflictMonitorProps.getSignalStateVehicleStopsAlgorithmFactory();
+            final StopLineStopAlgorithmFactory ssvsAlgoFactory = conflictMonitorProps.getSignalStateVehicleStopsAlgorithmFactory();
             final String ssvsAlgo = conflictMonitorProps.getSignalStateVehicleStopsAlgorithm();
-            final SignalStateVehicleStopsAlgorithm signalStateVehicleStopsAlgorithm = ssvsAlgoFactory.getAlgorithm(ssvsAlgo);
-            final SignalStateVehicleStopsParameters ssvsParams = conflictMonitorProps.getSignalStateVehicleStopsParameters();
+            final StopLineStopAlgorithm signalStateVehicleStopsAlgorithm = ssvsAlgoFactory.getAlgorithm(ssvsAlgo);
+            final StopLineStopParameters ssvsParams = conflictMonitorProps.getSignalStateVehicleStopsParameters();
             
 
             // The IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
@@ -319,9 +319,9 @@ public class MonitorServiceController {
             intersectionAlgo.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
             intersectionAlgo.setConnectionOfTravelParams(cotParams);
             intersectionAlgo.setSignalStateVehicleCrossesAlgorithm(signalStateVehicleCrossesAlgorithm);
-            intersectionAlgo.setSignalStateVehicleCrossesParameters(ssvcParams);
+            intersectionAlgo.setStopLinePassageParameters(ssvcParams);
             intersectionAlgo.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
-            intersectionAlgo.setSignalStateVehicleStopsParameters(ssvsParams);
+            intersectionAlgo.setStopLineStopParameters(ssvsParams);
             if (intersectionAlgo instanceof IntersectionEventStreamsAlgorithm) {
                 final var streamsAlgo = (IntersectionEventStreamsAlgorithm)intersectionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(intersectionEvent));

@@ -30,12 +30,15 @@ public class VehiclePathTest {
 
     final double elevation = 1500.1;
 
+    final double minDistanceFeet = 15.0;
+    final double headingToleranceDegrees = 20.0;
+
     @Test
     public void testBuildVehiclePath_NullReferencePoint() {
         var bsmAggregator = getBsms();
         var intersection = getIntersection();
         intersection.setReferencePoint(null);
-        var vehiclePath = new VehiclePath(bsmAggregator, intersection);
+        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees);
 
         // Should not throw any exceptions
         vehiclePath.buildVehiclePath();
@@ -47,7 +50,7 @@ public class VehiclePathTest {
         var intersection = getIntersection();
         intersection.setStopLines(null);
         intersection.setStartLines(null);
-        var vehiclePath = new VehiclePath(bsmAggregator, intersection);
+        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees);
 
         // Should not throw any exceptions
         vehiclePath.buildVehiclePath();
@@ -57,7 +60,7 @@ public class VehiclePathTest {
     public void testBuildVehiclePath() {
         var bsmAggregator = getBsms();
         var intersection = getIntersection();
-        var vehiclePath = new VehiclePath(bsmAggregator, intersection);
+        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees);
 
         // Should not throw any exceptions
         vehiclePath.buildVehiclePath();

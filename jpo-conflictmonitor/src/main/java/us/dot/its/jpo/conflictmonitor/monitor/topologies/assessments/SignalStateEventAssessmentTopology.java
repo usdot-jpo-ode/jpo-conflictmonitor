@@ -15,7 +15,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_asse
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.SignalStateTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -43,12 +43,12 @@ public class SignalStateEventAssessmentTopology
         var builder = new StreamsBuilder();
 
         // GeoJson Input Spat Stream
-        KStream<String, SignalStateEvent> signalStateEvents = 
+        KStream<String, StopLinePassageEvent> signalStateEvents =
             builder.stream(
                 parameters.getSignalStateEventTopicName(), 
                 Consumed.with(
                     Serdes.String(), 
-                    JsonSerdes.SignalStateEvent())
+                    JsonSerdes.StopLinePassageEvent())
                     .withTimestampExtractor(new SignalStateTimestampExtractor())
                 );
 
@@ -60,12 +60,12 @@ public class SignalStateEventAssessmentTopology
 
         signalStateEvents.print(Printed.toSysOut());
 
-        Aggregator<String, SignalStateEvent, SignalStateEventAggregator> signalStateEventAggregator = 
+        Aggregator<String, StopLinePassageEvent, SignalStateEventAggregator> signalStateEventAggregator =
             (key, value, aggregate) -> aggregate.add(value);
 
 
         KTable<String, SignalStateEventAggregator> signalStateAssessments = 
-            signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateEvent()))
+            signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageEvent()))
             .aggregate(
                 signalStateAssessmentInitializer,
                 signalStateEventAggregator,

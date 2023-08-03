@@ -49,6 +49,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 @Getter
@@ -263,27 +264,28 @@ public class AppHealthMonitor {
        try (var spatIterator = spatWindowStore.all()) {
            while (spatIterator.hasNext()) {
                var kvp = spatIterator.next();
-               Windowed<String> key = kvp.key;
+               Windowed<RsuIntersectionKey> key = kvp.key;
                Instant startTime = key.window().startTime();
                Instant endTime = key.window().endTime();
+               RsuIntersectionKey theKey= key.key();
                ProcessedSpat value = kvp.value;
                Integer intersectionId = value.getIntersectionId();
-               TreeMap<String, List<ProcessedSpat>> spats = null;
+               TreeMap<String, TreeMap<String, ProcessedSpat>> spats = null;
                if (intersectionMap.containsKey(intersectionId)) {
                    spats = intersectionMap.get(intersectionId);
                } else {
-                   spats = new TreeMap<String, List<ProcessedSpat>>();
+                   spats = new TreeMap<String, TreeMap<String, ProcessedSpat>>();
                    intersectionMap.put(intersectionId, spats);
                }
                String window = String.format("%s / %s", formatter.format(startTime.atZone(ZoneOffset.UTC)), formatter.format(endTime.atZone(ZoneOffset.UTC)));
-               List<ProcessedSpat> spatList = null;
+               TreeMap<String, ProcessedSpat> spatList = null;
                if (spats.containsKey(window)) {
                    spatList = spats.get(window);
                } else {
-                   spatList = new ArrayList<ProcessedSpat>();
+                   spatList = new TreeMap<String, ProcessedSpat>();
                    spats.put(window, spatList);
                }
-               spatList.add(value);
+               spatList.put(theKey.toString(), value);
            }
        }
        return getJsonResponse(intersectionMap);
@@ -360,7 +362,7 @@ public class AppHealthMonitor {
         return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }
 
-    public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, List<ProcessedSpat>>> {}
+    public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, TreeMap<String, ProcessedSpat>>> {}
 
 
 

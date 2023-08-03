@@ -4,6 +4,9 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -12,11 +15,12 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 public interface IntersectionEventStreamsAlgorithm 
     extends IntersectionEventAlgorithm, StreamsTopology { 
 
-    ReadOnlyWindowStore<String, OdeBsmData> getBsmWindowStore();
-    ReadOnlyWindowStore<String, ProcessedSpat> getSpatWindowStore();
-    ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> getMapStore();
-    
-    void setBsmWindowStore(ReadOnlyWindowStore<String, OdeBsmData> bsmStore);
-    void setSpatWindowStore(ReadOnlyWindowStore<String, ProcessedSpat> spatStore);
-    void setMapStore(ReadOnlyKeyValueStore<String, ProcessedMap<LineString>> mapStore);
+    ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore();
+    ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore();
+    ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore();
+
+    void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore);
+    void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore);
+    void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore);
+
 }

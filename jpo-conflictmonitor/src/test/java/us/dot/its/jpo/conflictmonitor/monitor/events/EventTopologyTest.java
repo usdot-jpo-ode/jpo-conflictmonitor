@@ -9,14 +9,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
@@ -69,7 +62,7 @@ public class EventTopologyTest {
         Topology topology = eventTopology.buildTopology();
 
 
-        SignalStateEvent ssEvent = new SignalStateEvent();
+        StopLinePassageEvent ssEvent = new StopLinePassageEvent();
         TimeChangeDetailsEvent stcdEvent = new TimeChangeDetailsEvent();
         SpatBroadcastRateEvent sbrEvent = new SpatBroadcastRateEvent();
         SpatMinimumDataEvent smdEvent = new SpatMinimumDataEvent();
@@ -84,10 +77,10 @@ public class EventTopologyTest {
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
-            TestInputTopic<String, SignalStateEvent> inputSignalState = driver.createInputTopic(
+            TestInputTopic<String, StopLinePassageEvent> inputSignalState = driver.createInputTopic(
                 signalStateEventTopicName, 
-                Serdes.String().serializer(), 
-                JsonSerdes.SignalStateEvent().serializer());
+                Serdes.String().serializer(),
+                JsonSerdes.StopLinePassageEvent().serializer());
 
             inputSignalState.pipeInput("12109", ssEvent);
 
@@ -179,8 +172,8 @@ public class EventTopologyTest {
                 Event event = eventKeyValue.value;
                 String type = event.getEventType();
                 System.out.println(type);
-                if(type.equals("SignalState")){
-                    assertEquals((SignalStateEvent) event, ssEvent);
+                if(type.equals("StopLinePassage")){
+                    assertEquals((StopLinePassageEvent) event, ssEvent);
                 }
                 else if(type.equals("TimeChangeDetails")){
                     assertEquals((TimeChangeDetailsEvent) event, stcdEvent);

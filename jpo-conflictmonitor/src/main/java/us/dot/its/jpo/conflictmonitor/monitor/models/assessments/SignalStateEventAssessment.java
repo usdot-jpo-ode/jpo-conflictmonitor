@@ -3,14 +3,10 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.assessments;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateEvent;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("CmSignalStateEventAssessment")
@@ -27,7 +23,7 @@ public class SignalStateEventAssessment extends Assessment{
 
 
     @JsonIgnore
-    public SignalStateEventAssessment add(SignalStateEvent event){
+    public SignalStateEventAssessment add(StopLinePassageEvent event){
         if(this.signalStateEventAssessmentGroup == null){
             signalStateEventAssessmentGroup = new ArrayList<>();
         }
