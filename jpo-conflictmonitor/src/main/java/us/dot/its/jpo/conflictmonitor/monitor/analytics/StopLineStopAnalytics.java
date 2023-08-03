@@ -78,6 +78,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
 
         StopLineStopEvent event = new StopLineStopEvent();
+        String vehicleId = BsmUtils.getVehicleId(firstStoppedBsm);
+        event.setVehicleID(vehicleId);
 
         event.setInitialTimestamp(firstTimestamp);
         event.setFinalTimestamp(lastTimestamp);

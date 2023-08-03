@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -74,23 +75,34 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
 
         J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
-        J2735Bsm bsmData = (J2735Bsm)bsm.getPayload().getData();
+        var optCoreData = BsmUtils.getCoreData(bsm);
 
         StopLinePassageEvent event = new StopLinePassageEvent();
         event.setTimestamp(bsmTime);
-        event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
-        event.setIntersectionID(path.getIntersection().getIntersectionId());
+        if (path.getIntersection() != null) {
+            event.setRoadRegulatorID(path.getIntersection().getRoadRegulatorId());
+            event.setIntersectionID(path.getIntersection().getIntersectionId());
+        }
         event.setConnectionID(connectionId);
         event.setEventState(signalState);
         event.setIngressLane(ingressLane.getId());
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());
         }
-        event.setVehicleID(bsmData.getCoreData().getId());
-        event.setLongitude(bsmData.getCoreData().getPosition().getLongitude().doubleValue());
-        event.setLatitude(bsmData.getCoreData().getPosition().getLongitude().doubleValue());
-        event.setHeading(bsmData.getCoreData().getHeading().doubleValue());
-        event.setSpeed(bsmData.getCoreData().getSpeed().doubleValue());
+        if (optCoreData.isPresent()) {
+            var coreData = optCoreData.get();
+            event.setVehicleID(coreData.getId());
+            if (coreData.getPosition() != null) {
+                event.setLongitude(coreData.getPosition().getLongitude().doubleValue());
+                event.setLatitude(coreData.getPosition().getLongitude().doubleValue());
+            }
+            if (coreData.getHeading() != null) {
+                event.setHeading(coreData.getHeading().doubleValue());
+            }
+            if (coreData.getSpeed() != null) {
+                event.setSpeed(coreData.getSpeed().doubleValue());
+            }
+        }
         event.setSignalGroup(signalGroup);
         
         return event;

@@ -48,7 +48,7 @@ public class SignalStateEventAssessmentTopology
                 parameters.getSignalStateEventTopicName(), 
                 Consumed.with(
                     Serdes.String(), 
-                    JsonSerdes.SignalStateEvent())
+                    JsonSerdes.StopLinePassageEvent())
                     .withTimestampExtractor(new SignalStateTimestampExtractor())
                 );
 
@@ -65,7 +65,7 @@ public class SignalStateEventAssessmentTopology
 
 
         KTable<String, SignalStateEventAggregator> signalStateAssessments = 
-            signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateEvent()))
+            signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageEvent()))
             .aggregate(
                 signalStateAssessmentInitializer,
                 signalStateEventAggregator,

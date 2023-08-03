@@ -57,4 +57,11 @@ public class BsmUtils {
         double speedMPH = speedMetersPerSecond * 2.23694; // convert m/s to mph
         return Optional.of(speedMPH);
     }
+
+    public static String getVehicleId(OdeBsmData bsm) {
+        Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);
+        if (optionalCoreData.isEmpty()) return "";
+        J2735BsmCoreData coreData = optionalCoreData.get();
+        return coreData.getId();
+    }
 }

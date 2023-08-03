@@ -42,7 +42,7 @@ public class StopLineStopEvent extends Event{
 
 
     public String getKey(){
-        return this.getRoadRegulatorID() + "_" + this.getVehicleID();
+        return this.getRoadRegulatorID() + "_" + this.getIntersectionID() + "_" + this.getVehicleID();
     }
 
 

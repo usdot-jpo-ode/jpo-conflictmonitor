@@ -49,7 +49,7 @@ public class SpatUtils {
         List<SpatTiming> spatTimingList = getSpatTiming(spats, signalGroupId);
         for (SpatTiming spatTiming : spatTimingList) {
             sb.append(spatTiming.getTimestamp());
-            sb.append(" (Δ ");
+            sb.append(" (delta ");
             sb.append(spatTiming.getDuration());
             sb.append("): ");
             sb.append(spatTiming.getState());
@@ -71,15 +71,20 @@ public class SpatUtils {
         // Estimate duration of each state based on the time between SPATs
         ListIterator<SpatTiming> iterator = timingList.listIterator();
         while (iterator.hasNext()) {
-            var spatTiming = iterator.next();
-            int compareIndex = 0;
+            SpatTiming spatTiming = iterator.next();
+            long compareTiming = 0;
             if (iterator.hasNext()) {
-                compareIndex = iterator.nextIndex();
+                // There is a next element, compare to that
+                compareTiming = timingList.get(iterator.nextIndex()).getTimestamp();
             } else if (iterator.hasPrevious()) {
-                compareIndex = iterator.previousIndex();
+                // There is no next element, so compare to the previous
+                int previousIndex = iterator.previousIndex() - 1;
+                if (previousIndex >= 0) {
+                    compareTiming = timingList.get(previousIndex).getTimestamp();
+                }
             }
-            var compareTiming = timingList.get(compareIndex);
-            long duration = Math.abs(compareTiming.getTimestamp() - spatTiming.getTimestamp());
+
+            long duration = Math.abs(compareTiming - spatTiming.getTimestamp());
             spatTiming.setDuration(duration);
         }
 

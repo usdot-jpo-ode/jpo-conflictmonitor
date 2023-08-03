@@ -96,13 +96,13 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelEvent.class));
     }
 
-    public static Serde<StopLinePassageEvent> SignalStateEvent() {
+    public static Serde<StopLinePassageEvent> StopLinePassageEvent() {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLinePassageEvent>(),
             new JsonDeserializer<>(StopLinePassageEvent.class));
     }
     
-    public static Serde<StopLineStopEvent> SignalStateVehicleStopsEvent() {
+    public static Serde<StopLineStopEvent> StopLineStopEvent() {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLineStopEvent>(),
             new JsonDeserializer<>(StopLineStopEvent.class));

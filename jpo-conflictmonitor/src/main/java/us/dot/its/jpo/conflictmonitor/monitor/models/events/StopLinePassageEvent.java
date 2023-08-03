@@ -40,11 +40,9 @@ public class StopLinePassageEvent extends Event {
     private int ingressLane;
 
     // egressLane is not in the design document
-    @JsonIgnore
     private int egressLane;
 
     // connectionID is not in the design document
-    @JsonIgnore
     private int connectionID;
 
     /**
@@ -93,9 +91,8 @@ public class StopLinePassageEvent extends Event {
         super("StopLinePassage");
     }
 
-    @JsonIgnore
     public String getKey(){
-        return this.getRoadRegulatorID() + "_" + this.getVehicleID();
+        return this.getRoadRegulatorID() + "_" + this.getIntersectionID() + "_" + this.getVehicleID();
     }
 
 
