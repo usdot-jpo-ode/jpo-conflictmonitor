@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +29,9 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = IntersectionReferenceAlignmentEvent.class, name = "IntersectionReferenceAlignment"),
         @JsonSubTypes.Type(value = LaneDirectionOfTravelEvent.class, name = "LaneDirectionOfTravel"),
         @JsonSubTypes.Type(value = SignalGroupAlignmentEvent.class, name = "SignalGroupAlignment"),
-        @JsonSubTypes.Type(value = SignalStateEvent.class, name = "SignalState"),
+        @JsonSubTypes.Type(value = StopLinePassageEvent.class, name = "StopLinePassage"),
         @JsonSubTypes.Type(value = SignalStateConflictEvent.class, name = "SignalStateConflict"),
-        @JsonSubTypes.Type(value = SignalStateStopEvent.class, name = "SignalStateStop"),
+        @JsonSubTypes.Type(value = StopLineStopEvent.class, name = "StopLineStop"),
         @JsonSubTypes.Type(value = TimeChangeDetailsEvent.class, name = "TimeChangeDetails"),
         @JsonSubTypes.Type(value = MapMinimumDataEvent.class, name = "MapMinimumData"),
         @JsonSubTypes.Type(value = SpatMinimumDataEvent.class, name = "SpatMinimumData"),
