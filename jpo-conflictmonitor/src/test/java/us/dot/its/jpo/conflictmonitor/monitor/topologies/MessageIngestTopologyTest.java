@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -51,11 +52,11 @@ public class MessageIngestTopologyTest {
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
 
             var bsmTopic = driver.createInputTopic(bsmTopicName,
-                    Serdes.Void().serializer(),
+                    JsonSerdes.BsmIntersectionKey().serializer(),
                     JsonSerdes.OdeBsm().serializer());
 
             var spatTopic = driver.createInputTopic(spatTopicName,
-                    Serdes.String().serializer(),
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().serializer());
 
             var mapTopic = driver.createInputTopic(mapTopicName,
@@ -66,11 +67,13 @@ public class MessageIngestTopologyTest {
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(),
                     Serdes.String().deserializer());
 
-            final var mapKey = new RsuIntersectionKey(rsuId, intersectionId);
+            final var rsuKey = new RsuIntersectionKey(rsuId, intersectionId);
             final var processedMap = getProcessedMap();
-            mapTopic.pipeInput(mapKey, processedMap);
-            spatTopic.pipeInput("1", getProcessedSpat());
-            bsmTopic.pipeInput(getBsm());
+            mapTopic.pipeInput(rsuKey, processedMap);
+            spatTopic.pipeInput(rsuKey, getProcessedSpat());
+            final var bsmKey = new BsmIntersectionKey();
+            bsmKey.setBsmId("48C45782");
+            bsmTopic.pipeInput(bsmKey, getBsm());
 
             var mapStore = driver.<RsuIntersectionKey, ProcessedMap>getKeyValueStore(mapStoreName);
 
@@ -80,7 +83,7 @@ public class MessageIngestTopologyTest {
                     ++countStoredMaps;
                     var storedMapEntry = storedMapIterator.next();
                     var key = storedMapEntry.key;
-                    assertThat(key, equalTo(mapKey));
+                    assertThat(key, equalTo(rsuKey));
                     var value = storedMapEntry.value;
                     assertThat(value, notNullValue());
                 }

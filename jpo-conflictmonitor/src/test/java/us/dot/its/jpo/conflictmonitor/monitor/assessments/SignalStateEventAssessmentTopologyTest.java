@@ -22,7 +22,7 @@ public class SignalStateEventAssessmentTopologyTest {
     String kafkaTopicSignalStateEvent = "topic.CmSignalStateEvent";
     String kafkaTopicSignalStateAssessment = "topic.CmSignalStateEventAssessment";
     String SignalStateEventKey = "12109";
-    String SignalStateEvent = "{\"eventGeneratedAt\":1673974273330,\"eventType\":\"SignalState\",\"timestamp\":1655493260761,\"roadRegulatorID\":-1,\"ingressLane\":12,\"egressLane\":5,\"connectionID\":1,\"eventState\":\"PROTECTED_MOVEMENT_ALLOWED\",\"vehicleID\":\"E6A99808\",\"latitude\":-105.091055,\"longitude\":-105.091055,\"heading\":169.4,\"speed\":22.64,\"signalGroup\":6}";
+    String SignalStateEvent = "{\"eventGeneratedAt\":1673974273330,\"eventType\":\"StopLinePassage\",\"timestamp\":1655493260761,\"roadRegulatorID\":-1,\"ingressLane\":12,\"egressLane\":5,\"connectionID\":1,\"eventState\":\"PROTECTED_MOVEMENT_ALLOWED\",\"vehicleID\":\"E6A99808\",\"latitude\":-105.091055,\"longitude\":-105.091055,\"heading\":169.4,\"speed\":22.64,\"signalGroup\":6}";
     @Test
     public void testTopology() {
         SignalStateEventAssessmentTopology assessment = new SignalStateEventAssessmentTopology();

@@ -79,7 +79,7 @@ public class EventTopologyTest {
             
             TestInputTopic<String, StopLinePassageEvent> inputSignalState = driver.createInputTopic(
                 signalStateEventTopicName, 
-                Serdes.String().serializer(), 
+                Serdes.String().serializer(),
                 JsonSerdes.StopLinePassageEvent().serializer());
 
             inputSignalState.pipeInput("12109", ssEvent);
@@ -172,7 +172,7 @@ public class EventTopologyTest {
                 Event event = eventKeyValue.value;
                 String type = event.getEventType();
                 System.out.println(type);
-                if(type.equals("SignalState")){
+                if(type.equals("StopLinePassage")){
                     assertEquals((StopLinePassageEvent) event, ssEvent);
                 }
                 else if(type.equals("TimeChangeDetails")){

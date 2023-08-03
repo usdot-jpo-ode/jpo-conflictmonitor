@@ -1,21 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import org.springframework.data.mongodb.core.mapping.Document;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmStopLineStopEvent")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StopLineStopEvent extends Event{
 
     private String source;
