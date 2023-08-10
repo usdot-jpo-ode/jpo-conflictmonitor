@@ -368,6 +368,8 @@ bsm.event:
   outputTopic: topic.CMBsmEvents
   stateStoreName: bsm-event-state-store
   debug: false
+  simplifyPath: true
+  simplifyPathToleranceMeters: 0.05
 
 # Message Ingest
 message.ingest:

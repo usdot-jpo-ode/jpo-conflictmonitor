@@ -14,6 +14,7 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -23,6 +24,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.MathTransformPair;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
@@ -51,6 +54,14 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     @Setter
     @Getter
     private PunctuationType punctuationType;
+
+    @Getter
+    @Setter
+    private boolean simplifyPath;
+
+    @Getter
+    @Setter
+    private double simplifyPathToleranceMeters;
 
 
 
@@ -120,7 +131,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                             extendedIntersections.add(intersection);
                         } else {
                             // The new point isn't in this map, emit the bsm
-                            System.out.println("Ending Bsm Event, New BSM not in region: " + eventKey.getIntersectionId());
+                            logger.info("Ending Bsm Event, New BSM not in region: {}", eventKey.getIntersectionId());
                             context().forward(new Record<>(eventKey, event, timestamp));
                             stateStore.delete(eventKey);
                             exitedIntersections.add(intersection);
@@ -132,7 +143,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                             extendEvent(eventKey, event, newCoord, value, timestamp);
                         } else {
                             // The new BSM is in intersections, emit the stored one
-                            System.out.println("Ending Bsm Event, New BSM in Region: " +eventKey.getIntersectionId());
+                            logger.info("Ending Bsm Event, New BSM in Region: {}", eventKey.getIntersectionId());
                             context().forward(new Record<>(eventKey, event, timestamp));
                             stateStore.delete(eventKey);
                         }
@@ -163,7 +174,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     }
 
     private void extendEvent(BsmEventIntersectionKey eventKey, BsmEvent event, Coordinate newCoord, OdeBsmData value, long timestamp) throws ParseException{
-        String wktPath = addPointToPath(event.getWktPath(), newCoord);
+        String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
         event.setWktPath(wktPath);
 
         long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
@@ -215,7 +226,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     private BsmEvent getNewEvent(OdeBsmData value, long timestamp, boolean inMapBoundingBox) throws ParseException {
         BsmEvent event = new BsmEvent(value);
         CoordinateXY newCoord = BsmUtils.getPosition(value);
-        String wktPath = addPointToPath(event.getWktPath(), newCoord);
+        String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
         event.setWktPath(wktPath);
         event.setStartingBsmTimestamp(timestamp);
         event.setWallClockTimestamp(Instant.now().toEpochMilli());
@@ -357,7 +368,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
      * @param wktPath original WKT LineString or null
      * @return new WKT LineString with the new point added
      */
-    public String addPointToPath(final String wktPath, final Coordinate coordinate) throws ParseException {
+    public String addPointToPath(final String wktPath, final Coordinate coordinate,
+                                 final boolean simplifyPath, final double simplifyPathToleranceCM) throws ParseException {
         List<Coordinate> coords = new ArrayList<>();
         if (wktPath != null) {
             WKTReader wktReader = new WKTReader();
@@ -373,8 +385,28 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         if (coords.size() == 1) {
             return factory.createPoint(coords.get(0)).toText();
         } else {
-            return factory.createLineString(coords.toArray(new Coordinate[0])).toText();
+            LineString path = factory.createLineString(coords.toArray(new Coordinate[0]));
+
+            if (simplifyPath) {
+                return simplifyPath(path, simplifyPathToleranceCM).toText();
+            } else {
+                return path.toText();
+            }
         }
+    }
+
+    public LineString simplifyPath(LineString path, double simplifyPathToleranceMeters) {
+        MathTransformPair transforms = CoordinateConversion.findGcsToUtmTransforms(path);
+        if (transforms == null) {
+            logger.error("Can't simplify path because coordinate transform wasn't found. Returning unsimplified path.");
+            return path;
+        }
+        LineString utmPath = CoordinateConversion.transformLineString(path, transforms.getTransform());
+        var simplifier = new DouglasPeuckerSimplifier(utmPath);
+        simplifier.setDistanceTolerance(simplifyPathToleranceMeters);
+        LineString utmSimplifiedPath = (LineString)simplifier.getResultGeometry();
+        LineString gcsSimplifiedPath = CoordinateConversion.transformLineString(utmSimplifiedPath, transforms.getInverseTransform());
+        return gcsSimplifiedPath;
     }
 
 }

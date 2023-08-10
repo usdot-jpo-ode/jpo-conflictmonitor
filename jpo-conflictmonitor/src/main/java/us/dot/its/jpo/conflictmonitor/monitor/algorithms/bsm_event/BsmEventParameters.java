@@ -40,5 +40,15 @@ public class BsmEventParameters {
         description = "The algorithm to use for BSM event detection",
         updateType = READ_ONLY)
     String algorithm;
+
+    @ConfigData(key = "bsm.event.simplifyPath",
+        description = "Whether to simplify the LineString stored in the wktPath field of the BSM Event",
+        updateType = DEFAULT)
+    boolean simplifyPath;
+
+    @ConfigData(key = "bsm.event.simplifyPathToleranceMeters",
+        description = "The Douglas-Peucker simplification algorithm distance parameter in meters",
+        updateType = DEFAULT)
+    double simplifyPathToleranceMeters;
     
 }

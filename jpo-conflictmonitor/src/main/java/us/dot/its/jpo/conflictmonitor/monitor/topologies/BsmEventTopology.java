@@ -56,6 +56,8 @@ public class BsmEventTopology
                         var processor = new BsmEventProcessor();
                         processor.setPunctuationType(punctuationType);
                         processor.setMapIndex(mapIndex);
+                        processor.setSimplifyPath(parameters.isSimplifyPath());
+                        processor.setSimplifyPathToleranceMeters(parameters.getSimplifyPathToleranceMeters());
                         return processor;
                     },
                 BSM_SOURCE);
