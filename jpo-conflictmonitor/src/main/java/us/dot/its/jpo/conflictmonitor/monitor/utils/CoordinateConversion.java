@@ -1,8 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
-import java.awt.geom.Point2D;
-
-import lombok.SneakyThrows;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -12,12 +9,13 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.geom.Point2D;
 
 public class CoordinateConversion {
 
@@ -113,7 +111,7 @@ public class CoordinateConversion {
 
     /**
      * Finds math transforms to convert a geometry between the default Geographic Coordinate System and UTM.
-     *
+     * <p>
      * The conversion to UTM is more approximate than the Offset Centimeter coordinates used for MAPs, but is
      * useful for generating simplified geometries for display and testing.
      *
