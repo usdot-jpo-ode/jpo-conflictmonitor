@@ -138,8 +138,13 @@
       <version>${geotools.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>32.1.2-jre</version>
+    </dependency>
+    <dependency>
       <groupId>org.geotools</groupId>
-      <artifactId>gt-swing</artifactId>
+      <artifactId>gt-epsg-wkt</artifactId>
       <version>${geotools.version}</version>
     </dependency>
 
