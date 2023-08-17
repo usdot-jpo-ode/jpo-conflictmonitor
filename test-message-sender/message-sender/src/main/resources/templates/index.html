@@ -31,7 +31,7 @@
         <div class="side" style="width: 20%">
             
             <h3 class="sideHeader">SPAT Phases</h3>
-            <div class="sideItem tableContainer" id="spatTableContainer" style="padding: 0px" >
+            <div class="sideItem tableContainer" id="spatTableContainer" style="padding: 0" >
                 <table id="spatTable" class="selectTable">
                 </table>
             </div>
@@ -51,13 +51,13 @@
                     <hr />
                     <h3>Upload line-delimited JSON</h3>
                     <label for="ulBsms">BSMs</label>
-                    <input type="file" id="ulBsms" accept=".json,.jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
+                    <input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
                     <br/>
                     <label for="ulSpats">SPATs</label>
-                    <input type="file" id="ulSpats" accept=".json,.jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+                    <input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
                     <br/>
                     <label for="btnProcessedSpatUpload">ProcessedSpats</label>
-                    <input type="file" id="btnProcessedSpatUpload" accept=".json,.jsonl,.ndjson,.csv"
+                    <input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv"
                         onchange="uploadProcessedSpats(this);"/>
                     
                     <h3>Upload JSON Template</h3>
@@ -119,7 +119,7 @@
                 <div id="bsmControls">
                     
                     <h3>Send BSMs (Real Time)</h3>
-                    <button type="buttom" onclick="sendBsmsRealTime();">Start</button>
+                    <button type="button" onclick="sendBsmsRealTime();">Start</button>
                     <button type="button" onclick="stopSendingBsms();">Stop</button>
                     <label for="bsmFixedInterval">Fixed Interval</label>
                     <input type="checkbox" id="bsmFixedInterval" checked /><br/>
@@ -233,6 +233,7 @@
 
     // Flag indicates whether the SPAT and spatList contain raw or ProcessedSpats.
     var useProcessedSpats = false;
+    var useProcessedMap = false;
 
 
     const diffSpatEvents = [];
@@ -686,10 +687,12 @@
         if (e?.files.length > 0) {
             let file = e.files[0];
             file.text().then(text => {
-                var json = JSON.parse(text);
+                const json = JSON.parse(text);
                 console.log(json);
                 setMapGeojson(json.mapFeatureCollection);
                 setConnectingLanesGeojson(json.connectingLanesFeatureCollection);
+                odeMapTemplate = json;
+                useProcessedMap = true;
             });
         }
     }
@@ -700,7 +703,10 @@
             let file = e.files[0];
             console.log("MAP JSON File:");
             console.log(file);
-            file.text().then(text => odeMapJsonToGeojson(text));
+            file.text().then(text => {
+                odeMapJsonToGeojson(text);
+                useProcessedMap = false;
+            });
         }
     }
 
@@ -734,7 +740,7 @@
     }
 
     async function odeMapJsonToGeojsonAsync(json) {
-        const response = await fetch('/odeMapJsonToGeojson', {
+        await fetch('/odeMapJsonToGeojson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -754,9 +760,17 @@
         setTimeout(function sendMapTimed() {
             if (!MAP_SEND) return;
             intervalMs = document.getElementById('mapInterval').value;
-            const odeMap = buildMapFromTemplate(odeMapTemplate);
-            console.log("Sending MAP, next " + intervalMs);
-            sendMapAsync(odeMap).then(successCallback, failureCallback);
+
+            if (useProcessedMap) {
+                const processedMap = buildProcessedMapFromTemplate(odeMapTemplate);
+                console.log("Sending ProcessedMap, next " + intervalMs);
+                sendProcessedMapAsync(processedMap).then(successCallback, failureCallback);
+            } else {
+                const odeMap = buildMapFromTemplate(odeMapTemplate);
+                console.log("Sending MAP, next " + intervalMs);
+                sendMapAsync(odeMap).then(successCallback, failureCallback);
+            }
+
             setTimeout(sendMapTimed, intervalMs);
         }, intervalMs);
     }
@@ -770,13 +784,27 @@
         if (RECORD_SCRIPT) {
             script.push(buildScriptFromMap(odeMap));
         }
-        const response = await fetch('/kafka/topic.OdeMapJson', {
+        await fetch('/kafka/topic.OdeMapJson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(odeMap)
+        });
+    }
+
+    async function sendProcessedMapAsync(processedMap) {
+        if (RECORD_SCRIPT) {
+            script.push(buildScriptFromProcessedMap(processedMap));
+        }
+        await fetch ('/kafka/topic.ProcessedMap', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(processedMap);
         });
     }
 
@@ -787,15 +815,24 @@
         return mapCopy;
     }
 
+    function buildProcessedMapFromTemplate() {
+        let processedMap = JSON.parse(JSON.stringify(odeMapTemplate));
+        const nowMillis = Date.now();
+        const strTimestamp = new Date(nowMillis).toISOString();
+        processedMap.properties.odeReceivedAt = strTimestamp;
+        processedMap.properties.timeStamp = strTimestamp;
+        return processedMap;
+    }
+
     
 
     function getHeadingAndSpeed(coords1, coords2, deltaTimestampMillis) {
-        var point1 = turf.point(coords1);
-        var point2 = turf.point(coords2);
-        var heading = Math.round(turf.bearingToAzimuth(turf.bearing(point1, point2)) * 10) / 10;
-        var distanceMeters = turf.distance(point1, point2, { units: 'kilometers' }) * 1000;
-        var tSeconds = deltaTimestampMillis / 1000;
-        var speed = distanceMeters / tSeconds;
+        const point1 = turf.point(coords1);
+        const point2 = turf.point(coords2);
+        const heading = Math.round(turf.bearingToAzimuth(turf.bearing(point1, point2)) * 10) / 10;
+        const distanceMeters = turf.distance(point1, point2, {units: 'kilometers'}) * 1000;
+        const tSeconds = deltaTimestampMillis / 1000;
+        const speed = distanceMeters / tSeconds;
         return [heading, speed];
     }
 
@@ -1117,9 +1154,9 @@
         return JSON.stringify(Array.from(id.entries()));
     }
 
-    function deserializeSpatId(text) {
-        return new Map(JSON.parse(text));
-    }
+    // function deserializeSpatId(text) {
+    //     return new Map(JSON.parse(text));
+    // }
 
     
     
@@ -1238,7 +1275,7 @@
         if (RECORD_SCRIPT) {
             script.push(buildScriptFromSpat(odeSpat));
         }
-        const response = await fetch('/kafka/topic.OdeSpatJson', {
+        await fetch('/kafka/topic.OdeSpatJson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -1252,7 +1289,7 @@
         if (RECORD_SCRIPT) {
             script.push(buildScriptFromProcessedSpat(processedSpat));
         }
-        const response = await fetch('/kafka/topic.ProcessedSpat', {
+        await fetch('/kafka/topic.ProcessedSpat', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -1371,7 +1408,7 @@
 
             if (idx < spats.length - 1) {
                 ++idx;
-                const nextSpat = spats[idx].json;
+                //const nextSpat = spats[idx].json;
                 const dtNext = spats[idx].odeReceivedAt;
                 nextTime = dtNext - dtCurrent;           
                 console.log("Sending SPAT in " + nextTime + " ms");
@@ -1465,7 +1502,7 @@
 
     function runScript() {
         console.log("Run script");
-        if (script.length == 0) {
+        if (script.length === 0) {
             console.warn("No script to run");
             return;
         }
@@ -1497,7 +1534,7 @@
     }
     
     async function runScriptAsync(lines) {
-        const response = await fetch('/script', {
+        await fetch('/script', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -1519,8 +1556,16 @@
         scriptMap.metadata.odeReceivedAt = ISO_DATE_TIME;
         const strMap = JSON.stringify(scriptMap);
         const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "MAP," + time + "," + strMap;
-        return scriptLine;
+        return "MAP," + time + "," + strMap;
+    }
+
+    function buildScriptFromProcessedMap(processedMap) {
+        const scriptMap = JSON.parse(JSON.stringify(processedMap));
+        scriptMap.properties.odeReceivedAt = ISO_DATE_TIME;
+        scriptMap.properties.timeStamp = ISO_DATE_TIME;
+        const strMap = JSON.stringify(scriptMap);
+        const time = Date.now() - RECORD_START_TIME;
+        return "ProcessedMap," + time + "," + strMap;
     }
 
     function buildScriptFromSpat(odeSpat) {
@@ -1533,8 +1578,7 @@
         }
         const strSpat = JSON.stringify(scriptSpat);
         const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "SPAT," + time + "," + strSpat;
-        return scriptLine;
+        return "SPAT," + time + "," + strSpat;
     }
 
     function buildScriptFromProcessedSpat(processedSpat) {
@@ -1556,8 +1600,7 @@
         }
         const strSpat = JSON.stringify(scriptSpat);
         const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "ProcessedSpat," + time + "," + strSpat;
-        return scriptLine;
+        return "ProcessedSpat," + time + "," + strSpat;
     }
 
     function buildScriptFromBsm(odeBsm) {
@@ -1567,8 +1610,7 @@
         scriptBsm.payload.data.coreData.id = TEMP_ID;
         const strBsm = JSON.stringify(scriptBsm);
         const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "BSM," + time + "," + strBsm;
-        return scriptLine;
+        return "BSM," + time + "," + strBsm;
     }
 
 
