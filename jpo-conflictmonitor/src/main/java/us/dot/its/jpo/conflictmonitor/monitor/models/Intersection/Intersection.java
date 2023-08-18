@@ -1,14 +1,11 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
@@ -66,6 +63,18 @@ public class Intersection {
             laneLookup.put(lane.getId(), lane);
         }
 
+        // Create a map of Ingress/Egress lane id to connection index from connectingLanesFeatureCollection
+        Map<IngressEgress, Integer> connectionIndexMap = new HashMap<>();
+        ConnectingLanesFeature<LineString>[] connectingLanes = map.getConnectingLanesFeatureCollection().getFeatures();
+        for (int connectionIndex = 0; connectionIndex < connectingLanes.length; ++connectionIndex) {
+            var connectingLane = connectingLanes[connectionIndex];
+            IngressEgress ingressEgress = new IngressEgress(connectingLane.getProperties().getIngressLaneId(),
+                    connectingLane.getProperties().getEgressLaneId());
+            connectionIndexMap.put(ingressEgress, connectionIndex);
+        }
+
+
+
         for(MapFeature<LineString> feature: features.getFeatures()){
             if(feature.getProperties().getConnectsTo() != null){
                 for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
@@ -73,22 +82,33 @@ public class Intersection {
                     Lane egressLane = laneLookup.get(laneConnection.getConnectingLane().getLane());
                     int connectionId = -1;
                     int signalGroup = -1;
+                    Integer ingressLaneId = null;
+                    Integer egressLaneId = null;
 
-                    if(laneConnection.getConnectionID() != null){
-                        connectionId = laneConnection.getConnectionID();
+                    if (ingressLane != null) {
+                        ingressLaneId = ingressLane.getId();
+                    }
+
+                    if (egressLane != null) {
+                        egressLaneId = egressLane.getId();
+                    }
+
+                    var ingressEgress = new IngressEgress(ingressLaneId, egressLaneId);
+                    if (connectionIndexMap.containsKey(ingressEgress)) {
+                        connectionId = connectionIndexMap.get(ingressEgress);
                     }
 
                     if(laneConnection.getSignalGroup() != null){
                         signalGroup = laneConnection.getSignalGroup();
                     }
 
-
-
-                    LaneConnection connection = new LaneConnection(ingressLane, egressLane, connectionId, signalGroup); // The Map Geo Json Structure doesn't have signal groups.
+                    LaneConnection connection = new LaneConnection(ingressLane, egressLane, connectionId, signalGroup);
                     laneConnections.add(connection);
                 }
             }
         }
+
+
 
 
 
@@ -198,4 +218,13 @@ public class Intersection {
         return "Intersection: " + this.getIntersectionId() + " IngressLanes: " + this.getIngressLanes().size() + " Egress Lanes: " + this.getEgressLanes().size();
     }
 
+}
+
+@Getter
+@EqualsAndHashCode
+@ToString
+@AllArgsConstructor
+class IngressEgress {
+    Integer ingressLaneId;
+    Integer egressLaneId;
 }
