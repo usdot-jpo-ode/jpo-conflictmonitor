@@ -24,7 +24,15 @@ public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
     private int ingressLaneID;
     private int egressLaneID;
-    private int connectionID; // unknown value allowed
+
+    /**
+     * <p>The array index of the connecting lane feature in the 'connectingLanesFeatureConnection' property
+     * of the {@link us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap}, or -1 if there is no
+     * connection between the ingress and egress.
+     *
+     * <p>Note this property DOES NOT equal the J2735 ConnectionID from the raw MAP message.
+     */
+    private int connectionID;
 
     public ConnectionOfTravelEvent(){
         super("ConnectionOfTravel");

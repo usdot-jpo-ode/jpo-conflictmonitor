@@ -740,7 +740,7 @@
     }
 
     async function odeMapJsonToGeojsonAsync(json) {
-        await fetch('/odeMapJsonToGeojson', {
+        return await fetch('/odeMapJsonToGeojson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -748,7 +748,6 @@
             },
             body: json
         });
-        return response;
     }
 
     var MAP_SEND = true;
@@ -795,6 +794,10 @@
     }
 
     async function sendProcessedMapAsync(processedMap) {
+        const key = {
+            rsuId: processedMap.properties.originIp,
+            intersectionId: processedMap.properties.intersectionId
+        };
         if (RECORD_SCRIPT) {
             script.push(buildScriptFromProcessedMap(processedMap));
         }
@@ -802,9 +805,10 @@
             method: 'POST',
             cache: 'no-cache',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-kafka-key': JSON.stringify(key)
             },
-            body: JSON.stringify(processedMap);
+            body: JSON.stringify(processedMap)
         });
     }
 
@@ -1286,6 +1290,10 @@
     }
 
     async function sendProcessedSpatAsync(processedSpat) {
+        const key = {
+            rsuId: processedSpat.originIp,
+            intersectionId: processedSpat.intersectionId
+        };
         if (RECORD_SCRIPT) {
             script.push(buildScriptFromProcessedSpat(processedSpat));
         }
@@ -1293,7 +1301,8 @@
             method: 'POST',
             cache: 'no-cache',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-kafka-key': JSON.stringify(key)
             },
             body: JSON.stringify(processedSpat)
         });
@@ -1324,11 +1333,11 @@
     function buildProcessedSpatFromTemplate(spatTemplate) {
         let spatCopy = JSON.parse(JSON.stringify(spatTemplate));
         const nowMillis = Date.now();
-        const utcTimestampMillis = 1000 * spatTemplate.utcTimestamp;
-        const offsetMillis = nowMillis - utcTimestampMillis;
+        const utcTimeStampMillis = 1000 * spatTemplate.utcTimeStamp;
+        const offsetMillis = nowMillis - utcTimeStampMillis;
         const offsetSeconds = offsetMillis / 1000.0;
         spatCopy.odeReceivedAt = new Date(nowMillis).toISOString();
-        spatCopy.utcTimestamp = nowMillis / 1000.0;
+        spatCopy.utcTimeStamp = nowMillis / 1000.0;
         for (const state of spatCopy.states) {
             for (const event of state.stateTimeSpeed) {
                 if (event.timing != null && event.timing.minEndTime != null) {
@@ -1584,7 +1593,7 @@
     function buildScriptFromProcessedSpat(processedSpat) {
         const scriptSpat = JSON.parse(JSON.stringify(processedSpat));
         scriptSpat.odeReceivedAt = ISO_DATE_TIME;
-        const timestampSeconds = processedSpat.utcTimestamp;
+        const timestampSeconds = processedSpat.utcTimeStamp;
         scriptSpat.utcTimeStamp = EPOCH_SECONDS;
         for (const state of processedSpat.scriptSpat) {
             for (const event of state.stateTimeSpeed) {
