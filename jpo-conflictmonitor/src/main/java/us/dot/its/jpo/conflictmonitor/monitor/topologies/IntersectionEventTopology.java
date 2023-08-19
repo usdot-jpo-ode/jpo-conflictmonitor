@@ -337,7 +337,7 @@ public class IntersectionEventTopology
                 BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
 
-                // Don't require any SPATs to create a vehicle event
+
                 // Find the MAP for the BSMs
                 RsuIntersectionKey rsuKey = new RsuIntersectionKey();
                 rsuKey.setRsuId(key.getRsuId());
@@ -353,7 +353,10 @@ public class IntersectionEventTopology
                     logger.warn("Map was Null");
                 }
 
-
+                // Don't require any SPATs to create a vehicle event
+                if (spats.getSpats().size() == 0) {
+                    logger.warn("Created vehicle event with 0 SPATs.");
+                }
 
 
                 logger.info("Detected Vehicle Event");

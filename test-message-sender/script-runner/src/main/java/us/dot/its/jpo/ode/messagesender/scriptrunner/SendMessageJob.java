@@ -18,6 +18,8 @@ public class SendMessageJob implements Runnable {
     String messageType;
     long sendTime;
     String message;
+    String rsuId;
+    String intersectionId;
 
     
 
@@ -36,12 +38,22 @@ public class SendMessageJob implements Runnable {
                 case "BSM":
                     kafkaTemplate.send("topic.OdeBsmJson", message);
                     break;
+                case "ProcessedMap":
+                    kafkaTemplate.send("topic.ProcessedMap", getKey(rsuId, intersectionId), message);
+                    break;
+                case "ProcessedSpat":
+                    kafkaTemplate.send("topic.ProcessedSpat", getKey(rsuId, intersectionId), message);
+                    break;
             }
 
         } catch (Exception e) {
             logger.error("Exception sending to topic", e);
         }
         
+    }
+
+    private String getKey(String rsuId, String intersectionId) {
+        return String.format("{\"rsuId\": \"%s\", \"intersectionId\": \"%s\"}", rsuId, intersectionId);
     }
 
     
