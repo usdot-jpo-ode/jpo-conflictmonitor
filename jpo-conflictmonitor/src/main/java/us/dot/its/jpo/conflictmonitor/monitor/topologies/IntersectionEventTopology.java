@@ -325,60 +325,35 @@ public class IntersectionEventTopology
         // Join Spats, Maps and BSMS
         KStream<BsmEventIntersectionKey, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
             (key, value)->{
-
-                
                 List<KeyValue<BsmEventIntersectionKey, VehicleEvent>> result = new ArrayList<>();
-
-                
-                
-
                 if(value.getStartingBsm() == null || value.getEndingBsm() == null){
                     return result;
                 }
 
                 String vehicleId = getBsmID(value.getStartingBsm());
-                
-
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
-
                 ProcessedMap map = null;
                 BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
-
                 SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
 
-
-
-
-                if(spats.getSpats().size() > 0){
-
-                    // Find the MAP for the BSMs
-                    RsuIntersectionKey rsuKey = new RsuIntersectionKey();
-                    rsuKey.setRsuId(key.getRsuId());
-                    rsuKey.setIntersectionId(key.getIntersectionId());
-
-                    map = getMap(mapStore, rsuKey);
-
-                    
-
-                    if(map != null){
-
-                        logger.info("Found MAP: {}", map);
-                        
-                        Intersection intersection = Intersection.fromProcessedMap(map);
-
-                        logger.info("Got Intersection object from MAP: {}", intersection);
-
-                        VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
-
-                        result.add(new KeyValue<>(key, event));
-    
-                        
-                    } else{
-                        logger.warn("Map was Null");
-                    }
-
+                // Don't require any SPATs to create a vehicle event
+                // Find the MAP for the BSMs
+                RsuIntersectionKey rsuKey = new RsuIntersectionKey();
+                rsuKey.setRsuId(key.getRsuId());
+                rsuKey.setIntersectionId(key.getIntersectionId());
+                map = getMap(mapStore, rsuKey);
+                if(map != null){
+                    logger.info("Found MAP: {}", map);
+                    Intersection intersection = Intersection.fromProcessedMap(map);
+                    logger.info("Got Intersection object from MAP: {}", intersection);
+                    VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
+                    result.add(new KeyValue<>(key, event));
+                } else{
+                    logger.warn("Map was Null");
                 }
+
+
 
 
                 logger.info("Detected Vehicle Event");
