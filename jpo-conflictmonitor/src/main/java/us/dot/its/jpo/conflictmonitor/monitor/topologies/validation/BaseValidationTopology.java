@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.internals.TimeWindow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MinimumDataEvent;
@@ -20,6 +22,8 @@ import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
  */
 public abstract class BaseValidationTopology<TParams>
     extends BaseStreamsTopology<TParams> {
+
+    private static Logger logger = LoggerFactory.getLogger(BaseValidationTopology.class);
     
     protected void populateMinDataEvent(
             RsuIntersectionKey key,
@@ -35,8 +39,12 @@ public abstract class BaseValidationTopology<TParams>
                 .collect(Collectors.toList());
 
         minDataEvent.setMissingDataElements(validationMessages);
-        minDataEvent.setIntersectionId(key.getIntersectionId());
-        minDataEvent.setSourceDeviceId(key.getRsuId());
+        if (key != null) {
+            minDataEvent.setIntersectionId(key.getIntersectionId());
+            minDataEvent.setSourceDeviceId(key.getRsuId());
+        } else {
+            logger.warn("Key is null");
+        }
 
         // Get the time window this event would be in without actually performing windowing
         // we just need to add the window timestamps to the event.
