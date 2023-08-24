@@ -10,12 +10,7 @@ import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.ExecutableAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 /**
  * Service for monitoring updates to configuration parameters for other algorithms.
@@ -25,9 +20,13 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
 
     DefaultConfig<?> getDefaultConfig(String key);
     Map<String, DefaultConfig<?>> mapDefaultConfigs();
+    DefaultConfigCollection listDefaultConfigs();
     Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID);
     Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key);
+    IntersectionConfigCollection listIntersectionConfigs(String key);
+
     Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs();
+    IntersectionConfigCollection listIntersectionConfigs();
     void registerDefaultListener(String key, DefaultConfigListener handler);
     void registerIntersectionListener(String key, IntersectionConfigListener handler);
     /**

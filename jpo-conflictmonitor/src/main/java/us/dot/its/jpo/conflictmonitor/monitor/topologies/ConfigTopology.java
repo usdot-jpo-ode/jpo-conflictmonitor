@@ -1,26 +1,10 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
-import static org.apache.kafka.common.serialization.Serdes.String;
-import static org.apache.kafka.streams.state.Stores.keyValueStoreBuilder;
-import static org.apache.kafka.streams.state.Stores.persistentKeyValueStore;
-import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.DefaultConfig;
-import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.IntersectionConfig;
-import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.RsuConfigKey;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.TreeMap;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.StoreQueryParameters;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
@@ -33,11 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigStreamsAlgorithm;
@@ -46,7 +25,18 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.IntersectionConf
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
+
+import static org.apache.kafka.common.serialization.Serdes.String;
+import static org.apache.kafka.streams.state.Stores.keyValueStoreBuilder;
+import static org.apache.kafka.streams.state.Stores.persistentKeyValueStore;
+import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
 @Component
 @Profile("!test")
@@ -117,6 +107,12 @@ public class ConfigTopology
         return configs;
     }
 
+    @Override
+    public DefaultConfigCollection listDefaultConfigs() {
+        var configMap = mapDefaultConfigs();
+        return new DefaultConfigCollection(configMap.values());
+    }
+
     
 
     @Override
@@ -143,6 +139,12 @@ public class ConfigTopology
     }
 
     @Override
+    public IntersectionConfigCollection listIntersectionConfigs() {
+        var configMap = mapIntersectionConfigs();
+        return new IntersectionConfigCollection(configMap.values());
+    }
+
+    @Override
     public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key) {
         var configs = new TreeMap<RsuConfigKey, IntersectionConfig<?>>();
         if (streams != null) {
@@ -162,6 +164,14 @@ public class ConfigTopology
             }
         }
         return configs;
+    }
+
+
+
+    @Override
+    public IntersectionConfigCollection listIntersectionConfigs(String key) {
+        var configMap = mapIntersectionConfigs(key);
+        return new IntersectionConfigCollection(configMap.values());
     }
 
     public void initializePropertiesAsync() {

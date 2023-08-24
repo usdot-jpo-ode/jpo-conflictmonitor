@@ -13,13 +13,7 @@ import com.google.common.collect.Multimap;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 /**
  * Unit tests for {@link ConfigAlgorithm}.
@@ -120,6 +114,11 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
+        public DefaultConfigCollection listDefaultConfigs() {
+            return null;
+        }
+
+        @Override
         public Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID) {
             return null;
         }
@@ -130,7 +129,17 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
+        public IntersectionConfigCollection listIntersectionConfigs(String key) {
+            return null;
+        }
+
+        @Override
         public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs() {
+            return null;
+        }
+
+        @Override
+        public IntersectionConfigCollection listIntersectionConfigs() {
             return null;
         }
 

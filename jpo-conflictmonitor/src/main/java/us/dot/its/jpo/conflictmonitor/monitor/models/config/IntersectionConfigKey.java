@@ -17,8 +17,19 @@ public class IntersectionConfigKey implements Comparable<IntersectionConfigKey> 
 
     private static final Logger logger = LoggerFactory.getLogger(IntersectionConfigKey.class);
 
+    /**
+     * Required
+     */
     int intersectionId;
+
+    /**
+     * Optional
+     */
     int region;
+
+    /**
+     * Required
+     */
     String key;
 
     @Override
