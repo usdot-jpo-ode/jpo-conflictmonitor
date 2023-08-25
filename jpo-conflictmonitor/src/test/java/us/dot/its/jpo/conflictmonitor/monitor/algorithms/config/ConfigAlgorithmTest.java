@@ -109,14 +109,11 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public Map<String, DefaultConfig<?>> mapDefaultConfigs() {
+        public DefaultConfigMap mapDefaultConfigs() {
             return null;
         }
 
-        @Override
-        public DefaultConfigCollection listDefaultConfigs() {
-            return null;
-        }
+
 
         @Override
         public Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID) {
@@ -128,10 +125,6 @@ public class ConfigAlgorithmTest {
             return null;
         }
 
-        @Override
-        public IntersectionConfigCollection listIntersectionConfigs(String key) {
-            return null;
-        }
 
         @Override
         public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs() {
@@ -139,9 +132,15 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public IntersectionConfigCollection listIntersectionConfigs() {
+        public <T> ConfigUpdateResult<T> updateDefaultConfig(String key, T value) {
             return null;
         }
+
+        @Override
+        public <T> ConfigUpdateResult<T> updateIntersectionConfig(int intersectionId, String key, T value) {
+            return null;
+        }
+
 
         @Override
         public void initializeProperties() {

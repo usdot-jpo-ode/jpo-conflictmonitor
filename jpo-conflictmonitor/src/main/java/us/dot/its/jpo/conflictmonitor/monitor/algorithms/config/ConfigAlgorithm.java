@@ -19,16 +19,16 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
 
 
     DefaultConfig<?> getDefaultConfig(String key);
-    Map<String, DefaultConfig<?>> mapDefaultConfigs();
-    DefaultConfigCollection listDefaultConfigs();
     Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID);
+    DefaultConfigMap mapDefaultConfigs();
     Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key);
-    IntersectionConfigCollection listIntersectionConfigs(String key);
-
     Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs();
-    IntersectionConfigCollection listIntersectionConfigs();
+    <T> ConfigUpdateResult<T> updateDefaultConfig(String key, T value);
+    <T> ConfigUpdateResult<T> updateIntersectionConfig(int intersectionId, String key, T value);
+
     void registerDefaultListener(String key, DefaultConfigListener handler);
     void registerIntersectionListener(String key, IntersectionConfigListener handler);
+
     /**
      * Initialize previously updated properties.
      * <p>Call this after all topologies have been initialized.

@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.DefaultConfigListener;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.IntersectionConfigListener;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
@@ -89,7 +86,7 @@ public class ConfigTopology
 
 
     @Override
-    public Map<String, DefaultConfig<?>> mapDefaultConfigs() {
+    public DefaultConfigMap mapDefaultConfigs() {
         var configs = new TreeMap<String, DefaultConfig<?>>();
         if (streams != null) {
             var defaultStore = 
@@ -104,14 +101,10 @@ public class ConfigTopology
                 }
             }
         }
-        return configs;
+        return new DefaultConfigMap(configs);
     }
 
-    @Override
-    public DefaultConfigCollection listDefaultConfigs() {
-        var configMap = mapDefaultConfigs();
-        return new DefaultConfigCollection(configMap.values());
-    }
+
 
     
 
@@ -138,11 +131,8 @@ public class ConfigTopology
         return configs;
     }
 
-    @Override
-    public IntersectionConfigCollection listIntersectionConfigs() {
-        var configMap = mapIntersectionConfigs();
-        return new IntersectionConfigCollection(configMap.values());
-    }
+
+
 
     @Override
     public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key) {
@@ -167,11 +157,14 @@ public class ConfigTopology
     }
 
 
+    @Override
+    public <T> ConfigUpdateResult<T> updateDefaultConfig(String key, T value) {
+        return null;
+    }
 
     @Override
-    public IntersectionConfigCollection listIntersectionConfigs(String key) {
-        var configMap = mapIntersectionConfigs(key);
-        return new IntersectionConfigCollection(configMap.values());
+    public <T> ConfigUpdateResult<T> updateIntersectionConfig(int intersectionId, String key, T value) {
+        return null;
     }
 
     public void initializePropertiesAsync() {
