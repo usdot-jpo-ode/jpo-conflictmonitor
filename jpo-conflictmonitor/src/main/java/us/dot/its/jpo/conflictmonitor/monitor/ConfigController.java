@@ -91,6 +91,33 @@ public class ConfigController {
             @PathVariable(name = "key") String key,
             @RequestBody DefaultConfig<T> config) {
         try {
+            ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
+
+            // Validate keys
+            if (!key.equals(config.getKey())) {
+                String msg = String.format("Key in path does not match key in body %s != %s", key, config.getKey());
+                logger.error(msg);
+                updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+                updateResult.setMessage(msg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
+            }
+
+            // Don't allow updating read-only configs
+            Config<?> oldConfig = configTopology.getDefaultConfig(key);
+            if (oldConfig != null && UpdateType.READ_ONLY.equals(oldConfig.getUpdateType())) {
+                updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+                updateResult.setOldValue((T)oldConfig.getValue());
+                updateResult.setMessage("The configuration is read-only and cannot be updated");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
+            }
+
+            // Don't allow creating a new read-only config, or changing existing config to read-only
+            if (UpdateType.READ_ONLY.equals(config.getUpdateType())) {
+                updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+                updateResult.setMessage("Read-only configurations can't be created via the REST API.  Please add the configuration to the application config file.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
+            }
+
             return ResponseEntity.ok(configTopology.updateDefaultConfig(key, config.getValue()));
         } catch (Exception e) {
             String msg = String.format("Exception saving default config %s", config);
