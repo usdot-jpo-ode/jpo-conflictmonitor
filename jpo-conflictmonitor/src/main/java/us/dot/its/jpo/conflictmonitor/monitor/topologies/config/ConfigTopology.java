@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.config;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -192,6 +192,8 @@ public class ConfigTopology
             }
 
         }
+
+
 
 
         for (var key : defaultListeners.keySet()) {

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
 import java.util.Optional;
 import java.util.stream.Collectors;

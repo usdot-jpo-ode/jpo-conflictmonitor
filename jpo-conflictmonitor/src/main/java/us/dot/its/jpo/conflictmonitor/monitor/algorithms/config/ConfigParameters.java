@@ -19,11 +19,4 @@ public class ConfigParameters {
     String intersectionStateStore;
     String intersectionTableName;
 
-    // Database collections
-    String defaultCollectionName;
-    String intersectionCollectionName;
-
-    // Kafka connect paramters
-    String createDefaultConnectorJsonParams;
-    String createIntersectionConnectorJsonParams;
 }

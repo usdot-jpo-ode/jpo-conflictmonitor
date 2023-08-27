@@ -67,9 +67,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
-import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service
@@ -96,8 +94,6 @@ public class MonitorServiceController {
             final KafkaTemplate<String, String> kafkaTemplate,
             final ConfigTopology configTopology,
             final ConfigParameters configParameters,
-            final ConfigInitializer configWriter,
-            final ConnectSourceCreator connectSourceCreator,
             final MapIndex mapIndex) {
        
 
@@ -118,7 +114,10 @@ public class MonitorServiceController {
             algoMap.put(config, configTopology);
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.start();
-            
+
+            // Restore properties
+            configTopology.initializePropertiesAsync();
+            logger.info("Started initializing configuration properties");
 
             final String repartition = "repartition";
             final RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
@@ -398,22 +397,9 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmentAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
-            
-            
-            // Write initial configuration to MongoDB and create source connectors
-            try {
-                configWriter.createCollections();
-                connectSourceCreator.createDefaultConfigConnector();
-                configWriter.initializeDefaultConfigs();
-                connectSourceCreator.createIntersectionConfigConnector();
-                logger.info("Initialzed MongoDB configuration and source connectors.");
-            } catch (Exception ex) {
-                logger.error("Failed writing to MongoDB", ex);
-            }
-            
-            // Restore properties
-            configTopology.initializePropertiesAsync();
-            logger.info("Started initializing properties from MongoDB");
+
+
+
 
             
             logger.info("All services started!");

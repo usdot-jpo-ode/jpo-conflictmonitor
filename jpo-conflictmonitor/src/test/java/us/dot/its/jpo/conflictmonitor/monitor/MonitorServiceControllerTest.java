@@ -61,7 +61,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
