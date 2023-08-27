@@ -60,9 +60,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -77,8 +76,9 @@ public class MonitorServiceControllerTest {
     @Mock KafkaTemplate<String, String> kafkaTemplate;
     @Mock ConfigTopology configTopology;
     @Mock ConfigParameters configParameters;
-    @Mock ConfigInitializer configInitializer;
-    @Mock ConnectSourceCreator connectSourceCreator;
+    @Mock
+    ConfigInitializer configInitializer;
+
 
     @Mock RepartitionAlgorithmFactory repartitionAlgorithmFactory;
     @Mock RepartitionStreamsAlgorithm repartitionAlgorithm;
@@ -239,7 +239,6 @@ public class MonitorServiceControllerTest {
                 configTopology,
                 configParameters,
                 configInitializer,
-                connectSourceCreator,
                 mapIndex
         );
         assertThat(monitorServiceController, notNullValue());

@@ -67,6 +67,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
 /**
@@ -94,6 +95,7 @@ public class MonitorServiceController {
             final KafkaTemplate<String, String> kafkaTemplate,
             final ConfigTopology configTopology,
             final ConfigParameters configParameters,
+            final ConfigInitializer configInitializer,
             final MapIndex mapIndex) {
        
 
@@ -115,9 +117,7 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.start();
 
-            // Restore properties
-            configTopology.initializePropertiesAsync();
-            logger.info("Started initializing configuration properties");
+
 
             final String repartition = "repartition";
             final RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
@@ -400,6 +400,10 @@ public class MonitorServiceController {
 
 
 
+            // Restore properties
+            configInitializer.initializeDefaultConfigs();
+            configTopology.initializePropertiesAsync();
+            logger.info("Started initializing configuration properties");
 
             
             logger.info("All services started!");

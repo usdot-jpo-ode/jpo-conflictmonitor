@@ -6,6 +6,7 @@ import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
@@ -25,12 +26,16 @@ public class ConfigInitializer {
 
     final AlgorithmParameters algorithmParameters;
 
+    final KafkaTemplate<String, DefaultConfig<?>> kafkaTemplate;
+
     @Autowired
     public ConfigInitializer(
             ConfigParameters configParams,
-            AlgorithmParameters algorithmParameters) {
+            AlgorithmParameters algorithmParameters,
+            KafkaTemplate<String, DefaultConfig<?>> kafkaTemplate) {
         this.configParams = configParams;
         this.algorithmParameters = algorithmParameters;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
 
@@ -63,7 +68,7 @@ public class ConfigInitializer {
             final Class<?> type = field.getType();
             final DefaultConfig<?> config = createConfig(type, propValue, updatable);
             logger.info("config: {}", config);
-            writeDefaultConfigDocument(config);
+            writeDefaultConfigToTopic(config);
         }
     }
 
@@ -111,7 +116,8 @@ public class ConfigInitializer {
         config.setType(actualType.getName());
     }
 
-    private void writeDefaultConfigDocument(DefaultConfig<?> document) {
-
+    private void writeDefaultConfigToTopic(DefaultConfig<?> config) {
+        logger.info("Writing default config to topic. {}", config);
+        kafkaTemplate.send(configParams.getDefaultTopicName(), config.getKey(), config);
     }
 }
