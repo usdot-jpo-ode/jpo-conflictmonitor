@@ -23,8 +23,9 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
     DefaultConfigMap mapDefaultConfigs();
     Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key);
     Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs();
-    <T> ConfigUpdateResult<T> updateDefaultConfig(String key, T value);
-    <T> ConfigUpdateResult<T> updateIntersectionConfig(int intersectionId, String key, T value);
+    <T> ConfigUpdateResult<T> updateDefaultConfig(DefaultConfig<T> value);
+    <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId);
+    <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId, int region);
 
     void registerDefaultListener(String key, DefaultConfigListener handler);
     void registerIntersectionListener(String key, IntersectionConfigListener handler);

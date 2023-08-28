@@ -6,6 +6,7 @@ import com.google.common.collect.Multimaps;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.GlobalKTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.processor.api.Processor;
@@ -16,6 +17,7 @@ import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.*;
@@ -43,7 +45,7 @@ public class ConfigTopology
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigTopology.class);
 
-
+    KafkaTemplate<String, byte[]> kafkaTemplate;
     
     final Multimap<String, DefaultConfigListener> defaultListeners =
         Multimaps.synchronizedMultimap(ArrayListMultimap.create());
@@ -60,7 +62,57 @@ public class ConfigTopology
                     QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore()));
             return defaultStore.get(key);
         }
+        logger.error("Streams is not initialized");
         return null;
+    }
+
+    @Override
+    public <T> ConfigUpdateResult<T> updateDefaultConfig(DefaultConfig<T> value) {
+        ConfigUpdateResult<T> result = new ConfigUpdateResult<>();
+        if (streams == null) {
+            logger.error("Streams is not initialized.");
+            result.setResult(ConfigUpdateResult.Result.ERROR);
+            result.setMessage("Could not set config value.  Streams is not initialized.");
+            return result;
+        }
+
+        if (kafkaTemplate == null) {
+            logger.error("KafkaTemplate is not initialized");
+            result.setResult(ConfigUpdateResult.Result.ERROR);
+            result.setMessage("Could not set config value.  KafkaTemplate is not initialized.");
+            return  result;
+        }
+
+        var defaultStore =
+                streams.store(
+                        StoreQueryParameters.fromNameAndType(parameters.getDefaultStateStore(),
+                                QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore())
+                );
+        var oldValue = (T)defaultStore.get(value.getKey());
+        result.<T>setOldValue(oldValue);
+        logger.info("Writing default config top topic: {}", value);
+        final String topic = parameters.getDefaultTableName();
+        try (var defaultSerde = DefaultConfig()) {
+            kafkaTemplate.send(topic, value.getKey(), defaultSerde.serializer().serialize(topic, value));
+        }
+        // Call default listeners to update properties in spring components
+        defaultListeners.get(value.getKey()).forEach(listener -> listener.accept(value));
+        return result;
+    }
+
+    @Override
+    public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId) {
+        return null;
+    }
+
+    @Override
+    public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId, int region) {
+        return null;
+    }
+
+    @Override
+    public void setKafkaTemplate(KafkaTemplate<String,byte[]> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -157,15 +209,9 @@ public class ConfigTopology
     }
 
 
-    @Override
-    public <T> ConfigUpdateResult<T> updateDefaultConfig(String key, T value) {
-        return null;
-    }
 
-    @Override
-    public <T> ConfigUpdateResult<T> updateIntersectionConfig(int intersectionId, String key, T value) {
-        return null;
-    }
+
+
 
     public void initializePropertiesAsync() {
         new Thread(this::initializeProperties).start();
@@ -232,116 +278,41 @@ public class ConfigTopology
     }
 
 
-
-
-
     public Topology buildTopology() {
         
         
         var builder = new StreamsBuilder();
 
-        final String defaultTopicName = parameters.getDefaultTopicName();
+        final String defaultTopic = parameters.getDefaultTableName();
         final String defaultStore = parameters.getDefaultStateStore();
-        final String intersectionTopicName = parameters.getIntersectionTopicName();
         final String intersectionStore = parameters.getIntersectionStateStore();
-        final String intersectionTableName = parameters.getIntersectionTableName();
+        final String intersectionTopic = parameters.getIntersectionTableName();
 
-        builder = builder
-            // Create a Global Store for default config updates
-            .addGlobalStore(
-                keyValueStoreBuilder(
-                    persistentKeyValueStore(defaultStore),
-                    String(),
-                    DefaultConfig()),
-                defaultTopicName,
+        // Create a materialized GlobalKTable for default configuration
+        GlobalKTable<String, DefaultConfig<?>> defaultTable = builder.globalTable(defaultTopic,
                 Consumed.with(
-                    String(), 
-                    DefaultConfig()),
-                () -> new GlobalStoreUpdater(defaultStore, defaultListeners)
-            );
+                        String(),
+                        DefaultConfig()
+                ),
+                Materialized.<String, DefaultConfig<?>, KeyValueStore<Bytes, byte[]>>as(defaultStore)
+                        .withKeySerde(String())
+                        .withValueSerde(DefaultConfig()));
 
-        // Create a materialized KTable for intersection-level config updates
-        builder.stream(intersectionTopicName,
-                Consumed.with(
-                    String(),
-                    IntersectionConfig()
-                )
-            )
-            .peek((key, value) -> {
-                logger.info("{}: {}", key, value);
-            })
-            .selectKey(
-                (String oldKey, IntersectionConfig<?> value) 
-                    -> new RsuConfigKey(value.getRsuID(), value.getKey())
-            )
-            // Trigger listeners
-            .peek((key, value) -> {
-                logger.info("{}: {}", key, value);
-                logger.info("{}", intersectionListeners);
-                if (value != null && key.getKey() != null && intersectionListeners.containsKey(key.getKey())) {
-                    intersectionListeners.get(key.getKey()).forEach(intersection -> intersection.accept(value));
-                }
-            })
-            .to(intersectionTableName,
-                Produced.with(
-                    RsuConfigKey(),
-                    IntersectionConfig(),
-                    new RsuIdPartitioner<RsuConfigKey, IntersectionConfig<?>>())
-            );
 
-        // Materialize for queries
-        builder.table(intersectionTableName,
+        // Create a materialized GlobalKTable for intersection-level configuration
+        builder.globalTable(intersectionTopic,
             Consumed.with(
-                RsuConfigKey(), 
+                IntersectionConfigKey(),
                 IntersectionConfig()
             ),
-            Materialized.<RsuConfigKey, IntersectionConfig<?>, KeyValueStore<Bytes, byte[]>>as(intersectionStore)
-                .withKeySerde(RsuConfigKey())
+            Materialized.<IntersectionConfigKey, IntersectionConfig<?>, KeyValueStore<Bytes, byte[]>>as(intersectionStore)
+                .withKeySerde(IntersectionConfigKey())
                 .withValueSerde(IntersectionConfig())
         );
-
-
-            
-            
-        
 
         return builder.build();
         
 
     }
 
-   
-    // Ref. https://github.com/confluentinc/kafka-streams-examples/blob/7.1.1-post/src/main/java/io/confluent/examples/streams/GlobalStoresExample.java
-    private static class GlobalStoreUpdater implements Processor<String, DefaultConfig<?>, Void, Void> {
-
-        private final String storeName;
-        private final Multimap<String, DefaultConfigListener> listeners;
-
-        public GlobalStoreUpdater(final String storeName, Multimap<String, DefaultConfigListener> listeners) {
-            this.storeName = storeName;
-            this.listeners = listeners;
-        }
-
-        private KeyValueStore<String, DefaultConfig<?>> store;
-
-        @Override
-        public void init(final ProcessorContext<Void, Void> processorContext) {
-            store = processorContext.getStateStore(storeName);
-        }
-
-        @Override
-        public void process(final Record<String, DefaultConfig<?>> record) {
-            store.put(record.key(), record.value());
-            listeners.get(record.key()).forEach(listener -> listener.accept(record.value()));
-        }
-
-        @Override
-        public void close() {
-            // No-op
-        }
-
-    }
-
-
-   
 }

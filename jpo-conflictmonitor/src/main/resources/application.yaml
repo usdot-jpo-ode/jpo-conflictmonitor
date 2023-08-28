@@ -6,8 +6,8 @@ version: ^project.version^
 server.port: 8082
 
 # Kafka properties
-# spring.kafka.bootstrap-servers: localhost:9092
 spring.kafka.bootstrap-servers: localhost:9092
+
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
 log4j.logger.kafka: OFF
@@ -128,11 +128,13 @@ kafka.topics:
     - name: topic.CmConnectionOfTravelAssessment
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmDefaultConfig
+#    - name: topic.CmDefaultConfig
+#      cleanupPolicy: compact
+    - name: topic.CmDefaultConfigTable
       cleanupPolicy: compact
-    - name: topic.CmIntersectionConfig
-      cleanupPolicy: delete
-      retentionMs: 3000
+#    - name: topic.CmIntersectionConfig
+#      cleanupPolicy: delete
+#      retentionMs: 3000
     - name: topic.CmIntersectionConfigTable
       cleanupPolicy: compact
     - name: topic.CmNotification
@@ -385,10 +387,9 @@ message.ingest:
 
 # Config parameters
 config:
-  defaultTopicName: topic.CmDefaultConfig
-  intersectionTopicName: topic.CmIntersectionConfig
   defaultStateStore: default-config
   intersectionStateStore: intersection-config
+  defaultTableName: topic.CmDefaultConfigTable
   intersectionTableName: topic.CmIntersectionConfigTable
 
 

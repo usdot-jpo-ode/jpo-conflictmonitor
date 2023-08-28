@@ -118,7 +118,7 @@ public class ConfigController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
 
-            return ResponseEntity.ok(configTopology.updateDefaultConfig(key, config.getValue()));
+            return ResponseEntity.ok(configTopology.updateDefaultConfig(config));
         } catch (Exception e) {
             String msg = String.format("Exception saving default config %s", config);
             logger.error(msg, e);

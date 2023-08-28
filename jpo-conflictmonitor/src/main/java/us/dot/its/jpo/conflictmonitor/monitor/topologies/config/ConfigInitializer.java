@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
 import java.lang.reflect.Field;
 
@@ -26,13 +27,13 @@ public class ConfigInitializer {
 
     final AlgorithmParameters algorithmParameters;
 
-    final KafkaTemplate<String, DefaultConfig<?>> kafkaTemplate;
+    final KafkaTemplate<String, byte[]> kafkaTemplate;
 
     @Autowired
     public ConfigInitializer(
             ConfigParameters configParams,
             AlgorithmParameters algorithmParameters,
-            KafkaTemplate<String, DefaultConfig<?>> kafkaTemplate) {
+            KafkaTemplate<String, byte[]> kafkaTemplate) {
         this.configParams = configParams;
         this.algorithmParameters = algorithmParameters;
         this.kafkaTemplate = kafkaTemplate;
@@ -118,6 +119,10 @@ public class ConfigInitializer {
 
     private void writeDefaultConfigToTopic(DefaultConfig<?> config) {
         logger.info("Writing default config to topic. {}", config);
-        kafkaTemplate.send(configParams.getDefaultTopicName(), config.getKey(), config);
+        final String topic = configParams.getDefaultTableName();
+        try (var defaultSerde = DefaultConfig()) {
+            byte[] configBytes = defaultSerde.serializer().serialize(topic, config);
+            kafkaTemplate.send(topic, config.getKey(), configBytes);
+        }
     }
 }

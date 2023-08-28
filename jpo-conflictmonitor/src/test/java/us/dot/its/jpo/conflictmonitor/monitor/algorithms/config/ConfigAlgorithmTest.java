@@ -132,12 +132,17 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public <T> ConfigUpdateResult<T> updateDefaultConfig(String key, T value) {
+        public <T> ConfigUpdateResult<T> updateDefaultConfig(DefaultConfig<T> value) {
             return null;
         }
 
         @Override
-        public <T> ConfigUpdateResult<T> updateIntersectionConfig(int intersectionId, String key, T value) {
+        public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> config, int intersectionId) {
+            return null;
+        }
+
+        @Override
+        public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId, int region) {
             return null;
         }
 

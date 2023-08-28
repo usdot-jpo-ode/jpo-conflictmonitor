@@ -18,6 +18,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
@@ -308,6 +309,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<RsuConfigKey>(),
             new JsonDeserializer<>(RsuConfigKey.class)
+        );
+    }
+
+    public static Serde<IntersectionConfigKey> IntersectionConfigKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<IntersectionConfigKey>(),
+                new JsonDeserializer<>(IntersectionConfigKey.class)
         );
     }
     
