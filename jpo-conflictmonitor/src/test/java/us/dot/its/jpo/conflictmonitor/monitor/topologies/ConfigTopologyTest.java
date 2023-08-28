@@ -132,7 +132,7 @@ public class ConfigTopologyTest {
 
     private ConfigParameters getParameters() {
         var parameters = new ConfigParameters();
-        parameters.setDefaultTableName(defaultTableName);
+        parameters.setDefaultTopicName(defaultTableName);
         parameters.setDefaultStateStore(defaultStateStore);
         parameters.setIntersectionStateStore(intersectionStateStore);
         parameters.setIntersectionTableName(intersectionTableName);

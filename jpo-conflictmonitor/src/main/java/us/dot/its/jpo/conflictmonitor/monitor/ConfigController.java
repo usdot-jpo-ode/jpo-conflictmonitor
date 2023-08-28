@@ -78,12 +78,21 @@ public class ConfigController {
         }
     }
 
-    @GetMapping(value = "/intersection/{key}/{intersectionId}/{region}")
-    public @ResponseBody ResponseEntity<IntersectionConfig<?>> getIntersectionConfig(
-            @PathVariable(name = "key") String key,
+    @GetMapping(value = "/intersection/{intersectionId}/{key}")
+    public @ResponseBody ResponseEntity<String> getIntersectionConfig(
             @PathVariable(name = "intersectionId") int intersectionId,
-            @PathVariable(name = "region", required = false) Optional<Integer> optionalRegion) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            @PathVariable(name = "key") java.lang.String key) {
+        String msg = String.format("No region, Intersection: %s, Key: %s", intersectionId, key);
+        return ResponseEntity.ok(msg);
+    }
+
+    @GetMapping(value = "/intersection/{region}/{intersectionId}/{key}")
+    public @ResponseBody ResponseEntity<String> getIntersectionConfig(
+            @PathVariable(name = "region", required = false) int region,
+            @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "key") String key) {
+        String msg = String.format("Region: %s, Intersection: %s, Key: %s", region, intersectionId, key);
+        return ResponseEntity.ok(msg);
     }
 
     @PostMapping(value = "default/{key}")
@@ -118,7 +127,7 @@ public class ConfigController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
 
-            return ResponseEntity.ok(configTopology.updateDefaultConfig(config));
+            return ResponseEntity.ok(configTopology.updateCustomConfig(config));
         } catch (Exception e) {
             String msg = String.format("Exception saving default config %s", config);
             logger.error(msg, e);

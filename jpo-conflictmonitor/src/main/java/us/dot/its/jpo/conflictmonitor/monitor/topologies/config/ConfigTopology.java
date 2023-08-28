@@ -6,13 +6,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.GlobalKTable;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.processor.api.Processor;
-import org.apache.kafka.streams.processor.api.ProcessorContext;
-import org.apache.kafka.streams.processor.api.Record;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.slf4j.Logger;
@@ -27,7 +21,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 import java.util.Map;
 import java.util.Objects;
@@ -35,8 +28,6 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import static org.apache.kafka.common.serialization.Serdes.String;
-import static org.apache.kafka.streams.state.Stores.keyValueStoreBuilder;
-import static org.apache.kafka.streams.state.Stores.persistentKeyValueStore;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
 @Component
@@ -69,7 +60,37 @@ public class ConfigTopology
     }
 
     @Override
-    public <T> ConfigUpdateResult<T> updateDefaultConfig(DefaultConfig<T> value) {
+    public <T> void updateDefaultConfig(DefaultConfig<T> value) {
+
+        if (streams == null) {
+            logger.error("Streams is not initialized.");
+            return;
+        }
+
+        if (kafkaTemplate == null) {
+            logger.error("KafkaTemplate is not initialized");
+            return ;
+        }
+
+        logger.info("Writing default config to topic: {}", value);
+        var mapper = DateJsonMapper.getInstance();
+        String valueString = null;
+        try {
+            valueString = mapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        kafkaTemplate.send(parameters.getDefaultTopicName(), value.getKey(), valueString);
+
+        // Call default listeners to update properties in spring components
+        defaultListeners.get(value.getKey()).forEach(listener -> {
+            logger.info("Executing listener for {}", value);
+            listener.accept(value);
+        });
+    }
+
+    @Override
+    public <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) {
         ConfigUpdateResult<T> result = new ConfigUpdateResult<>();
         if (streams == null) {
             logger.error("Streams is not initialized.");
@@ -92,7 +113,7 @@ public class ConfigTopology
                 );
         var oldValue = (T)defaultStore.get(value.getKey());
         result.<T>setOldValue(oldValue);
-        logger.info("Writing default config top topic: {}", value);
+        logger.info("Writing custom config top topic: {}", value);
         var mapper = DateJsonMapper.getInstance();
         String valueString = null;
         try {
@@ -100,7 +121,7 @@ public class ConfigTopology
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        kafkaTemplate.send(parameters.getDefaultTableName(), value.getKey(), valueString);
+        kafkaTemplate.send(parameters.getCustomTopicName(), value.getKey(), valueString);
 
         // Call default listeners to update properties in spring components
         defaultListeners.get(value.getKey()).forEach(listener -> {
@@ -109,6 +130,8 @@ public class ConfigTopology
         });
         return result;
     }
+
+
 
     @Override
     public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId) {
@@ -293,13 +316,29 @@ public class ConfigTopology
         
         var builder = new StreamsBuilder();
 
-        final String defaultTopic = parameters.getDefaultTableName();
+        final String defaultTopic = parameters.getDefaultTopicName();
+        final String customTopic = parameters.getCustomTopicName();
+        final String mergedTopic = parameters.getMergedTopicName();
         final String defaultStore = parameters.getDefaultStateStore();
         final String intersectionStore = parameters.getIntersectionStateStore();
         final String intersectionTopic = parameters.getIntersectionTableName();
 
-        // Create a materialized GlobalKTable for default configuration
-        GlobalKTable<String, DefaultConfig<?>> defaultTable = builder.globalTable(defaultTopic,
+        KTable<String, DefaultConfig<?>> defaultConfig = builder.table(defaultTopic,
+                Consumed.with(String(), DefaultConfig()));
+
+        KTable<String, DefaultConfig<?>> customConfig = builder.table(customTopic,
+                Consumed.with(String(), DefaultConfig()));
+
+        // Merge custom and default.  Select custom where it exists, default otherwise.
+        KTable<String, DefaultConfig<?>> mergedConfig
+                = defaultConfig.leftJoin(customConfig,
+                (defaultValue, customValue) -> customValue != null ? customValue : defaultValue);
+
+        mergedConfig.toStream().to(mergedTopic,
+                Produced.with(String(), DefaultConfig()));
+
+        // Create a materialized GlobalKTable for the merged default configuration
+        builder.globalTable(mergedTopic,
                 Consumed.with(
                         String(),
                         DefaultConfig()
@@ -307,6 +346,7 @@ public class ConfigTopology
                 Materialized.<String, DefaultConfig<?>, KeyValueStore<Bytes, byte[]>>as(defaultStore)
                         .withKeySerde(String())
                         .withValueSerde(DefaultConfig()));
+
 
 
         // Create a materialized GlobalKTable for intersection-level configuration

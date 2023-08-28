@@ -132,7 +132,12 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public <T> ConfigUpdateResult<T> updateDefaultConfig(DefaultConfig<T> value) {
+        public <T> void updateDefaultConfig(DefaultConfig<T> value) {
+
+        }
+
+        @Override
+        public <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) {
             return null;
         }
 

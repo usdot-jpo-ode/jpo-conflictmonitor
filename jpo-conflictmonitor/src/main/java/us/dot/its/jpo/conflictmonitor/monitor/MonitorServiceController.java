@@ -115,6 +115,7 @@ public class MonitorServiceController {
             configTopology.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, config, healthTopic));
             algoMap.put(config, configTopology);
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
+            configTopology.setKafkaTemplate(kafkaTemplate);
             configTopology.start();
 
 

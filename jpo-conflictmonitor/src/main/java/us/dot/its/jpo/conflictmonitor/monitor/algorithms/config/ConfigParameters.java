@@ -17,9 +17,20 @@ public class ConfigParameters {
     
     // Kafka topics
     @ConfigData(key = "config.defaultTableName",
-        description = "Name of topic for default configuration GlobalKTable",
+        description = "Name of topic for default configurations",
         updateType = READ_ONLY)
-    String defaultTableName;
+    String defaultTopicName;
+
+    @ConfigData(key = "config.customTableName",
+        description = "Name of topic for customized default configurations",
+        updateType = READ_ONLY)
+    String customTopicName;
+
+    @ConfigData(key = "config.mergedTableName",
+        description = "Name of topic for merged default and custom configurations.  Used to back the default config GlobalKTable",
+        updateType = READ_ONLY)
+    String mergedTopicName;
+
 
     @ConfigData(key = "config.defaultStateStore",
         description = "Default config state store name",

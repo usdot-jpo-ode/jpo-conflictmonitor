@@ -30,16 +30,16 @@ public class ConfigInitializer {
 
     final AlgorithmParameters algorithmParameters;
 
-    final KafkaTemplate<String, String> kafkaTemplate;
+    final ConfigTopology configTopology;
 
     @Autowired
     public ConfigInitializer(
             ConfigParameters configParams,
             AlgorithmParameters algorithmParameters,
-            KafkaTemplate<String, String> kafkaTemplate) {
+            ConfigTopology configTopology) {
         this.configParams = configParams;
         this.algorithmParameters = algorithmParameters;
-        this.kafkaTemplate = kafkaTemplate;
+        this.configTopology = configTopology;
     }
 
 
@@ -71,8 +71,8 @@ public class ConfigInitializer {
             var updatable = field.getAnnotation(ConfigData.class);
             final Class<?> type = field.getType();
             final DefaultConfig<?> config = createConfig(type, propValue, updatable);
-            logger.info("config: {}", config);
-            writeDefaultConfigToTopic(config);
+            logger.info("Writing default config to topic. {}", config);
+            configTopology.updateDefaultConfig(config);
         }
     }
 
@@ -120,17 +120,5 @@ public class ConfigInitializer {
         config.setType(actualType.getName());
     }
 
-    private void writeDefaultConfigToTopic(DefaultConfig<?> config) {
-        logger.info("Writing default config to topic. {}", config);
-        final String topic = configParams.getDefaultTableName();
-        var mapper = DateJsonMapper.getInstance();
-        String configString = null;
-        try {
-            configString = mapper.writeValueAsString(config);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        kafkaTemplate.send(topic, config.getKey(), configString);
 
-    }
 }

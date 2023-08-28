@@ -128,13 +128,12 @@ kafka.topics:
     - name: topic.CmConnectionOfTravelAssessment
       cleanupPolicy: compact
       retentionMs: 300000
-#    - name: topic.CmDefaultConfig
-#      cleanupPolicy: compact
     - name: topic.CmDefaultConfigTable
       cleanupPolicy: compact
-#    - name: topic.CmIntersectionConfig
-#      cleanupPolicy: delete
-#      retentionMs: 3000
+    - name: topic.CmCustomConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmMergedConfigTable
+      cleanupPolicy: compact
     - name: topic.CmIntersectionConfigTable
       cleanupPolicy: compact
     - name: topic.CmNotification
@@ -389,7 +388,9 @@ message.ingest:
 config:
   defaultStateStore: default-config
   intersectionStateStore: intersection-config
-  defaultTableName: topic.CmDefaultConfigTable
+  defaultTopicName: topic.CmDefaultConfigTable
+  customTopicName: topic.CmCustomConfigTable
+  mergedTopicName: topic.CmMergedConfigTable
   intersectionTableName: topic.CmIntersectionConfigTable
 
 
