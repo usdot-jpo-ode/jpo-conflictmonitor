@@ -8,6 +8,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 public interface ConfigStreamsAlgorithm
         extends ConfigAlgorithm, ConfigurableAlgorithm<ConfigParameters>, StreamsTopology {
 
-    void setKafkaTemplate(KafkaTemplate<String, byte[]> kafkaTemplate);
+    void setKafkaTemplate(KafkaTemplate<String, String> kafkaTemplate);
 
 }

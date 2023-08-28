@@ -28,8 +28,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigTopologyTest {
 
-    final String defaultTopicName = "topic.CmDefaultConfig";
-    final String intersectionTopicName = "topic.CmIntersectionConfig";
+    final String defaultTableName = "topic.CmDefaultConfigTable";
     final String defaultStateStore = "default-config";
     final String intersectionStateStore = "intersection-config";
     final String intersectionTableName = "topic.CmIntersectionConfigTable";
@@ -59,12 +58,12 @@ public class ConfigTopologyTest {
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
             
-            var defaultTopic = driver.createInputTopic(defaultTopicName,
+            var defaultTopic = driver.createInputTopic(defaultTableName,
                     Serdes.String().serializer(),
                     JsonSerdes.DefaultConfig().serializer()
             );
 
-            var intersectionTopic = driver.createInputTopic(intersectionTopicName,
+            var intersectionTopic = driver.createInputTopic(intersectionTableName,
                     Serdes.String().serializer(),
                     JsonSerdes.IntersectionConfig().serializer()
             );
@@ -133,8 +132,7 @@ public class ConfigTopologyTest {
 
     private ConfigParameters getParameters() {
         var parameters = new ConfigParameters();
-        parameters.setDefaultTopicName(defaultTopicName);
-        parameters.setIntersectionTopicName(intersectionTopicName);
+        parameters.setDefaultTableName(defaultTableName);
         parameters.setDefaultStateStore(defaultStateStore);
         parameters.setIntersectionStateStore(intersectionStateStore);
         parameters.setIntersectionTableName(intersectionTableName);

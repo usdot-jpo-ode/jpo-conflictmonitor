@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
 import java.lang.reflect.Field;
@@ -27,13 +30,13 @@ public class ConfigInitializer {
 
     final AlgorithmParameters algorithmParameters;
 
-    final KafkaTemplate<String, byte[]> kafkaTemplate;
+    final KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
     public ConfigInitializer(
             ConfigParameters configParams,
             AlgorithmParameters algorithmParameters,
-            KafkaTemplate<String, byte[]> kafkaTemplate) {
+            KafkaTemplate<String, String> kafkaTemplate) {
         this.configParams = configParams;
         this.algorithmParameters = algorithmParameters;
         this.kafkaTemplate = kafkaTemplate;
@@ -120,9 +123,14 @@ public class ConfigInitializer {
     private void writeDefaultConfigToTopic(DefaultConfig<?> config) {
         logger.info("Writing default config to topic. {}", config);
         final String topic = configParams.getDefaultTableName();
-        try (var defaultSerde = DefaultConfig()) {
-            byte[] configBytes = defaultSerde.serializer().serialize(topic, config);
-            kafkaTemplate.send(topic, config.getKey(), configBytes);
+        var mapper = DateJsonMapper.getInstance();
+        String configString = null;
+        try {
+            configString = mapper.writeValueAsString(config);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
+        kafkaTemplate.send(topic, config.getKey(), configString);
+
     }
 }

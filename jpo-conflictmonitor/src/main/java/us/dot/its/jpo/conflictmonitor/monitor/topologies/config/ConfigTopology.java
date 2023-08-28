@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -25,6 +26,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 import java.util.Map;
@@ -45,7 +47,7 @@ public class ConfigTopology
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigTopology.class);
 
-    KafkaTemplate<String, byte[]> kafkaTemplate;
+    KafkaTemplate<String, String> kafkaTemplate;
     
     final Multimap<String, DefaultConfigListener> defaultListeners =
         Multimaps.synchronizedMultimap(ArrayListMultimap.create());
@@ -91,12 +93,20 @@ public class ConfigTopology
         var oldValue = (T)defaultStore.get(value.getKey());
         result.<T>setOldValue(oldValue);
         logger.info("Writing default config top topic: {}", value);
-        final String topic = parameters.getDefaultTableName();
-        try (var defaultSerde = DefaultConfig()) {
-            kafkaTemplate.send(topic, value.getKey(), defaultSerde.serializer().serialize(topic, value));
+        var mapper = DateJsonMapper.getInstance();
+        String valueString = null;
+        try {
+            valueString = mapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
+        kafkaTemplate.send(parameters.getDefaultTableName(), value.getKey(), valueString);
+
         // Call default listeners to update properties in spring components
-        defaultListeners.get(value.getKey()).forEach(listener -> listener.accept(value));
+        defaultListeners.get(value.getKey()).forEach(listener -> {
+            logger.info("Executing listener for {}", value);
+            listener.accept(value);
+        });
         return result;
     }
 
@@ -111,7 +121,7 @@ public class ConfigTopology
     }
 
     @Override
-    public void setKafkaTemplate(KafkaTemplate<String,byte[]> kafkaTemplate) {
+    public void setKafkaTemplate(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
