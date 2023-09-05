@@ -16,6 +16,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <geotools.version>29-SNAPSHOT</geotools.version>
+    <sonar.organization>usdot-jpo-ode-1</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <maven.deploy.skip>true</maven.deploy.skip>
     <description>Detects Intersection Message Conflicts from messaged passed by the ODE</description>
     <java.version>11</java.version>
