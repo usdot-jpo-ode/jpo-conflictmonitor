@@ -114,7 +114,7 @@ public class ConfigTopology
                                     QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore())
                     );
             Object oldValueObj = defaultStore.get(value.getKey());
-            result.<T>setOldValue((T) oldValueObj));
+            result.<T>setOldValue((T) oldValueObj);
             result.<T>setNewValue((T) value);
             logger.info("Writing custom config to kafka: {}", value);
             var mapper = DateJsonMapper.getInstance();
