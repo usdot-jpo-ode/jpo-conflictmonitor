@@ -92,42 +92,53 @@ public class ConfigTopology
     @Override
     public <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) {
         ConfigUpdateResult<T> result = new ConfigUpdateResult<>();
-        if (streams == null) {
-            logger.error("Streams is not initialized.");
-            result.setResult(ConfigUpdateResult.Result.ERROR);
-            result.setMessage("Could not set config value.  Streams is not initialized.");
-            return result;
-        }
-
-        if (kafkaTemplate == null) {
-            logger.error("KafkaTemplate is not initialized");
-            result.setResult(ConfigUpdateResult.Result.ERROR);
-            result.setMessage("Could not set config value.  KafkaTemplate is not initialized.");
-            return  result;
-        }
-
-        var defaultStore =
-                streams.store(
-                        StoreQueryParameters.fromNameAndType(parameters.getDefaultStateStore(),
-                                QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore())
-                );
-        var oldValue = (T)defaultStore.get(value.getKey());
-        result.<T>setOldValue(oldValue);
-        logger.info("Writing custom config top topic: {}", value);
-        var mapper = DateJsonMapper.getInstance();
-        String valueString = null;
         try {
-            valueString = mapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        kafkaTemplate.send(parameters.getCustomTopicName(), value.getKey(), valueString);
 
-        // Call default listeners to update properties in spring components
-        defaultListeners.get(value.getKey()).forEach(listener -> {
-            logger.info("Executing listener for {}", value);
-            listener.accept(value);
-        });
+            if (streams == null) {
+                logger.error("Streams is not initialized.");
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                result.setMessage("Could not set config value.  Streams is not initialized.");
+                return result;
+            }
+
+            if (kafkaTemplate == null) {
+                logger.error("KafkaTemplate is not initialized");
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                result.setMessage("Could not set config value.  KafkaTemplate is not initialized.");
+                return  result;
+            }
+
+            var defaultStore =
+                    streams.store(
+                            StoreQueryParameters.fromNameAndType(parameters.getDefaultStateStore(),
+                                    QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore())
+                    );
+            Object oldValueObj = defaultStore.get(value.getKey());
+            result.<T>setOldValue((T) oldValueObj));
+            result.<T>setNewValue((T) value);
+            logger.info("Writing custom config to kafka: {}", value);
+            var mapper = DateJsonMapper.getInstance();
+            String valueString = null;
+            try {
+                valueString = mapper.writeValueAsString(value);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            kafkaTemplate.send(parameters.getCustomTopicName(), value.getKey(), valueString);
+
+            // Call default listeners to update properties in spring components
+            defaultListeners.get(value.getKey()).forEach(listener -> {
+                logger.info("Executing listener for {}", value);
+                listener.accept(value);
+            });
+
+            result.setResult(ConfigUpdateResult.Result.UPDATED);
+        } catch (Exception ex) {
+            result.setResult(ConfigUpdateResult.Result.ERROR);
+            result.setMessage(String.format("Exception setting DefaultConfig: %s", ex.getMessage()));
+            logger.error(result.toString());
+        }
+
         return result;
     }
 
