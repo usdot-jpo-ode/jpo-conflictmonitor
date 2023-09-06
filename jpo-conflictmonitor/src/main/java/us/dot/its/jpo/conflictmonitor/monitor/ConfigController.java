@@ -81,14 +81,14 @@ public class ConfigController {
     @GetMapping(value = "/intersection/{intersectionId}/{key}")
     public @ResponseBody ResponseEntity<String> getIntersectionConfig(
             @PathVariable(name = "intersectionId") int intersectionId,
-            @PathVariable(name = "key") java.lang.String key) {
+            @PathVariable(name = "key") String key) {
         String msg = String.format("No region, Intersection: %s, Key: %s", intersectionId, key);
         return ResponseEntity.ok(msg);
     }
 
     @GetMapping(value = "/intersection/{region}/{intersectionId}/{key}")
     public @ResponseBody ResponseEntity<String> getIntersectionConfig(
-            @PathVariable(name = "region", required = false) int region,
+            @PathVariable(name = "region") int region,
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         String msg = String.format("Region: %s, Intersection: %s, Key: %s", region, intersectionId, key);
@@ -135,11 +135,19 @@ public class ConfigController {
         }
     }
 
-    @PostMapping(value = "intersection/{key}/{intersectionId}/{region}")
+    @PostMapping(value = "intersection/{region}/{intersectionId}/{key}")
     public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfig(
             @PathVariable(name = "key") String key,
-            @PathVariable(name = "intersectionId") String intersectionId,
-            @PathVariable(name = "region") Optional<String> optionalRegion,
+            @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "region") int optionalRegion,
+            @RequestBody IntersectionConfig<T> config) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+
+    @PostMapping(value = "intersection/{intersectionId}/{key}")
+    public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfig(
+            @PathVariable(name = "key") String key,
+            @PathVariable(name = "intersectionId") int intersectionId,
             @RequestBody IntersectionConfig<T> config) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
