@@ -68,7 +68,7 @@ public class ConfigAlgorithmTest {
         defaultIntersectionListener.accept(intDefaultConfig);
         
         var newIntersectionConfig = new IntersectionConfig<String>(TestParameters.INTERSECTION_PARAM, 
-            "", 0, 0, rsuId, newIntersectionValue, "", UnitsEnum.NONE, "");
+            "", 0, 0, newIntersectionValue, "", UnitsEnum.NONE, "");
         intersectionListener.accept(newIntersectionConfig);
 
         assertThat(testParameters.getIntersectionParam(), equalTo(newIntersectionDefault));
@@ -121,13 +121,13 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key) {
+        public IntersectionConfigMap mapIntersectionConfigs(String key) {
             return null;
         }
 
 
         @Override
-        public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs() {
+        public IntersectionConfigMap mapIntersectionConfigs() {
             return null;
         }
 

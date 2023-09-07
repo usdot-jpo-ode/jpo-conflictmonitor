@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.serialization.Serdes.String;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
@@ -252,13 +253,13 @@ public class ConfigTopology
     
 
     @Override
-    public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs() {
-        var configs = new TreeMap<RsuConfigKey, IntersectionConfig<?>>();
+    public IntersectionConfigMap mapIntersectionConfigs() {
+        var configs = new IntersectionConfigMap();
         if (streams != null) {
             var intersectionStore = 
                 streams.store(
                     StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
-                    QueryableStoreTypes.<RsuConfigKey, IntersectionConfig<?>>keyValueStore())  
+                    QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
                 );
             
             try (var store = intersectionStore.all()) {
@@ -278,25 +279,15 @@ public class ConfigTopology
 
 
     @Override
-    public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key) {
-        var configs = new TreeMap<RsuConfigKey, IntersectionConfig<?>>();
-        if (streams != null) {
-            var intersectionStore = 
-                streams.store(
-                    StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
-                    QueryableStoreTypes.<RsuConfigKey, IntersectionConfig<?>>keyValueStore())  
-                );
-            
-            try (var store = intersectionStore.all()) {
-                while (store.hasNext()) {
-                    var item = store.next();
-                    if (Objects.equals(item.key.getKey(), key)) {
-                        configs.put(item.key, item.value);
-                    }
-                }
-            }
+    public IntersectionConfigMap mapIntersectionConfigs(String key) {
+        var allConfigs = mapIntersectionConfigs();
+        var filteredConfigs = new IntersectionConfigMap();
+        for (var entry : allConfigs.entrySet()) {
+           if (entry.getKey().equals(key)) {
+               filteredConfigs.put(entry.getKey(), entry.getValue());
+           }
         }
-        return configs;
+        return filteredConfigs;
     }
 
 

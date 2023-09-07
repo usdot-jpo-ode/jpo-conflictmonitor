@@ -63,7 +63,16 @@ public class ConfigController {
             @RequestParam(name = "prefix") Optional<String> optionalPrefix,
             @RequestParam(name = "intersectionId") Optional<Integer> optionalIntersectionId,
             @RequestParam(name = "region", required = false) Optional<Integer> optionalRegion) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        try {
+            var configMap = configTopology.mapIntersectionConfigs();
+            if (optionalPrefix.isPresent()) {
+                var prefix = optionalPrefix.get();
+
+            }
+        } catch (Exception e) {
+            logger.error("Error listing intersection configs", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping(value = "/default/{key}")
@@ -80,20 +89,20 @@ public class ConfigController {
     }
 
     @GetMapping(value = "/intersection/{intersectionId}/{key}")
-    public @ResponseBody ResponseEntity<String> getIntersectionConfig(
+    public @ResponseBody ResponseEntity<IntersectionConfig<?>> getIntersectionConfig(
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         String msg = String.format("No region, Intersection: %s, Key: %s", intersectionId, key);
-        return ResponseEntity.ok(msg);
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping(value = "/intersection/{region}/{intersectionId}/{key}")
-    public @ResponseBody ResponseEntity<String> getIntersectionConfig(
+    public @ResponseBody ResponseEntity<IntersectionConfig<?>> getIntersectionConfig(
             @PathVariable(name = "region") int region,
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         String msg = String.format("Region: %s, Intersection: %s, Key: %s", region, intersectionId, key);
-        return ResponseEntity.ok(msg);
+        return ResponseEntity.ok(null);
     }
 
     @PostMapping(value = "default/{key}")
@@ -112,23 +121,6 @@ public class ConfigController {
                 updateResult.setMessage(msg);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
-
-            // Don't allow updating read-only configs
-            DefaultConfig<?> oldConfig = configTopology.getDefaultConfig(key);
-            if (oldConfig != null && UpdateType.READ_ONLY.equals(oldConfig.getUpdateType())) {
-                updateResult.setResult(ConfigUpdateResult.Result.ERROR);
-                updateResult.setOldValue((DefaultConfig<T>) oldConfig.getValue());
-                updateResult.setMessage("The configuration is read-only and cannot be updated");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
-            }
-
-            // Don't allow creating a new read-only config, or changing existing config to read-only
-            if (UpdateType.READ_ONLY.equals(config.getUpdateType())) {
-                updateResult.setResult(ConfigUpdateResult.Result.ERROR);
-                updateResult.setMessage("Read-only configurations can't be created via the REST API.  Please add the configuration to the application config file.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
-            }
-
 
             updateResult = configTopology.updateCustomConfig(config);
             return ResponseEntity.ok(updateResult);

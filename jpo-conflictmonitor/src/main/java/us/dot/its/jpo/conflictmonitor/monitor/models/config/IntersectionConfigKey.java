@@ -13,24 +13,40 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class IntersectionConfigKey implements Comparable<IntersectionConfigKey> {
+public class IntersectionConfigKey implements IntersectionKey, Comparable<IntersectionConfigKey> {
 
     private static final Logger logger = LoggerFactory.getLogger(IntersectionConfigKey.class);
 
     /**
-     * Required
-     */
-    int intersectionId;
-
-    /**
      * Optional
      */
-    int region;
+    int roadRegulatorID;
+
+    /**
+     * Required
+     */
+    int intersectionID;
 
     /**
      * Required
      */
     String key;
+
+    public IntersectionConfigKey() {}
+
+    public IntersectionConfigKey(int roadRegulatorID, int intersectionId, String key) {
+        this.roadRegulatorID = roadRegulatorID;
+        this.intersectionID = intersectionId;
+        this.key = key;
+    }
+
+    public IntersectionConfigKey(int intersectionId, String key) {
+        this.roadRegulatorID = 0;
+        this.intersectionID = intersectionId;
+        this.key = key;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {
@@ -39,18 +55,18 @@ public class IntersectionConfigKey implements Comparable<IntersectionConfigKey> 
         IntersectionConfigKey that = (IntersectionConfigKey) o;
 
         // Compare region only if it is defined for both objects
-        if (region > 0 && that.getRegion() > 0) {
-            if (region != that.getRegion()) {
+        if (roadRegulatorID > 0 && that.getRoadRegulatorID() > 0) {
+            if (roadRegulatorID != that.getRoadRegulatorID()) {
                 return false;
             }
         }
 
-        return intersectionId == that.intersectionId && Objects.equals(key, that.key);
+        return intersectionID == that.intersectionID && Objects.equals(key, that.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(intersectionId, key);
+        return Objects.hash(intersectionID, key);
     }
 
     @Override
@@ -58,14 +74,14 @@ public class IntersectionConfigKey implements Comparable<IntersectionConfigKey> 
         if (other == null) return 1;
 
         // Compare region only if it is defined for both objects
-        if (region > 0 && other.getRegion() > 0) {
-            int compareRegion = Integer.compare(region, other.getRegion());
+        if (roadRegulatorID > 0 && other.getRoadRegulatorID() > 0) {
+            int compareRegion = Integer.compare(roadRegulatorID, other.getRoadRegulatorID());
             if (compareRegion != 0) {
                 return compareRegion;
             }
         }
 
-        int compareIntersection = Integer.compare(intersectionId, other.getIntersectionId());
+        int compareIntersection = Integer.compare(intersectionID, other.getIntersectionID());
         if (compareIntersection != 0) {
             return compareIntersection;
         }
@@ -83,4 +99,6 @@ public class IntersectionConfigKey implements Comparable<IntersectionConfigKey> 
             return "";
         }
     }
+
+
 }

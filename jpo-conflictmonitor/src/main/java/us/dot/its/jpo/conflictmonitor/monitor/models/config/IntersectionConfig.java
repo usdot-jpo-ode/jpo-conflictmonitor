@@ -13,28 +13,23 @@ import lombok.Setter;
 @Document("CmIntersectionConfig")
 public class IntersectionConfig<T> extends Config<T>{
 
-    @Getter @Setter private int intersectionID;
     @Getter @Setter private int roadRegulatorID;
-    @Getter @Setter private String rsuID;
-
-
+    @Getter @Setter private int intersectionID;
 
     public IntersectionConfig(){
         super();
     }
-    
 
-    public IntersectionConfig(String key, String category, int roadRegulatorID, int intersectionID, String rsuID, T value, String type, UnitsEnum units, String description){
+    public IntersectionConfig(String key, String category, int roadRegulatorID, int intersectionID, T value, String type, UnitsEnum units, String description){
         super(key, category, value, type, units, description);
         this.intersectionID = intersectionID;
         this.roadRegulatorID = roadRegulatorID;
-        this.rsuID = rsuID;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Id
-    public RsuConfigKey getRsuKey() {
-        return new RsuConfigKey(rsuID, getKey());
+    public IntersectionConfigKey getIntersectionKey() {
+        return new IntersectionConfigKey(roadRegulatorID, intersectionID, getKey());
     }
 
 

@@ -8,6 +8,7 @@ import java.util.TreeMap;
  *
  * @param <T> - Type of configuration settings
  */
+@Deprecated
 public abstract class BaseConfigMap<T extends Config<?>> extends TreeMap<String, T> {
 
     public BaseConfigMap() { }

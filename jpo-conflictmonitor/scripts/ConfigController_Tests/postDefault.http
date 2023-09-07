@@ -3,10 +3,10 @@ Content-Type: application/json
 
 {
   "key": "map.validation.outputIntervalSeconds",
-  "category": "New Category",
-  "value": 5,
+  "category": "",
+  "value": 10,
   "type": "java.lang.Integer",
   "units": "SECONDS",
-  "description": "Updated window hop",
+  "description": "Window hop (updated)",
   "updateType": "DEFAULT"
 }
