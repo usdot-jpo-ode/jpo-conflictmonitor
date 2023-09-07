@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "key": "map.validation.outputIntervalSeconds",
   "category": "New Category",
-  "value": 10,
+  "value": 5,
   "type": "java.lang.Integer",
   "units": "SECONDS",
   "description": "Updated window hop",
