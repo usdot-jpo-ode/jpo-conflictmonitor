@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import static org.apache.commons.lang3.StringUtils.equals;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
@@ -12,6 +15,8 @@ import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
@@ -90,53 +95,95 @@ public class ConfigTopology
     }
 
     @Override
-    public <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) {
+    public <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) throws ConfigException {
         ConfigUpdateResult<T> result = new ConfigUpdateResult<>();
         try {
+
+            // Perform Validations
 
             if (streams == null) {
                 logger.error("Streams is not initialized.");
                 result.setResult(ConfigUpdateResult.Result.ERROR);
                 result.setMessage("Could not set config value.  Streams is not initialized.");
-                return result;
+                throw new ConfigException(result);
             }
 
             if (kafkaTemplate == null) {
                 logger.error("KafkaTemplate is not initialized");
                 result.setResult(ConfigUpdateResult.Result.ERROR);
                 result.setMessage("Could not set config value.  KafkaTemplate is not initialized.");
-                return  result;
+                throw new ConfigException(result);
             }
 
-            var defaultStore =
-                    streams.store(
-                            StoreQueryParameters.fromNameAndType(parameters.getDefaultStateStore(),
-                                    QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore())
-                    );
-            Object oldValueObj = defaultStore.get(value.getKey());
-            result.<T>setOldValue((T) oldValueObj);
-            result.<T>setNewValue((T) value);
+            // Verify that the configuration exists
+            Config<?> oldConfig = getDefaultConfig(value.getKey());
+            if (oldConfig == null) {
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                result.setMessage(String.format("An existing configuration with key %s was not found", value.getKey()));
+                throw new ConfigException(result);
+            }
+
+            result.setOldValue((DefaultConfig<T>)oldConfig);
+            result.setNewValue(value);
+
+            // Don't allow updating read-only configs
+            if (oldConfig != null && UpdateType.READ_ONLY.equals(oldConfig.getUpdateType())) {
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                result.setOldValue((DefaultConfig<T>) oldConfig.getValue());
+                result.setMessage("The configuration is read-only and cannot be updated through the REST API");
+                throw new ConfigException(result);
+            }
+
+            // Don't allow creating a new read-only config, or changing existing config to read-only
+            if (UpdateType.READ_ONLY.equals(value.getUpdateType())) {
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                result.setMessage("Read-only configurations can't be created via the REST API.  Please add the configuration to the application config file.");
+                throw new ConfigException(result);
+            }
+
+
+            // Don't allow changing type or units through the API
+            if (!StringUtils.equals(value.getType(), oldConfig.getType())) {
+                result.setMessage("The type property can't be changed through the REST API.");
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                throw new ConfigException(result);
+            }
+            if (!Objects.equals(value.getUnits(), oldConfig.getUnits())) {
+                result.setMessage("The units property can't be changed through the REST API.");
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                throw new ConfigException(result);
+            }
+
+            // Save the configuration to the topic
+
             logger.info("Writing custom config to kafka: {}", value);
             var mapper = DateJsonMapper.getInstance();
             String valueString = null;
             try {
                 valueString = mapper.writeValueAsString(value);
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                result.setMessage(String.format("JsonProcessingException: %s", e.getMessage()));
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                throw new ConfigException(result, e);
             }
             kafkaTemplate.send(parameters.getCustomTopicName(), value.getKey(), valueString);
 
-            // Call default listeners to update properties in spring components
+
+            // Call default listeners to update properties in Spring components
+
             defaultListeners.get(value.getKey()).forEach(listener -> {
                 logger.info("Executing listener for {}", value);
                 listener.accept(value);
             });
 
             result.setResult(ConfigUpdateResult.Result.UPDATED);
+        } catch (ConfigException ce) {
+            throw ce;
         } catch (Exception ex) {
             result.setResult(ConfigUpdateResult.Result.ERROR);
             result.setMessage(String.format("Exception setting DefaultConfig: %s", ex.getMessage()));
             logger.error(result.toString());
+            throw new ConfigException(result);
         }
 
         return result;

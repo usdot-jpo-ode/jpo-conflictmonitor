@@ -14,8 +14,8 @@ public class ConfigUpdateResult<T> {
 
     private Result result;
     private String message;
-    private T oldValue;
-    private T newValue;
+    private Config<T> oldValue;
+    private Config<T> newValue;
 
     public boolean getSuccess() {
         return result != null && result.getSuccess();

@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 
 import lombok.Getter;
 import lombok.Setter;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,8 +100,9 @@ public class ConfigController {
     public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveDefaultConfig(
             @PathVariable(name = "key") String key,
             @RequestBody DefaultConfig<T> config) {
+        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
         try {
-            ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
+
 
             // Validate keys
             if (!key.equals(config.getKey())) {
@@ -112,10 +114,10 @@ public class ConfigController {
             }
 
             // Don't allow updating read-only configs
-            Config<?> oldConfig = configTopology.getDefaultConfig(key);
+            DefaultConfig<?> oldConfig = configTopology.getDefaultConfig(key);
             if (oldConfig != null && UpdateType.READ_ONLY.equals(oldConfig.getUpdateType())) {
                 updateResult.setResult(ConfigUpdateResult.Result.ERROR);
-                updateResult.setOldValue((T)oldConfig.getValue());
+                updateResult.setOldValue((DefaultConfig<T>) oldConfig.getValue());
                 updateResult.setMessage("The configuration is read-only and cannot be updated");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
@@ -127,27 +129,33 @@ public class ConfigController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
 
-            return ResponseEntity.ok(configTopology.updateCustomConfig(config));
+
+            updateResult = configTopology.updateCustomConfig(config);
+            return ResponseEntity.ok(updateResult);
+        } catch (ConfigException ce) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<T>)ce.getResult());
         } catch (Exception e) {
             String msg = String.format("Exception saving default config %s", config);
             logger.error(msg, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            updateResult.setMessage(msg);
+            updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(updateResult);
         }
     }
 
     @PostMapping(value = "intersection/{region}/{intersectionId}/{key}")
     public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfig(
-            @PathVariable(name = "key") String key,
+            @PathVariable(name = "region") int region,
             @PathVariable(name = "intersectionId") int intersectionId,
-            @PathVariable(name = "region") int optionalRegion,
+            @PathVariable(name = "key") String key,
             @RequestBody IntersectionConfig<T> config) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
 
     @PostMapping(value = "intersection/{intersectionId}/{key}")
     public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfig(
-            @PathVariable(name = "key") String key,
             @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "key") String key,
             @RequestBody IntersectionConfig<T> config) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
