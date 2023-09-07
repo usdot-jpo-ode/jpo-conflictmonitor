@@ -85,7 +85,7 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
                             var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);
                             logger.info("Intersection listener {}: {}", key, value);
                             final var propValue = value.getValue();
-                            configMap.putObject(value.getRsuID(), propValue);
+                            configMap.putObject(value.getIntersectionKey(), propValue);
                         });
                     } catch (InvalidPropertyException ex) {
                         var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);

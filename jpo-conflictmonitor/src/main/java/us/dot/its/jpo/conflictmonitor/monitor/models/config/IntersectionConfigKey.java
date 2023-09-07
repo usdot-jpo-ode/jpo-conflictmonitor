@@ -13,19 +13,9 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class IntersectionConfigKey implements IntersectionKey, Comparable<IntersectionConfigKey> {
+public class IntersectionConfigKey extends IntersectionKey  {
 
     private static final Logger logger = LoggerFactory.getLogger(IntersectionConfigKey.class);
-
-    /**
-     * Optional
-     */
-    int roadRegulatorID;
-
-    /**
-     * Required
-     */
-    int intersectionID;
 
     /**
      * Required
@@ -34,15 +24,13 @@ public class IntersectionConfigKey implements IntersectionKey, Comparable<Inters
 
     public IntersectionConfigKey() {}
 
-    public IntersectionConfigKey(int roadRegulatorID, int intersectionId, String key) {
-        this.roadRegulatorID = roadRegulatorID;
-        this.intersectionID = intersectionId;
+    public IntersectionConfigKey(int roadRegulatorID, int intersectionID, String key) {
+        super(roadRegulatorID, intersectionID);
         this.key = key;
     }
 
-    public IntersectionConfigKey(int intersectionId, String key) {
-        this.roadRegulatorID = 0;
-        this.intersectionID = intersectionId;
+    public IntersectionConfigKey(int intersectionID, String key) {
+        super(intersectionID);
         this.key = key;
     }
 
@@ -50,43 +38,25 @@ public class IntersectionConfigKey implements IntersectionKey, Comparable<Inters
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        IntersectionConfigKey that = (IntersectionConfigKey) o;
-
-        // Compare region only if it is defined for both objects
-        if (roadRegulatorID > 0 && that.getRoadRegulatorID() > 0) {
-            if (roadRegulatorID != that.getRoadRegulatorID()) {
-                return false;
-            }
-        }
-
-        return intersectionID == that.intersectionID && Objects.equals(key, that.key);
+        boolean compareIntersection = super.equals(o);
+        if (!compareIntersection) return false;
+        if (!(o instanceof IntersectionConfigKey)) return false;
+        return Objects.equals(key, ((IntersectionConfigKey)o).getKey());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(intersectionID, key);
+        // Only include intersection ID and key, so that hash code doesn't depend on region
+        return Objects.hash(getIntersectionID(), key);
     }
 
     @Override
-    public int compareTo(IntersectionConfigKey other) {
+    public int compareTo(IntersectionKey other) {
         if (other == null) return 1;
-
-        // Compare region only if it is defined for both objects
-        if (roadRegulatorID > 0 && other.getRoadRegulatorID() > 0) {
-            int compareRegion = Integer.compare(roadRegulatorID, other.getRoadRegulatorID());
-            if (compareRegion != 0) {
-                return compareRegion;
-            }
-        }
-
-        int compareIntersection = Integer.compare(intersectionID, other.getIntersectionID());
-        if (compareIntersection != 0) {
-            return compareIntersection;
-        }
-        return ObjectUtils.compare(key, other.getKey());
-
+        int compareIntersection = super.compareTo(other);
+        if (compareIntersection != 0) return compareIntersection;
+        if (!(other instanceof IntersectionConfigKey)) return -1;
+        return ObjectUtils.compare(key, ((IntersectionConfigKey)other).getKey());
     }
 
     @Override
