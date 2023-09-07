@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
@@ -34,6 +35,18 @@ public class BsmEventIntersectionKey extends BsmIntersectionKey {
     @JsonIgnore
     public IntersectionRegion getIntersectionRegion() {
         return new IntersectionRegion(intersectionId, region);
+    }
+
+    @JsonIgnore
+    public IntersectionKey getIntersectionKey() {
+        var intersectionKey = new IntersectionKey();
+        if (region != null) {
+            intersectionKey.setRoadRegulatorID(region);
+        }
+        if (intersectionId != null) {
+            intersectionKey.setIntersectionID(intersectionId);
+        }
+        return intersectionKey;
     }
 
     @JsonIgnore

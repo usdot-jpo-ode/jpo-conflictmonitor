@@ -7,6 +7,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -86,5 +87,10 @@ public class IntersectionKey implements Comparable<IntersectionKey> {
             logger.error("Error converting IntersectionKey to JSON", e);
             return "";
         }
+    }
+
+    // TODO Include region/road regulator ID in RsuIntersectionKey
+    public static IntersectionKey fromRsuIntersectionKey(RsuIntersectionKey rsuIntersectionKey) {
+        return new IntersectionKey(rsuIntersectionKey.getIntersectionId());
     }
 }

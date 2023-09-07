@@ -8,6 +8,7 @@ import lombok.Generated;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
@@ -69,19 +70,19 @@ public class StopLineStopParameters {
     final ConfigMap<Double> minTimeStoppedMap = new ConfigMap<>();
 
     // Intersection-specific parameters
-    public double getUpstreamSearchDistance(String rsuID) {
-        return getIntersectionValue(rsuID, upstreamSearchDistanceMap, upstreamSearchDistance);
+    public double getUpstreamSearchDistance(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, upstreamSearchDistanceMap, upstreamSearchDistance);
     }
 
-    public double getHeadingTolerance(String rsuID) {
-        return getIntersectionValue(rsuID, headingToleranceMap, headingTolerance);
+    public double getHeadingTolerance(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, headingToleranceMap, headingTolerance);
     }
-    public double getStopSpeedThreshold(String rsuID) {
-        return getIntersectionValue(rsuID, stopSpeedThresholdMap, stopSpeedThreshold);
+    public double getStopSpeedThreshold(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, stopSpeedThresholdMap, stopSpeedThreshold);
     }
 
-    public double getMinTimeStopped(String rsuID) {
-        return getIntersectionValue(rsuID, minTimeStoppedMap, minTimeStopped);
+    public double getMinTimeStopped(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, minTimeStoppedMap, minTimeStopped);
     }
 
 }

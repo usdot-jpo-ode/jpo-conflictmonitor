@@ -64,11 +64,12 @@ public class ConfigController {
             @RequestParam(name = "intersectionId") Optional<Integer> optionalIntersectionId,
             @RequestParam(name = "region", required = false) Optional<Integer> optionalRegion) {
         try {
-            var configMap = configTopology.mapIntersectionConfigs();
-            if (optionalPrefix.isPresent()) {
-                var prefix = optionalPrefix.get();
-
-            }
+//            var configMap = configTopology.mapIntersectionConfigs();
+//            if (optionalPrefix.isPresent()) {
+//                var prefix = optionalPrefix.get();
+//
+//            }
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
             logger.error("Error listing intersection configs", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

@@ -34,6 +34,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.*;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
@@ -372,9 +373,9 @@ public class IntersectionEventTopology
         // Perform Analytics on Lane direction of Travel Events
         KStream<BsmEventIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                String rsuId = key.getRsuId();
-                double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
-                double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
+                var intersectionKey = key.getIntersectionKey();
+                double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(intersectionKey);
+                double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(intersectionKey);
                 VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
                         headingToleranceDegrees);
 

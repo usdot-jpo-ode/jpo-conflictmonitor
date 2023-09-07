@@ -157,7 +157,6 @@ public class ConfigTopologyTest {
         intersectionConfig.setCategory(category);
         intersectionConfig.setUnits(units);
         intersectionConfig.setDescription(description);
-        intersectionConfig.setRsuID(rsuId);
         intersectionConfig.setIntersectionID(intersectionId);
         intersectionConfig.setRoadRegulatorID(regionId);
         intersectionConfig.setType("java.lang.Integer");

@@ -11,8 +11,8 @@ public class ConfigUtil {
     /**
      * Get the intersection-specific value if available, otherwise return the default value.
      * @param <T>
-     * @param intersectionID
-     * @param rsuMap
+     * @param intersectionKey
+     * @param configMap
      * @param defaultValue
      * @return The intersection-specific or default value.
      */

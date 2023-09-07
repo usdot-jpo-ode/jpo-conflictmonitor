@@ -10,6 +10,8 @@ import lombok.Generated;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
+
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
 
@@ -42,11 +44,11 @@ public class LaneDirectionOfTravelParameters {
     final ConfigMap<Double> minimumSpeedThresholdMap = new ConfigMap<>();
      
     // Intersection-specific parameters
-    public int getMinimumPointsPerSegment(String rsuID) {
-        return getIntersectionValue(rsuID, minimumPointsPerSegmentMap, minimumPointsPerSegment);
+    public int getMinimumPointsPerSegment(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, minimumPointsPerSegmentMap, minimumPointsPerSegment);
     }
-    public double getMinimumSpeedThreshold(String rsuID) {
-        return getIntersectionValue(rsuID, minimumSpeedThresholdMap, minimumSpeedThreshold);
+    public double getMinimumSpeedThreshold(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, minimumSpeedThresholdMap, minimumSpeedThreshold);
     }
    
 }

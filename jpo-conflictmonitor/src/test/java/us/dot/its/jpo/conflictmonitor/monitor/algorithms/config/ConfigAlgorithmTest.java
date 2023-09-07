@@ -60,19 +60,24 @@ public class ConfigAlgorithmTest {
 
 
         // Test that intersection listener can update an RSU-specific value independent of default value update
-        final String rsuId = "127.0.0.1";
+        //final String rsuId = "127.0.0.1";
         final String newIntersectionDefault = "newIntersectionDefaultValue";
         final String newIntersectionValue = "newIntersectionValue";
         var intDefaultConfig = new DefaultConfig<String>(TestParameters.INTERSECTION_PARAM, "", 
             newIntersectionDefault, "", UnitsEnum.NONE, "");
         defaultIntersectionListener.accept(intDefaultConfig);
-        
+
+        final int roadRegulatorId = 10;
+        final int intersectionId = 100000;
+        final var intersectionKey = new IntersectionKey(roadRegulatorId, intersectionId);
+
         var newIntersectionConfig = new IntersectionConfig<String>(TestParameters.INTERSECTION_PARAM, 
-            "", 0, 0, newIntersectionValue, "", UnitsEnum.NONE, "");
+            "", roadRegulatorId, intersectionId, newIntersectionValue, "", UnitsEnum.NONE, "");
         intersectionListener.accept(newIntersectionConfig);
 
         assertThat(testParameters.getIntersectionParam(), equalTo(newIntersectionDefault));
-        assertThat(testParameters.getIntersectionParam(rsuId), equalTo(newIntersectionValue));
+
+        assertThat(testParameters.getIntersectionParam(intersectionKey), equalTo(newIntersectionValue));
         
     }
 
@@ -187,8 +192,8 @@ public class ConfigAlgorithmTest {
 
         ConfigMap<String> intersectionParamMap = new ConfigMap<>();
 
-        public String getIntersectionParam(String rsuID) {
-            return ConfigUtil.getIntersectionValue(rsuID, intersectionParamMap, intersectionParam);
+        public String getIntersectionParam(IntersectionKey intersectionKey) {
+            return ConfigUtil.getIntersectionValue(intersectionKey, intersectionParamMap, intersectionParam);
         }
     }
 }

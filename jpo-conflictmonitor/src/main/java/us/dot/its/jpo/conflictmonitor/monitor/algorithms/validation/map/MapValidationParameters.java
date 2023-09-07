@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
 
 @Data
 @Generated
@@ -84,13 +85,13 @@ public class MapValidationParameters {
     //
     // Intersection-specific properties 
     //
-    public int getLowerBound(String rsuID) {
-        return getIntersectionValue(rsuID, lowerBoundMap, lowerBound);
+    public int getLowerBound(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, lowerBoundMap, lowerBound);
     }
-    public int getUpperBound(String rsuID) {
-        return getIntersectionValue(rsuID, upperBoundMap, upperBound);
+    public int getUpperBound(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, upperBoundMap, upperBound);
     }
-    public boolean getDebug(String rsuID) {
-        return getIntersectionValue(rsuID, debugMap, debug);
+    public boolean getDebug(IntersectionKey intersectionKey) {
+        return getIntersectionValue(intersectionKey, debugMap, debug);
     }
 }
