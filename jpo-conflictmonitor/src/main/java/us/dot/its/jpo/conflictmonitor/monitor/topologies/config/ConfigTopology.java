@@ -208,7 +208,7 @@ public class ConfigTopology
     }
 
     @Override
-    public Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID) {
+    public Optional<IntersectionConfig<?>> getIntersectionConfig(int roadRegulatorId, int intersectionId, String key) {
         if (streams != null) {
             var intersectionStore = 
                 streams.store(
@@ -226,6 +226,11 @@ public class ConfigTopology
             }
         }
         return Optional.<IntersectionConfig<?>>empty();
+    }
+
+    @Override
+    public Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key) {
+
     }
 
 

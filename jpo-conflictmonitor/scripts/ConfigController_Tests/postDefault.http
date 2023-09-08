@@ -4,9 +4,9 @@ Content-Type: application/json
 {
   "key": "map.validation.outputIntervalSeconds",
   "category": "",
-  "value": 10,
+  "value": 5,
   "type": "java.lang.Integer",
   "units": "SECONDS",
-  "description": "Window hop (updated)",
+  "description": "Window hop",
   "updateType": "DEFAULT"
 }

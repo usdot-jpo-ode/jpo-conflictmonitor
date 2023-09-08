@@ -64,12 +64,9 @@ public class ConfigController {
             @RequestParam(name = "intersectionId") Optional<Integer> optionalIntersectionId,
             @RequestParam(name = "region", required = false) Optional<Integer> optionalRegion) {
         try {
-//            var configMap = configTopology.mapIntersectionConfigs();
-//            if (optionalPrefix.isPresent()) {
-//                var prefix = optionalPrefix.get();
-//
-//            }
-            return ResponseEntity.ok(null);
+            var configMap = configTopology.mapIntersectionConfigs();
+            var filteredMap = configMap.filter(optionalRegion, optionalIntersectionId, optionalPrefix);
+            return ResponseEntity.ok(filteredMap);
         } catch (Exception e) {
             logger.error("Error listing intersection configs", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -93,8 +90,15 @@ public class ConfigController {
     public @ResponseBody ResponseEntity<IntersectionConfig<?>> getIntersectionConfig(
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
-        String msg = String.format("No region, Intersection: %s, Key: %s", intersectionId, key);
-        return ResponseEntity.ok(null);
+        try {
+            IntersectionConfig<?> config = configTopology.getIntersectionConfig(intersectionId, key);
+            return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            String msg = String.format("Error getting intersection config for intersection: %s, key: %s",
+                    intersectionId, key);
+            logger.error(msg, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping(value = "/intersection/{region}/{intersectionId}/{key}")
