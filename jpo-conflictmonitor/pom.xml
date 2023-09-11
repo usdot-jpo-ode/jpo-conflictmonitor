@@ -100,17 +100,17 @@
     <dependency>
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-ode-core</artifactId>
-      <version>1.0.10-SNAPSHOT</version>
+      <version>1.3.0</version>
     </dependency>
     <dependency>
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-ode-plugins</artifactId>
-      <version>1.0.10-SNAPSHOT</version>
+      <version>1.3.0</version>
     </dependency>
     <dependency>
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-geojsonconverter</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
       <classifier>jpo-geojsonconverter</classifier>
     </dependency>
     <dependency>
