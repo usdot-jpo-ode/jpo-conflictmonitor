@@ -22,7 +22,6 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
     Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key);
     Optional<IntersectionConfig<?>> getIntersectionConfig(int roadRegulatorId, int intersectionId, String key);
     DefaultConfigMap mapDefaultConfigs();
-    IntersectionConfigMap mapIntersectionConfigs(String key);
     IntersectionConfigMap mapIntersectionConfigs();
     <T> void updateDefaultConfig(DefaultConfig<T> value);
     <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) throws ConfigException;

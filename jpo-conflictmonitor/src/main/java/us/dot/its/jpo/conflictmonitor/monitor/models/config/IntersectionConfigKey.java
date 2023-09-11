@@ -36,6 +36,7 @@ public class IntersectionConfigKey extends IntersectionKey  {
 
 
 
+
     @Override
     public boolean equals(Object o) {
         boolean compareIntersection = super.equals(o);

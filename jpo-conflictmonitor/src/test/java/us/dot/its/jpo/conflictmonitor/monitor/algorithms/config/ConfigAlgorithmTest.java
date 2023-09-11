@@ -121,14 +121,16 @@ public class ConfigAlgorithmTest {
 
 
         @Override
-        public Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID) {
-            return null;
+        public Optional<IntersectionConfig<?>> getIntersectionConfig(int roadRegulatorId, int intersectionId, String key) {
+            return Optional.empty();
         }
 
         @Override
-        public IntersectionConfigMap mapIntersectionConfigs(String key) {
-            return null;
+        public Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key) {
+            return Optional.empty();
         }
+
+
 
 
         @Override

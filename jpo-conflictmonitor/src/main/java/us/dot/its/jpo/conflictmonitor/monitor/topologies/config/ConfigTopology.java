@@ -27,10 +27,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.serialization.Serdes.String;
@@ -213,14 +210,14 @@ public class ConfigTopology
             var intersectionStore = 
                 streams.store(
                     StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
-                    QueryableStoreTypes.<RsuConfigKey, IntersectionConfig<?>>keyValueStore())  
+                    QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
                 );
             
             try (var store = intersectionStore.all()) {
                 while (store.hasNext()) {
-                    KeyValue<RsuConfigKey, IntersectionConfig<?>> keyValue = store.next();
-                    if (!Objects.equals(keyValue.key.getRsuId(), rsuID)) continue;
-                    if (!Objects.equals(keyValue.key.getKey(), key)) continue;
+                    KeyValue<IntersectionConfigKey, IntersectionConfig<?>> keyValue = store.next();
+                    IntersectionConfigKey paramKey = new IntersectionConfigKey(roadRegulatorId, intersectionId, key);
+                    if (!paramKey.equals(keyValue.key)) continue;
                     return Optional.of(keyValue.value);
                 }
             }
@@ -230,7 +227,31 @@ public class ConfigTopology
 
     @Override
     public Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key) {
+        if (streams != null) {
+            var intersectionStore =
+                    streams.store(
+                            StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
+                                    QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
+                    );
 
+            try (var store = intersectionStore.all()) {
+                List<IntersectionConfig<?>> configs = new ArrayList<>();
+                while (store.hasNext()) {
+                    KeyValue<IntersectionConfigKey, IntersectionConfig<?>> keyValue = store.next();
+                    if (intersectionId != keyValue.key.getIntersectionID()) continue;
+                    if (!StringUtils.equals(key, keyValue.key.getKey())) continue;
+                    configs.add(keyValue.value);
+                }
+                if (configs.size() > 1) {
+                    logger.error("More than one Config found in different regions for the same intersection id: {} and key: {}, returning the first one: {}",
+                            intersectionId, key, configs);
+                }
+                if (configs.size() > 0) {
+                    return Optional.of(configs.get(0));
+                }
+            }
+        }
+        return Optional.<IntersectionConfig<?>>empty();
     }
 
 
@@ -261,40 +282,22 @@ public class ConfigTopology
     public IntersectionConfigMap mapIntersectionConfigs() {
         var configs = new IntersectionConfigMap();
         if (streams != null) {
-            var intersectionStore = 
+
+            var intersectionStore =
                 streams.store(
                     StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
                     QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
                 );
-            
+
             try (var store = intersectionStore.all()) {
                 while (store.hasNext()) {
                     var item = store.next();
-                    if (configs.containsKey(item.key)) {
-                        configs.put(item.key, item.value);
-                    }
-                    configs.put(item.key, item.value);
+                    configs.putConfig(item.value);
                 }
             }
         }
         return configs;
     }
-
-
-
-
-    @Override
-    public IntersectionConfigMap mapIntersectionConfigs(String key) {
-        var allConfigs = mapIntersectionConfigs();
-        var filteredConfigs = new IntersectionConfigMap();
-        for (var entry : allConfigs.entrySet()) {
-           if (entry.getKey().equals(key)) {
-               filteredConfigs.put(entry.getKey(), entry.getValue());
-           }
-        }
-        return filteredConfigs;
-    }
-
 
 
 
@@ -337,7 +340,7 @@ public class ConfigTopology
             }
         }
         for (var key : intersectionListeners.keySet()) {
-            for (var intersectionConfig : mapIntersectionConfigs(key).values()) {
+            for (var intersectionConfig : mapIntersectionConfigs().listConfigs(key)) {
                 intersectionListeners.get(key).forEach(listener -> listener.accept(intersectionConfig));
                 logger.info("Restored intersectionConfig {}: {}", key, intersectionConfig);
             }

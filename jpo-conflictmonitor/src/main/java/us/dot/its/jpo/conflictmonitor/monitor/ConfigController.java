@@ -91,8 +91,8 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         try {
-            IntersectionConfig<?> config = configTopology.getIntersectionConfig(intersectionId, key);
-            return ResponseEntity.ok(config);
+            Optional<IntersectionConfig<?>> config = configTopology.getIntersectionConfig(intersectionId, key);
+            return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
             String msg = String.format("Error getting intersection config for intersection: %s, key: %s",
                     intersectionId, key);
