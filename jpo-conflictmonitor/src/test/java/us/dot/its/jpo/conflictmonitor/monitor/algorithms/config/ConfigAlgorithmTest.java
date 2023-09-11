@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.config;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -121,16 +122,14 @@ public class ConfigAlgorithmTest {
 
 
         @Override
-        public Optional<IntersectionConfig<?>> getIntersectionConfig(int roadRegulatorId, int intersectionId, String key) {
+        public Optional<IntersectionConfig<?>> getIntersectionConfig(IntersectionConfigKey configKey) {
             return Optional.empty();
         }
 
         @Override
-        public Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key) {
-            return Optional.empty();
+        public Collection<IntersectionConfig<?>> listIntersectionConfigs(String key) {
+            return null;
         }
-
-
 
 
         @Override
@@ -149,14 +148,11 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> config, int intersectionId) {
+        public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> config) {
             return null;
         }
 
-        @Override
-        public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId, int region) {
-            return null;
-        }
+
 
 
         @Override

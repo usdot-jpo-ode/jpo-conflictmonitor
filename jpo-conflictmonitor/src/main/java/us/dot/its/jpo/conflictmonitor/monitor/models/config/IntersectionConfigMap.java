@@ -64,8 +64,12 @@ public class IntersectionConfigMap extends TreeMap<Integer, IntersectionMap> {
      */
     public Optional<IntersectionConfig<?>> getConfig(int roadRegulatorId, int intersectionId, String key) {
         var configKey = new IntersectionConfigKey(roadRegulatorId, intersectionId, key);
+        return getConfig(configKey);
+    }
+
+    public Optional<IntersectionConfig<?>> getConfig(IntersectionConfigKey configKey) {
         if (containsKey(configKey)) {
-            IntersectionConfig<?> config = get(roadRegulatorId).get(intersectionId).get(key);
+            IntersectionConfig<?> config = get(configKey.getRoadRegulatorID()).get(configKey.getIntersectionID()).get(configKey.getKey());
             return Optional.of(config);
         }
         return Optional.empty();
@@ -89,6 +93,8 @@ public class IntersectionConfigMap extends TreeMap<Integer, IntersectionMap> {
         }
         return configList;
     }
+
+
 
     public boolean containsKey(IntersectionConfigKey configKey) {
         if (containsKey(configKey.getRoadRegulatorID())) {

@@ -91,7 +91,8 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         try {
-            Optional<IntersectionConfig<?>> config = configTopology.getIntersectionConfig(intersectionId, key);
+            var configKey = new IntersectionConfigKey(0, intersectionId, key);
+            Optional<IntersectionConfig<?>> config = configTopology.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
             String msg = String.format("Error getting intersection config for intersection: %s, key: %s",
@@ -106,8 +107,16 @@ public class ConfigController {
             @PathVariable(name = "region") int region,
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
-        String msg = String.format("Region: %s, Intersection: %s, Key: %s", region, intersectionId, key);
-        return ResponseEntity.ok(null);
+        try {
+            var configKey = new IntersectionConfigKey(region, intersectionId, key);
+            Optional<IntersectionConfig<?>> config = configTopology.getIntersectionConfig(configKey);
+            return ResponseEntity.ok(config.orElse(null));
+        } catch (Exception e) {
+            String msg = String.format("Error getting intersection config for region: %s, intersection: %s, key: %s",
+                    region, intersectionId, key);
+            logger.error(msg, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PostMapping(value = "default/{key}")

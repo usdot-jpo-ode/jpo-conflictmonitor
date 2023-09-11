@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.config;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Map;
 
@@ -19,8 +20,8 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
 
 
     DefaultConfig<?> getDefaultConfig(String key);
-    Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key);
-    Optional<IntersectionConfig<?>> getIntersectionConfig(int roadRegulatorId, int intersectionId, String key);
+    Optional<IntersectionConfig<?>> getIntersectionConfig(IntersectionConfigKey configKey);
+    Collection<IntersectionConfig<?>> listIntersectionConfigs(String key);
     DefaultConfigMap mapDefaultConfigs();
     IntersectionConfigMap mapIntersectionConfigs();
     <T> void updateDefaultConfig(DefaultConfig<T> value);

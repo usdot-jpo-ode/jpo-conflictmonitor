@@ -12,6 +12,7 @@ import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -205,7 +206,16 @@ public class ConfigTopology
                 result.setResult(ConfigUpdateResult.Result.ERROR);
                 throw new ConfigException(result, e);
             }
+
             kafkaTemplate.send(parameters.getIntersectionTableName(), keyString, valueString);
+
+            // Call intersection listeners to update properties in Spring components
+            intersectionListeners.get(value.getKey()).forEach(listener -> {
+                logger.info("Executing listener for {}", value);
+                listener.accept(value);
+            });
+
+            result.setResult(ConfigUpdateResult.Result.UPDATED);
         } catch (ConfigException ce) {
             throw ce;
         } catch (Exception ex) {
@@ -226,34 +236,50 @@ public class ConfigTopology
     }
 
     @Override
-    public Optional<IntersectionConfig<?>> getIntersectionConfig(int roadRegulatorId, int intersectionId, String key) {
+    public Optional<IntersectionConfig<?>> getIntersectionConfig(IntersectionConfigKey configKey) {
+        if (configKey.getIntersectionID() <= 0) {
+            // Special handling for unknown region
+            return getIntersectionConfigUnknownRegion(configKey.getIntersectionID(), configKey.getKey());
+        }
         if (streams != null) {
-            var intersectionStore = 
-                streams.store(
-                    StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
-                    QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
-                );
+            var intersectionStore = getIntersectionStore();
             
             try (var store = intersectionStore.all()) {
                 while (store.hasNext()) {
                     KeyValue<IntersectionConfigKey, IntersectionConfig<?>> keyValue = store.next();
-                    IntersectionConfigKey paramKey = new IntersectionConfigKey(roadRegulatorId, intersectionId, key);
-                    if (!paramKey.equals(keyValue.key)) continue;
+                    if (!configKey.equals(keyValue.key)) continue;
                     return Optional.of(keyValue.value);
                 }
             }
+        } else {
+            logger.error("Streams is not initialized");
         }
         return Optional.<IntersectionConfig<?>>empty();
     }
 
     @Override
-    public Optional<IntersectionConfig<?>> getIntersectionConfig(int intersectionId, String key) {
+    public Collection<IntersectionConfig<?>> listIntersectionConfigs(String key) {
+        var configList = new ArrayList<IntersectionConfig<?>>();
         if (streams != null) {
-            var intersectionStore =
-                    streams.store(
-                            StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
-                                    QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
-                    );
+            var intersectionStore = getIntersectionStore();
+
+            try (var store = intersectionStore.all()) {
+                while (store.hasNext()) {
+                    KeyValue<IntersectionConfigKey, IntersectionConfig<?>> keyValue = store.next();
+                    if (!StringUtils.equals(key, keyValue.key.getKey())) continue;
+                    configList.add(keyValue.value);
+                }
+            }
+        } else {
+            logger.error("Streams is not initialized");
+        }
+        return configList;
+    }
+
+
+    private Optional<IntersectionConfig<?>> getIntersectionConfigUnknownRegion(int intersectionId, String key) {
+        if (streams != null) {
+            var intersectionStore = getIntersectionStore();
 
             try (var store = intersectionStore.all()) {
                 List<IntersectionConfig<?>> configs = new ArrayList<>();
@@ -273,6 +299,17 @@ public class ConfigTopology
             }
         }
         return Optional.<IntersectionConfig<?>>empty();
+    }
+
+
+
+    private ReadOnlyKeyValueStore<IntersectionConfigKey, IntersectionConfig<?>> getIntersectionStore() {
+        var intersectionStore =
+                streams.store(
+                        StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
+                                QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
+                );
+        return intersectionStore;
     }
 
 
@@ -304,11 +341,7 @@ public class ConfigTopology
         var configs = new IntersectionConfigMap();
         if (streams != null) {
 
-            var intersectionStore =
-                streams.store(
-                    StoreQueryParameters.fromNameAndType(parameters.getIntersectionStateStore(),
-                    QueryableStoreTypes.<IntersectionConfigKey, IntersectionConfig<?>>keyValueStore())
-                );
+            var intersectionStore = getIntersectionStore();
 
             try (var store = intersectionStore.all()) {
                 while (store.hasNext()) {
@@ -361,7 +394,7 @@ public class ConfigTopology
             }
         }
         for (var key : intersectionListeners.keySet()) {
-            for (var intersectionConfig : mapIntersectionConfigs().listConfigs(key)) {
+            for (var intersectionConfig : listIntersectionConfigs(key)) {
                 intersectionListeners.get(key).forEach(listener -> listener.accept(intersectionConfig));
                 logger.info("Restored intersectionConfig {}: {}", key, intersectionConfig);
             }
