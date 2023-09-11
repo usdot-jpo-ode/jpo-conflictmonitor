@@ -190,14 +190,35 @@ public class ConfigTopology
 
 
     @Override
-    public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId) {
-        return null;
+    public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value) throws ConfigException {
+        ConfigUpdateResult<T> result = new ConfigUpdateResult<>();
+        try {
+            logger.info("Writing intersection config to kafka: {}", value);
+            var mapper = DateJsonMapper.getInstance();
+            String keyString = null;
+            String valueString = null;
+            try {
+                keyString = mapper.writeValueAsString(value.getIntersectionKey());
+                valueString = mapper.writeValueAsString(value);
+            } catch (JsonProcessingException e) {
+                result.setMessage(String.format("JsonProcessingException: %s", e.getMessage()));
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                throw new ConfigException(result, e);
+            }
+            kafkaTemplate.send(parameters.getIntersectionTableName(), keyString, valueString);
+        } catch (ConfigException ce) {
+            throw ce;
+        } catch (Exception ex) {
+            result.setResult(ConfigUpdateResult.Result.ERROR);
+            result.setMessage(String.format("Exception setting IntersectionConfig: %s", ex.getMessage()));
+            logger.error(result.toString());
+            throw new ConfigException(result);
+        }
+
+        return result;
     }
 
-    @Override
-    public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value, int intersectionId, int region) {
-        return null;
-    }
+
 
     @Override
     public void setKafkaTemplate(KafkaTemplate<String, String> kafkaTemplate) {
