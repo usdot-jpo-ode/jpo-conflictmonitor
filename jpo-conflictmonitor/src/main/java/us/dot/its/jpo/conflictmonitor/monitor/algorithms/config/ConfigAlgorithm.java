@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms.config;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.InvalidPropertyException;
@@ -85,7 +84,7 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
                             var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);
                             logger.info("Intersection listener {}: {}", key, value);
                             final var propValue = value.getValue();
-                            configMap.putObject(value.getIntersectionKey(), propValue);
+                            configMap.putObject(value.intersectionKey(), propValue);
                         });
                     } catch (InvalidPropertyException ex) {
                         var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);

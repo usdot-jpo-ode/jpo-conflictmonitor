@@ -1,0 +1,14 @@
+POST http://localhost:8082/config/intersection/10/101010/spat.validation.lowerBound
+Content-Type: application/json
+
+{
+  "key": "spat.validation.lowerBound",
+  "roadRegulatorID": 10,
+  "intersectionID": 101010,
+  "category": "",
+  "value": 75,
+  "type": "java.lang.Integer",
+  "units": "PER_PERIOD",
+  "description": "Exclusive minimum counts per period custom for intersection 101010.",
+  "updateType": "INTERSECTION"
+}

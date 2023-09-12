@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper=true)
 @Document("CmDefaultConfig")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DefaultConfig<T> extends Config<T>{
 
     @Id

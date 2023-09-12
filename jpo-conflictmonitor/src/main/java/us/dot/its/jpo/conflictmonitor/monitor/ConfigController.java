@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 
 import lombok.Getter;
 import lombok.Setter;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResu
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
+import java.util.Formatter;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -155,7 +155,7 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key,
             @RequestBody IntersectionConfig<T> config) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        return saveIntersectionConfigHelper(region, intersectionId, key, config, true);
     }
 
     @PostMapping(value = "intersection/{intersectionId}/{key}")
@@ -163,6 +163,52 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key,
             @RequestBody IntersectionConfig<T> config) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        return saveIntersectionConfigHelper(0, intersectionId, key, config, false);
     }
+
+    private <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfigHelper(
+            int region, int intersectionId, String key, IntersectionConfig<T> config, boolean useRegion) {
+
+        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
+        try (var errMsg = new Formatter();) {
+
+            // Validate path keys
+            if (!key.equals(config.getKey())) {
+                errMsg.format("Key in path does not match key in body %s != %s%n", key, config.getKey());
+            }
+            if (useRegion) {
+                if (region != config.getRoadRegulatorID()) {
+                    errMsg.format("Region in path does not match RoadRegulatorID in body %s != %s%n", region, config.getRoadRegulatorID());
+                }
+            } else {
+                if (config.getRoadRegulatorID() != 0) {
+                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is non-zero in the body: %s != 0.  Use the intersection/{region}/{intersectionId}/{key} endpoint to post with the region.%n", config.getRoadRegulatorID());
+                }
+            }
+            if (intersectionId != config.getIntersectionID()) {
+                errMsg.format("IntersectionID in path does not match body property %s != %s%n", intersectionId, config.getIntersectionID());
+            }
+            if (errMsg.toString().length() > 0) {
+                var msg = errMsg.toString();
+                logger.error(msg);
+                updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+                updateResult.setMessage(msg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
+            }
+
+            updateResult = configTopology.updateIntersectionConfig(config);
+            return ResponseEntity.ok(updateResult);
+
+        } catch (ConfigException ce) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<T>)ce.getResult());
+        } catch (Exception e) {
+            String msg = String.format("Exception saving intersection config %s", config);
+            logger.error(msg, e);
+            updateResult.setMessage(msg);
+            updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(updateResult);
+        }
+
+    }
+
 }
