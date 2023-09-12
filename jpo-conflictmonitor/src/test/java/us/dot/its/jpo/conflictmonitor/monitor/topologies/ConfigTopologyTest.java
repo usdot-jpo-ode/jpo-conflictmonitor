@@ -20,6 +20,8 @@ import static org.mockito.Mockito.any;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -28,16 +30,22 @@ import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigTopologyTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigTopologyTest.class);
+
     final String defaultTableName = "topic.CmDefaultConfigTable";
-    final String defaultStateStore = "default-config";
+    final String customTableName = "topic.CmCustomConfigTable";
+    final String mergedTableName = "topic.CmMergedConfigTable";
+    final String mergedStateStore = "default-config";
     final String intersectionStateStore = "intersection-config";
     final String intersectionTableName = "topic.CmIntersectionConfigTable";
 
     final String key = "key";
     final int defaultValue = 10;
+    final int customValue = 9;
     final String category = "category";
     final UnitsEnum units = UnitsEnum.SECONDS;
     final String description = "description";
+    final String customDescription = "customDescription";
     final String rsuId = "127.0.0.1";
     final int intersectionId = 11111;
     final int regionId = 1;
@@ -63,40 +71,42 @@ public class ConfigTopologyTest {
                     JsonSerdes.DefaultConfig().serializer()
             );
 
-            var intersectionTopic = driver.createInputTopic(intersectionTableName,
+            var customTopic = driver.createInputTopic(customTableName,
                     Serdes.String().serializer(),
+                    JsonSerdes.DefaultConfig().serializer());
+
+            var mergedTopic = driver.createOutputTopic(mergedTableName,
+                    Serdes.String().deserializer(),
+                    JsonSerdes.DefaultConfig().deserializer());
+
+            var intersectionTopic = driver.createInputTopic(intersectionTableName,
+                    JsonSerdes.IntersectionConfigKey().serializer(),
                     JsonSerdes.IntersectionConfig().serializer()
             );
 
-            var intersectionTable = driver.createOutputTopic(intersectionTableName,
-                    JsonSerdes.RsuConfigKey().deserializer(),
-                    JsonSerdes.IntersectionConfig().deserializer()
-            );
+
 
             final var defaultConfig = getDefaultConfig();
+            final var customConfig = getCustomConfig();
             final var intersectionConfig = getIntersectionConfig();
 
             defaultTopic.pipeInput(key, defaultConfig);
-            var defaultStore = driver.getKeyValueStore(defaultStateStore);
-            // var iterator = defaultStore.all();
-            // while (iterator.hasNext()) {
-            //     var item = iterator.next();
-            //     System.out.println(item.key + " " + item.value);
-            // }
-            var defaultResult = defaultStore.get(key);
+            var mergedStore = driver.getKeyValueStore(mergedStateStore);
+            var defaultResult = mergedStore.get(key);
             
-            assertThat("default state store", defaultResult, equalTo(defaultConfig));            
+            assertThat("default value in merged state store", defaultResult, equalTo(defaultConfig));
 
-            intersectionTopic.pipeInput(intersectionConfig);
-            var intersectionStore = driver.<RsuConfigKey, IntersectionConfig<?>>getKeyValueStore(intersectionStateStore);
-            var intersectionResult = intersectionStore.get(new RsuConfigKey(rsuId, key));
+            customTopic.pipeInput(key, customConfig);
+            var customResult = mergedStore.get(key);
+            assertThat("custom value in merged state store", customResult, equalTo(customConfig));
+
+
+            intersectionTopic.pipeInput(intersectionConfig.intersectionKey(), intersectionConfig);
+            var intersectionStore = driver.getKeyValueStore(intersectionStateStore);
+            var intersectionResult = intersectionStore.get(new IntersectionConfigKey(regionId, intersectionId, key));
             assertThat("intersection state store", intersectionResult, equalTo(intersectionConfig));
 
-            var intersectionTableList = intersectionTable.readKeyValuesToList();
-            assertThat(intersectionTableList, hasSize(equalTo(1)));
-            var tableItem = intersectionTableList.get(0);
-            assertThat("intersection table key", tableItem.key, equalTo(new RsuConfigKey(rsuId, key)));
-            assertThat("intersection table value", tableItem.value, equalTo(intersectionConfig));
+
 
         }
 
@@ -133,7 +143,9 @@ public class ConfigTopologyTest {
     private ConfigParameters getParameters() {
         var parameters = new ConfigParameters();
         parameters.setDefaultTopicName(defaultTableName);
-        parameters.setDefaultStateStore(defaultStateStore);
+        parameters.setCustomTopicName(customTableName);
+        parameters.setMergedTopicName(mergedTableName);
+        parameters.setDefaultStateStore(mergedStateStore);
         parameters.setIntersectionStateStore(intersectionStateStore);
         parameters.setIntersectionTableName(intersectionTableName);
         return parameters;
@@ -146,6 +158,17 @@ public class ConfigTopologyTest {
         defaultConfig.setCategory(category);
         defaultConfig.setUnits(units);
         defaultConfig.setDescription(description);
+        defaultConfig.setType("java.lang.Integer");
+        return defaultConfig;
+    }
+
+    private DefaultConfig<Integer> getCustomConfig() {
+        var defaultConfig = new DefaultConfig<Integer>();
+        defaultConfig.setKey(key);
+        defaultConfig.setValue(customValue);
+        defaultConfig.setCategory(category);
+        defaultConfig.setUnits(units);
+        defaultConfig.setDescription(customDescription);
         defaultConfig.setType("java.lang.Integer");
         return defaultConfig;
     }

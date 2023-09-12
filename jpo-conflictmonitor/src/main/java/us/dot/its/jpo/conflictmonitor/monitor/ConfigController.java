@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
@@ -24,16 +25,16 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/config", produces = MediaType.APPLICATION_JSON_VALUE)
 @DependsOn("createKafkaTopics")
-@Profile("!test")
+@Profile({"!test", "testConfig"})
 public class ConfigController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigController.class);
 
-    final ConfigTopology configTopology;
+    final ConfigAlgorithm configAlgorithm;
 
     @Autowired
-    public ConfigController(ConfigTopology configTopology) {
-        this.configTopology = configTopology;
+    public ConfigController(ConfigTopology configAlgorithm) {
+        this.configAlgorithm = configAlgorithm;
     }
 
     @GetMapping(value = "/defaults")
@@ -41,7 +42,7 @@ public class ConfigController {
             @RequestParam(name = "prefix") Optional<String> optionalPrefix)  {
 
         try {
-            var configMap = configTopology.mapDefaultConfigs();
+            var configMap = configAlgorithm.mapDefaultConfigs();
             if (optionalPrefix.isPresent()) {
                 var prefix = optionalPrefix.get();
                 var filteredMap = configMap.entrySet().stream()
@@ -64,7 +65,7 @@ public class ConfigController {
             @RequestParam(name = "intersectionId") Optional<Integer> optionalIntersectionId,
             @RequestParam(name = "region", required = false) Optional<Integer> optionalRegion) {
         try {
-            var configMap = configTopology.mapIntersectionConfigs();
+            var configMap = configAlgorithm.mapIntersectionConfigs();
             var filteredMap = configMap.filter(optionalRegion, optionalIntersectionId, optionalPrefix);
             return ResponseEntity.ok(filteredMap);
         } catch (Exception e) {
@@ -77,7 +78,7 @@ public class ConfigController {
     public @ResponseBody ResponseEntity<DefaultConfig<?>> getDefaultConfig(
             @PathVariable(name = "key") String key) {
         try {
-            DefaultConfig<?> config = configTopology.getDefaultConfig(key);
+            DefaultConfig<?> config = configAlgorithm.getDefaultConfig(key);
             return ResponseEntity.ok(config);
         } catch (Exception e) {
             String msg = String.format("Error getting default config %s", key);
@@ -92,7 +93,7 @@ public class ConfigController {
             @PathVariable(name = "key") String key) {
         try {
             var configKey = new IntersectionConfigKey(0, intersectionId, key);
-            Optional<IntersectionConfig<?>> config = configTopology.getIntersectionConfig(configKey);
+            Optional<IntersectionConfig<?>> config = configAlgorithm.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
             String msg = String.format("Error getting intersection config for intersection: %s, key: %s",
@@ -109,7 +110,7 @@ public class ConfigController {
             @PathVariable(name = "key") String key) {
         try {
             var configKey = new IntersectionConfigKey(region, intersectionId, key);
-            Optional<IntersectionConfig<?>> config = configTopology.getIntersectionConfig(configKey);
+            Optional<IntersectionConfig<?>> config = configAlgorithm.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
             String msg = String.format("Error getting intersection config for region: %s, intersection: %s, key: %s",
@@ -136,7 +137,7 @@ public class ConfigController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
 
-            updateResult = configTopology.updateCustomConfig(config);
+            updateResult = configAlgorithm.updateCustomConfig(config);
             return ResponseEntity.ok(updateResult);
         } catch (ConfigException ce) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<T>)ce.getResult());
@@ -196,7 +197,7 @@ public class ConfigController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updateResult);
             }
 
-            updateResult = configTopology.updateIntersectionConfig(config);
+            updateResult = configAlgorithm.updateIntersectionConfig(config);
             return ResponseEntity.ok(updateResult);
 
         } catch (ConfigException ce) {

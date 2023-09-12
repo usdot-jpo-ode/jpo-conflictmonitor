@@ -21,7 +21,7 @@ import org.springframework.data.domain.Sort;
 
 @Configuration
 @DependsOn("mongoTemplate") 
-@Profile("!test")
+@Profile({"!test & !testConfig"})
 public class MongoCollectionsConfig {
     private static final Logger logger = LoggerFactory.getLogger(MongoCollectionsConfig.class);
 
