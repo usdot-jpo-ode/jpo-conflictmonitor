@@ -18,8 +18,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 public interface ConfigAlgorithm extends ExecutableAlgorithm {
 
 
-    DefaultConfig<?> getDefaultConfig(String key);
-    Optional<IntersectionConfig<?>> getIntersectionConfig(IntersectionConfigKey configKey);
+    <T> DefaultConfig<T> getDefaultConfig(String key);
+    <T> Optional<IntersectionConfig<T>> getIntersectionConfig(IntersectionConfigKey configKey);
     Collection<IntersectionConfig<?>> listIntersectionConfigs(String key);
     DefaultConfigMap mapDefaultConfigs();
     IntersectionConfigMap mapIntersectionConfigs();

@@ -46,13 +46,13 @@ public class ConfigTopology
         Multimaps.synchronizedMultimap(ArrayListMultimap.create());
 
     @Override
-    public DefaultConfig<?> getDefaultConfig(String key) {
+    public <T> DefaultConfig<T> getDefaultConfig(String key) {
         if (streams != null) {
             var defaultStore = 
                 streams.store(
                     StoreQueryParameters.fromNameAndType(parameters.getDefaultStateStore(), 
                     QueryableStoreTypes.<String, DefaultConfig<?>>keyValueStore()));
-            return defaultStore.get(key);
+            return (DefaultConfig<T>)defaultStore.get(key);
         }
         logger.error("Streams is not initialized");
         return null;
@@ -216,7 +216,7 @@ public class ConfigTopology
             validateTypeAndUnits(value, defaultConfig, result);
 
             // Retrieve old intersection config if it exists
-            Optional<IntersectionConfig<?>> oldConfigOpt = getIntersectionConfig(value.intersectionKey());
+            Optional<IntersectionConfig<T>> oldConfigOpt = getIntersectionConfig(value.intersectionKey());
             if (oldConfigOpt.isPresent()) {
                 IntersectionConfig<?> oldConfig = oldConfigOpt.get();
                 result.setOldValue((IntersectionConfig<T>)oldConfig);
@@ -266,7 +266,7 @@ public class ConfigTopology
     }
 
     @Override
-    public Optional<IntersectionConfig<?>> getIntersectionConfig(IntersectionConfigKey configKey) {
+    public <T> Optional<IntersectionConfig<T>> getIntersectionConfig(IntersectionConfigKey configKey) {
         if (configKey.getIntersectionID() <= 0) {
             // Special handling for unknown region
             return getIntersectionConfigUnknownRegion(configKey.getIntersectionID(), configKey.getKey());
@@ -276,15 +276,15 @@ public class ConfigTopology
             
             try (var store = intersectionStore.all()) {
                 while (store.hasNext()) {
-                    KeyValue<IntersectionConfigKey, IntersectionConfig<?>> keyValue = store.next();
+                    var keyValue = store.next();
                     if (!configKey.equals(keyValue.key)) continue;
-                    return Optional.of(keyValue.value);
+                    return Optional.of((IntersectionConfig<T>)keyValue.value);
                 }
             }
         } else {
             logger.error("Streams is not initialized");
         }
-        return Optional.<IntersectionConfig<?>>empty();
+        return Optional.empty();
     }
 
     @Override
@@ -307,7 +307,7 @@ public class ConfigTopology
     }
 
 
-    private Optional<IntersectionConfig<?>> getIntersectionConfigUnknownRegion(int intersectionId, String key) {
+    private <T> Optional<IntersectionConfig<T>> getIntersectionConfigUnknownRegion(int intersectionId, String key) {
         if (streams != null) {
             var intersectionStore = getIntersectionStore();
 
@@ -324,11 +324,11 @@ public class ConfigTopology
                             intersectionId, key, configs);
                 }
                 if (configs.size() > 0) {
-                    return Optional.of(configs.get(0));
+                    return Optional.of((IntersectionConfig<T>)configs.get(0));
                 }
             }
         }
-        return Optional.<IntersectionConfig<?>>empty();
+        return Optional.empty();
     }
 
 

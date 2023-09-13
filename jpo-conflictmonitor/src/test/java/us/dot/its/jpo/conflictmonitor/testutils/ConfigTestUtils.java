@@ -4,6 +4,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 import java.util.Properties;
@@ -61,13 +62,24 @@ public class ConfigTestUtils {
     }
 
     public static DefaultConfig<?> getDefaultConfig() {
-        var defaultConfig = new DefaultIntConfig();
+        var defaultConfig = new DefaultConfig<Integer>();
         defaultConfig.setKey(key);
         defaultConfig.setValue(defaultValue);
         defaultConfig.setCategory(category);
         defaultConfig.setUnits(units);
         defaultConfig.setDescription(description);
         defaultConfig.setType("java.lang.Integer");
+        return defaultConfig;
+    }
+
+    public static <T> DefaultConfig<T> getDefaultConfig(T value, String type) {
+        var defaultConfig = new DefaultConfig<T>();
+        defaultConfig.setKey(key);
+        defaultConfig.setValue(value);
+        defaultConfig.setCategory(category);
+        defaultConfig.setUnits(units);
+        defaultConfig.setDescription(description);
+        defaultConfig.setType(type);
         return defaultConfig;
     }
 
@@ -86,9 +98,35 @@ public class ConfigTestUtils {
         return intersectionConfig;
     }
 
+    public static <T> IntersectionConfig<T> getIntersectionConfig(T value, String type) {
+        var intersectionConfig = new IntersectionConfig<T>();
+        intersectionConfig.setKey(key);
+        intersectionConfig.setValue(value);
+        intersectionConfig.setCategory(category);
+        intersectionConfig.setUnits(units);
+        intersectionConfig.setDescription(description);
+        intersectionConfig.setIntersectionID(intersectionId);
+        intersectionConfig.setRoadRegulatorID(regionId);
+        intersectionConfig.setType(type);
+        return intersectionConfig;
+    }
+
     public static IntersectionConfig<Integer> getIntersectionConfig_NoRegion() {
         var intersectionConfig = getIntersectionConfig();
         intersectionConfig.setRoadRegulatorID(0);
+        return intersectionConfig;
+    }
+
+    public static <T> IntersectionConfig<T> getIntersectionConfig_NoRegion(T value, String type) {
+        var intersectionConfig = new IntersectionConfig<T>();
+        intersectionConfig.setKey(key);
+        intersectionConfig.setValue(value);
+        intersectionConfig.setCategory(category);
+        intersectionConfig.setUnits(units);
+        intersectionConfig.setDescription(description);
+        intersectionConfig.setIntersectionID(intersectionId);
+        intersectionConfig.setRoadRegulatorID(0);
+        intersectionConfig.setType(type);
         return intersectionConfig;
     }
 
@@ -104,5 +142,12 @@ public class ConfigTestUtils {
         var intersectionConfig = getIntersectionConfig();
         intersectionConfigMap.putConfig(intersectionConfig);
         return intersectionConfigMap;
+    }
+
+    public static <T> ConfigUpdateResult<T> getUpdateResult(Config<T> config) {
+        var result = new ConfigUpdateResult<T>();
+        result.setNewValue(config);
+        result.setResult(ConfigUpdateResult.Result.UPDATED);
+        return result;
     }
 }

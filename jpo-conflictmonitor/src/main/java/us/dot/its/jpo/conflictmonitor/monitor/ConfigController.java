@@ -93,7 +93,7 @@ public class ConfigController {
             @PathVariable(name = "key") String key) {
         try {
             var configKey = new IntersectionConfigKey(0, intersectionId, key);
-            Optional<IntersectionConfig<?>> config = configAlgorithm.getIntersectionConfig(configKey);
+            var config = configAlgorithm.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
             String msg = String.format("Error getting intersection config for intersection: %s, key: %s",
@@ -110,7 +110,7 @@ public class ConfigController {
             @PathVariable(name = "key") String key) {
         try {
             var configKey = new IntersectionConfigKey(region, intersectionId, key);
-            Optional<IntersectionConfig<?>> config = configAlgorithm.getIntersectionConfig(configKey);
+            var config = configAlgorithm.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
             String msg = String.format("Error getting intersection config for region: %s, intersection: %s, key: %s",
