@@ -16,6 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.any;
+import static us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils.*;
 
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,30 +27,26 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigTopologyTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigTopologyTest.class);
 
-    final String defaultTableName = "topic.CmDefaultConfigTable";
-    final String customTableName = "topic.CmCustomConfigTable";
-    final String mergedTableName = "topic.CmMergedConfigTable";
-    final String mergedStateStore = "default-config";
-    final String intersectionStateStore = "intersection-config";
-    final String intersectionTableName = "topic.CmIntersectionConfigTable";
 
-    final String key = "key";
-    final int defaultValue = 10;
-    final int customValue = 9;
-    final String category = "category";
-    final UnitsEnum units = UnitsEnum.SECONDS;
-    final String description = "description";
-    final String customDescription = "customDescription";
-    final String rsuId = "127.0.0.1";
-    final int intersectionId = 11111;
-    final int regionId = 1;
-    final int intersectionValue = 12;
+
+//    final String key = "key";
+//    final int defaultValue = 10;
+//    final int customValue = 9;
+//    final String category = "category";
+//    final UnitsEnum units = UnitsEnum.SECONDS;
+//    final String description = "description";
+//    final String customDescription = "customDescription";
+//    final String rsuId = "127.0.0.1";
+//    final int intersectionId = 11111;
+//    final int regionId = 1;
+//    final int intersectionValue = 12;
 
 
     @Test
@@ -57,7 +54,7 @@ public class ConfigTopologyTest {
 
         
         var configTopology = new ConfigTopology();
-        var configParams = getParameters();
+        var configParams = ConfigTestUtils.getParameters();
         var streamsConfig = new Properties();
         configTopology.setParameters(configParams);
 
@@ -127,7 +124,7 @@ public class ConfigTopologyTest {
     @Test
     public void testGetDefaultConfig() {
         var configTopology = new ConfigTopology();
-        var parameters = getParameters();
+        var parameters = ConfigTestUtils.getParameters();
         configTopology.setParameters(parameters);
         var streams = mock(KafkaStreams.class);
         when(streams.store(any())).thenReturn(defaultStore);
@@ -140,48 +137,39 @@ public class ConfigTopologyTest {
 
 
 
-    private ConfigParameters getParameters() {
-        var parameters = new ConfigParameters();
-        parameters.setDefaultTopicName(defaultTableName);
-        parameters.setCustomTopicName(customTableName);
-        parameters.setMergedTopicName(mergedTableName);
-        parameters.setDefaultStateStore(mergedStateStore);
-        parameters.setIntersectionStateStore(intersectionStateStore);
-        parameters.setIntersectionTableName(intersectionTableName);
-        return parameters;
-    }
+
     
-    private DefaultConfig<Integer> getDefaultConfig() {
-        var defaultConfig = new DefaultConfig<Integer>();
-        defaultConfig.setKey(key);
-        defaultConfig.setValue(defaultValue);
-        defaultConfig.setCategory(category);
-        defaultConfig.setUnits(units);
-        defaultConfig.setDescription(description);
-        defaultConfig.setType("java.lang.Integer");
-        return defaultConfig;
-    }
-
-    private DefaultConfig<Integer> getCustomConfig() {
-        var defaultConfig = new DefaultConfig<Integer>();
-        defaultConfig.setKey(key);
-        defaultConfig.setValue(customValue);
-        defaultConfig.setCategory(category);
-        defaultConfig.setUnits(units);
-        defaultConfig.setDescription(customDescription);
-        defaultConfig.setType("java.lang.Integer");
-        return defaultConfig;
-    }
-
-    private IntersectionConfig<Integer> getIntersectionConfig() {
-        var intersectionConfig = new IntersectionConfig<Integer>();
-        intersectionConfig.setKey(key);
-        intersectionConfig.setValue(intersectionValue);
-        intersectionConfig.setCategory(category);
-        intersectionConfig.setUnits(units);
-        intersectionConfig.setDescription(description);
-        intersectionConfig.setIntersectionID(intersectionId);
-        intersectionConfig.setRoadRegulatorID(regionId);
-        intersectionConfig.setType("java.lang.Integer");
-        return intersectionConfig;}
+//    private DefaultConfig<Integer> getDefaultConfig() {
+//        var defaultConfig = new DefaultConfig<Integer>();
+//        defaultConfig.setKey(key);
+//        defaultConfig.setValue(defaultValue);
+//        defaultConfig.setCategory(category);
+//        defaultConfig.setUnits(units);
+//        defaultConfig.setDescription(description);
+//        defaultConfig.setType("java.lang.Integer");
+//        return defaultConfig;
+//    }
+//
+//    private DefaultConfig<Integer> getCustomConfig() {
+//        var defaultConfig = new DefaultConfig<Integer>();
+//        defaultConfig.setKey(key);
+//        defaultConfig.setValue(customValue);
+//        defaultConfig.setCategory(category);
+//        defaultConfig.setUnits(units);
+//        defaultConfig.setDescription(customDescription);
+//        defaultConfig.setType("java.lang.Integer");
+//        return defaultConfig;
+//    }
+//
+//    private IntersectionConfig<Integer> getIntersectionConfig() {
+//        var intersectionConfig = new IntersectionConfig<Integer>();
+//        intersectionConfig.setKey(key);
+//        intersectionConfig.setValue(intersectionValue);
+//        intersectionConfig.setCategory(category);
+//        intersectionConfig.setUnits(units);
+//        intersectionConfig.setDescription(description);
+//        intersectionConfig.setIntersectionID(intersectionId);
+//        intersectionConfig.setRoadRegulatorID(regionId);
+//        intersectionConfig.setType("java.lang.Integer");
+//        return intersectionConfig;}
 }
