@@ -54,7 +54,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 @RestController
 @RequestMapping(path = "/health", produces = MediaType.APPLICATION_JSON_VALUE)
 @DependsOn("createKafkaTopics")
-@Profile("!test")
+@Profile("!test && !testConfig")
 public class AppHealthMonitor {
 
     private static final ObjectMapper mapper;

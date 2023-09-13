@@ -75,7 +75,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
  */
 @Controller
 @DependsOn("createKafkaTopics")
-@Profile("!test")
+@Profile("!test && !testConfig")
 public class MonitorServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);

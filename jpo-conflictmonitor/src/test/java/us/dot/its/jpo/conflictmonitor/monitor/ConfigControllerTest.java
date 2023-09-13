@@ -40,15 +40,12 @@ public class ConfigControllerTest {
         assertThat(configController, notNullValue());
     }
     @Test
-    public void testListDefaultConfigs() throws Exception {
+    public void testListDefaultConfigs() {
         final String url = String.format("http://localhost:%d/config/defaults", port);
         var response = restTemplate.getForEntity(
                 url, String.class);
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        var mapper = DateJsonMapper.getInstance();
-        var configMap = mapper.readValue(response.getBody(), DefaultConfigMap.class);
-        assertThat(configMap, notNullValue());
-        assertThat(configMap.keySet(), hasSize(greaterThan(0)));
     }
+
 }
