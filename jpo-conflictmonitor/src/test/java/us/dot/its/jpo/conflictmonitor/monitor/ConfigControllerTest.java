@@ -1,49 +1,25 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
-import lombok.Data;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaAdmin;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.EmbeddedKafkaBroker;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
-import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
-import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-import java.util.Properties;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.thymeleaf.util.MapUtils.containsKey;
 
 // Test using Spring Mock MVC, see https://spring.io/guides/gs/testing-web/
 @WebMvcTest(ConfigController.class)
@@ -64,10 +40,6 @@ public class ConfigControllerTest {
 
     @MockBean
     private ConflictMonitorProperties conflictMonitorProperties;
-
-
-
-
 
     @Test
     public void testListDefaultConfigs() throws Exception {
