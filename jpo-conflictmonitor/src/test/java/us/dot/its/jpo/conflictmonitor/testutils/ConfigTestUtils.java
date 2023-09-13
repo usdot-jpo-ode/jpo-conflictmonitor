@@ -4,10 +4,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 import java.util.Properties;
 
@@ -63,8 +60,8 @@ public class ConfigTestUtils {
         return defaultConfig;
     }
 
-    public static DefaultConfig<Integer> getDefaultConfig() {
-        var defaultConfig = new DefaultConfig<Integer>();
+    public static DefaultConfig<?> getDefaultConfig() {
+        var defaultConfig = new DefaultIntConfig();
         defaultConfig.setKey(key);
         defaultConfig.setValue(defaultValue);
         defaultConfig.setCategory(category);
@@ -73,6 +70,8 @@ public class ConfigTestUtils {
         defaultConfig.setType("java.lang.Integer");
         return defaultConfig;
     }
+
+
 
     public static IntersectionConfig<Integer> getIntersectionConfig() {
         var intersectionConfig = new IntersectionConfig<Integer>();
@@ -98,5 +97,12 @@ public class ConfigTestUtils {
         var defaultConfig = getDefaultConfig();
         defaultConfigMap.put(defaultConfig.getKey(), getDefaultConfig());
         return defaultConfigMap;
+    }
+
+    public static IntersectionConfigMap getIntersectionConfigMap() {
+        var intersectionConfigMap = new IntersectionConfigMap();
+        var intersectionConfig = getIntersectionConfig();
+        intersectionConfigMap.putConfig(intersectionConfig);
+        return intersectionConfigMap;
     }
 }
