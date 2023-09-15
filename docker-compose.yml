@@ -55,6 +55,8 @@ services:
         condition: service_healthy
       conflictmonitor:
         condition: service_healthy
+      connect:
+        condition: service_healthy
     command: 'bash /scripts/mongo_initialize.sh'
 
 
