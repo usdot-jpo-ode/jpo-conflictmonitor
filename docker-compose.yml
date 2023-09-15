@@ -40,6 +40,24 @@ services:
       start_period: 30s
     command: ["--replSet", "rs0", "--bind_ip_all"]
 
+  mongodb_initializer:
+    image: mongo:6
+    build:
+      context: ./docker/mongo
+      dockerfile: Dockerfile
+    container_name: jpo-conflictmonitor-mongodb-mongodb_initializer
+    restart: always
+    environment:
+      - ${DP_HOST_IP}
+      - CONN_STR=mongodb://${DB_HOST_IP}:27017/?replicaSet=rs0
+    depends_on:
+      mongodb_container:
+        condition: service_healthy
+      conflictmonitor:
+        condition: service_healthy
+    command: 'bash /scripts/mongo_initialize.sh'
+
+
 
   connect:
     image: cp-kafka-connect:6.1.9
@@ -89,6 +107,7 @@ services:
         echo -e "\n--\n+> Creating Kafka Connect MongoDB sink"
         bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017/?replicaSet=rs0"
         sleep infinity
+
 
 volumes:
   mongodb_data_container:

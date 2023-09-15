@@ -156,9 +156,6 @@ spring.data.mongodb.database: ConflictMonitor
 
 # TTL initial settings
 mongo.indexes:
-  - name: CmSignalStopEvent
-    timefield: eventGeneratedAt
-    expiretime: 7884000
   - name: CmSignalStateConflictEvents
     timefield: eventGeneratedAt
     expiretime: 7884000
@@ -187,6 +184,12 @@ mongo.indexes:
     timefield: assessmentGeneratedAt
     expiretime: 7884000
   - name: CmSpatBroadcastRateEvents
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmStopLineStopEvent
+    timefield: eventGeneratedAt
+    expiretime: 7884000
+  - name: CmStopLinePassageEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
 
