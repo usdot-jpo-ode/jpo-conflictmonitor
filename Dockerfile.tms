@@ -45,7 +45,7 @@ WORKDIR /home
 COPY --from=builder /home/test-message-sender/message-sender/target/message-sender.jar /home
 # # ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-EXPOSE 8080
+EXPOSE 8088
 ENTRYPOINT ["java", \
 	"-Djava.rmi.server.hostname=$DOCKER_HOST_IP", \
 	"-Dcom.sun.management.jmxremote.port=9090", \

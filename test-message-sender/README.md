@@ -19,12 +19,22 @@ $ mvn clean install
 
 ## Using the Message Sender/ Script Creator GUI
 
+The test message sender can be run either through docker or from the command line. To run the test-message-sender through docker perform the following
+
+Build the Docker Image
+```bash
+$ docker build -t message-sender -f Dockerfile.tms
+$ docker run -p 8088:8088 -d message-sender
+```
+
+
 To run the message-sender GUI, from the `test-message-sender/message-sender` directory, run:
 ```bash
 $ mvn spring-boot:run
 ```
 
 and navigate to `http:localhost:8088` in a browser.  More details: [message-sender README](message-sender/README.md)
+
 
 ## Using the Script Runner Command Line Tool
 
