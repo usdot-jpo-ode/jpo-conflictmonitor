@@ -58,6 +58,7 @@ public class ConfigTestUtils {
         defaultConfig.setUnits(units);
         defaultConfig.setDescription(customDescription);
         defaultConfig.setType("java.lang.Integer");
+        defaultConfig.setUpdateType(UpdateType.INTERSECTION);
         return defaultConfig;
     }
 
@@ -69,6 +70,7 @@ public class ConfigTestUtils {
         defaultConfig.setUnits(units);
         defaultConfig.setDescription(description);
         defaultConfig.setType("java.lang.Integer");
+        defaultConfig.setUpdateType(UpdateType.INTERSECTION);
         return defaultConfig;
     }
 
@@ -80,6 +82,7 @@ public class ConfigTestUtils {
         defaultConfig.setUnits(units);
         defaultConfig.setDescription(description);
         defaultConfig.setType(type);
+        defaultConfig.setUpdateType(UpdateType.INTERSECTION);
         return defaultConfig;
     }
 
@@ -95,6 +98,7 @@ public class ConfigTestUtils {
         intersectionConfig.setIntersectionID(intersectionId);
         intersectionConfig.setRoadRegulatorID(regionId);
         intersectionConfig.setType("java.lang.Integer");
+        intersectionConfig.setUpdateType(UpdateType.INTERSECTION);
         return intersectionConfig;
     }
 

@@ -250,8 +250,9 @@ public class ConfigTopology
             throw ce;
         } catch (Exception ex) {
             result.setResult(ConfigUpdateResult.Result.ERROR);
+
             result.setMessage(String.format("Exception setting IntersectionConfig: %s", ex.getMessage()));
-            logger.error(result.toString());
+            logger.error(result.getMessage(), ex);
             throw new ConfigException(result);
         }
 
@@ -274,9 +275,9 @@ public class ConfigTopology
         if (streams != null) {
             var intersectionStore = getIntersectionStore();
             
-            try (var store = intersectionStore.all()) {
-                while (store.hasNext()) {
-                    var keyValue = store.next();
+            try (var iter = intersectionStore.all()) {
+                while (iter.hasNext()) {
+                    var keyValue = iter.next();
                     if (!configKey.equals(keyValue.key)) continue;
                     return Optional.of((IntersectionConfig<T>)keyValue.value);
                 }

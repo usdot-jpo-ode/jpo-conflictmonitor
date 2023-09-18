@@ -1,15 +1,13 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.config;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.Config;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ConfigUpdateResult<T> {
 
     private Result result;

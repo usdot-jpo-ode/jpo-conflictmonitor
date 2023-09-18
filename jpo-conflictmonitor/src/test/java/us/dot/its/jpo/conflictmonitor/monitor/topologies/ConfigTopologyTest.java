@@ -2,9 +2,14 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import java.util.Properties;
 
+import kafka.security.auth.Read;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.state.KeyValueIterator;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.junit.Test;
 
@@ -12,10 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.any;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 import static us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils.*;
 
 import org.junit.runner.RunWith;
@@ -23,7 +26,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
@@ -119,7 +124,23 @@ public class ConfigTopologyTest {
 
     }
 
-    @Mock ReadOnlyKeyValueStore<String, DefaultConfig<Integer>> defaultStore;
+    @Mock
+    ReadOnlyKeyValueStore<String, DefaultConfig<Integer>> defaultStore;
+
+
+
+    @Mock
+    KafkaTemplate<String, String> mockKafkaTemplate;
+
+    @Mock
+    ReadOnlyKeyValueStore<IntersectionConfigKey, IntersectionConfig<Integer>> intersectionStore;
+
+
+
+    @Mock
+    KeyValueIterator<IntersectionConfigKey, IntersectionConfig<Integer>> intersectionIterator;
+
+
 
     @Test
     public void testGetDefaultConfig() {
@@ -138,38 +159,76 @@ public class ConfigTopologyTest {
 
 
 
+    @Test
+    public void testUpdateDefaultConfig() throws Exception {
+        var configTopology = new ConfigTopology();
+        var parameters = ConfigTestUtils.getParameters();
+        configTopology.setParameters(parameters);
+        var streams = mock(KafkaStreams.class);
+        final DefaultConfig defaultConfig = ConfigTestUtils.getDefaultConfig();
+        configTopology.setStreams(streams);
+        configTopology.setKafkaTemplate(mockKafkaTemplate);
+        configTopology.updateDefaultConfig(defaultConfig);
+        verify(mockKafkaTemplate).send(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    public void testUpdateCustomConfig() throws Exception {
+        var configTopology = new ConfigTopology();
+        var parameters = ConfigTestUtils.getParameters();
+        configTopology.setParameters(parameters);
+        var streams = mock(KafkaStreams.class);
+        when(streams.store(any())).thenReturn(defaultStore);
+        final DefaultConfig defaultConfig = ConfigTestUtils.getDefaultConfig();
+        when(defaultStore.get(anyString())).thenReturn(defaultConfig);
+        configTopology.setStreams(streams);
+        configTopology.setKafkaTemplate(mockKafkaTemplate);
+        final DefaultConfig customConfig = ConfigTestUtils.getCustomConfig();
+        var result = configTopology.updateCustomConfig(customConfig);
+        assertThat(result.getResult(), equalTo(ConfigUpdateResult.Result.UPDATED));
+    }
+
+    @Test
+    public void testGetIntersectionConfig() throws Exception {
+        var configTopology = new ConfigTopology();
+        var parameters = ConfigTestUtils.getParameters();
+        configTopology.setParameters(parameters);
+        var streams = mock(KafkaStreams.class);
+        configTopology.setStreams(streams);
+        when(streams.store(any())).thenReturn(intersectionStore);
+        final IntersectionConfig<Integer> intersectionConfig = ConfigTestUtils.getIntersectionConfig();
+        when(intersectionStore.all()).thenReturn(intersectionIterator);
+        when(intersectionIterator.hasNext()).thenReturn(true, false);
+        when(intersectionIterator.next()).thenReturn(new KeyValue<>(intersectionConfig.intersectionKey(), intersectionConfig));
+        var result = configTopology.getIntersectionConfig(intersectionConfig.intersectionKey());
+        assertTrue(result.isPresent());
+        assertThat(result.get(), equalTo(intersectionConfig));
+    }
+
+    @Test
+    public void testUpdateIntersectionConfig() throws Exception {
+        var configTopology = new ConfigTopology();
+        var parameters = ConfigTestUtils.getParameters();
+        configTopology.setParameters(parameters);
+        var streams = mock(KafkaStreams.class);
+        configTopology.setStreams(streams);
+        configTopology.setKafkaTemplate(mockKafkaTemplate);
+
+
+        when(streams.store(any())).thenReturn(defaultStore, intersectionStore);
+        final DefaultConfig defaultConfig = ConfigTestUtils.getDefaultConfig();
+        when(defaultStore.get(anyString())).thenReturn(defaultConfig);
+
+
+        final IntersectionConfig<Integer> intersectionConfig = ConfigTestUtils.getIntersectionConfig();
+        when(intersectionStore.all()).thenReturn(intersectionIterator);
+        when(intersectionIterator.hasNext()).thenReturn(true, false);
+        when(intersectionIterator.next()).thenReturn(new KeyValue<>(intersectionConfig.intersectionKey(), intersectionConfig));
+
+        var result = configTopology.updateIntersectionConfig(intersectionConfig);
+        assertThat(result.getResult(), equalTo(ConfigUpdateResult.Result.UPDATED));
+        verify(mockKafkaTemplate).send(anyString(), anyString(), anyString());
+    }
     
-//    private DefaultConfig<Integer> getDefaultConfig() {
-//        var defaultConfig = new DefaultConfig<Integer>();
-//        defaultConfig.setKey(key);
-//        defaultConfig.setValue(defaultValue);
-//        defaultConfig.setCategory(category);
-//        defaultConfig.setUnits(units);
-//        defaultConfig.setDescription(description);
-//        defaultConfig.setType("java.lang.Integer");
-//        return defaultConfig;
-//    }
-//
-//    private DefaultConfig<Integer> getCustomConfig() {
-//        var defaultConfig = new DefaultConfig<Integer>();
-//        defaultConfig.setKey(key);
-//        defaultConfig.setValue(customValue);
-//        defaultConfig.setCategory(category);
-//        defaultConfig.setUnits(units);
-//        defaultConfig.setDescription(customDescription);
-//        defaultConfig.setType("java.lang.Integer");
-//        return defaultConfig;
-//    }
-//
-//    private IntersectionConfig<Integer> getIntersectionConfig() {
-//        var intersectionConfig = new IntersectionConfig<Integer>();
-//        intersectionConfig.setKey(key);
-//        intersectionConfig.setValue(intersectionValue);
-//        intersectionConfig.setCategory(category);
-//        intersectionConfig.setUnits(units);
-//        intersectionConfig.setDescription(description);
-//        intersectionConfig.setIntersectionID(intersectionId);
-//        intersectionConfig.setRoadRegulatorID(regionId);
-//        intersectionConfig.setType("java.lang.Integer");
-//        return intersectionConfig;}
+
 }
