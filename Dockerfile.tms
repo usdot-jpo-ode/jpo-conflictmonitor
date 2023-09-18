@@ -1,0 +1,61 @@
+FROM maven:3.8.1-openjdk-11 as builder
+
+WORKDIR /home
+
+# Copy only the files needed to avoid putting all sorts of junk from your local env on to the image
+COPY ./jpo-geojsonconverter/jpo-ode/pom.xml ./jpo-ode/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-common/pom.xml ./jpo-ode/jpo-ode-common/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-common/src ./jpo-ode/jpo-ode-common/src
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-plugins/pom.xml ./jpo-ode/jpo-ode-plugins/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-plugins/src ./jpo-ode/jpo-ode-plugins/src
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-core/pom.xml ./jpo-ode/jpo-ode-core/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-core/src ./jpo-ode/jpo-ode-core/src/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-svcs/pom.xml ./jpo-ode/jpo-ode-svcs/
+COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-svcs/src ./jpo-ode/jpo-ode-svcs/src
+
+COPY ./jpo-geojsonconverter/jpo-geojsonconverter/pom.xml ./jpo-geojsonconverter/
+COPY ./jpo-geojsonconverter/jpo-geojsonconverter/src ./jpo-geojsonconverter/src
+
+COPY ./test-message-sender/pom.xml ./test-message-sender/
+COPY ./test-message-sender/message-sender ./test-message-sender/message-sender
+COPY ./test-message-sender/script-runner ./test-message-sender/script-runner
+
+
+WORKDIR /home/jpo-ode
+RUN mvn install -DskipTests
+
+WORKDIR /home/jpo-geojsonconverter
+RUN mvn clean install -DskipTests
+
+WORKDIR /home/test-message-sender/script-runner
+RUN mvn install
+
+WORKDIR /home/test-message-sender
+RUN mvn install
+
+
+WORKDIR /home/test-message-sender/message-sender
+RUN mvn clean package -DskipTests
+FROM openjdk:11-jre-slim
+
+WORKDIR /home
+
+# # # COPY --from=builder /home/jpo-conflictmonitor/src/main/resources/application.yaml /home
+# # # COPY --from=builder /home/jpo-conflictmonitor/src/main/resources/logback.xml /home
+COPY --from=builder /home/test-message-sender/message-sender/target/message-sender.jar /home
+# # ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+EXPOSE 8080
+ENTRYPOINT ["java", \
+	"-Djava.rmi.server.hostname=$DOCKER_HOST_IP", \
+	"-Dcom.sun.management.jmxremote.port=9090", \
+	"-Dcom.sun.management.jmxremote.rmi.port=9090", \
+	"-Dcom.sun.management.jmxremote", \
+	"-Dcom.sun.management.jmxremote.local.only=true", \
+	"-Dcom.sun.management.jmxremote.authenticate=false", \
+	"-Dcom.sun.management.jmxremote.ssl=false", \
+	# "-Dlogback.configurationFile=/home/logback.xml", \
+	"-jar", \
+	"/home/message-sender.jar"]
+
+# # ENTRYPOINT ["tail", "-f", "/dev/null"]

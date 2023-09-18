@@ -86,7 +86,7 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 			String filePath = args[0];
 			runScript(filePath);
 			scheduler.setWaitForTasksToCompleteOnShutdown(true);
-			scheduler.setAwaitTerminationSeconds(60*15);
+			scheduler.setAwaitTerminationSeconds(60 * 60);
 			scheduler.shutdown();
 			System.exit(0);
 		}
@@ -129,7 +129,7 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 	private void exitUsage() {
 		logger.info(USAGE);
 		scheduler.setWaitForTasksToCompleteOnShutdown(true);
-		scheduler.setAwaitTerminationSeconds(60*15);
+		scheduler.setAwaitTerminationSeconds(60 * 60);
 		scheduler.shutdown();
 		System.exit(0);
 	}
@@ -145,7 +145,7 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		}
 		scriptRunner.scheduleScript(file);
 		scheduler.setWaitForTasksToCompleteOnShutdown(true);
-		scheduler.setAwaitTerminationSeconds(60*15);
+		scheduler.setAwaitTerminationSeconds(60 * 60);
 		scheduler.shutdown();
 	}
 
@@ -173,7 +173,7 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		
 		hexLogRunner.convertHexLogToScript(dockerHostIp, inputFile, outputFile, delay, placeholders, mapFile, spatFile, bsmFile);
 		scheduler.setWaitForTasksToCompleteOnShutdown(true);
-		scheduler.setAwaitTerminationSeconds(60*15);
+		scheduler.setAwaitTerminationSeconds(60 * 60);
 		scheduler.shutdown();
 	}
 
