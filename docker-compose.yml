@@ -48,7 +48,7 @@ services:
     container_name: jpo-conflictmonitor-mongodb-mongodb_initializer
     restart: always
     environment:
-      - ${DP_HOST_IP}
+      - ${DB_HOST_IP}
       - CONN_STR=mongodb://${DB_HOST_IP}:27017/?replicaSet=rs0
     depends_on:
       mongodb_container:
