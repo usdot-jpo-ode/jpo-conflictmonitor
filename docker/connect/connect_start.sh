@@ -28,8 +28,10 @@ declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
 declare -A ProcessedSpat=([name]="topic.ProcessedSpat" [collection]="ProcessedSpat"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 
-declare -A CmSignalStopEvent=([name]="topic.CmSignalStopEvent" [collection]="CmSignalStopEvent"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+declare -A CmSignalStopEvent=([name]="topic.CmStopLinePassageEvent" [collection]="CmStopLinePassageEvent"
+    [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+declare -A CmSignalStopEvent=([name]="topic.CmStopLineStopEvent" [collection]="CmStopLineStopEvent"
+    [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmSignalStateConflictEvents=([name]="topic.CmSignalStateConflictEvents" [collection]="CmSignalStateConflictEvents"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmIntersectionReferenceAlignmentEvents=([name]="topic.CmIntersectionReferenceAlignmentEvents" [collection]="CmIntersectionReferenceAlignmentEvents"
@@ -151,7 +153,8 @@ createSink OdeRawEncodedSPATJson
 createSink OdeSpatJson
 createSink ProcessedSpat
 
-createSink CmSignalStopEvent
+createSink CmStopLineStopEvent
+createSink CmStopLinePassageEvent
 createSink CmSignalStateConflictEvents
 createSink CmIntersectionReferenceAlignmentEvents
 createSink CmSignalGroupAlignmentEvents

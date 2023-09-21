@@ -17,6 +17,11 @@ services:
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
       spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+    healthcheck:
+      test: ["CMD", "java", "-version"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
     logging:
       options:
         max-size: "10m"
@@ -48,8 +53,7 @@ services:
     container_name: jpo-conflictmonitor-mongodb-mongodb_initializer
     restart: always
     environment:
-      - ${DB_HOST_IP}
-      - CONN_STR=mongodb://${DB_HOST_IP}:27017/?replicaSet=rs0
+      DB_HOST_IP: ${DB_HOST_IP}
     depends_on:
       mongodb_container:
         condition: service_healthy
@@ -57,7 +61,7 @@ services:
         condition: service_healthy
       connect:
         condition: service_healthy
-    command: 'bash /scripts/mongo_initialize.sh'
+    command: bash /scripts/mongo_initialize.sh "mongodb://${DB_HOST_IP}:27017/ConflictMonitor?replicaSet=rs0"
 
 
 
