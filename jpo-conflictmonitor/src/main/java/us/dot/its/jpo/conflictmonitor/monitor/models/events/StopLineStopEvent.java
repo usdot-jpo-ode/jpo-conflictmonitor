@@ -5,10 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-@Document("CmStopLineStopEvent")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)

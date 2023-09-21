@@ -12,10 +12,9 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-import org.springframework.data.mongodb.core.mapping.Document;
+
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document("CmConnectionOfTravelEvent")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
