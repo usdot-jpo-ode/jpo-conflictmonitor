@@ -28,9 +28,9 @@ declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
 declare -A ProcessedSpat=([name]="topic.ProcessedSpat" [collection]="ProcessedSpat"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 
-declare -A CmSignalStopEvent=([name]="topic.CmStopLinePassageEvent" [collection]="CmStopLinePassageEvent"
+declare -A CmStopLinePassageEvent=([name]="topic.CmStopLinePassageEvent" [collection]="CmStopLinePassageEvent"
     [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
-declare -A CmSignalStopEvent=([name]="topic.CmStopLineStopEvent" [collection]="CmStopLineStopEvent"
+declare -A CmStopLineStopEvent=([name]="topic.CmStopLineStopEvent" [collection]="CmStopLineStopEvent"
     [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmSignalStateConflictEvents=([name]="topic.CmSignalStateConflictEvents" [collection]="CmSignalStateConflictEvents"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
