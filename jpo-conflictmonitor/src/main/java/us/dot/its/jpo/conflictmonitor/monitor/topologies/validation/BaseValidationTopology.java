@@ -40,7 +40,7 @@ public abstract class BaseValidationTopology<TParams>
 
         minDataEvent.setMissingDataElements(validationMessages);
         if (key != null) {
-            minDataEvent.setIntersectionId(key.getIntersectionId());
+            minDataEvent.setIntersectionID(key.getIntersectionId());
             minDataEvent.setSourceDeviceId(key.getRsuId());
         } else {
             logger.warn("Key is null");

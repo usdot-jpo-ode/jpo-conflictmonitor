@@ -32,11 +32,6 @@ public abstract class BroadcastRateEvent extends Event {
     private String sourceDeviceId;
 
     /**
-     * The intersection id
-     */
-    private int intersectionId;
-
-    /**
      * The message processing time period.
      */
     private ProcessingTimePeriod timePeriod;

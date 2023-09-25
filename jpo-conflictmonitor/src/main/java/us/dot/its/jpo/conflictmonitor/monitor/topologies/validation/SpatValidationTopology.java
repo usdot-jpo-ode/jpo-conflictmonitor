@@ -121,7 +121,7 @@ public class SpatValidationTopology
                 // Generate an event
                 SpatBroadcastRateEvent event = new SpatBroadcastRateEvent();
                 event.setSourceDeviceId(windowedKey.key().getRsuId());
-                event.setIntersectionId(windowedKey.key().getIntersectionId());
+                event.setIntersectionID(windowedKey.key().getIntersectionId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 

@@ -252,7 +252,6 @@ public class IntersectionEventTopology
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
             }
-            
         }
 
         bsmRange.close();

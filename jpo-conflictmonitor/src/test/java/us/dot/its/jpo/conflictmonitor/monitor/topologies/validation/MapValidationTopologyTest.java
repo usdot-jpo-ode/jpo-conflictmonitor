@@ -107,7 +107,7 @@ public class MapValidationTopologyTest {
                 assertThat("min data key intersectionId", resultKey.getIntersectionId(), equalTo(intersectionId));
                 var result = entry.value;
                 assertThat("min data event rsuId", result.getSourceDeviceId(), equalTo(rsuId));
-                assertThat("min data event intersectionId", result.getIntersectionId(), equalTo(intersectionId));
+                assertThat("min data event intersectionId", result.getIntersectionID(), equalTo(intersectionId));
                 assertThat("min data missingDataElements size", result.getMissingDataElements(), hasSize(1));
                 var msg = result.getMissingDataElements().get(0);
                 assertThat("min data validation message match", msg, startsWith(validationMsg));
@@ -121,7 +121,7 @@ public class MapValidationTopologyTest {
             assertThat("broadcast rate key intersectionId", bcKey.getIntersectionId(), equalTo(intersectionId));
             var bcValue = broadcastRate.value;
             assertThat("broadcast rate device id", bcValue.getSourceDeviceId(), equalTo(rsuId));
-            assertThat("broadcast rate intersection id", bcValue.getIntersectionId(), equalTo(intersectionId));
+            assertThat("broadcast rate intersection id", bcValue.getIntersectionID(), equalTo(intersectionId));
             assertThat("broadcast rate topic name", bcValue.getTopicName(), equalTo(inputTopicName));
             assertThat("broadcast rate number of messages", bcValue.getNumberOfMessages(), equalTo(5));
             assertThat("broadcast rate time period null", bcValue.getTimePeriod(), notNullValue());

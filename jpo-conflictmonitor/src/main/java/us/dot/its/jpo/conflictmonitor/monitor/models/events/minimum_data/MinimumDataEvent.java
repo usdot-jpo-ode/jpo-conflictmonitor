@@ -26,10 +26,6 @@ public abstract class MinimumDataEvent extends Event  {
      */
     private String sourceDeviceId;
 
-    /**
-     * The intersection id
-     */
-    private int intersectionId;
 
     /**
      * The message processing time period

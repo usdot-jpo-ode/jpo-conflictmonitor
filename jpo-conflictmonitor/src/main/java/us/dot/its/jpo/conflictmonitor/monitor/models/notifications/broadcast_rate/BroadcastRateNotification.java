@@ -21,7 +21,7 @@ public abstract class BroadcastRateNotification<T extends BroadcastRateEvent> ex
         return String.format("%s_%s_%s_%s_%s", 
             this.getNotificationType(), 
             event.getSourceDeviceId(), 
-            event.getIntersectionId(), 
+            event.getIntersectionID(), 
             event.getTimePeriod() != null ? event.getTimePeriod().periodMillis() : 0L,
             event.getNumberOfMessages());
     }

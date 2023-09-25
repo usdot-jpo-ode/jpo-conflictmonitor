@@ -135,7 +135,7 @@ public class MapValidationTopology
                 // Generate an event
                 MapBroadcastRateEvent event = new MapBroadcastRateEvent();
                 event.setSourceDeviceId(windowedKey.key().getRsuId());
-                event.setIntersectionId(windowedKey.key().getIntersectionId());
+                event.setIntersectionID(windowedKey.key().getIntersectionId());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 

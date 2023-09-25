@@ -155,7 +155,7 @@ spring.data.mongodb.database: ConflictMonitor
 
 # TTL initial settings
 mongo.indexes:
-  - name: CmSignalStopEvent
+  - name: CmStopLineStopEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
   - name: CmSignalStateConflictEvents
@@ -173,7 +173,7 @@ mongo.indexes:
   - name: CmConnectionOfTravelEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
-  - name: CmSignalStateEvent
+  - name: CmStopLinePassageEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
   - name: CmSpatTimeChangeDetailsEvent
@@ -291,7 +291,7 @@ event:
   algorithm: defaultEventAlgorithm
   debug: false
   eventOutputTopicName: topic.CmEvent
-  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventTopicName: topic.CmStopLinePassageEvent
   spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
   spatBroadcastRateTopicName: topic.CmSpatBroadcastRateEvents
   spatMinimumDataTopicName: topic.CmSpatMinimumDataEvents
@@ -309,7 +309,7 @@ event:
 signal.state.event.assessment:
   algorithm: defaultSignalStateEventAssessmentAlgorithm
   debug: false
-  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventTopicName: topic.CmStopLinePassageEvent
   signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
