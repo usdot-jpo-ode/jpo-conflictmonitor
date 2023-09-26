@@ -799,7 +799,7 @@
             intersectionId: processedMap.properties.intersectionId
         };
         if (RECORD_SCRIPT) {
-            script.push(buildScriptFromProcessedMap(processedMap, key));
+            script.push(buildScriptFromProcessedMap(processedMap));
         }
         await fetch ('/kafka/topic.ProcessedMap', {
             method: 'POST',
@@ -1295,7 +1295,7 @@
             intersectionId: processedSpat.intersectionId
         };
         if (RECORD_SCRIPT) {
-            script.push(buildScriptFromProcessedSpat(processedSpat, key));
+            script.push(buildScriptFromProcessedSpat(processedSpat));
         }
         await fetch('/kafka/topic.ProcessedSpat', {
             method: 'POST',
@@ -1568,13 +1568,13 @@
         return "MAP," + time + "," + strMap;
     }
 
-    function buildScriptFromProcessedMap(processedMap, key) {
+    function buildScriptFromProcessedMap(processedMap) {
         const scriptMap = JSON.parse(JSON.stringify(processedMap));
         scriptMap.properties.odeReceivedAt = ISO_DATE_TIME;
         scriptMap.properties.timeStamp = ISO_DATE_TIME;
         const strMap = JSON.stringify(scriptMap);
         const time = Date.now() - RECORD_START_TIME;
-        return "ProcessedMap;" + key.rsuId + ";" + key.intersectionId + "," + time + "," + strMap;
+        return "ProcessedMap," + time + "," + strMap;
     }
 
     function buildScriptFromSpat(odeSpat) {
@@ -1590,7 +1590,7 @@
         return "SPAT," + time + "," + strSpat;
     }
 
-    function buildScriptFromProcessedSpat(processedSpat, key) {
+    function buildScriptFromProcessedSpat(processedSpat) {
         const scriptSpat = JSON.parse(JSON.stringify(processedSpat));
         scriptSpat.odeReceivedAt = ISO_DATE_TIME;
         const timestampSeconds = processedSpat.utcTimeStamp;
@@ -1609,7 +1609,7 @@
         }
         const strSpat = JSON.stringify(scriptSpat);
         const time = Date.now() - RECORD_START_TIME;
-        return "ProcessedSpat;" + key.rsuId + ";" + key.intersectionId + "," + time  + "," + strSpat;
+        return "ProcessedSpat," + time + "," + strSpat;
     }
 
     function buildScriptFromBsm(odeBsm) {
