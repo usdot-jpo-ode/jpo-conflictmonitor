@@ -98,14 +98,15 @@ h1, h2 {
 
 .infoDocument {
     font-family: sans-serif;
-    font-size: 0.75em;
-    flex-grow: 1;
-    overflow: scroll;
+    font-size: 1em;
 }
 
-.infoDocument ol {
-    list-style-position: inside;
-    padding-left: 0;
+.infoDocument li {
+    margin: 5px;
+}
+
+.infoDocument h2 {
+    margin: 10px;
 }
 
 

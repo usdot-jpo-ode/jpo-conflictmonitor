@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
 
@@ -44,7 +44,9 @@
         <div class="side" style="width: 25%">
             <div class="sideItem">
 
-
+                <div >
+                    <a th:href="@{help}" target="_blank" style="font-size:1em; font-weight:bold">Help</a>
+                </div>
                 
                     
                 <div id="uploads">
@@ -140,29 +142,7 @@
                 </div>
 
                 <hr />
-                <h3>How To Record a Script</h3>
-                <div class="infoDocument">
 
-                    <ol>
-                        <li>Upload a MAP or ProcessedMap file in ODE JSON format.  The file should only contain a single MAP/ProcessedMap.</li>
-                        <li>Upload a SPAT or ProcessedSpat file in line-delimited ODE JSON format.</li>
-                        <li>Provide BSM data by either:
-                            <ul>
-                                <li>Manually placing a series of BSMs on the map using the draw controls (upper left on the map), or</li>
-                                <li>Uploading a file containing BSMs in line-delimited ODE JSON format</li>
-                            </ul>
-                        </li>
-                        <li>Manually created BSMs can be downloaded in line-delimited JSON format using the "Download BSMs" button, so that they can be re-used.</li>
-                        <li>Check the desired SPAT phases to send.</li>
-                        <li>Click Start under "Record Scripts"</li>
-                        <li>Click Start under "Send MAP", adjusting the send interval as desired.</li>
-                        <li>Click Start under "Send Selected SPAT Phases".  Select "Loop", if desired, to repeat the series of SPATs indefinitely.</li>
-                        <li>Click Start under "Send BSMs".  Adjust the send interval, or uncheck "fixed interval" to use the original BSM intervals if desired.</li>
-                        <li>When the BSMs and/or SPATs have finished being sent, as shown by the green background color turning off, click Stop under "Record Script"</li>
-                        <li>Click Download under "Record Script".  The script can be run again using the script runner command line tool.</li>
-                        <li>Click Clear under "Record Script" to clear the script from memory.  If the script is not cleared, subsequent recordings will append data to it.</li>
-                    </ol>
-                </div>
             </div>
 
         </div>
@@ -172,20 +152,15 @@
 
     const map = L.map('map').setView([39.5952649, -105.0914122], 19);
 
-    /* Base Maps */
-    const osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-    const osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-
-    /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-inlining */
-    const mapboxUrl = '[(${mapboxTileEndpoint})]';
-    const mapboxAttrib = 'Mapbox';
-
-    const bingUrl = 'http://ecn.t3.tiles.virtualearth.net/tiles/a{q}.jpeg?g=1';
-    const bingAttrib = 'Bing Maps';
+    /* Base Map */
+    /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#expression-inlining */
+    const basemapUrl = '[(${basemapUrl})]';
+    console.log('basemapUrl = ' + basemapUrl);
+    const basemapAttrib = '[(${basemapAttribution})]';
+    console.log('basemapAttribution = ' + basemapAttrib);
 
     const empty = L.tileLayer('', {maxZoom: 22});
-    const osm = L.tileLayer(osmUrl, {maxZoom: 22, attribution: osmAttrib});
-    const mapbox = L.tileLayer(mapboxUrl, {maxZoom: 22, attribution: mapboxAttrib});
+    const basemap = L.tileLayer(basemapUrl, {maxZoom: 22, attribution: basemapAttrib});
 
 
     const drawnItems = new L.FeatureGroup();
@@ -204,9 +179,7 @@
     const script = [];
 
     const baseMaps = {
-        'No Base Map': empty,
-        'Open Street Map': osm,
-        'Mapbox Satellite': mapbox.addTo(map)
+        basemapAttrib: basemap.addTo(map)
     };
 
     const overlayMaps = {
@@ -215,7 +188,9 @@
 
 
     const layerControl = L.control.layers(baseMaps, overlayMaps, {
-        positiion: 'topright', collapsed: false
+        positiion: 'topright',
+        collapsed: true,
+        hideSingleBase: true
     }).addTo(map);
 
 

@@ -1,10 +1,20 @@
-# Copy this file to application.properties in src/main/resources and fill in the mapbox style WMS endpoint, 
-# including the user name, style ID,  and access token
+# Copy this file to application.properties in src/main/resources and fill in the imagery URL and attribution
 # Don't commit the mapbox token to github!
 
 spring.main.web-application-type: SERVLET
 server.port=8088
 spring.profiles.active=messageSender
 
-mapbox.tile.endpoint=https://api.mapbox.com/styles/v1/[USERNAME]/[STYLEID]/tiles/{z}/{x}/{y}?access_token=[ACCESSTOKEN]
+# Example basemap URL for a Mapbox Style
+basemap.url=https://api.mapbox.com/styles/v1/[USERNAME]/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=[ACCESSTOKEN]
+basemap.attribution=Mapbox
+
+# Example basemap URL for Google Satellite Hybrid
+#basemap.url=https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}
+#basemap.attribution="Google Maps"
+
+# Example OpenStreetMap basemap
+#basemap.url=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+#basemap.attribution="Open Street Map"
+
 
