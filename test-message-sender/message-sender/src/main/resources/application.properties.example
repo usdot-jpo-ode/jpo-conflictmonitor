@@ -1,12 +1,12 @@
-# Copy this file to application.properties in src/main/resources and fill in the imagery URL and attribution
-# Don't commit the mapbox token to github!
+# Copy this file to application.properties in src/main/resources and fill in the basemap URL and attribution
+# Don't commit private information such as API tokens to github!
 
 spring.main.web-application-type: SERVLET
 server.port=8088
 spring.profiles.active=messageSender
 
-# Example basemap URL for a Mapbox Style
-basemap.url=https://api.mapbox.com/styles/v1/[USERNAME]/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=[ACCESSTOKEN]
+# Example basemap URL for a Mapbox Style.  Fill in the USER_NAME, STYLE_ID, and ACCESS_TOKEN
+basemap.url=https://api.mapbox.com/styles/v1/[USER_NAME]/[STYLE_ID]/tiles/{z}/{x}/{y}?access_token=[ACCESS_TOKEN]
 basemap.attribution=Mapbox
 
 # Example basemap URL for Google Satellite Hybrid
