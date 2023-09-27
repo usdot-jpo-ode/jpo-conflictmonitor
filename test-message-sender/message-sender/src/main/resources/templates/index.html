@@ -41,7 +41,7 @@
 
         <div id="map">
         </div>
-        <div class="side" style="width: 20%">
+        <div class="side" style="width: 25%">
             <div class="sideItem">
 
 
@@ -49,30 +49,25 @@
                     
                 <div id="uploads">
                     <hr />
-                    <h3>Upload line-delimited JSON</h3>
-                    <label for="ulBsms">BSMs</label>
-                    <input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
+                    <h3>Uploads</h3>
+                    <label for="ulBsms">BSMs</label><input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
                     <br/>
-                    <label for="ulSpats">SPATs</label>
-                    <input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+                    <label for="ulSpats">SPATs</label><input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
                     <br/>
-                    <label for="btnProcessedSpatUpload">ProcessedSpats</label>
-                    <input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv"
+                    <label for="btnProcessedSpatUpload">ProcessedSpats</label><input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv"
                         onchange="uploadProcessedSpats(this);"/>
-                    
-                    <h3>Upload JSON Template</h3>
-                    <label for="btnOdeMapJsonUpload">MAP</label>
-                    <input type="file" id="btnOdeMapJsonUpload" accept=".json,.csv"
+                    <br/>
+
+                    <label for="btnOdeMapJsonUpload">MAP</label><input type="file" id="btnOdeMapJsonUpload" accept=".json,.csv"
                         onchange="uploadOdeMapJson(this);" />
                     <br/>
-                    <label for="btnProcessedMapUpload">ProcessedMap</label>
-                    <input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
+                    <label for="btnProcessedMapUpload">ProcessedMap</label><input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
                            onchange="uploadMapGeojson(this);"/>
-                    <br/>
-                    <label for="btnOdeSpatJsonUpload">SPAT</label>
-                    <input type="file" id="btnOdeSpatJsonUpload" accept=".json"
-                        onchange="uploadOdeSpatJson(this);" />
-                    <br/>
+<!--                    <br/>-->
+<!--                    <label for="btnOdeSpatJsonUpload">SPAT</label>-->
+<!--                    <input type="file" id="btnOdeSpatJsonUpload" accept=".json"-->
+<!--                        onchange="uploadOdeSpatJson(this);" />-->
+<!--                    <br/>-->
                 </div>
                 
                 <hr />
@@ -94,22 +89,22 @@
 
                 </div>
                 <hr />
-                <div id="spatControls">
-                    
-                    <h3>Send SPAT Template</h3>
-                    <button type="button" onclick="startSendingSpat();">Start</button>
-                    <button type="button" onclick="stopSendingSpat();">Stop</button>
-                    <br/>
-                    
-                    <input type="range" min="50" max="150" value="100" step="5" name="spatInterval"
-                        id="spatInterval" oninput="this.nextElementSibling.value = this.value" />
-                    <output>100</output>
-                    <br />
-                    <label for="spatInterval">SPAT Interval (ms)</label>
-                </div>
+<!--                <div id="spatControls">-->
+<!--                    -->
+<!--                    <h3>Send SPAT Template</h3>-->
+<!--                    <button type="button" onclick="startSendingSpat();">Start</button>-->
+<!--                    <button type="button" onclick="stopSendingSpat();">Stop</button>-->
+<!--                    <br/>-->
+<!--                    -->
+<!--                    <input type="range" min="50" max="150" value="100" step="5" name="spatInterval"-->
+<!--                        id="spatInterval" oninput="this.nextElementSibling.value = this.value" />-->
+<!--                    <output>100</output>-->
+<!--                    <br />-->
+<!--                    <label for="spatInterval">SPAT Interval (ms)</label>-->
+<!--                </div>-->
                 <div id="rtSpatControls">
-                    <hr />
-                    <h3>Send Selected SPAT Phases (Real Time)</h3>
+
+                    <h3>Send Selected SPAT Phases</h3>
                     <button type="button" onclick="sendSpatsRealTime();">Start</button>
                     <button type="button" onclick="stopSendingSpatsRealTime();">Stop</button>
                     <label for="spatLoop">Loop</label>
@@ -118,7 +113,7 @@
                 <hr />
                 <div id="bsmControls">
                     
-                    <h3>Send BSMs (Real Time)</h3>
+                    <h3>Send BSMs</h3>
                     <button type="button" onclick="sendBsmsRealTime();">Start</button>
                     <button type="button" onclick="stopSendingBsms();">Stop</button>
                     <label for="bsmFixedInterval">Fixed Interval</label>
@@ -128,40 +123,45 @@
                     <output>100</output><br/>
                     <label for="bsmInterval">BSM Interval (ms)</label>
                 </div>
-                <div>
-                    <hr />
-                    <h3>Send BSMs (All at once)</h3>
-                    <button type="button" onclick="sendBsms();">Send</button>
-                </div>
+
                 
                 <hr />
                 <div>
-                    <h3>Download line-delimited JSON</h3>
-                    <div>
-                        <button type="button" onclick="downloadBsms();">BSMs</button>
-                        <button type="button" onclick="downloadSpats();">SPATs</button>
-                    </div>
-                    <h3>Download Edited Template JSON</h3>
-                    <div>
-                        <button type="button" onclick="downloadBsmTemplate();">BSM</button>
-                        <button type="button" onclick="downloadSpatTemplate();">SPAT</button>
-                    </div>
+                    <h3>Download Created BSMs</h3>
+                    <button type="button" onclick="downloadBsms();">Download BSMs</button>
                 </div>
                 <hr/>
                 <div id="scriptControls">
-                    <h3>Script</h3>
-                    <button type="button" onclick="clearScript();">Clear</button>
-                    <button type="button" onclick="startRecording();">Start Recording</button>
-                    <button type="button" onclick="stopRecording();">Stop Recording</button>
+                    <h3>Record Scripts</h3>
+                    <button type="button" onclick="startRecording();">Start</button>
+                    <button type="button" onclick="stopRecording();">Stop</button>
                     <button type="button" onclick="downloadScript();">Download</button>
-                    
-                    <button type="button" onclick="runScript();">Run</button>
-                    <br/>
-                    <label for="ulScript">Upload</label>
-                    <input type="file" id="ulScript" accept=".csv,.txt" onchange="uploadScript(this);" />
+                    <button type="button" onclick="clearScript();">Clear</button>
                 </div>
 
                 <hr />
+                <h3>How To Record a Script</h3>
+                <div class="infoDocument">
+
+                    <ol>
+                        <li>Upload a MAP or ProcessedMap file in ODE JSON format.  The file should only contain a single MAP/ProcessedMap.</li>
+                        <li>Upload a SPAT or ProcessedSpat file in line-delimited ODE JSON format.</li>
+                        <li>Provide BSM data by either:
+                            <ul>
+                                <li>Manually placing a series of BSMs on the map using the draw controls (upper left on the map), or</li>
+                                <li>Uploading a file containing BSMs in line-delimited ODE JSON format</li>
+                            </ul>
+                        </li>
+                        <li>Check the desired SPAT phases to send.</li>
+                        <li>Click Start under "Record Scripts"</li>
+                        <li>Click Start under "Send MAP", adjusting the send interval as desired.</li>
+                        <li>Click Start under "Send Selected SPAT Phases".  Select "Loop", if desired, to repeat the series of SPATs indefinitely.</li>
+                        <li>Click Start under "Send BSMs".  Adjust the send interval, or uncheck "fixed interval" to use the original BSM intervals if desired.</li>
+                        <li>When the BSMs and/or SPATs have finished being sent, as shown by the green background color turning off, click Stop under "Record Script"</li>
+                        <li>Click Download under "Record Script".  The script can be run again using the script runner command line tool.</li>
+                        <li>Click Clear under "Record Script" to clear the script from memory.  If the script is not cleared, subsequent recordings will append data to it.</li>
+                    </ol>
+                </div>
             </div>
 
         </div>
@@ -169,62 +169,23 @@
 </body>
 <script>
 
-    var map = L.map('map').setView([39.5952649, -105.0914122], 19);
+    const map = L.map('map').setView([39.5952649, -105.0914122], 19);
 
     /* Base Maps */
-    var osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-    var googUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
-    var googAttrib = 'Google Maps';
-
-
-    var oamAttrib = '<a href="http://openaerialmap.org/about/" target="_blank">Open Aerial Map</a>';
+    const osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
 
     /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-inlining */
-    var mapboxUrl = '[(${mapboxTileEndpoint})]';
-    console.log(mapboxUrl);
-    var mapboxAttrib = 'Mapbox';
+    const mapboxUrl = '[(${mapboxTileEndpoint})]';
+    const mapboxAttrib = 'Mapbox';
 
-    var empty = L.tileLayer('', { maxZoom: 22 });
-    var osm = L.tileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib });
-    var goog = L.tileLayer(googUrl, { maxZoom: 22, attribution: googAttrib });
-    var mapbox = L.tileLayer(mapboxUrl, { maxZoom: 22, attribution: mapboxAttrib });
+    const bingUrl = 'http://ecn.t3.tiles.virtualearth.net/tiles/a{q}.jpeg?g=1';
+    const bingAttrib = 'Bing Maps';
 
+    const empty = L.tileLayer('', {maxZoom: 22});
+    const osm = L.tileLayer(osmUrl, {maxZoom: 22, attribution: osmAttrib});
+    const mapbox = L.tileLayer(mapboxUrl, {maxZoom: 22, attribution: mapboxAttrib});
 
-    // Open Aerial Map
-    const oamUrlArr = [
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9d/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc3/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc5/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3dec/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3dee/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9d/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9f/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc0/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc2/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3de9/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3deb/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9a/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9c/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9b/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d75/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9d/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d76/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec2/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec4/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec5/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee7/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee6/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee8/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3efe/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee9/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9c/{z}/{x}/{y}'
-    ];
-    const oamLayerArr = [];
-    for (const oamUrl of oamUrlArr) {
-        oamLayerArr.push(L.tileLayer(oamUrl, { maxZoom: 23, minZoom: 15, attribution: oamAttrib }));
-    }
-    const oam = L.layerGroup(oamLayerArr);
 
     const drawnItems = new L.FeatureGroup();
 
@@ -232,8 +193,8 @@
     const spatList = [];
 
     // Flag indicates whether the SPAT and spatList contain raw or ProcessedSpats.
-    var useProcessedSpats = false;
-    var useProcessedMap = false;
+    let useProcessedSpats = false;
+    let useProcessedMap = false;
 
 
     const diffSpatEvents = [];
@@ -242,11 +203,9 @@
     const script = [];
 
     const baseMaps = {
-        'No Base Map': empty,  
-        'Google Hybrid': goog,
-        'Mapbox Satellite Streets': mapbox,
-        'Open Street Map (zoom <= 19)': osm,   
-        'Open Aerial Map (zoom >= 15)': oam.addTo(map),  // Show by default
+        'No Base Map': empty,
+        'Open Street Map': osm,
+        'Mapbox Satellite': mapbox.addTo(map)
     };
 
     const overlayMaps = {
@@ -254,8 +213,7 @@
     };
 
 
-
-    var layerControl = L.control.layers(baseMaps, overlayMaps, {
+    const layerControl = L.control.layers(baseMaps, overlayMaps, {
         positiion: 'topright', collapsed: false
     }).addTo(map);
 
@@ -265,8 +223,7 @@
     map.addLayer(drawnItems);
 
 
-
-    var drawControl = new L.Control.Draw({
+    const drawControl = new L.Control.Draw({
         position: 'topleft',
         draw: {
             polyline: false,

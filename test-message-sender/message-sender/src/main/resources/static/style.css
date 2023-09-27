@@ -96,6 +96,18 @@ h1, h2 {
     margin: 2px;
 }
 
+.infoDocument {
+    font-family: sans-serif;
+    font-size: 0.75em;
+    flex-grow: 1;
+    overflow: scroll;
+}
+
+.infoDocument ol {
+    list-style-position: inside;
+    padding-left: 0;
+}
+
 
 
 
