@@ -114,7 +114,7 @@ public class SignalGroupAlignmentNotificationTopologyTest {
             assertTrue(event.getSpatSignalGroupIds().contains(6));
             assertEquals(3, event.getSpatSignalGroupIds().size());
 
-            assertEquals(event.getMapSignalGroupIds().size(), 0);
+            assertEquals(event.getMapSignalGroupIds().size(), 4);
             
             
         }
