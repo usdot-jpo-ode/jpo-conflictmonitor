@@ -26,6 +26,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateCo
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeatureCollection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesProperties;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
@@ -129,6 +134,8 @@ public class MapSpatMessageAssessmentTopology
                                 
                                 if(map.getProperties().getRegion() != null){
                                     event.setRoadRegulatorID(map.getProperties().getRegion());
+                                }else{
+                                    event.setRoadRegulatorID(-1);
                                 }
                                 
                             }
@@ -145,6 +152,8 @@ public class MapSpatMessageAssessmentTopology
 
                                 if(spat.getRegion() != null){
                                     event.setRoadRegulatorID(spat.getRegion());
+                                }else{
+                                    event.setRoadRegulatorID(-1);
                                 }
                             }
                             
@@ -223,9 +232,18 @@ public class MapSpatMessageAssessmentTopology
                         spatSignalGroups.add(state.getSignalGroup());
                     }
 
+                    // ConnectingLanesFeatureCollection mapFeatures = value.getMap().getConnectingLanesFeatureCollection();
+                    // value.getMap().getConnectingLanesFeatureCollection().get
+                    
+                    for(Object objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
+                        ConnectingLanesFeature feature = (ConnectingLanesFeature)objectFeature;
+                        mapSignalGroups.add(((ConnectingLanesProperties)feature.getProperties()).getSignalGroupId());
+                    }
+
                     if (!mapSignalGroups.equals(spatSignalGroups)) {
                         event.setMapSignalGroupIds(mapSignalGroups);
                         event.setSpatSignalGroupIds(spatSignalGroups);
+                        event.setSourceID(key);
                         events.add(new KeyValue<>(key, event));
                     }
 
