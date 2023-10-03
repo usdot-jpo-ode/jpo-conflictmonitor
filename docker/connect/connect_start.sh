@@ -167,7 +167,7 @@ createSink ProcessedSpat
 
 
 createSink CmStopLinePassageEvent
-createSink CmSignalStopEvent
+createSink CmStopLineStopEvent
 createSink CmSignalStateConflictEvents
 createSink CmIntersectionReferenceAlignmentEvents
 createSink CmSignalGroupAlignmentEvents
