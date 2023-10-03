@@ -24,6 +24,7 @@ public class ConnectionOfTravelEvent extends Event{
     private long timestamp;
     private int ingressLaneID;
     private int egressLaneID;
+    private String source;
 
     /**
      * <p>The array index of the connecting lane feature in the 'connectingLanesFeatureConnection' property
