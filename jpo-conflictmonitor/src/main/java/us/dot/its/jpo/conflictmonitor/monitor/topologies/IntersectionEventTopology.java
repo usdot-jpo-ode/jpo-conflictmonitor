@@ -403,6 +403,7 @@ public class IntersectionEventTopology
                 ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
                 
                 for(LaneDirectionOfTravelEvent event: events){
+                    event.setSource(value.getSource());
                     result.add(new KeyValue<>(key, event));
                 }
                 return result;
@@ -427,6 +428,7 @@ public class IntersectionEventTopology
                 List<KeyValue<BsmEventIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
                 ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
                 if(event != null){
+                    event.setSource(value.getSource());
                     result.add(new KeyValue<>(key, event));
                 }
                 return result;

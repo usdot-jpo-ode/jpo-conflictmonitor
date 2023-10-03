@@ -332,6 +332,7 @@ public class MapSpatMessageAssessmentTopology
                                     event.setSecondConflictingSignalGroup(secondConnection.getSignalGroup());
                                     event.setFirstConflictingSignalState(firstState);
                                     event.setSecondConflictingSignalState(secondState);
+                                    event.setSource(key);
 
                                     if (firstState.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                                             || firstState.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)) {
