@@ -234,12 +234,13 @@ public class MapSpatMessageAssessmentTopology
 
                     // ConnectingLanesFeatureCollection mapFeatures = value.getMap().getConnectingLanesFeatureCollection();
                     // value.getMap().getConnectingLanesFeatureCollection().get
-                    
-                    for(Object objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
-                        ConnectingLanesFeature feature = (ConnectingLanesFeature)objectFeature;
-                        mapSignalGroups.add(((ConnectingLanesProperties)feature.getProperties()).getSignalGroupId());
+                    if(value.getMap() != null){
+                        for(Object objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
+                            ConnectingLanesFeature feature = (ConnectingLanesFeature)objectFeature;
+                            mapSignalGroups.add(((ConnectingLanesProperties)feature.getProperties()).getSignalGroupId());
+                        }
                     }
-
+                    
                     if (!mapSignalGroups.equals(spatSignalGroups)) {
                         event.setMapSignalGroupIds(mapSignalGroups);
                         event.setSpatSignalGroupIds(spatSignalGroups);
