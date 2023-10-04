@@ -14,6 +14,8 @@ class ScriptUtilities {
     //
     // recordStartTime (number):
     //     Time to start recording in milliseconds
+    //     For real-time recording, should be at or shortly before to the current clock time.
+    //     For "useOdeReceivedAt" mode, should be at shortly before the earliest OdeReceivedAt.
     //
     // useOdeReceivedAt (boolean):
     //     Whether to get timestamps from the OdeReceivedAt properties of the messages
@@ -39,10 +41,11 @@ class ScriptUtilities {
     // MAP,[relative timestamp],[ODE JSON MAP message]
     //
     buildScriptFromMap(odeMap) {
-        const scriptMap = JSON.parse(JSON.stringify(odeMap))
+        const scriptMap = JSON.parse(JSON.stringify(odeMap));
+        const time = this.relativeTimestamp(scriptMap.metadata.odeReceivedAt);
         scriptMap.metadata.odeReceivedAt = this.ISO_DATE_TIME;
         const strMap = JSON.stringify(scriptMap);
-        const time = Date.now() - this.recordStartTime;
+
         return "MAP," + time + "," + strMap;
     }
 
@@ -53,10 +56,11 @@ class ScriptUtilities {
     //
     buildScriptFromProcessedMap(processedMap, key) {
         const scriptMap = JSON.parse(JSON.stringify(processedMap));
+        const time = this.relativeTimestamp(scriptMap.properties.odeReceivedAt);
         scriptMap.properties.odeReceivedAt = this.ISO_DATE_TIME;
         scriptMap.properties.timeStamp = this.ISO_DATE_TIME;
         const strMap = JSON.stringify(scriptMap);
-        const time = Date.now() - this.recordStartTime;
+
         return "ProcessedMap;" + key.rsuId + ";" + key.intersectionId + "," + time + "," + strMap;
     }
 
@@ -66,7 +70,8 @@ class ScriptUtilities {
     // SPAT,[relative timestamp],[ODE JSON SPAT Message]
     //
     buildScriptFromSpat(odeSpat) {
-        const scriptSpat = JSON.parse(JSON.stringify(odeSpat))
+        const scriptSpat = JSON.parse(JSON.stringify(odeSpat));
+        const time = this.relativeTimestamp(scriptSpat.metadata.odeReceivedAt);
         scriptSpat.metadata.odeReceivedAt = this.ISO_DATE_TIME;
         scriptSpat.payload.data.timeStamp = this.MINUTE_OF_YEAR;
         for (const intersection of scriptSpat.payload.data.intersectionStateList.intersectionStatelist) {
@@ -74,7 +79,7 @@ class ScriptUtilities {
             intersection.timeStamp = this.MILLI_OF_MINUTE;
         }
         const strSpat = JSON.stringify(scriptSpat);
-        const time = Date.now() - this.recordStartTime;
+
         return "SPAT," + time + "," + strSpat;
     }
 
@@ -85,10 +90,11 @@ class ScriptUtilities {
     //
     buildScriptFromProcessedSpat(processedSpat, key) {
         const scriptSpat = JSON.parse(JSON.stringify(processedSpat));
+        const time = this.relativeTimestamp(scriptSpat.odeReceivedAt);
         scriptSpat.odeReceivedAt = this.ISO_DATE_TIME;
         const timestampSeconds = processedSpat.utcTimeStamp;
         scriptSpat.utcTimeStamp = this.EPOCH_SECONDS;
-        for (const state of processedSpat.scriptSpat) {
+        for (const state of scriptSpat.states) {
             for (const event of state.stateTimeSpeed) {
                 if (event.timing?.minEndTime != null) {
                     const minOffsetSeconds = event.timing.minEndTime - timestampSeconds;
@@ -101,7 +107,7 @@ class ScriptUtilities {
             }
         }
         const strSpat = JSON.stringify(scriptSpat);
-        const time = Date.now() - this.recordStartTime;
+
         return "ProcessedSpat;" + key.rsuId + ";" + key.intersectionId + "," + time  + "," + strSpat;
     }
 
@@ -112,11 +118,11 @@ class ScriptUtilities {
     //
     buildScriptFromBsm(odeBsm) {
         const scriptBsm = JSON.parse(JSON.stringify(odeBsm))
+        const time = this.relativeTimestamp(scriptBsm.metadata.odeReceivedAt);
         scriptBsm.metadata.odeReceivedAt = this.ISO_DATE_TIME;
         scriptBsm.payload.data.coreData.secMark = this.MILLI_OF_MINUTE;
         scriptBsm.payload.data.coreData.id = this.TEMP_ID;
         const strBsm = JSON.stringify(scriptBsm);
-        const time = Date.now() - this.recordStartTime;
         return "BSM," + time + "," + strBsm;
     }
 
@@ -132,6 +138,18 @@ class ScriptUtilities {
             lines += line + '\n';
         }
         return lines;
+    }
+
+    //
+    // Gets a relative timestamp in milliseconds based on the recordStartTime and useOdeReceivedAt
+    // settings.
+    //
+    relativeTimestamp(odeReceivedAt) {
+        if (this.useOdeReceivedAt) {
+            return odeReceivedAt - this.recordStartTime;
+        } else {
+            return Date.now() - this.recordStartTime;
+        }
     }
 }
 

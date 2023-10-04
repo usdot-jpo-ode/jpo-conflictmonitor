@@ -1435,7 +1435,7 @@
     // ------------------------------------ Script ------------------------------
     var RECORD_SCRIPT = false;
     //var RECORD_START_TIME = 0;
-    let scriptUtil = new ScriptUtilities(Date.now(), true);
+    let scriptUtil = new ScriptUtilities(Date.now(), false);
 
     function clearScript() {
         script.length = 0;
@@ -1445,7 +1445,7 @@
     function startRecording() {
         RECORD_SCRIPT = true;
         scriptControls = document.getElementById('scriptControls').style = 'background-color:lightgreen';
-        scriptUtil = new ScriptUtilities(Date.now(), true);
+        scriptUtil = new ScriptUtilities(Date.now(), false);
     }
 
     function stopRecording() {
