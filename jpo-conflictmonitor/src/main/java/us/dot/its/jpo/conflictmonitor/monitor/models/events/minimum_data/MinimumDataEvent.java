@@ -24,7 +24,7 @@ public abstract class MinimumDataEvent extends Event  {
     /**
      * The source RSU device ID
      */
-    private String sourceDeviceId;
+    private String source;
 
 
     /**

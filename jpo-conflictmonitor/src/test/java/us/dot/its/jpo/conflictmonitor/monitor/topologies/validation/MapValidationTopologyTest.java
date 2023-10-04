@@ -51,7 +51,9 @@ public class MapValidationTopologyTest {
 
 
     final String rsuId = "127.0.0.1";
+    final String source = "{ rsuId='127.0.0.1', intersectionId='11111'}";
     final int intersectionId = 11111;
+
     
 
     
@@ -106,7 +108,7 @@ public class MapValidationTopologyTest {
                 assertThat("min data key rsuId", resultKey.getRsuId(), equalTo(rsuId));
                 assertThat("min data key intersectionId", resultKey.getIntersectionId(), equalTo(intersectionId));
                 var result = entry.value;
-                assertThat("min data event rsuId", result.getSourceDeviceId(), equalTo(rsuId));
+                assertThat("min data event rsuId", result.getSource(), equalTo(source));
                 assertThat("min data event intersectionId", result.getIntersectionID(), equalTo(intersectionId));
                 assertThat("min data missingDataElements size", result.getMissingDataElements(), hasSize(1));
                 var msg = result.getMissingDataElements().get(0);
@@ -120,7 +122,7 @@ public class MapValidationTopologyTest {
             assertThat("broadcast rate key rsuId", bcKey.getRsuId(), equalTo(rsuId));
             assertThat("broadcast rate key intersectionId", bcKey.getIntersectionId(), equalTo(intersectionId));
             var bcValue = broadcastRate.value;
-            assertThat("broadcast rate device id", bcValue.getSourceDeviceId(), equalTo(rsuId));
+            assertThat("broadcast rate device id", bcValue.getSource(), equalTo(source));
             assertThat("broadcast rate intersection id", bcValue.getIntersectionID(), equalTo(intersectionId));
             assertThat("broadcast rate topic name", bcValue.getTopicName(), equalTo(inputTopicName));
             assertThat("broadcast rate number of messages", bcValue.getNumberOfMessages(), equalTo(5));

@@ -54,8 +54,8 @@ public class TimeChangeDetailsNotificationTopologyTest {
         inputEvent.setSignalGroup(5);
         inputEvent.setFirstSpatTimestamp(0);
         inputEvent.setSecondSpatTimestamp(10);
-        inputEvent.setFirstTimeMarkType(0);
-        inputEvent.setSecondTimeMarkType(0);
+        inputEvent.setFirstTimeMarkType("minEndTime");
+        inputEvent.setSecondTimeMarkType("minEndTime");
         inputEvent.setFirstConflictingTimemark(0);
         inputEvent.setSecondConflictingTimemark(10);
         
