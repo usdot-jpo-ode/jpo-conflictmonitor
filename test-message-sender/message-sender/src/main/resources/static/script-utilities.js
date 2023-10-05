@@ -15,7 +15,7 @@ class ScriptUtilities {
     // recordStartTime (number):
     //     Time to start recording in milliseconds
     //     For real-time recording, should be at or shortly before to the current clock time.
-    //     For "useOdeReceivedAt" mode, should be at shortly before the earliest OdeReceivedAt.
+    //     For "useOdeReceivedAt" mode, should be at or shortly before the earliest OdeReceivedAt.
     //
     // useOdeReceivedAt (boolean):
     //     Whether to get timestamps from the OdeReceivedAt properties of the messages
