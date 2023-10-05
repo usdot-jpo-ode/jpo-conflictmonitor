@@ -66,11 +66,7 @@
                     <br/>
                     <label for="btnProcessedMapUpload">ProcessedMap</label><input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
                            onchange="uploadMapGeojson(this);"/>
-<!--                    <br/>-->
-<!--                    <label for="btnOdeSpatJsonUpload">SPAT</label>-->
-<!--                    <input type="file" id="btnOdeSpatJsonUpload" accept=".json"-->
-<!--                        onchange="uploadOdeSpatJson(this);" />-->
-<!--                    <br/>-->
+
                 </div>
                 
                 <hr />
@@ -92,19 +88,7 @@
 
                 </div>
                 <hr />
-<!--                <div id="spatControls">-->
-<!--                    -->
-<!--                    <h3>Send SPAT Template</h3>-->
-<!--                    <button type="button" onclick="startSendingSpat();">Start</button>-->
-<!--                    <button type="button" onclick="stopSendingSpat();">Stop</button>-->
-<!--                    <br/>-->
-<!--                    -->
-<!--                    <input type="range" min="50" max="150" value="100" step="5" name="spatInterval"-->
-<!--                        id="spatInterval" oninput="this.nextElementSibling.value = this.value" />-->
-<!--                    <output>100</output>-->
-<!--                    <br />-->
-<!--                    <label for="spatInterval">SPAT Interval (ms)</label>-->
-<!--                </div>-->
+
                 <div id="rtSpatControls">
 
                     <h3>Send Selected SPAT Phases</h3>
@@ -151,7 +135,7 @@
 </body>
 <script>
 
-    const map = L.map('map').setView([41, -93], 13);
+    const map = L.map('map').setView([41, -93], 4);
 
     /* Base Map */
     /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#expression-inlining */
@@ -169,13 +153,15 @@
     const bsmList = [];  /* Array of BSM locations */
     const spatList = [];
 
+    let bsmTemplate = ""; /* BSM template string */
+
     // Flag indicates whether the SPAT and spatList contain raw or ProcessedSpats.
     let useProcessedSpats = false;
     let useProcessedMap = false;
 
 
     const diffSpatEvents = [];
-    const diffSpatStates = [];
+    //const diffSpatStates = [];
 
     const script = [];
 
@@ -294,24 +280,15 @@
         /* TODO: Don't assume all items were deleted */
     });
 
-    // async function getMapGeojson() {
-    //
-    //     const response = await fetch('MAP_wadsworth_and_coalmine.json');
-    //     const mapJson = await response.json();
-    //     odeMapJsonToGeojson(JSON.stringify(mapJson));
-    //
-    // }
+
 
     async function getBsmTemplate() {
         const response = await fetch('BSMTemplate.json');
         const text = await response.text();
-        setBsmTemplate(text);
+        bsmTemplate = text;
     }
 
-    function setBsmTemplate(text) {
-        var json = JSON.parse(text);
-        document.getElementById("bsmTemplate").innerText = JSON.stringify(json, null, 1);
-    }
+
 
     let geojsonLayer = undefined;
     let connectingLayer = undefined;
@@ -398,9 +375,15 @@
             bsm.odeReceivedAt += offset;
         }
 
-        const bsmTemplate = getCurrentBsmTemplate();
+
 
         let idx = 0;
+
+        // Use random BSM ID
+        const bsmId = getRandomBsmID();
+
+        // Use originIp from MAP, if available
+        const originIp = getOriginIpForBsm();
 
         // Send each with timer
         let nextTime = startIn;
@@ -412,7 +395,7 @@
             if (!BSM_SEND) return;
             const bsm = theBsmList[idx];
             const id = bsm.id;
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate);
+            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
             sendBsmAsync(postDataItem).then(successCallback, failureCallback);
             if (idx < theBsmList.length - 1) {
                 ++idx;
@@ -453,11 +436,11 @@
         document.getElementById('bsmControls').style = '';
     }
 
-    function buildBsmFromTemplate(bsm, bsmTemplate) {
+    function buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp) {
         // Copy via serialization
         const bsmJson = JSON.stringify(bsmTemplate);
         const bsmObj = JSON.parse(bsmJson);
-        bsmObj.payload.data.coreData.id = bsm.id;
+        bsmObj.payload.data.coreData.id = bsmId;
         bsmObj.payload.data.coreData.msgCnt = bsm.msgCnt;
         bsmObj.payload.data.coreData.speed = bsm.speed;
         bsmObj.payload.data.coreData.heading = bsm.heading;       
@@ -469,11 +452,39 @@
         const minuteMillis = dtMinute.getTime();
         const millis = dtMillis - minuteMillis;
         bsmObj.payload.data.coreData.secMark = millis;
-        bsmObj.metadata.originIp = bsm.originIp;
+        bsmObj.metadata.originIp = originIp;
 
 
         bsmObj.metadata.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
         return bsmObj;
+    }
+
+    function getRandomBsmID() {
+        return genRanHex(8);
+    }
+
+    // Source: https://stackoverflow.com/questions/58325771/how-to-generate-random-hex-string-in-javascript
+    function genRanHex(size) {
+        let output = '';
+        for (let i = 0; i < size; ++i) {
+            output += (Math.floor(Math.random() * 16)).toString(16);
+        }
+        return output;
+    }
+
+    function getOriginIpForBsm() {
+        const defaultIp = "127.0.0.1";
+        if (useProcessedMap) {
+            if (odeMapTemplate?.properties?.originIp)
+                return odeMapTemplate.properties.originIp;
+            else
+                return defaultIp;
+        } else {
+            if (odeMapTemplate?.metadata?.originIp)
+                return odeMapTemplate.metadata.originIp;
+            else
+                return defaultIp;
+        }
     }
 
     async function sendBsmAsync(postDataItem) {
@@ -497,16 +508,7 @@
 
 
 
-    function getCurrentBsmTemplate() {
-        let bsmTemplateObj = null;
-        try {
-            let bsmText = document.getElementById("bsmTemplate").innerText;
-            bsmTemplateObj = JSON.parse(bsmText);
-        } catch {
-            /* Ignore exception if there is no bsm template */
-        }
-        return bsmTemplateObj;
-    }
+
 
     function successCallback(e) {
         //console.log("success");
@@ -530,8 +532,7 @@
                 bsmList.length = 0;
                 const lines = text.split(/\r?\n/);
 
-                // Set the first BSM as the template
-                setBsmTemplate(lines[0]);
+
 
                 for (const line of lines) {
                     if (line) {
@@ -615,15 +616,15 @@
 
 
 
-    function uploadBsmTemplate(e) {
-        console.log("uploadBsmTemplate")
-        if (e?.files.length > 0) {
-            let file = e.files[0];
-            file.text().then(text => {
-                setBsmTemplate(text);
-            });
-        }
-    }
+    // function uploadBsmTemplate(e) {
+    //     console.log("uploadBsmTemplate")
+    //     if (e?.files.length > 0) {
+    //         let file = e.files[0];
+    //         file.text().then(text => {
+    //             setBsmTemplate(text);
+    //         });
+    //     }
+    // }
 
     function uploadMapGeojson(e) {
         console.log("uploadMapGeojson (ProcessedMap)");
@@ -653,15 +654,15 @@
         }
     }
 
-    function uploadOdeSpatJson(e) {
-        console.log("uploadOdeSpatJson");
-        if (e?.files.length > 0) {
-            let file = e.files[0];
-            console.log("SPAT JSON File:");
-            console.log(file);
-            file.text().then(text => setSpatTemplate(text));
-        }
-    }
+    // function uploadOdeSpatJson(e) {
+    //     console.log("uploadOdeSpatJson");
+    //     if (e?.files.length > 0) {
+    //         let file = e.files[0];
+    //         console.log("SPAT JSON File:");
+    //         console.log(file);
+    //         file.text().then(text => setSpatTemplate(text));
+    //     }
+    // }
 
     var odeMapTemplate;
 
@@ -795,38 +796,45 @@
 
     function downloadBsms() {
         let ldjson = '';
-        const bsmTemplate = getCurrentBsmTemplate();
+
+
+        // Use random BSM ID
+        const bsmId = getRandomBsmID();
+
+        // Use originIp from MAP, if available
+        const originIp = getOriginIpForBsm();
+
         for (const bsm of bsmList) {
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate);
+            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
             ldjson += JSON.stringify(postDataItem) + '\n';
         }
         downloadText('BSMData.jsonl', ldjson);
     }
 
-    function downloadSpats() {
-        let ldjson = '';
-        const phases = getSelectedSpatPhases();
-        for (const phase of phases) {
-            const event = diffSpatEvents[phase];
-            const spats = event.spats;
-            for (const spat of spats) {
-                ldjson += JSON.stringify(spat.json) + '\n';
-            }
-        }
-        downloadText('SPATData.jsonl', ldjson);
-    }
+    // function downloadSpats() {
+    //     let ldjson = '';
+    //     const phases = getSelectedSpatPhases();
+    //     for (const phase of phases) {
+    //         const event = diffSpatEvents[phase];
+    //         const spats = event.spats;
+    //         for (const spat of spats) {
+    //             ldjson += JSON.stringify(spat.json) + '\n';
+    //         }
+    //     }
+    //     downloadText('SPATData.jsonl', ldjson);
+    // }
 
-    function downloadBsmTemplate() {
-        const bsmTemplate = getCurrentBsmTemplate();
-        const bsmStr = JSON.stringify(bsmTemplate);
-        downloadText('BSMTemplate.json', bsmStr);
-    }
+    // function downloadBsmTemplate() {
+    //     const bsmTemplate = getCurrentBsmTemplate();
+    //     const bsmStr = JSON.stringify(bsmTemplate);
+    //     downloadText('BSMTemplate.json', bsmStr);
+    // }
 
-    function downloadSpatTemplate() {
-        const spatTemplate = getCurrentSpatTemplate();
-        const spatStr = JSON.stringify(spatTemplate);
-        downloadText('SPATTemplate.json', spatStr);
-    }
+    // function downloadSpatTemplate() {
+    //     const spatTemplate = getCurrentSpatTemplate();
+    //     const spatStr = JSON.stringify(spatTemplate);
+    //     downloadText('SPATTemplate.json', spatStr);
+    // }
 
 
     // ------------------------- SPAT Upload --------------------------------
@@ -1197,7 +1205,7 @@
     }
 
     // -------------------- Send SPAT Template --------------------------
-    var SPAT_SEND = true;
+    // var SPAT_SEND = true;
 
     // function startSendingSpat() {
     //     SPAT_SEND = true;
@@ -1301,16 +1309,16 @@
         return spatCopy;
     }
 
-    function getCurrentSpatTemplate() {
-        let spatTemplateObj = null;
-        try {
-            let spatText = document.getElementById("spatTemplate").innerText;
-            spatTemplateObj = JSON.parse(spatText);
-        } catch {
-            // Ignore exception if no spat template
-        }
-        return spatTemplateObj;
-    }
+    // function getCurrentSpatTemplate() {
+    //     let spatTemplateObj = null;
+    //     try {
+    //         let spatText = document.getElementById("spatTemplate").innerText;
+    //         spatTemplateObj = JSON.parse(spatText);
+    //     } catch {
+    //         // Ignore exception if no spat template
+    //     }
+    //     return spatTemplateObj;
+    // }
 
     // --------------------- Send SPATs Real Time ------------------------------
     var RT_SPAT_SEND = false;
@@ -1432,13 +1440,12 @@
 
 
     // ------------------------------------ Script ------------------------------
-    var RECORD_SCRIPT = false;
+    let RECORD_SCRIPT = false;
     //var RECORD_START_TIME = 0;
     let scriptUtil = new ScriptUtilities(Date.now(), false);
 
     function clearScript() {
         script.length = 0;
-        RECORD_START_TIME = 0;
     }
 
     function startRecording() {
