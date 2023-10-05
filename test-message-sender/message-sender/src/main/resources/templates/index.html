@@ -151,7 +151,7 @@
 </body>
 <script>
 
-    const map = L.map('map').setView([39.5952649, -105.0914122], 19);
+    const map = L.map('map').setView([41, -93], 13);
 
     /* Base Map */
     /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#expression-inlining */
@@ -294,15 +294,13 @@
         /* TODO: Don't assume all items were deleted */
     });
 
-    async function getMapGeojson() {
-        //const response = await fetch('map_wadsworth_and_coalmine.geojson');
-        const response = await fetch('MAP_wadsworth_and_coalmine.json');
-        const mapJson = await response.json();
-        odeMapJsonToGeojson(JSON.stringify(mapJson));
-        // setMapGeojson(mapJson.mapFeatureCollection);
-        // setConnectingLanesGeojson(mapJson.connectingLanesFeatureCollection);
-
-    }
+    // async function getMapGeojson() {
+    //
+    //     const response = await fetch('MAP_wadsworth_and_coalmine.json');
+    //     const mapJson = await response.json();
+    //     odeMapJsonToGeojson(JSON.stringify(mapJson));
+    //
+    // }
 
     async function getBsmTemplate() {
         const response = await fetch('BSMTemplate.json');
@@ -368,7 +366,8 @@
     }
 
 
-    getMapGeojson();
+    //getMapGeojson();
+
     getBsmTemplate();
 
     // function sendBsms() {

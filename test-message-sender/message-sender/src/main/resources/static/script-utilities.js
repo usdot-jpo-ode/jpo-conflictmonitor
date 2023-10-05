@@ -28,12 +28,12 @@ class ScriptUtilities {
         this.useOdeReceivedAt = useOdeReceivedAt;
     }
 
-    static ISO_DATE_TIME = '@ISO_DATE_TIME@';
-    static MINUTE_OF_YEAR = '@MINUTE_OF_YEAR@';
-    static MILLI_OF_MINUTE = '@MILLI_OF_MINUTE@';
-    static TEMP_ID = '@TEMP_ID@';
-    static EPOCH_SECONDS = '@EPOCH_SECONDS@';
-    static OFFSET_SECONDS = '@OFFSET_SECONDS_#@'
+    ISO_DATE_TIME = '@ISO_DATE_TIME@';
+    MINUTE_OF_YEAR = '@MINUTE_OF_YEAR@';
+    MILLI_OF_MINUTE = '@MILLI_OF_MINUTE@';
+    TEMP_ID = '@TEMP_ID@';
+    EPOCH_SECONDS = '@EPOCH_SECONDS@';
+    OFFSET_SECONDS = '@OFFSET_SECONDS_#@'
 
     //
     // Generates a line of text for a script MAP message.
@@ -144,9 +144,13 @@ class ScriptUtilities {
     // Gets a relative timestamp in milliseconds based on the recordStartTime and useOdeReceivedAt
     // settings.
     //
+    // Input:
+    //     odeReceivedAt: Timestamp in ISO8601 string format
+    //
     relativeTimestamp(odeReceivedAt) {
+        const dtReceivedAtMillis = Date.parse(odeReceivedAt);
         if (this.useOdeReceivedAt) {
-            return odeReceivedAt - this.recordStartTime;
+            return dtReceivedAtMillis - this.recordStartTime;
         } else {
             return Date.now() - this.recordStartTime;
         }
