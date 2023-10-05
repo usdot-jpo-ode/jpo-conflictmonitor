@@ -32,10 +32,25 @@ public class SpatTimeChangeDetailState {
             if (event.getTiming() != null) {
                 var timing = event.getTiming();
                 if (timing.getMaxEndTime() != null) {
-                    newState.setMaxEndTime(timing.getMaxEndTime().toInstant().toEpochMilli());
+                    long millis = timing.getMaxEndTime().toInstant().toEpochMilli();
+                    if(millis >0){
+                        newState.setMaxEndTime(0);
+                    }else{
+                        newState.setMaxEndTime(0);
+                    }
+                    
+                }else{
+                    newState.setMaxEndTime(-1);
                 }
                 if (timing.getMinEndTime() != null) {
-                    newState.setMinEndTime(timing.getMinEndTime().toInstant().toEpochMilli());
+                    long millis = timing.getMinEndTime().toInstant().toEpochMilli();
+                    if(millis >0){
+                        newState.setMinEndTime(0);
+                    }else{
+                        newState.setMinEndTime(0);
+                    }
+                }else{
+                    newState.setMinEndTime(-1);
                 }
             }
             newState.setEventState(event.getEventState());

@@ -78,68 +78,93 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
 
                             // Check if its the same signal group
                             if(firstState.getSignalGroup() == secondState.getSignalGroup()){
+                                System.out.println(firstState.getMaxEndTime() + " " + secondState.getMaxEndTime());
+                                
+                                // Check if its the same event state
+                                if(firstState.getEventState() == secondState.getEventState()){
 
-                                // I think this logic is wrong. No event should be thrown when the Event State Changes
-                                if(firstState.getMinEndTime() > secondState.getMinEndTime() && firstState.getEventState() != secondState.getEventState()){
-                                    //TimeChangeDetailsEvent event = buildEvent(first, second, firstState, secondState);
-                                    TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
-                                    event.setRoadRegulatorID(first.getRegion());
-                                    event.setIntersectionID(first.getIntersectionID());
-                                    event.setSignalGroup(firstState.getSignalGroup());
-                                    event.setFirstSpatTimestamp(first.getTimestamp());
-                                    event.setSecondSpatTimestamp(second.getTimestamp());
-                                    event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMinEndTime()));
-                                    event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMinEndTime()));
-                                    event.setFirstState(firstState.getEventState());
-                                    event.setSecondState(secondState.getEventState());
-                                    event.setFirstTimeMarkType(MIN_END_TIME_TIMEMARK);
-                                    event.setSecondTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                    // Check if both events have valid minEndTimes (unknown or a value)
+                                    if(firstState.getMinEndTime() >=0 && secondState.getMinEndTime() >= 0){
+                                        if(firstState.getMinEndTime() > secondState.getMinEndTime()){
+                                            TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
+                                            event.setRoadRegulatorID(first.getRegion());
+                                            event.setIntersectionID(first.getIntersectionID());
+                                            event.setSignalGroup(firstState.getSignalGroup());
+                                            event.setFirstSpatTimestamp(first.getTimestamp());
+                                            event.setSecondSpatTimestamp(second.getTimestamp());
+                                            event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMinEndTime()));
+                                            event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMinEndTime()));
+                                            event.setFirstState(firstState.getEventState());
+                                            event.setSecondState(secondState.getEventState());
+                                            event.setFirstTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                            event.setSecondTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                            
+                                            context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
+                                            
+                                        }
+
+                                        // first state must have a valid time (not unknown) to generate an event.
+                                        if(firstState.getMinEndTime() > 0 && firstState.getMinEndTime() != secondState.getMinEndTime() && isStateClearance(firstState.getEventState())){
+                                            TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
+                                            event.setRoadRegulatorID(first.getRegion());
+                                            event.setIntersectionID(first.getIntersectionID());
+                                            event.setSignalGroup(firstState.getSignalGroup());
+                                            event.setFirstSpatTimestamp(first.getTimestamp());
+                                            event.setSecondSpatTimestamp(second.getTimestamp());
+                                            event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMinEndTime()));
+                                            event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMinEndTime()));
+                                            event.setFirstState(firstState.getEventState());
+                                            event.setSecondState(secondState.getEventState());
+                                            event.setFirstTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                            event.setSecondTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                            
+                                            context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
+                                        }
+                                    }
                                     
-                                    context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
-                                    
+                                    // check if both events have valid end times (unknown or a value)
+                                    if(firstState.getMaxEndTime() >= 0 && secondState.getMaxEndTime() >= 0){
+                                        if(firstState.getMaxEndTime() < secondState.getMaxEndTime()){
+                                            TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
+                                            event.setRoadRegulatorID(first.getRegion());
+                                            event.setIntersectionID(first.getIntersectionID());
+                                            event.setSignalGroup(firstState.getSignalGroup());
+                                            event.setFirstSpatTimestamp(first.getTimestamp());
+                                            event.setSecondSpatTimestamp(second.getTimestamp());
+                                            event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMaxEndTime()));
+                                            event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMaxEndTime()));
+                                            event.setFirstState(firstState.getEventState());
+                                            event.setSecondState(secondState.getEventState());
+                                            event.setFirstTimeMarkType(MAX_END_TIME_TIMEMARK);
+                                            event.setSecondTimeMarkType(MAX_END_TIME_TIMEMARK);
+                                            
+                                            context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
+                                        }
+
+                                        // First state must have a valid time (not unknown) to generate an event
+                                        if(firstState.getMaxEndTime() >0 && firstState.getMaxEndTime() != secondState.getMaxEndTime() && isStateClearance(firstState.getEventState())){
+                                            TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
+                                            event.setRoadRegulatorID(first.getRegion());
+                                            event.setIntersectionID(first.getIntersectionID());
+                                            event.setSignalGroup(firstState.getSignalGroup());
+                                            event.setFirstSpatTimestamp(first.getTimestamp());
+                                            event.setSecondSpatTimestamp(second.getTimestamp());
+                                            event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMaxEndTime()));
+                                            event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMaxEndTime()));
+                                            event.setFirstState(firstState.getEventState());
+                                            event.setSecondState(secondState.getEventState());
+                                            event.setFirstTimeMarkType(MAX_END_TIME_TIMEMARK);
+                                            event.setSecondTimeMarkType(MAX_END_TIME_TIMEMARK);
+                                            
+                                            context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
+                                        }
+                                    }
                                 }
-
-                                // I think this logic is also wrong. Both the Sign needs to switch and the event states must be equivalent
-                                if(firstState.getMaxEndTime() < secondState.getMaxEndTime() && firstState.getEventState() != secondState.getEventState()){
-                                    TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
-                                    event.setRoadRegulatorID(first.getRegion());
-                                    event.setIntersectionID(first.getIntersectionID());
-                                    event.setSignalGroup(firstState.getSignalGroup());
-                                    event.setFirstSpatTimestamp(first.getTimestamp());
-                                    event.setSecondSpatTimestamp(second.getTimestamp());
-                                    event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMaxEndTime()));
-                                    event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMaxEndTime()));
-                                    event.setFirstState(firstState.getEventState());
-                                    event.setSecondState(secondState.getEventState());
-                                    event.setFirstTimeMarkType(MAX_END_TIME_TIMEMARK);
-                                    event.setSecondTimeMarkType(MAX_END_TIME_TIMEMARK);
-                                    
-                                    context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
-
-                                }
-
-
-                                if((firstState.getMinEndTime() != secondState.getMaxEndTime()) && isStateClearance(firstState.getEventState())){
-                                    TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
-                                    event.setRoadRegulatorID(first.getRegion());
-                                    event.setIntersectionID(first.getIntersectionID());
-                                    event.setSignalGroup(firstState.getSignalGroup());
-                                    event.setFirstSpatTimestamp(first.getTimestamp());
-                                    event.setSecondSpatTimestamp(second.getTimestamp());
-                                    event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMinEndTime()));
-                                    event.setSecondConflictingTimemark(timeMarkFromUtc(secondState.getMaxEndTime()));
-                                    event.setFirstState(firstState.getEventState());
-                                    event.setSecondState(secondState.getEventState());
-                                    event.setFirstTimeMarkType(MIN_END_TIME_TIMEMARK);
-                                    event.setSecondTimeMarkType(MAX_END_TIME_TIMEMARK);
-                                    
-                                    context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
-                                }
-
                                 break;
                             }
                         }
-                        if(firstState.getMaxEndTime() != firstState.getMinEndTime() && isStateClearance(firstState.getEventState())){
+                        // States must have valid values in order for the event to be generated.
+                        if(firstState.getMaxEndTime() > 0 && firstState.getMinEndTime() > 0 && firstState.getMaxEndTime() != firstState.getMinEndTime() && isStateClearance(firstState.getEventState())){
                             TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
                             event.setRoadRegulatorID(first.getRegion());
                             event.setIntersectionID(first.getIntersectionID());
@@ -171,7 +196,7 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
     }
 
     public long timeMarkFromUtc(long utcTimeMillis){
-        return utcTimeMillis % (10 * 60 * 60);
+        return utcTimeMillis % (60 * 60 * 1000) / 100;
     }
 
     
