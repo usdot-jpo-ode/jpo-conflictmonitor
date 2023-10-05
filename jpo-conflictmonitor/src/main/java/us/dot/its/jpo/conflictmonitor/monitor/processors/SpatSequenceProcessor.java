@@ -78,14 +78,13 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
 
                             // Check if its the same signal group
                             if(firstState.getSignalGroup() == secondState.getSignalGroup()){
-                                System.out.println(firstState.getMaxEndTime() + " " + secondState.getMaxEndTime());
                                 
                                 // Check if its the same event state
                                 if(firstState.getEventState() == secondState.getEventState()){
 
                                     // Check if both events have valid minEndTimes (unknown or a value)
                                     if(firstState.getMinEndTime() >=0 && secondState.getMinEndTime() >= 0){
-                                        if(firstState.getMinEndTime() > secondState.getMinEndTime()){
+                                        if(firstState.getMinEndTime() - secondState.getMinEndTime() > 100){
                                             TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
                                             event.setRoadRegulatorID(first.getRegion());
                                             event.setIntersectionID(first.getIntersectionID());
@@ -104,7 +103,7 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                         }
 
                                         // first state must have a valid time (not unknown) to generate an event.
-                                        if(firstState.getMinEndTime() > 0 && firstState.getMinEndTime() != secondState.getMinEndTime() && isStateClearance(firstState.getEventState())){
+                                        if(firstState.getMinEndTime() > 0 && Math.abs(firstState.getMinEndTime() - secondState.getMinEndTime())>100 && isStateClearance(firstState.getEventState())){
                                             TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
                                             event.setRoadRegulatorID(first.getRegion());
                                             event.setIntersectionID(first.getIntersectionID());
@@ -124,7 +123,7 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                     
                                     // check if both events have valid end times (unknown or a value)
                                     if(firstState.getMaxEndTime() >= 0 && secondState.getMaxEndTime() >= 0){
-                                        if(firstState.getMaxEndTime() < secondState.getMaxEndTime()){
+                                        if(secondState.getMaxEndTime() - firstState.getMaxEndTime() > 100){
                                             TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
                                             event.setRoadRegulatorID(first.getRegion());
                                             event.setIntersectionID(first.getIntersectionID());
@@ -142,7 +141,7 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                         }
 
                                         // First state must have a valid time (not unknown) to generate an event
-                                        if(firstState.getMaxEndTime() >0 && firstState.getMaxEndTime() != secondState.getMaxEndTime() && isStateClearance(firstState.getEventState())){
+                                        if(firstState.getMaxEndTime() > 0 && Math.abs(firstState.getMaxEndTime() - secondState.getMaxEndTime())>100 && isStateClearance(firstState.getEventState())){
                                             TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
                                             event.setRoadRegulatorID(first.getRegion());
                                             event.setIntersectionID(first.getIntersectionID());
@@ -164,7 +163,7 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                             }
                         }
                         // States must have valid values in order for the event to be generated.
-                        if(firstState.getMaxEndTime() > 0 && firstState.getMinEndTime() > 0 && firstState.getMaxEndTime() != firstState.getMinEndTime() && isStateClearance(firstState.getEventState())){
+                        if(firstState.getMaxEndTime() > 0 && firstState.getMinEndTime() > 0 && Math.abs(firstState.getMaxEndTime() - firstState.getMinEndTime()) > 100 && isStateClearance(firstState.getEventState())){
                             TimeChangeDetailsEvent event = new TimeChangeDetailsEvent();
                             event.setRoadRegulatorID(first.getRegion());
                             event.setIntersectionID(first.getIntersectionID());

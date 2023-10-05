@@ -34,7 +34,7 @@ public class SpatTimeChangeDetailState {
                 if (timing.getMaxEndTime() != null) {
                     long millis = timing.getMaxEndTime().toInstant().toEpochMilli();
                     if(millis >0){
-                        newState.setMaxEndTime(0);
+                        newState.setMaxEndTime(millis);
                     }else{
                         newState.setMaxEndTime(0);
                     }
@@ -45,7 +45,7 @@ public class SpatTimeChangeDetailState {
                 if (timing.getMinEndTime() != null) {
                     long millis = timing.getMinEndTime().toInstant().toEpochMilli();
                     if(millis >0){
-                        newState.setMinEndTime(0);
+                        newState.setMinEndTime(millis);
                     }else{
                         newState.setMinEndTime(0);
                     }
