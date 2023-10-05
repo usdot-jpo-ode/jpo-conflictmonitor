@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
-import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLog;
-import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
-import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogItem;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLog;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogItem;
 import us.dot.its.jpo.ode.model.OdeMapData;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.converter.map.MapProcessedJsonConverter;
@@ -55,8 +55,8 @@ public class TestController {
     @Autowired
     KafkaTemplate<String, String> template;
 
-    @Autowired
-    ScriptRunner scriptRunner;
+//    @Autowired
+//    ScriptRunner scriptRunner;
 
     public static final String X_KAFKA_KEY = "x-kafka-key";
 
@@ -89,17 +89,17 @@ public class TestController {
 
     
 
-    @PostMapping(value = "/script", consumes = "*/*", produces = "*/*")
-    public @ResponseBody ResponseEntity<String> runScript(@RequestBody String script) {
-        logger.info("runScript");
-        try {
-            scriptRunner.scheduleScript(script);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body("running script");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
-                    .body(ExceptionUtils.getStackTrace(e));
-        }
-    }
+//    @PostMapping(value = "/script", consumes = "*/*", produces = "*/*")
+//    public @ResponseBody ResponseEntity<String> runScript(@RequestBody String script) {
+//        logger.info("runScript");
+//        try {
+//            scriptRunner.scheduleScript(script);
+//            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body("running script");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+//                    .body(ExceptionUtils.getStackTrace(e));
+//        }
+//    }
 
     
    
