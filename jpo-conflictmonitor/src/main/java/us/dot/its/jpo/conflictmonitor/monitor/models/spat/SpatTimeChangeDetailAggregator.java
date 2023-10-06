@@ -19,7 +19,7 @@ public class SpatTimeChangeDetailAggregator {
 
     @Getter
     @Setter
-    private int messageBufferSize = 100;
+    private int messageBufferSize = 2;
 
 
     // Parameterless constructor needed by Jackson
