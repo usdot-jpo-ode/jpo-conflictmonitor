@@ -103,6 +103,21 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
             if (connection != null) {
                 signalGroup = connection.getSignalGroup();
+                Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+                if (signalGroups.size() == 1) {
+                    signalGroup = signalGroups.iterator().next();
+                }else if(signalGroups.size() > 1){
+                    Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
+                    Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
+                    if(matchingConnection != null){
+                        signalGroup = matchingConnection;
+                    }else{
+                        return null;
+                    }
+                }else{
+                    return null;
+                }
+
             } else {
                 logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
             }
@@ -123,7 +138,10 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             event.setInitialEventState(firstSignalState);
             event.setFinalEventState(lastSignalState);
 
+            System.out.println(spats.getSpats().size());
+
             List<ProcessedSpat> filteredSpats = SpatUtils.filterSpatsByTimestamp(spats.getSpats(), firstTimestamp, lastTimestamp);
+
             String spatDesc = SpatUtils.describeSpats(filteredSpats, signalGroup);
             logger.info(spatDesc);
             SpatUtils.SpatStatistics spatStatistics = SpatUtils.getSpatStatistics(filteredSpats, signalGroup);
@@ -135,6 +153,17 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
         logger.info("StopLineStopEvent: {}", event);
         return event;
+    }
+
+    private Integer getMatchingSignalGroup(Set<Integer> ingressGroups, Set<Integer> egressGroups){
+        for(Integer ingressGroupID: ingressGroups){
+            for(Integer egressGroupID: egressGroups){
+                if(ingressGroupID == egressGroupID){
+                    return ingressGroupID;
+                }
+            }
+        }
+        return null;
     }
 
 

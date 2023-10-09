@@ -30,6 +30,8 @@ public class TimeChangeDetailsEvent extends Event{
     private long secondConflictingTimemark;
     private J2735MovementPhaseState firstState;
     private J2735MovementPhaseState secondState;
+    private long firstConflictingUtcTimestamp;
+    private long secondConflictingUtcTimestamp;
 
     public TimeChangeDetailsEvent(){
         super("TimeChangeDetails");

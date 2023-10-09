@@ -97,6 +97,8 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                             event.setSecondState(secondState.getEventState());
                                             event.setFirstTimeMarkType(MIN_END_TIME_TIMEMARK);
                                             event.setSecondTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                            event.setFirstConflictingUtcTimestamp(firstState.getMinEndTime());
+                                            event.setSecondConflictingUtcTimestamp(secondState.getMinEndTime());
                                             
                                             context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
                                             
@@ -116,6 +118,8 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                             event.setSecondState(secondState.getEventState());
                                             event.setFirstTimeMarkType(MIN_END_TIME_TIMEMARK);
                                             event.setSecondTimeMarkType(MIN_END_TIME_TIMEMARK);
+                                            event.setFirstConflictingUtcTimestamp(firstState.getMinEndTime());
+                                            event.setSecondConflictingUtcTimestamp(secondState.getMinEndTime());
                                             
                                             context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
                                         }
@@ -136,6 +140,8 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                             event.setSecondState(secondState.getEventState());
                                             event.setFirstTimeMarkType(MAX_END_TIME_TIMEMARK);
                                             event.setSecondTimeMarkType(MAX_END_TIME_TIMEMARK);
+                                            event.setFirstConflictingUtcTimestamp(firstState.getMaxEndTime());
+                                            event.setSecondConflictingUtcTimestamp(secondState.getMaxEndTime());
                                             
                                             context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
                                         }
@@ -154,6 +160,8 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                                             event.setSecondState(secondState.getEventState());
                                             event.setFirstTimeMarkType(MAX_END_TIME_TIMEMARK);
                                             event.setSecondTimeMarkType(MAX_END_TIME_TIMEMARK);
+                                            event.setFirstConflictingUtcTimestamp(firstState.getMaxEndTime());
+                                            event.setSecondConflictingUtcTimestamp(secondState.getMaxEndTime());
                                             
                                             context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
                                         }
@@ -173,8 +181,11 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
                             event.setFirstConflictingTimemark(timeMarkFromUtc(firstState.getMaxEndTime()));
                             event.setSecondConflictingTimemark(timeMarkFromUtc(firstState.getMinEndTime()));
                             event.setFirstState(firstState.getEventState());
+                            event.setSecondState(firstState.getEventState());
                             event.setFirstTimeMarkType(MAX_END_TIME_TIMEMARK);
                             event.setSecondTimeMarkType(MIN_END_TIME_TIMEMARK);
+                            event.setFirstConflictingUtcTimestamp(firstState.getMinEndTime());
+                            event.setSecondConflictingUtcTimestamp(firstState.getMaxEndTime());
                             
                             context().forward(new Record<>(key, event, event.getFirstSpatTimestamp()));
                         }
