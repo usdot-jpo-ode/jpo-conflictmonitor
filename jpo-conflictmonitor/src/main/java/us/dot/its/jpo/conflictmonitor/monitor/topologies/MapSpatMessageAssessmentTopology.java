@@ -214,7 +214,7 @@ public class MapSpatMessageAssessmentTopology
                     ArrayList<KeyValue<String, SignalGroupAlignmentEvent>> events = new ArrayList<>();
                     SignalGroupAlignmentEvent event = new SignalGroupAlignmentEvent();
 
-                    event.setSourceID(key);
+                    event.setSource(key);
                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(value.getSpat()));
                     
                     if(value.getSpat().getIntersectionId()!= null){
@@ -244,7 +244,7 @@ public class MapSpatMessageAssessmentTopology
                     if (!mapSignalGroups.equals(spatSignalGroups)) {
                         event.setMapSignalGroupIds(mapSignalGroups);
                         event.setSpatSignalGroupIds(spatSignalGroups);
-                        event.setSourceID(key);
+                        event.setSource(key);
                         events.add(new KeyValue<>(key, event));
                     }
 

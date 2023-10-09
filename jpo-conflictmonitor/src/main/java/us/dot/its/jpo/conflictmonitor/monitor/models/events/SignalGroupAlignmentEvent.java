@@ -13,7 +13,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper=true)
 @Generated
 public class SignalGroupAlignmentEvent extends Event{
-    String sourceID;
+    String source;
     long timestamp;
     Set<Integer> spatSignalGroupIds;
     Set<Integer> mapSignalGroupIds;
