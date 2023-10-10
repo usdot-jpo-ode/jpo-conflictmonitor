@@ -24,12 +24,8 @@ public abstract class MinimumDataEvent extends Event  {
     /**
      * The source RSU device ID
      */
-    private String sourceDeviceId;
+    private String source;
 
-    /**
-     * The intersection id
-     */
-    private int intersectionId;
 
     /**
      * The message processing time period

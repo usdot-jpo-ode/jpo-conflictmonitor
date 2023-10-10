@@ -171,6 +171,22 @@ public class Intersection {
         return signalGroups;
     }
 
+    public Set<Integer> getSignalGroupsForEgressLane(Lane egressLane) {
+
+        Set<Integer> signalGroups = new HashSet<>();
+        if (egressLane == null) {
+            return signalGroups;
+        }
+        for(LaneConnection laneConnection: this.laneConnections){
+            if(laneConnection.getEgressLane().getId() == egressLane.getId()){
+                signalGroups.add(laneConnection.getSignalGroup());
+            }
+        }
+        return signalGroups;
+    }
+
+
+
     public ArrayList<LaneConnection> getLaneConnectionBySignalGroup(int signalGroup){
         ArrayList<LaneConnection> connections = new ArrayList<>();
         for(LaneConnection laneConnection: this.laneConnections){

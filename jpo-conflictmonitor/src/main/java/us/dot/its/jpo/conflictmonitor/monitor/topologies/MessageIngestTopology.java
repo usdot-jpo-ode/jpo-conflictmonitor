@@ -76,7 +76,7 @@ public class MessageIngestTopology
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(0)))
+        bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(10000)))
         .reduce(
             (oldValue, newValue)->{
                 return newValue;
@@ -129,7 +129,7 @@ public class MessageIngestTopology
 
         // //Take the Spats's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         // //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        spatKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(0)))
+        spatKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(10000)))
         .reduce(
             (oldValue, newValue)->{
                     return newValue;

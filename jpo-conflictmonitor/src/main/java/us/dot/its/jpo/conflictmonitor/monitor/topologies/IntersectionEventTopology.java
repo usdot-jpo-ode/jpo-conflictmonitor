@@ -252,7 +252,6 @@ public class IntersectionEventTopology
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
             }
-            
         }
 
         bsmRange.close();
@@ -369,7 +368,7 @@ public class IntersectionEventTopology
 
                         logger.info("Got Intersection object from MAP: {}", intersection);
 
-                        VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
+                        VehicleEvent event = new VehicleEvent(bsms, spats, intersection, rsuKey.toString());
 
                         result.add(new KeyValue<>(key, event));
     
@@ -404,6 +403,7 @@ public class IntersectionEventTopology
                 ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
                 
                 for(LaneDirectionOfTravelEvent event: events){
+                    event.setSource(value.getSource());
                     result.add(new KeyValue<>(key, event));
                 }
                 return result;
@@ -428,6 +428,7 @@ public class IntersectionEventTopology
                 List<KeyValue<BsmEventIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
                 ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
                 if(event != null){
+                    event.setSource(value.getSource());
                     result.add(new KeyValue<>(key, event));
                 }
                 return result;
@@ -450,6 +451,7 @@ public class IntersectionEventTopology
                 List<KeyValue<BsmEventIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
                 StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
                 if(event != null){
+                    event.setSource(value.getSource());
                     result.add(new KeyValue<>(key, event));
                 }
 
@@ -475,6 +477,7 @@ public class IntersectionEventTopology
                 List<KeyValue<BsmEventIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
                 StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(stopLineStopParameters, path, value.getSpats());
                 if(event != null){
+                    event.setSource(value.getSource());
                     result.add(new KeyValue<>(key, event));
                 }
 

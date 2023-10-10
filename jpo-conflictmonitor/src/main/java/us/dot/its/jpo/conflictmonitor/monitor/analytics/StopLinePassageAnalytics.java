@@ -94,7 +94,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
             event.setVehicleID(coreData.getId());
             if (coreData.getPosition() != null) {
                 event.setLongitude(coreData.getPosition().getLongitude().doubleValue());
-                event.setLatitude(coreData.getPosition().getLongitude().doubleValue());
+                event.setLatitude(coreData.getPosition().getLatitude().doubleValue());
             }
             if (coreData.getHeading() != null) {
                 event.setHeading(coreData.getHeading().doubleValue());
