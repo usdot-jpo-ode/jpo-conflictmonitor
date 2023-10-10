@@ -394,17 +394,22 @@ public class IntersectionEventTopology
         KStream<BsmEventIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
                 String rsuId = key.getRsuId();
-                double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
-                double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
-                        headingToleranceDegrees);
-
                 List<KeyValue<BsmEventIntersectionKey, LaneDirectionOfTravelEvent>> result = new ArrayList<>();
-                ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
-                
-                for(LaneDirectionOfTravelEvent event: events){
-                    event.setSource(value.getSource());
-                    result.add(new KeyValue<>(key, event));
+                if(value.getBsms().getBsms().size() > 2){
+                    double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
+                    double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
+
+                    
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
+                            headingToleranceDegrees);
+
+                    
+                    ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
+                    
+                    for(LaneDirectionOfTravelEvent event: events){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                    }
                 }
                 return result;
             }
@@ -422,14 +427,18 @@ public class IntersectionEventTopology
         // Perform Analytics on Lane direction of Travel Events
         KStream<BsmEventIntersectionKey, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
-
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
-
                 List<KeyValue<BsmEventIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
-                ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
-                if(event != null){
-                    event.setSource(value.getSource());
-                    result.add(new KeyValue<>(key, event));
+                if(value.getBsms().getBsms().size() > 2){
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
+
+                    
+                    ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
+                    if(event != null){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                    }else{
+                        logger.info("No Lane Connection of Travel Event Found");
+                    }
                 }
                 return result;
                 
@@ -446,13 +455,17 @@ public class IntersectionEventTopology
         // Perform Analytics of Signal State Vehicle Crossing Intersection
         KStream<BsmEventIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
-
                 List<KeyValue<BsmEventIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
-                StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
-                if(event != null){
-                    event.setSource(value.getSource());
-                    result.add(new KeyValue<>(key, event));
+                if(value.getBsms().getBsms().size() > 2){
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
+
+                    
+                    StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
+                    if(event != null){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                        logger.info("Found Stop Line Passage Event");
+                    }
                 }
 
                 return result;
@@ -471,14 +484,16 @@ public class IntersectionEventTopology
         // Perform Analytics of Stop Line Stop Events
         KStream<BsmEventIntersectionKey, StopLineStopEvent> stopLineStopEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLineStopParameters.getHeadingTolerance());
-
                 List<KeyValue<BsmEventIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
-                StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(stopLineStopParameters, path, value.getSpats());
-                if(event != null){
-                    event.setSource(value.getSource());
-                    result.add(new KeyValue<>(key, event));
+                if(value.getBsms().getBsms().size() >2){
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLineStopParameters.getHeadingTolerance());
+
+                    
+                    StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(stopLineStopParameters, path, value.getSpats());
+                    if(event != null){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                    }
                 }
 
                 
