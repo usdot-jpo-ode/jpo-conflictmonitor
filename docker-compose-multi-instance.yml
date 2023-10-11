@@ -10,7 +10,7 @@ services:
       connect:
         condition: service_healthy
     ports:
-      - "8201:8082"
+      - "8082:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
@@ -32,7 +32,7 @@ services:
       connect:
         condition: service_healthy
     ports:
-      - "8202:8082"
+      - "8182:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
@@ -54,7 +54,7 @@ services:
       connect:
         condition: service_healthy
     ports:
-      - "8203:8082"
+      - "8282:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
