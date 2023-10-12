@@ -112,10 +112,12 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
                     if(matchingConnection != null){
                         signalGroup = matchingConnection;
                     }else{
-                        return null;
+                        signalGroup = -1;
+                        // return null;
                     }
                 }else{
-                    return null;
+                    signalGroup = -1;
+                    // return null;
                 }
 
             } else {
