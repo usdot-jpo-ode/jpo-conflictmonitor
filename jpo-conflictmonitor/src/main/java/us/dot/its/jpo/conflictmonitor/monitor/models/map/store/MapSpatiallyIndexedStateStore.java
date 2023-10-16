@@ -1,10 +1,11 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models.map;
+package us.dot.its.jpo.conflictmonitor.monitor.models.map.store;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueStore;
 import org.locationtech.jts.geom.CoordinateXY;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class MapSpatiallyIndexedStateStore
         extends InMemoryKeyValueStore
-        implements WriteableMapSpatiallyIndexedStore {
+        implements WriteableMapSpatiallyIndexedStateStore {
     public MapSpatiallyIndexedStateStore(String name,
                                          MapIndex mapIndex,
                                          String processedMapTopicName) {

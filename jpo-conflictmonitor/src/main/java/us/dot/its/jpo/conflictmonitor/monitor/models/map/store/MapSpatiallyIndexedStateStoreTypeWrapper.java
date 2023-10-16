@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models.map;
+package us.dot.its.jpo.conflictmonitor.monitor.models.map.store;
 
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.state.QueryableStoreType;
@@ -9,17 +9,16 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class MapSpatiallyIndexedStateStoreTypeWrapper implements ReadableMapSpatiallyIndexedStore {
+public class MapSpatiallyIndexedStateStoreTypeWrapper implements ReadableMapSpatiallyIndexedStateStore {
 
-    private final QueryableStoreType<ReadableMapSpatiallyIndexedStore> customStoreType;
+    private final QueryableStoreType<ReadableMapSpatiallyIndexedStateStore> customStoreType;
     private final String storeName;
     private final StateStoreProvider provider;
 
     public MapSpatiallyIndexedStateStoreTypeWrapper(final StateStoreProvider provider,
                                   final String storeName,
-                                  final QueryableStoreType<ReadableMapSpatiallyIndexedStore> customStoreType) {
+                                  final QueryableStoreType<ReadableMapSpatiallyIndexedStateStore> customStoreType) {
         this.provider = provider;
         this.storeName = storeName;
         this.customStoreType = customStoreType;
@@ -29,7 +28,7 @@ public class MapSpatiallyIndexedStateStoreTypeWrapper implements ReadableMapSpat
 
     @Override
     public byte[] read(Bytes key) {
-        final List<ReadableMapSpatiallyIndexedStore> stores = provider.stores(storeName, customStoreType);
+        final List<ReadableMapSpatiallyIndexedStateStore> stores = provider.stores(storeName, customStoreType);
         for (var store : stores) {
             var value = store.read(key);
             if (value != null) return value;
@@ -39,7 +38,7 @@ public class MapSpatiallyIndexedStateStoreTypeWrapper implements ReadableMapSpat
 
     @Override
     public List<ProcessedMap<LineString>> spatialQuery(CoordinateXY coords) {
-        final List<ReadableMapSpatiallyIndexedStore> stores = provider.stores(storeName, customStoreType);
+        final List<ReadableMapSpatiallyIndexedStateStore> stores = provider.stores(storeName, customStoreType);
         List<ProcessedMap<LineString>> values = new ArrayList<>();
         for (var store : stores) {
             var value = store.spatialQuery(coords);

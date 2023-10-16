@@ -1,16 +1,11 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models.map;
+package us.dot.its.jpo.conflictmonitor.monitor.models.map.store;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.common.utils.Time;
-import org.apache.kafka.streams.processor.StateStore;
-import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.internals.AbstractStoreBuilder;
-
-import java.util.Map;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 
 @Accessors(fluent = true)
 public class MapSpatiallyIndexedStateStoreBuilder extends AbstractStoreBuilder<Bytes, byte[], MapSpatiallyIndexedStateStore> {

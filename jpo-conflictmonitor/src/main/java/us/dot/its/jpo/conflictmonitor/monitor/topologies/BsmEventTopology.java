@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.StoreBuilder;
