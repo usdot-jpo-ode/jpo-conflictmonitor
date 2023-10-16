@@ -5,16 +5,15 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueStore;
 import org.locationtech.jts.geom.CoordinateXY;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 import java.util.List;
 
 
 /**
- * Custom State store for {@link ProcessedMap}s with spatial indexing and spatial query.
+ * Custom State store for {@link MapBoundingBox}es with spatial indexing and spatial query.
  * <p>Implemented according to:
  * <a href="https://docs.confluent.io/platform/current/streams/developer-guide/interactive-queries.html#querying-local-custom-state-stores">Querying local custom state stores</a>
  *
@@ -61,9 +60,9 @@ public class MapSpatiallyIndexedStateStore
         // Remove from spatial index
         byte[] value = get(key);
         if (value != null) {
-            try (Serde<ProcessedMap<LineString>> serde = JsonSerdes.ProcessedMapGeoJson()) {
+            try (Serde<MapBoundingBox> serde = JsonSerdes.MapBoundingBox()) {
                 var deserializer = serde.deserializer();
-                ProcessedMap<LineString> map = deserializer.deserialize(processedMapTopicName, value);
+                MapBoundingBox map = deserializer.deserialize(processedMapTopicName, value);
                 mapIndex.remove(map);
             }
         }
@@ -77,9 +76,9 @@ public class MapSpatiallyIndexedStateStore
         if (mapIndex == null) throw new RuntimeException("MapIndex is not set");
         if (processedMapTopicName == null) throw new RuntimeException("ProcessedMapTopicName is not set.");
         // deserialize ProcessedMap and insert into quadtree
-        try (Serde<ProcessedMap<LineString>> serde = JsonSerdes.ProcessedMapGeoJson()) {
+        try (Serde<MapBoundingBox> serde = JsonSerdes.MapBoundingBox()) {
             var deserializer = serde.deserializer();
-            ProcessedMap<LineString> map = deserializer.deserialize(processedMapTopicName, value);
+            MapBoundingBox map = deserializer.deserialize(processedMapTopicName, value);
             mapIndex.insert(map);
         }
     }
@@ -92,9 +91,9 @@ public class MapSpatiallyIndexedStateStore
     /**
      * Spatial Query
      * @param coords
-     * @return List of {@link ProcessedMap}s containing the coordinate (Longitude/Latitude)
+     * @return List of {@link MapBoundingBox}es containing the coordinate (Longitude/Latitude)
      */
-    public List<ProcessedMap<LineString>> spatialQuery(CoordinateXY coords) {
+    public List<MapBoundingBox> spatialQuery(CoordinateXY coords) {
         return mapIndex.mapsContainingPoint(coords);
     }
 

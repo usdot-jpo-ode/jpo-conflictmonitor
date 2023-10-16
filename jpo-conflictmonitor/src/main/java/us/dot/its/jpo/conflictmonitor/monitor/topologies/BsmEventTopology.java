@@ -17,6 +17,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStore;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.ReadableMapSpatiallyIndexedStateStore;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
@@ -54,7 +56,7 @@ public class BsmEventTopology
                 () -> {
                         var processor = new BsmEventProcessor();
                         processor.setPunctuationType(punctuationType);
-                        processor.setMapIndex(mapIndex);
+                        processor.setMapSpatiallyIndexedStateStore(mapSpatiallyIndexedStateStore);
                         processor.setSimplifyPath(parameters.isSimplifyPath());
                         processor.setSimplifyPathToleranceMeters(parameters.getSimplifyPathToleranceMeters());
                         return processor;
@@ -95,23 +97,22 @@ public class BsmEventTopology
     public PunctuationType punctuationType = PunctuationType.WALL_CLOCK_TIME;
 
 
-    private MapIndex mapIndex;
+    private ReadableMapSpatiallyIndexedStateStore mapSpatiallyIndexedStateStore;
+
+
 
     @Override
-    public MapIndex getMapIndex() {
-        return mapIndex;
-    }
-
-    @Override
-    public void setMapIndex(MapIndex mapIndex) {
-        this.mapIndex = mapIndex;
+    public void setMapSpatiallyIndexedStateStore(ReadableMapSpatiallyIndexedStateStore mapSpatiallyIndexedStateStore) {
+        this.mapSpatiallyIndexedStateStore = mapSpatiallyIndexedStateStore;
     }
 
     @Override
     protected void validate() {
         super.validate();
-        if (mapIndex == null) {
-            throw new IllegalArgumentException("MapIndex is not set");
+        if (mapSpatiallyIndexedStateStore == null) {
+            throw new IllegalArgumentException("MapSpatiallyIndexedStateStore is not set");
         }
     }
+
+
 }
