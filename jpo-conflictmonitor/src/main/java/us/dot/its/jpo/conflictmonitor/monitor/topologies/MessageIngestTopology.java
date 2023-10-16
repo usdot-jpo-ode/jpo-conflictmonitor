@@ -164,6 +164,9 @@ public class MessageIngestTopology
                                 Serdes.String(),
                                 new RsuIdPartitioner<RsuIntersectionKey, String>()));
 
+        // TODO read Map Topic into GlobalKTable with spatially indexed GlobalStore
+        // Derive custom store from InMemoryKeyValueStore.
+
 
 
 

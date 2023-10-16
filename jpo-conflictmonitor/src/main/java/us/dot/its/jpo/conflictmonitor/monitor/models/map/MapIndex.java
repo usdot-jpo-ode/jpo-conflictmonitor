@@ -35,6 +35,20 @@ public class MapIndex {
     }
 
     public void insert(ProcessedMap map) {
+        Envelope envelope = removeIfPresent(map);
+        quadtree.insert(envelope, map);
+    }
+
+    public void remove(ProcessedMap map) {
+        removeIfPresent(map);
+    }
+
+    /**
+     * Remove the item if present and return the Envelope
+     * @param map
+     * @return {@link Envelope} of the {@link ProcessedMap}
+     */
+    private Envelope removeIfPresent(ProcessedMap map) {
         Envelope envelope = getEnvelope(map);
         Integer intersectionId = null;
         Integer regionId = null;
@@ -43,7 +57,7 @@ public class MapIndex {
             regionId = map.getProperties().getRegion();
         }
 
-        // If there is already a map for the intersection, replace it
+        // If there is already a map for the intersection, remove it
         List items = quadtree.query(envelope);
         if (items != null && items.size() > 0) {
             for (var item : items) {
@@ -60,8 +74,7 @@ public class MapIndex {
 
             }
         }
-
-        quadtree.insert(envelope, map);
+        return envelope;
     }
 
     public static Envelope getEnvelope(ProcessedMap<LineString> map) {
