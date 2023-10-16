@@ -12,11 +12,9 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
-import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.processor.api.Processor;
+import org.apache.kafka.streams.processor.api.ProcessorSupplier;
+import org.apache.kafka.streams.state.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,6 +24,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStore;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStoreBuilder;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStoreSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
@@ -143,28 +144,34 @@ public class MessageIngestTopology
         //
         //  MAP MESSAGES
         //
-        builder.table(
-                parameters.getMapTopic(), 
+//        builder.table(
+//                parameters.getMapTopic(),
+//                Consumed.with(
+//                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+//                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()),
+//                    Materialized.<RsuIntersectionKey, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
+//            ).mapValues(map -> {
+//                mapIndex.insert(map);
+//                var boundingPolygon = mapIndex.getBoundingPolygon(map);
+//                var wkt = boundingPolygon.toString();
+//                return wkt;
+//            }).toStream()
+//                .to(parameters.getMapBoundingBoxTopic(),
+//                        Produced.with(
+//                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+//                                Serdes.String(),
+//                                new RsuIdPartitioner<RsuIntersectionKey, String>()));
+
+        // Read Map Topic into GlobalKTable with spatially indexed state store
+        builder.globalTable(parameters.getMapTopic(),
                 Consumed.with(
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()),
-                    Materialized.<RsuIntersectionKey, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
-            ).mapValues(map -> {
-                mapIndex.insert(map);
-                var boundingPolygon = mapIndex.getBoundingPolygon(map);
-                var wkt = boundingPolygon.toString();
-                return wkt;
-            }).toStream()
-                .to(parameters.getMapBoundingBoxTopic(),
-                        Produced.with(
-                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                                Serdes.String(),
-                                new RsuIdPartitioner<RsuIntersectionKey, String>()));
-
-        // TODO read Map Topic into GlobalKTable with spatially indexed GlobalStore
-        // Derive custom store from InMemoryKeyValueStore.
-
-
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()),
+                Materialized.as(new MapSpatiallyIndexedStateStoreSupplier(
+                        parameters.getMapStoreName(),
+                        mapIndex,
+                        parameters.getMapTopic()))
+        );
 
 
 
