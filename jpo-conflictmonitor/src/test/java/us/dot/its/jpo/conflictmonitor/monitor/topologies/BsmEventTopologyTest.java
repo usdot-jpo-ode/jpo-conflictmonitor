@@ -15,6 +15,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStore;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -34,6 +35,8 @@ public class BsmEventTopologyTest {
     final String inputTopicName = "topic.OdeBsmJson";
     final String outputTopicName = "topic.CMBsmEvents";
     final String stateStoreName = "bsm-event-state-store";
+    final String mapSpatialStoreName = "map-spatial-store";
+    final String mapBoundingBoxTopic = "topic.MapBoundingBox";
 
     final String rsuId = "127.0.0.1";
 
@@ -52,7 +55,8 @@ public class BsmEventTopologyTest {
         var streamsProperties = new Properties();
         bsmEventTopology.setStreamsProperties(streamsProperties);
         var mapIndex = new MapIndex();
-        bsmEventTopology.setMapIndex(mapIndex);
+        var mapSpatialStore = new MapSpatiallyIndexedStateStore(mapSpatialStoreName, mapIndex, mapBoundingBoxTopic);
+        bsmEventTopology.setMapSpatiallyIndexedStateStore(mapSpatialStore);
         bsmEventTopology.validate();
 
         Topology topology = bsmEventTopology.buildTopology();

@@ -3,7 +3,9 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.map.store;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueStore;
+import org.apache.kafka.streams.state.internals.ValueAndTimestampSerde;
 import org.locationtech.jts.geom.CoordinateXY;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
@@ -77,9 +79,12 @@ public class MapSpatiallyIndexedStateStore
         if (processedMapTopicName == null) throw new RuntimeException("ProcessedMapTopicName is not set.");
         // deserialize ProcessedMap and insert into quadtree
         try (Serde<MapBoundingBox> serde = JsonSerdes.MapBoundingBox()) {
-            var deserializer = serde.deserializer();
-            MapBoundingBox map = deserializer.deserialize(processedMapTopicName, value);
-            mapIndex.insert(map);
+            // Values in the state store are wrapped with a timestamp
+            try (ValueAndTimestampSerde<MapBoundingBox> vtSerde = new ValueAndTimestampSerde<>(serde)) {
+                var deserializer = vtSerde.deserializer();
+                ValueAndTimestamp<MapBoundingBox> valueAndTimestamp = deserializer.deserialize(processedMapTopicName, value);
+                mapIndex.insert(valueAndTimestamp.value());
+            }
         }
     }
 

@@ -33,8 +33,12 @@ public class MapBoundingBox {
 
     public MapBoundingBox(ProcessedMap<LineString> map) {
         if (map.getProperties() != null) {
-            intersectionId = map.getProperties().getIntersectionId();
-            region = map.getProperties().getRegion();
+            if (map.getProperties().getIntersectionId() != null) {
+                intersectionId = map.getProperties().getIntersectionId().intValue();
+            }
+            if (map.getProperties().getRegion() != null) {
+                region = map.getProperties().getRegion().intValue();
+            }
             originIp = map.getProperties().getOriginIp();
             if (map.getProperties().getTimeStamp() != null) {
                 timestamp = map.getProperties().getTimeStamp().toInstant().toEpochMilli();
