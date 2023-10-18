@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventConstants.DEFAULT_BSM_EVENT_ALGORITHM;
 
@@ -61,8 +62,13 @@ public class BsmEventTopology
                     },
                 BSM_SOURCE);
 
-        bsmEventBuilder.addSink(BSM_SINK, parameters.getOutputTopic(),
-                JsonSerdes.BsmEventIntersectionKey().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
+        bsmEventBuilder.addSink(
+                BSM_SINK,
+                parameters.getOutputTopic(),
+                JsonSerdes.BsmEventIntersectionKey().serializer(),
+                JsonSerdes.BsmEvent().serializer(),
+                new RsuIdPartitioner<BsmEventIntersectionKey, BsmEvent>(),
+                BSM_PROCESSOR);
 
         StoreBuilder<TimestampedKeyValueStore<BsmEventIntersectionKey, BsmEvent>> storeBuilder
                 = Stores.timestampedKeyValueStoreBuilder(
