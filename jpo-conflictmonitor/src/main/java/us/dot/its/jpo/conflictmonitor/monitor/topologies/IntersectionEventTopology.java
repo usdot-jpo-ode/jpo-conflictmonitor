@@ -229,7 +229,7 @@ public class IntersectionEventTopology
 
 
 
-    private static String getBsmID(OdeBsmData value){
+    public static String getBsmID(OdeBsmData value){
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
