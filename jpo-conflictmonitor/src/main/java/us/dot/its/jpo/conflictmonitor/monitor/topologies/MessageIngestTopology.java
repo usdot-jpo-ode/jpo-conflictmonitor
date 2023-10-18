@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -10,6 +11,7 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
@@ -39,6 +43,10 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestConstants.DEFAULT_MESSAGE_INGEST_ALGORITHM;
 
@@ -48,6 +56,7 @@ public class MessageIngestTopology
         implements MessageIngestStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
+    private int count = 0;
     
     public Topology buildTopology() {
 
@@ -70,23 +79,49 @@ public class MessageIngestTopology
                     .withTimestampExtractor(new BsmTimestampExtractor())
                 );
 
+        // bsmJsonStream.print(Printed.toSysOut());
+        
+
         //Group up all of the BSM's based upon the new ID.
         KGroupedStream<BsmIntersectionKey, OdeBsmData> bsmKeyGroup =
                 bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionKey(), JsonSerdes.OdeBsm()));
 
+        // KStream<BsmIntersectionKey, OdeBsmData> vehicleEventsStream = bsmKeyGroup.flatMap(
+        //     (key, value)->{
+
+        //     count +=1;
+        //     System.out.println(count);
+        //     System.out.println(key);
+
+        //     List<KeyValue<BsmIntersectionKey, OdeBsmData>> result = new ArrayList<>();
+        //     return result;
+
+        // });
+
+        // bsmKeyGroup.print(Printed.toSysOut());
+
+
+        Map<String, String> loggingConfig = new HashMap<>();
+        // Set the directory where state store logs will be stored
+        // loggingConfig.put("directory", "/statestore.logs");
+        // // Set the retention time for the state store logs
+        // loggingConfig.put("retention.ms", "86400000");
+
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(10000)))
+        bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(60000)))
         .reduce(
             (oldValue, newValue)->{
+                System.out.println("Overwriting BSM");
                 return newValue;
             },
             Materialized.<BsmIntersectionKey, OdeBsmData, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
                     .withKeySerde(JsonSerdes.BsmIntersectionKey())
                     .withValueSerde(JsonSerdes.OdeBsm())
                     .withCachingDisabled()
+                    // .withLoggingEnabled(loggingConfig)
                     .withLoggingDisabled()
-                    .withRetention(Duration.ofMinutes(5))
+                    .withRetention(Duration.ofMinutes(10))
         );
 
 

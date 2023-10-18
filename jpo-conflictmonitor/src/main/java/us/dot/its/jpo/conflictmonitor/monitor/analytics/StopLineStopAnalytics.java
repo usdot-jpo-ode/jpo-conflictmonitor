@@ -72,6 +72,10 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             return null;
         }
 
+        if(1==1){
+            return null;
+        }
+
         ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
         ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
 
@@ -89,6 +93,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         event.setIngressLane(ingressLane.getId());
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());
+        }else{
+            event.setEgressLane(-1);
         }
         Optional<Double> optionalHeading = BsmUtils.getHeading(firstStoppedBsm);
         if (optionalHeading.isPresent()) {
@@ -98,40 +104,68 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         event.setLongitude(firstBsmPosition.getX());
         event.setLatitude(firstBsmPosition.getY());
 
+
         int signalGroup = -1;
-        if (egressLane != null) {
-            LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-            if (connection != null) {
-                signalGroup = connection.getSignalGroup();
-                Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-                if (signalGroups.size() == 1) {
-                    signalGroup = signalGroups.iterator().next();
-                }else if(signalGroups.size() > 1){
+
+        Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+        if(signalGroups.size() ==0){
+            return null;
+        }else if(signalGroups.size() ==1){
+            signalGroup = signalGroups.iterator().next();
+        }else if(signalGroups.size()>=2){
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    signalGroup = connection.getSignalGroup();
+                }else{
                     Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
                     Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
                     if(matchingConnection != null){
                         signalGroup = matchingConnection;
                     }else{
                         signalGroup = -1;
-                        // return null;
                     }
-                }else{
-                    signalGroup = -1;
-                    // return null;
                 }
-
-            } else {
-                logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
-            }
-        } else {
-            Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-            if (signalGroups.size() == 1) {
-                signalGroup = signalGroups.iterator().next();
-            } else {
-                logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
-                return null;
+            }else{
+                signalGroup = -1;
             }
         }
+
+
+        // int signalGroup = -1;
+        // if (egressLane != null) {
+        //     LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+        //     if (connection != null) {
+        //         signalGroup = connection.getSignalGroup();
+        //         Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+        //         if (signalGroups.size() == 1) {
+        //             signalGroup = signalGroups.iterator().next();
+        //         }else if(signalGroups.size() > 1){
+        //             Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
+        //             Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
+        //             if(matchingConnection != null){
+        //                 signalGroup = matchingConnection;
+        //             }else{
+        //                 signalGroup = -1;
+        //                 // return null;
+        //             }
+        //         }else{
+        //             signalGroup = -1;
+        //             // return null;
+        //         }
+
+        //     } else {
+        //         logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
+        //     }
+        // } else {
+        //     Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+        //     if (signalGroups.size() == 1) {
+        //         signalGroup = signalGroups.iterator().next();
+        //     } else {
+        //         logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
+        //         return null;
+        //     }
+        // }
 
         if (signalGroup > -1) {
             event.setSignalGroup(signalGroup);
@@ -151,6 +185,13 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             event.setTimeStoppedDuringRed(spatStatistics.getTimeStoppedDuringRed());
             event.setTimeStoppedDuringYellow(spatStatistics.getTimeStoppedDuringYellow());
             event.setTimeStoppedDuringGreen(spatStatistics.getTimeStoppedDuringGreen());
+        }else{
+            event.setTimeStoppedDuringRed(-1);
+            event.setTimeStoppedDuringYellow(-1);
+            event.setTimeStoppedDuringGreen(-1);
+            event.setSignalGroup(-1);
+            event.setInitialEventState(null);
+            event.setFinalEventState(null);
         }
 
         logger.info("StopLineStopEvent: {}", event);
