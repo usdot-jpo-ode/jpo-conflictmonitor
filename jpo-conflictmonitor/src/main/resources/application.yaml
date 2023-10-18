@@ -45,7 +45,7 @@ kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 # Custom kafka properties
 kafka.topics:
   autoCreateTopics: true  # Override auto-create in test properties
-  numPartitions: 3
+  numPartitions: 1
   numReplicas: 1
   createTopics:
     - name: topic.CmAppHealthNotifications

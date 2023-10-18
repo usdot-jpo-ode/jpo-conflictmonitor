@@ -17,6 +17,7 @@ services:
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
       spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+      kafka.topics.numPartitions: 3
     logging:
       options:
         max-size: "10m"
@@ -39,6 +40,7 @@ services:
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
       spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+      kafka.topics.numPartitions: 3
     logging:
       options:
         max-size: "10m"
@@ -61,6 +63,7 @@ services:
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
       spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+      kafka.topics.numPartitions: 3
     logging:
       options:
         max-size: "10m"
