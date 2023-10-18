@@ -101,9 +101,26 @@ public class MapSpatMessageAssessmentTopology
 
         List<AllowedConcurrentPermissive> list = new ArrayList<>();
 
-        // list.add(new AllowedConcurrentPermissive(12109, -1, 1, 2, 3, 4, true));
+        list.add(new AllowedConcurrentPermissive(45115, -1, 1, 10, 13, 16, true));
+	list.add(new AllowedConcurrentPermissive(45115, -1, 2, 10, 12, 16, true));
+	list.add(new AllowedConcurrentPermissive(45115, -1, 3, 10, 11, 16, true));
 
-        
+	list.add(new AllowedConcurrentPermissive(44383, -1, 10, 25, 27, 6, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 11, 25, 26, 6, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 12, 23, 20, 14, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 12, 24, 20, 13, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 4, 19, 20, 26, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 3, 19, 21, 26, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 2, 19, 22, 26, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 16, 13, 8, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 18, 13, 6, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 17, 13, 7, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 16, 13, 8, true));	
+		
+	list.add(new AllowedConcurrentPermissive(54749, -1, 15, 4, 5, 11, true));
+	list.add(new AllowedConcurrentPermissive(54749, -1, 14, 4, 6, 11, true));
+	list.add(new AllowedConcurrentPermissive(54749, -1, 13, 4, 7, 11, true));
+
 
         
         for(AllowedConcurrentPermissive elem : list){
@@ -369,6 +386,7 @@ public class MapSpatMessageAssessmentTopology
                                 }
 
                                 if (doStatesConflict(firstState, secondState)) {
+				    System.out.println("Generating Signal State Conflict Event for: " + intersection.getIntersectionId() + "Ingress lanes: " + firstConnection.getIngressLane() + ", " + secondConnection.getIngressLane() +"Egress Lanes: "+ firstConnection.getEgressLane() + ", " + secondConnection.getEgressLane());
                                     SignalStateConflictEvent event = new SignalStateConflictEvent();
                                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
                                     event.setRoadRegulatorID(intersection.getRoadRegulatorId());
