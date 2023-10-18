@@ -72,10 +72,6 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             return null;
         }
 
-        if(1==1){
-            return null;
-        }
-
         ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
         ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
 

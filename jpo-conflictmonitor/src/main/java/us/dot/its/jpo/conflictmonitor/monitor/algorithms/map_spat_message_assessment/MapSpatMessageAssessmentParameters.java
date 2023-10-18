@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.AllowConcurrentPermissiveList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
@@ -61,6 +62,14 @@ public class MapSpatMessageAssessmentParameters {
         description = "The name of the topic to write signal state conflict notifications to", 
         updateType = READ_ONLY)
     String signalStateConflictNotificationTopicName;
+
+
+    @ConfigData(key = "map.spat.message.assessment.allowConcurrentPermissive", 
+        description = "Allowed Concurrent Permissive Intersections",
+        updateType = DEFAULT)
+    String concurrentPermissiveList;
+
+
 
     
 }
