@@ -6,7 +6,6 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueStore;
 import org.apache.kafka.streams.state.internals.ValueAndTimestampSerde;
-import org.locationtech.jts.geom.CoordinateXY;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -15,14 +14,11 @@ import java.util.List;
 
 
 /**
- * Custom State store for {@link MapBoundingBox}es with spatial indexing and spatial query.
- * <p>Implemented according to:
- * <a href="https://docs.confluent.io/platform/current/streams/developer-guide/interactive-queries.html#querying-local-custom-state-stores">Querying local custom state stores</a>
+ * Custom State store for {@link MapBoundingBox}es that adds the geometries to a spatial index.
  *
  */
 public class MapSpatiallyIndexedStateStore
-        extends InMemoryKeyValueStore
-        implements WriteableMapSpatiallyIndexedStateStore {
+        extends InMemoryKeyValueStore{
     public MapSpatiallyIndexedStateStore(String name,
                                          MapIndex mapIndex,
                                          String processedMapTopicName) {
@@ -88,22 +84,5 @@ public class MapSpatiallyIndexedStateStore
         }
     }
 
-    @Override
-    public byte[] read(Bytes key) {
-        return get(key);
-    }
 
-    /**
-     * Spatial Query
-     * @param coords
-     * @return List of {@link MapBoundingBox}es containing the coordinate (Longitude/Latitude)
-     */
-    public List<MapBoundingBox> spatialQuery(CoordinateXY coords) {
-        return mapIndex.mapsContainingPoint(coords);
-    }
-
-    @Override
-    public void write(Bytes key, byte[] value) {
-        put(key, value);
-    }
 }

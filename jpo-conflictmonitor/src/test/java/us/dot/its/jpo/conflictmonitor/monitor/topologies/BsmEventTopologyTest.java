@@ -55,8 +55,7 @@ public class BsmEventTopologyTest {
         var streamsProperties = new Properties();
         bsmEventTopology.setStreamsProperties(streamsProperties);
         var mapIndex = new MapIndex();
-        var mapSpatialStore = new MapSpatiallyIndexedStateStore(mapSpatialStoreName, mapIndex, mapBoundingBoxTopic);
-        bsmEventTopology.setMapSpatiallyIndexedStateStore(mapSpatialStore);
+        bsmEventTopology.setMapIndex(mapIndex);
         bsmEventTopology.validate();
 
         Topology topology = bsmEventTopology.buildTopology();

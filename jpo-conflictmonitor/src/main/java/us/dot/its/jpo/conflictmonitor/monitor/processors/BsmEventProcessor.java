@@ -23,7 +23,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
-import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.ReadableMapSpatiallyIndexedStateStore;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathTransformPair;
@@ -50,7 +50,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
     @Getter
     @Setter
-    private ReadableMapSpatiallyIndexedStateStore mapSpatiallyIndexedStateStore;
+    private MapIndex mapIndex;
 
     @Setter
     @Getter
@@ -104,7 +104,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
             // List MAPs that the new BSM is within
             CoordinateXY newCoord = BsmUtils.getPosition(value);
-            List<MapBoundingBox> mapsContainingNewBsm = mapSpatiallyIndexedStateStore.spatialQuery(newCoord);
+            List<MapBoundingBox> mapsContainingNewBsm = mapIndex.mapsContainingPoint(newCoord);
             // List intersections that the new BSM is in
             Set<IntersectionRegion> newIntersections
                     = mapsContainingNewBsm.stream()

@@ -265,10 +265,8 @@ public class MonitorServiceController {
             final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
             final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
             final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
+            bsmEventAlgorithm.setMapIndex(mapIndex);
             if (bsmEventAlgorithm instanceof StreamsTopology) {
-                if (messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm) {
-                    ((BsmEventStreamsAlgorithm)bsmEventAlgorithm).setMapSpatiallyIndexedStateStore(((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getMapSpatiallyIndexedStateStore());
-                }
                 final var streamsAlgo = (StreamsTopology)bsmEventAlgorithm;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmEvent));
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));

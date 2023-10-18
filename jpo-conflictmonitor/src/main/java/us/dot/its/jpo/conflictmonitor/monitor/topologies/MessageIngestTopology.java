@@ -17,8 +17,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStoreSupplier;
-import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStoreType;
-import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.ReadableMapSpatiallyIndexedStateStore;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
@@ -155,6 +153,7 @@ public class MessageIngestTopology
 
         // TODO: Repartition MAPs by Intersection/Region
 
+
         // Read Map Bounding Box Topic into GlobalKTable with spatially indexed state store
         builder.globalTable(parameters.getMapBoundingBoxTopic(),
                 Consumed.with(
@@ -201,11 +200,8 @@ public class MessageIngestTopology
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }
 
-    @Override
-    public ReadableMapSpatiallyIndexedStateStore getMapSpatiallyIndexedStateStore() {
-        return streams.store(StoreQueryParameters.fromNameAndType(
-                parameters.getMapSpatialIndexStoreName(), new MapSpatiallyIndexedStateStoreType()));
-    }
+
+
 
     private MapIndex mapIndex;
 
