@@ -644,7 +644,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("KAFKA_BROKER_IP");
+         String kafkaBroker = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
          if (kafkaBroker == null) {
             kafkaBroker = "localhost";
          }

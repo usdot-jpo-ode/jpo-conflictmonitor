@@ -10,11 +10,16 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.AllowConcurrentPermissiveList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.AllowedConcurrentPermissive;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
@@ -25,6 +30,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAl
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeatureCollection;
@@ -38,8 +44,10 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
@@ -50,7 +58,7 @@ public class MapSpatMessageAssessmentTopology
         implements MapSpatMessageAssessmentStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MapSpatMessageAssessmentTopology.class);
-
+    private ObjectMapper mapper = DateJsonMapper.getInstance();
 
 
     @Override
@@ -70,6 +78,10 @@ public class MapSpatMessageAssessmentTopology
         return null;
     }
 
+    private String hashLaneConnection(Integer intersectionID, int ingressOne, int ingressTwo, int egressOne, int egressTwo){
+        return intersectionID + "_" + ingressOne + "_" + ingressTwo + "_" + egressOne + "_" + egressTwo; 
+    }
+
     private boolean doStatesConflict(J2735MovementPhaseState a, J2735MovementPhaseState b) {
         return a.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)
                 && !b.equals(J2735MovementPhaseState.STOP_AND_REMAIN) ||
@@ -84,6 +96,37 @@ public class MapSpatMessageAssessmentTopology
     }
 
     public Topology buildTopology() {
+
+        Map<String, AllowedConcurrentPermissive> allowMap = new HashMap<>();
+
+        List<AllowedConcurrentPermissive> list = new ArrayList<>();
+
+        list.add(new AllowedConcurrentPermissive(45115, -1, 1, 10, 13, 16, true));
+	list.add(new AllowedConcurrentPermissive(45115, -1, 2, 10, 12, 16, true));
+	list.add(new AllowedConcurrentPermissive(45115, -1, 3, 10, 11, 16, true));
+
+	list.add(new AllowedConcurrentPermissive(44383, -1, 10, 25, 27, 6, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 11, 25, 26, 6, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 12, 23, 20, 14, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 12, 24, 20, 13, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 4, 19, 20, 26, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 3, 19, 21, 26, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 2, 19, 22, 26, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 16, 13, 8, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 18, 13, 6, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 17, 13, 7, true));
+	list.add(new AllowedConcurrentPermissive(44383, -1, 5, 16, 13, 8, true));	
+		
+	list.add(new AllowedConcurrentPermissive(54749, -1, 15, 4, 5, 11, true));
+	list.add(new AllowedConcurrentPermissive(54749, -1, 14, 4, 6, 11, true));
+	list.add(new AllowedConcurrentPermissive(54749, -1, 13, 4, 7, 11, true));
+
+
+        
+        for(AllowedConcurrentPermissive elem : list){
+            String hash = hashLaneConnection(elem.getIntersectionID(), elem.getFirstIngressLane(), elem.getSecondIngressLane(), elem.getFirstEgressLane(), elem.getSecondEgressLane());
+            allowMap.put(hash, elem);
+        }
 
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -306,12 +349,31 @@ public class MapSpatMessageAssessmentTopology
 
                     Intersection intersection = Intersection.fromProcessedMap(map);
                     ArrayList<LaneConnection> connections = intersection.getLaneConnections();
+
+
+                    
+                    // AllowConcurrentPermissiveList list = mapper.convertValue(parameters.getConcurrentPermissiveList(), AllowConcurrentPermissiveList.class);
+
+
+                    
+
+                    // AllowConcurrentPermissiveList list = mapper.convertValue(listParams, AllowConcurrentPermissiveList.class);
+                    
+                    
                     for (int i = 0; i < connections.size(); i++) {
                         LaneConnection firstConnection = connections.get(i);
                         for (int j = i + 1; j < connections.size(); j++) {
                             LaneConnection secondConnection = connections.get(j);
 
-                            if (firstConnection.crosses(secondConnection)) {
+                            String compareHash = hashLaneConnection(intersection.getIntersectionId(), firstConnection.getIngressLane().getId(), secondConnection.getIngressLane().getId(), firstConnection.getEgressLane().getId(), secondConnection.getEgressLane().getId());
+                            
+                            
+                            // Skip if this connection is defined in the allowable map.
+                            if(allowMap.containsKey(compareHash)){
+                                continue;
+                            }
+                            
+                            if (firstConnection.crosses(secondConnection) && firstConnection.getIngressLane() != secondConnection.getIngressLane()) {
 
                                 J2735MovementPhaseState firstState = getSpatEventStateBySignalGroup(spat,
                                         firstConnection.getSignalGroup());
@@ -324,6 +386,7 @@ public class MapSpatMessageAssessmentTopology
                                 }
 
                                 if (doStatesConflict(firstState, secondState)) {
+				    System.out.println("Generating Signal State Conflict Event for: " + intersection.getIntersectionId() + "Ingress lanes: " + firstConnection.getIngressLane() + ", " + secondConnection.getIngressLane() +"Egress Lanes: "+ firstConnection.getEgressLane() + ", " + secondConnection.getEgressLane());
                                     SignalStateConflictEvent event = new SignalStateConflictEvent();
                                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
                                     event.setRoadRegulatorID(intersection.getRoadRegulatorId());

@@ -26,6 +26,11 @@ public class SignalStateEventAggregator {
 
     @JsonIgnore
     public SignalStateEventAggregator add(StopLinePassageEvent event){
+        
+        // Skip stop line stop events where no connection was made.
+        if(event.getSignalGroup() == -1){
+            return this;
+        }
         events.add(event);
 
         List<StopLinePassageEvent> removeEvents = new ArrayList<>();
