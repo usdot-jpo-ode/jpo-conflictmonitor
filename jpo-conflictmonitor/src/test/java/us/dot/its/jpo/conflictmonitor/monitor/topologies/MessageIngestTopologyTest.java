@@ -37,6 +37,7 @@ public class MessageIngestTopologyTest {
     final String mapStoreName = "ProcessedMapWindowStore";
     final String rsuId = "10.11.81.12";
     final int intersectionId = 12109;
+    final String mapSpatialIndexStoreName = "MapSpatialIndexStore";
 
     @Test
     public void testMessageIngestTopology() throws JsonProcessingException {
@@ -105,6 +106,7 @@ public class MessageIngestTopologyTest {
         params.setSpatStoreName(spatStoreName);
         params.setMapStoreName(mapStoreName);
         params.setMapBoundingBoxTopic(mapBoundingBoxTopicName);
+        params.setMapSpatialIndexStoreName(mapSpatialIndexStoreName);
         return params;
     }
 
