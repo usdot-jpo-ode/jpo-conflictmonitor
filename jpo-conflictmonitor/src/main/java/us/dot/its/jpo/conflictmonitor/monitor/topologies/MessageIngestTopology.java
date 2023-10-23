@@ -187,6 +187,8 @@ public class MessageIngestTopology
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()),
                     Materialized.<RsuIntersectionKey, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
+                    .withRetention(Duration.ofMinutes(10))
+                    
             ).mapValues(map -> {
                 mapIndex.insert(map);
                 var boundingPolygon = mapIndex.getBoundingPolygon(map);

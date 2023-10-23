@@ -102,12 +102,19 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
 
         int signalGroup = -1;
+        int connectionId = -1;
 
         Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
         if(signalGroups.size() ==0){
             return null;
         }else if(signalGroups.size() ==1){
             signalGroup = signalGroups.iterator().next();
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    connectionId = connection.getSignalGroup();
+                }
+            }
         }else if(signalGroups.size()>=2){
             if(egressLane != null){
                 LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
@@ -169,6 +176,7 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
             event.setInitialEventState(firstSignalState);
             event.setFinalEventState(lastSignalState);
+            event.setConnectionID(connectionId);
 
             System.out.println(spats.getSpats().size());
 

@@ -61,11 +61,18 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
             return null;
         }else if(signalGroups.size() ==1){
             signalGroup = signalGroups.iterator().next();
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    connectionId = connection.getSignalGroup();
+                }
+            }
         }else if(signalGroups.size()>=2){
             if(egressLane != null){
                 LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
                 if(connection!= null){
                     signalGroup = connection.getSignalGroup();
+                    connectionId = connection.getSignalGroup();
                 }else{
                     Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
                     Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
@@ -80,23 +87,6 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
             }
         }
 
-        // if (egressLane != null) {
-        //     LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-        //     if (connection != null) {
-        //         signalGroup = connection.getSignalGroup();
-        //         connectionId = connection.getConnectionId();
-        //     } else {
-        //         logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
-        //     }
-        // } else {
-        //     Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-        //     if (signalGroups.size() == 1) {
-        //         signalGroup = signalGroups.iterator().next();
-        //     } else {
-        //         logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
-        //         return null;
-        //     }
-        // }
 
         J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
