@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,10 +67,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.ode.model.OdeBsmData;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service
@@ -118,6 +121,25 @@ public class MonitorServiceController {
             algoMap.put(config, configTopology);
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.start();
+
+            // // the message ingest topology tracks and stores incoming messages for further processing
+            final String messageIngest = "messageIngest";
+            final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
+            final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
+            final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
+            final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
+            messageIngestAlgorithm.setMapIndex(mapIndex);
+            if (messageIngestAlgorithm instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
+                algoMap.put(messageIngest, streamsAlgo);
+            }
+            messageIngestAlgorithm.setParameters(messageIngestParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
+            messageIngestAlgorithm.start();
+            
             
 
             final String repartition = "repartition";
@@ -256,23 +278,7 @@ public class MonitorServiceController {
             bsmEventAlgorithm.start();
 
 
-            // // the message ingest topology tracks and stores incoming messages for further processing
-            final String messageIngest = "messageIngest";
-            final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
-            final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
-            final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
-            final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
-            messageIngestAlgorithm.setMapIndex(mapIndex);
-            if (messageIngestAlgorithm instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
-                algoMap.put(messageIngest, streamsAlgo);
-            }
-            messageIngestAlgorithm.setParameters(messageIngestParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
-            messageIngestAlgorithm.start();
+            
             
             
 
@@ -327,7 +333,11 @@ public class MonitorServiceController {
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(intersectionEvent));
                 if (messageIngestAlgorithm instanceof StreamsTopology) {
                     final var messageIngestStreams = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
-                    streamsAlgo.setBsmWindowStore(messageIngestStreams.getBsmWindowStore());
+                    final ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore = messageIngestStreams.getBsmWindowStore();
+
+                    Thread.sleep(20000);
+
+                    streamsAlgo.setBsmWindowStore(bsmWindowStore);
                     streamsAlgo.setSpatWindowStore(messageIngestStreams.getSpatWindowStore());
                     streamsAlgo.setMapStore(messageIngestStreams.getMapStore());
                 } else {
@@ -361,6 +371,23 @@ public class MonitorServiceController {
             signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
             signalStateEventAssesmentAlgo.start();
+
+            // // Stop Line Stop Assessment Topology
+            // final String stopLineStopAssessment = "stopLineStopAssessment";
+            // final StopLinestopAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
+            // final String signalStateEventAssessmentAlgorithm = conflictMonitorProps.getSignalStateEventAssessmentAlgorithm();
+            // final SignalStateEventAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
+            // final SignalStateEventAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
+            // if (signalStateEventAssesmentAlgo instanceof StreamsTopology) {
+            //     final var streamsAlgo = (StreamsTopology)signalStateEventAssesmentAlgo;
+            //     streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(signalStateEventAssessment));
+            //     streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, signalStateEventAssessment, stateChangeTopic, healthTopic));
+            //     streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, signalStateEventAssessment, healthTopic));
+            //     algoMap.put(signalStateEventAssessment, streamsAlgo);
+            // }
+            // signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
+            // Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
+            // signalStateEventAssesmentAlgo.start();
             
 
             // Lane Direction Of Travel Assessment Topology
