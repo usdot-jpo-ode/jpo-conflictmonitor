@@ -55,23 +55,38 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
 
         int signalGroup = -1;
         int connectionId = -1;
-        if (egressLane != null) {
-            LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-            if (connection != null) {
-                signalGroup = connection.getSignalGroup();
-                connectionId = connection.getConnectionId();
-            } else {
-                logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
+
+        Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+        if(signalGroups.size() ==0){
+            return null;
+        }else if(signalGroups.size() ==1){
+            signalGroup = signalGroups.iterator().next();
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    connectionId = connection.getSignalGroup();
+                }
             }
-        } else {
-            Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-            if (signalGroups.size() == 1) {
-                signalGroup = signalGroups.iterator().next();
-            } else {
-                logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
-                return null;
+        }else if(signalGroups.size()>=2){
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    signalGroup = connection.getSignalGroup();
+                    connectionId = connection.getSignalGroup();
+                }else{
+                    Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
+                    Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
+                    if(matchingConnection != null){
+                        signalGroup = matchingConnection;
+                    }else{
+                        signalGroup = -1;
+                    }
+                }
+            }else{
+                signalGroup = -1;
             }
         }
+
 
         J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
@@ -112,6 +127,17 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         for(MovementState state: spat.getStates()){
             if(state.getSignalGroup() == signalGroup && state.getStateTimeSpeed().size() > 0){
                 return state.getStateTimeSpeed().get(0).getEventState();
+            }
+        }
+        return null;
+    }
+
+    private Integer getMatchingSignalGroup(Set<Integer> ingressGroups, Set<Integer> egressGroups){
+        for(Integer ingressGroupID: ingressGroups){
+            for(Integer egressGroupID: egressGroups){
+                if(ingressGroupID == egressGroupID){
+                    return ingressGroupID;
+                }
             }
         }
         return null;
