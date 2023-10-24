@@ -11,7 +11,7 @@ import org.junit.Test;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.AssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.assessment.AssessmentParameters;
@@ -46,7 +46,7 @@ public class AssessmentTopologyTest {
 
         ConnectionOfTravelAssessment cotAssessment = new ConnectionOfTravelAssessment();
         LaneDirectionOfTravelAssessment ldotAssessment = new LaneDirectionOfTravelAssessment();
-        SignalStateEventAssessment sseaAssessment = new SignalStateEventAssessment();
+        StopLinePassageAssessment sseaAssessment = new StopLinePassageAssessment();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
@@ -65,7 +65,7 @@ public class AssessmentTopologyTest {
 
             inputLaneDirectionOfTravel.pipeInput("12109", ldotAssessment);
 
-            TestInputTopic<String, SignalStateEventAssessment> inputSignalStateEvent = driver.createInputTopic(
+            TestInputTopic<String, StopLinePassageAssessment> inputSignalStateEvent = driver.createInputTopic(
                 laneDirectionOfTravelAssessmentTopicName, 
                 Serdes.String().serializer(), 
                 JsonSerdes.SignalStateEventAssessment().serializer());
@@ -98,7 +98,7 @@ public class AssessmentTopologyTest {
                     assertEquals((ConnectionOfTravelAssessment) assessment, cotAssessment);
                 }
                 else if(type.equals("SignalStateEvent")){
-                    assertEquals((SignalStateEventAssessment) assessment, sseaAssessment);
+                    assertEquals((StopLinePassageAssessment) assessment, sseaAssessment);
                 }
                 else if(type.equals("LaneDirectionOfTravel")){
                     assertEquals((LaneDirectionOfTravelAssessment) assessment, ldotAssessment);

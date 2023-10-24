@@ -453,9 +453,10 @@ public class IntersectionEventTopology
 
 
         // Perform Analytics of Signal State Vehicle Crossing Intersection
-        KStream<BsmEventIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                List<KeyValue<BsmEventIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
+                List<KeyValue<RsuIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
+                RsuIntersectionKey rsuKey = new RsuIntersectionKey(key.getRsuId(), key.getIntersectionId());
                 if(value.getBsms().getBsms().size() > 2){
                     VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
 
@@ -463,7 +464,7 @@ public class IntersectionEventTopology
                     StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
                     if(event != null){
                         event.setSource(value.getSource());
-                        result.add(new KeyValue<>(key, event));
+                        result.add(new KeyValue<>(rsuKey, event));
                         logger.info("Found Stop Line Passage Event");
                     }
                 }
@@ -474,9 +475,9 @@ public class IntersectionEventTopology
 
         stopLinePassageEventStream.to(
             conflictMonitorProps.getKafkaTopicCmSignalStateEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLinePassageEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, StopLinePassageEvent>())
+                    new RsuIdPartitioner<RsuIntersectionKey, StopLinePassageEvent>())
                 );
 
 

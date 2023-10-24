@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ConnectionOfTravelAssessment.class, name = "ConnectionOfTravel"),
         @JsonSubTypes.Type(value = LaneDirectionOfTravelAssessment.class, name = "LaneDirectionOfTravel"),
-        @JsonSubTypes.Type(value = SignalStateEventAssessment.class, name = "SignalStateEvent"),
+        @JsonSubTypes.Type(value = StopLinePassageAssessment.class, name = "SignalStateEvent"),
 })
 @Getter
 @Setter

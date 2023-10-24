@@ -10,8 +10,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTra
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
@@ -152,16 +152,16 @@ public class JsonSerdes {
             new JsonDeserializer<>(SignalStateAssessment.class));
     }
 
-    public static Serde<SignalStateEventAssessment> SignalStateEventAssessment() {
+    public static Serde<StopLinePassageAssessment> SignalStateEventAssessment() {
         return Serdes.serdeFrom(
-            new JsonSerializer<SignalStateEventAssessment>(),
-            new JsonDeserializer<>(SignalStateEventAssessment.class));
+            new JsonSerializer<StopLinePassageAssessment>(),
+            new JsonDeserializer<>(StopLinePassageAssessment.class));
     }
 
-    public static Serde<SignalStateEventAggregator> SignalStateEventAggregator() {
+    public static Serde<StopLinePassageAggregator> SignalStateEventAggregator() {
         return Serdes.serdeFrom(
-            new JsonSerializer<SignalStateEventAggregator>(),
-            new JsonDeserializer<>(SignalStateEventAggregator.class));
+            new JsonSerializer<StopLinePassageAggregator>(),
+            new JsonDeserializer<>(StopLinePassageAggregator.class));
     }
 
     public static Serde<LaneDirectionOfTravelAssessment> LaneDirectionOfTravelAssessment() {

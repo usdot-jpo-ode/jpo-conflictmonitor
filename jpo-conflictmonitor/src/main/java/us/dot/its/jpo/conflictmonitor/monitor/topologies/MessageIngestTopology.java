@@ -193,6 +193,10 @@ public class MessageIngestTopology
                 mapIndex.insert(map);
                 var boundingPolygon = mapIndex.getBoundingPolygon(map);
                 var wkt = boundingPolygon.toString();
+
+                logger.info("Received Map Message");
+                logger.info(wkt);
+
                 return wkt;
             }).toStream()
                 .to(parameters.getMapBoundingBoxTopic(),

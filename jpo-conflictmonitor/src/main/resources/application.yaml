@@ -314,6 +314,14 @@ signal.state.event.assessment:
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
 
+stop.line.stop.assessment:
+  algorithm: defaultStopLineStopAssessmentAlgorithm
+  debug: false
+  stopLineStopEventTopicName: topic.CmStopLineStopEvent
+  stopLineStopAssessmentOutputTopicName: topic.CmStopLineStopAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+
 # Signal State Vehicle Crosses Analytics
 signal.state.vehicle.crosses:
   algorithm: defaultSignalStateVehicleCrossesAlgorithm
@@ -396,7 +404,7 @@ config:
     {
       "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
       ,"tasks.max": 3
-      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
+      ,"connection.uri": "mongodb://172.250.250.181:27017/?replicaSet=rs0"
       ,"name": "MongoSource.{{defaultTopicName}}"
       ,"database": "ConflictMonitor"
       ,"collection": "{{defaultCollectionName}}"
@@ -424,7 +432,7 @@ config:
     {
       "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
       ,"tasks.max": 3
-      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
+      ,"connection.uri": "mongodb://172.250.250.181:27017/?replicaSet=rs0"
       ,"name": "MongoSource.{{intersectionTopicName}}"
       ,"database": "ConflictMonitor"
       ,"collection": "{{intersectionCollectionName}}"

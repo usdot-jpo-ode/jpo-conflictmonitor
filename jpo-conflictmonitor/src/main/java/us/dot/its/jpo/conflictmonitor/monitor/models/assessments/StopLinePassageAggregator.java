@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-public class SignalStateEventAggregator {
+public class StopLinePassageAggregator {
     private ArrayList<StopLinePassageEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
     private double tolerance;
@@ -20,12 +20,13 @@ public class SignalStateEventAggregator {
 
     
 
-    public SignalStateEventAggregator(){
+    public StopLinePassageAggregator(){
+        
         this.aggregatorCreationTime = ZonedDateTime.now().toInstant().toEpochMilli();
     }
 
     @JsonIgnore
-    public SignalStateEventAggregator add(StopLinePassageEvent event){
+    public StopLinePassageAggregator add(StopLinePassageEvent event){
         
         // Skip stop line stop events where no connection was made.
         if(event.getSignalGroup() == -1){
@@ -35,8 +36,12 @@ public class SignalStateEventAggregator {
 
         List<StopLinePassageEvent> removeEvents = new ArrayList<>();
 
+        System.out.println("Adding New Event to Aggregation");
+
         for(StopLinePassageEvent previousEvents: this.events){
             if(previousEvents.getTimestamp() + (messageDurationDays*24 * 3600*1000) < event.getTimestamp()){
+                System.out.println("Adding Event to Remove" + previousEvents.getTimestamp() + " " + event.getTimestamp());
+
                 removeEvents.add(previousEvents);
             }else{
                 break;
@@ -47,15 +52,22 @@ public class SignalStateEventAggregator {
     }
 
     @JsonIgnore
-    public SignalStateEventAssessment getSignalStateEventAssessment(){
-        SignalStateEventAssessment assessment = new SignalStateEventAssessment();
-        ArrayList<SignalStateEventAssessmentGroup> assessmentGroups = new ArrayList<>();
-        HashMap<Integer,SignalStateEventAssessmentGroup> signalGroupLookup = new HashMap<>(); // laneId, Segment Index
+    public StopLinePassageAssessment getSignalStateEventAssessment(){
+        StopLinePassageAssessment assessment = new StopLinePassageAssessment();
+        ArrayList<StopLinePassageAssessmentGroup> assessmentGroups = new ArrayList<>();
+        HashMap<Integer,StopLinePassageAssessmentGroup> signalGroupLookup = new HashMap<>(); // laneId, Segment Index
+
+        int intersectionID = -1;
+        int roadRegulatorID = -1;
+
+        System.out.println("Generating Stop Line Passage Event assesment" + this.events.size());
 
         for(StopLinePassageEvent event : this.events){
-            SignalStateEventAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
+            intersectionID = event.getIntersectionID();
+            roadRegulatorID = event.getRoadRegulatorID();
+            StopLinePassageAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
             if(signalGroup == null){
-                signalGroup = new SignalStateEventAssessmentGroup();
+                signalGroup = new StopLinePassageAssessmentGroup();
                 assessmentGroups.add(signalGroup);
                 signalGroupLookup.put(event.getSignalGroup(),signalGroup);
             }
@@ -63,6 +75,8 @@ public class SignalStateEventAggregator {
             
         }
         
+        assessment.setIntersectionID(intersectionID);
+        assessment.setRoadRegulatorID(roadRegulatorID);
         assessment.setSignalStateEventAssessmentGroup(assessmentGroups);
         assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
 
