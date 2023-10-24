@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/style.css}" rel="stylesheet" />
+    <title>Help for Test Message Sender</title>
+</head>
+<body>
+
+<div class="infoDocument">
+    <h2>How To Record a Script</h2>
+    <ol>
+        <li>Upload a MAP or ProcessedMap file in ODE JSON format.  The file should only contain a single MAP/ProcessedMap.</li>
+        <li>Upload a SPAT or ProcessedSpat file in line-delimited ODE JSON format.</li>
+        <li>Provide BSM data by either:
+            <ul>
+                <li>Manually placing a series of BSMs on the map using the draw controls (upper left on the map), or</li>
+                <li>Uploading a file containing BSMs in line-delimited ODE JSON format</li>
+            </ul>
+        </li>
+        <li>Manually created BSMs can be downloaded in line-delimited JSON format using the "Download BSMs" button, so that they can be re-used.</li>
+        <li>Check the desired SPAT phases to send.</li>
+        <li>Click Start under "Record Scripts"</li>
+        <li>Click Start under "Send MAP", adjusting the send interval as desired.</li>
+        <li>Click Start under "Send Selected SPAT Phases".  Select "Loop", if desired, to repeat the series of SPATs indefinitely.</li>
+        <li>Click Start under "Send BSMs".  Adjust the send interval, or uncheck "fixed interval" to use the original BSM intervals if desired.</li>
+        <li>When the BSMs and/or SPATs have finished being sent, as shown by the green background color turning off, click Stop under "Record Script"</li>
+        <li>Click Download under "Record Script".  The script can be run again using the script runner command line tool.</li>
+        <li>Click Clear under "Record Script" to clear the script from memory.  If the script is not cleared, subsequent recordings will append data to it.</li>
+    </ol>
+</div>
+</body>
+</html>

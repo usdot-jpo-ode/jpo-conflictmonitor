@@ -101,11 +101,6 @@ public class MapSpatMessageAssessmentTopology
 
         List<AllowedConcurrentPermissive> list = new ArrayList<>();
 
-        // list.add(new AllowedConcurrentPermissive(12109, -1, 1, 2, 3, 4, true));
-
-        
-        
-        
         for(AllowedConcurrentPermissive elem : list){
             String hash = hashLaneConnection(elem.getIntersectionID(), elem.getFirstIngressLane(), elem.getSecondIngressLane(), elem.getFirstEgressLane(), elem.getSecondEgressLane());
             allowMap.put(hash, elem);
@@ -369,7 +364,6 @@ public class MapSpatMessageAssessmentTopology
                                 }
 
                                 if (doStatesConflict(firstState, secondState)) {
-                                    System.out.println(intersection.getIntersectionId() + " " + firstConnection.getIngressLane() + "_" + secondConnection.getIngressLane() +" "+ firstConnection.getEgressLane() + " " + secondConnection.getEgressLane());
                                     SignalStateConflictEvent event = new SignalStateConflictEvent();
                                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
                                     event.setRoadRegulatorID(intersection.getRoadRegulatorId());

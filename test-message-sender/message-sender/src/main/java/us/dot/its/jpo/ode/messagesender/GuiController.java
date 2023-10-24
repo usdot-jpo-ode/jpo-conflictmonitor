@@ -17,10 +17,16 @@ public class GuiController {
     
     @Autowired TestMessageSenderConfiguration config;
     
-     @GetMapping("/")
+    @GetMapping("/")
     public String viewMap(Model model) {
         logger.info("viewMap");
-        model.addAttribute("mapboxTileEndpoint", config.getMapboxTileEndpoint());
+        model.addAttribute("basemapUrl", config.getBasemapUrl());
+        model.addAttribute("basemapAttribution", config.getBasemapAttribution());
         return "index";
+    }
+
+    @RequestMapping("/help")
+    public String help() {
+        return "help";
     }
 }

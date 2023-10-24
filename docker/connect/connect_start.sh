@@ -125,7 +125,7 @@ function createSink() {
         "errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
         "errors.deadletterqueue.context.headers.enable": true,
         "errors.log.enable": true,
-        "errors.log.include.messages": true,
+        "errors.log.include.messages": false,
         "errors.deadletterqueue.topic.replication.factor": 1'    
 
 
