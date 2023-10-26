@@ -261,7 +261,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         }
     }
 
-    public boolean validateBSM(OdeBsmData bsm){
+    public static boolean validateBSM(OdeBsmData bsm){
         if (bsm == null) {
             logger.error("Null BSM");
             return false;
