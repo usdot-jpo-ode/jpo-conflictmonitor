@@ -17,5 +17,5 @@ public interface MessageIngestStreamsAlgorithm
     ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore();
     ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore();
     ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore();
-    
+
 }

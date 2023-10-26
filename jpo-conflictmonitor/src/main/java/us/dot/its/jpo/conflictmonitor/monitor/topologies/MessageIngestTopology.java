@@ -1,6 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StoreQueryParameters;
@@ -29,7 +28,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStoreSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
@@ -38,9 +39,6 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.model.OdeBsmMetadata;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -181,27 +179,36 @@ public class MessageIngestTopology
         //
         //  MAP MESSAGES
         //
+
+        // Create MAP table for bounding boxes
         builder.table(
-                parameters.getMapTopic(), 
+                parameters.getMapTopic(),
                 Consumed.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()),
                     Materialized.<RsuIntersectionKey, ProcessedMap<LineString>, KeyValueStore<Bytes, byte[]>>as(parameters.getMapStoreName())
-                    .withRetention(Duration.ofMinutes(10))
-                    
-            ).mapValues(map -> {
-                mapIndex.insert(map);
-                var boundingPolygon = mapIndex.getBoundingPolygon(map);
-                var wkt = boundingPolygon.toString();
-                return wkt;
-            }).toStream()
+            ).mapValues(
+                    map -> new MapBoundingBox(map)
+            ).toStream()
                 .to(parameters.getMapBoundingBoxTopic(),
                         Produced.with(
                                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                                Serdes.String(),
-                                new RsuIdPartitioner<RsuIntersectionKey, String>()));
+                                JsonSerdes.MapBoundingBox(),
+                                new RsuIdPartitioner<RsuIntersectionKey, MapBoundingBox>()));
+
+        // TODO: Repartition MAPs by Intersection/Region
 
 
+        // Read Map Bounding Box Topic into GlobalKTable with spatially indexed state store
+        builder.globalTable(parameters.getMapBoundingBoxTopic(),
+                Consumed.with(
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        JsonSerdes.MapBoundingBox()),
+                Materialized.as(new MapSpatiallyIndexedStateStoreSupplier(
+                        parameters.getMapSpatialIndexStoreName(),
+                        mapIndex,
+                        parameters.getMapBoundingBoxTopic()))
+        );
 
 
 
@@ -237,6 +244,9 @@ public class MessageIngestTopology
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }
+
+
+
 
     private MapIndex mapIndex;
 
