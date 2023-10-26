@@ -58,6 +58,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
@@ -373,21 +376,21 @@ public class MonitorServiceController {
             signalStateEventAssesmentAlgo.start();
 
             // // Stop Line Stop Assessment Topology
-            // final String stopLineStopAssessment = "stopLineStopAssessment";
-            // final StopLinestopAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
-            // final String signalStateEventAssessmentAlgorithm = conflictMonitorProps.getSignalStateEventAssessmentAlgorithm();
-            // final SignalStateEventAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
-            // final SignalStateEventAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
-            // if (signalStateEventAssesmentAlgo instanceof StreamsTopology) {
-            //     final var streamsAlgo = (StreamsTopology)signalStateEventAssesmentAlgo;
-            //     streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(signalStateEventAssessment));
-            //     streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, signalStateEventAssessment, stateChangeTopic, healthTopic));
-            //     streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, signalStateEventAssessment, healthTopic));
-            //     algoMap.put(signalStateEventAssessment, streamsAlgo);
-            // }
-            // signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
-            // Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
-            // signalStateEventAssesmentAlgo.start();
+            final String stopLineStopAssessment = "stopLineStopAssessment";
+            final StopLineStopAssessmentAlgorithmFactory slsaAlgoFactory = conflictMonitorProps.getStopLineStopAssessmentAlgorithmFactory();
+            final String stopLineStopAssessmentAlgorithm = conflictMonitorProps.getStopLineStopAssessmentAlgorithm();
+            final StopLineStopAssessmentAlgorithm stopLineStopAssesmentAlgo = slsaAlgoFactory.getAlgorithm(stopLineStopAssessmentAlgorithm);
+            final StopLineStopAssessmentParameters stopLineStopAssessmenAlgoParams = conflictMonitorProps.getStopLineStopAssessmentAlgorithmParameters();
+            if (stopLineStopAssesmentAlgo instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)stopLineStopAssesmentAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(stopLineStopAssessment));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, stopLineStopAssessment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, stopLineStopAssessment, healthTopic));
+                algoMap.put(stopLineStopAssessment, streamsAlgo);
+            }
+            stopLineStopAssesmentAlgo.setParameters(stopLineStopAssessmenAlgoParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(stopLineStopAssesmentAlgo::stop));
+            stopLineStopAssesmentAlgo.start();
             
 
             // Lane Direction Of Travel Assessment Topology

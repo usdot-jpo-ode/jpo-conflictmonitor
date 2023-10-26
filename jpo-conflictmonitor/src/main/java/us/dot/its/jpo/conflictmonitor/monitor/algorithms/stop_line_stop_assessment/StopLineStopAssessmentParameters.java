@@ -13,33 +13,33 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
 @Data
 @Generated
 @Component
-@ConfigurationProperties(prefix = "stop.line.passage.assessment")
+@ConfigurationProperties(prefix = "stop.line.stop.assessment")
 @ConfigDataClass
 public class StopLineStopAssessmentParameters {
 
     // Whether to log diagnostic information for debugging
-    @ConfigData(key = "stop.line.passage.assessment.debug", 
+    @ConfigData(key = "stop.line.stop.assessment.debug", 
         description = "Whether to log diagnostic information for debugging", 
         updateType = DEFAULT)
     boolean debug;
 
-    @ConfigData(key = "stop.line.passage.assessment.stopLineStopEventTopicName", 
+    @ConfigData(key = "stop.line.stop.assessment.stopLineStopEventTopicName", 
         description = "The name of the topic to read Signal State Events from", 
         updateType = READ_ONLY)
-    String signalStateEventTopicName;
+    String stopLineStopEventTopicName;
 
-    @ConfigData(key = "stop.line.passage.assessment.stopLineStopAssessmentOutputTopicName", 
+    @ConfigData(key = "stop.line.stop.assessment.stopLineStopAssessmentOutputTopicName", 
         description = "The name of the topic to write Signal State Event Assessments to", 
         updateType = READ_ONLY)
-    String signalStateEventAssessmentOutputTopicName;
+    String stopLineStopAssessmentOutputTopicName;
 
-    @ConfigData(key = "stop.line.passage.assessment.lookBackPeriodDays", 
+    @ConfigData(key = "stop.line.stop.assessment.lookBackPeriodDays", 
         description = "The number of days to look back for Signal State Events", 
         units = DAYS,
         updateType = DEFAULT)
     long lookBackPeriodDays;
 
-    @ConfigData(key = "stop.line.passage.assessment.lookBackPeriodGraceTimeSeconds", 
+    @ConfigData(key = "stop.line.stop.assessment.lookBackPeriodGraceTimeSeconds", 
         description = "The look back grace period for Signal State Events", 
         units = SECONDS,
         updateType = DEFAULT)

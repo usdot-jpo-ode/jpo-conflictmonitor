@@ -12,6 +12,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOf
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
@@ -162,6 +164,18 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLinePassageAggregator>(),
             new JsonDeserializer<>(StopLinePassageAggregator.class));
+    }
+
+    public static Serde<StopLineStopAssessment> StopLineStopAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLineStopAssessment>(),
+            new JsonDeserializer<>(StopLineStopAssessment.class));
+    }
+
+    public static Serde<StopLineStopAggregator> StopLineStopAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLineStopAggregator>(),
+            new JsonDeserializer<>(StopLineStopAggregator.class));
     }
 
     public static Serde<LaneDirectionOfTravelAssessment> LaneDirectionOfTravelAssessment() {

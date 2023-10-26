@@ -64,11 +64,6 @@ public class SignalStateEventAssessmentTopology
 
         Aggregator<String, StopLinePassageEvent, StopLinePassageAggregator> signalStateEventAggregator =
             (key, value, aggregate)-> {
-                logger.info("Key" + key);
-                logger.info(aggregate.toString());
-                
-
-                logger.info("\n\n\nHello World!\n\n\n");
                 return aggregate.add(value);
             };
 

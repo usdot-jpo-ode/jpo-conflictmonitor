@@ -36,12 +36,9 @@ public class StopLinePassageAggregator {
 
         List<StopLinePassageEvent> removeEvents = new ArrayList<>();
 
-        System.out.println("Adding New Event to Aggregation");
 
         for(StopLinePassageEvent previousEvents: this.events){
             if(previousEvents.getTimestamp() + (messageDurationDays*24 * 3600*1000) < event.getTimestamp()){
-                System.out.println("Adding Event to Remove" + previousEvents.getTimestamp() + " " + event.getTimestamp());
-
                 removeEvents.add(previousEvents);
             }else{
                 break;
@@ -59,8 +56,6 @@ public class StopLinePassageAggregator {
 
         int intersectionID = -1;
         int roadRegulatorID = -1;
-
-        System.out.println("Generating Stop Line Passage Event assesment" + this.events.size());
 
         for(StopLinePassageEvent event : this.events){
             intersectionID = event.getIntersectionID();

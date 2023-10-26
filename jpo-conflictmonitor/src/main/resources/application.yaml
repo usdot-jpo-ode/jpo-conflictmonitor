@@ -143,6 +143,8 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmAssessment
       cleanupPolicy: compact
+    - name: topic.CmStopLineStopAssessment
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
