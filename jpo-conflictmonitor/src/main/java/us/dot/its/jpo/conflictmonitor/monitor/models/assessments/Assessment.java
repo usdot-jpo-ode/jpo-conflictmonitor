@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = ConnectionOfTravelAssessment.class, name = "ConnectionOfTravel"),
         @JsonSubTypes.Type(value = LaneDirectionOfTravelAssessment.class, name = "LaneDirectionOfTravel"),
         @JsonSubTypes.Type(value = StopLinePassageAssessment.class, name = "SignalStateEvent"),
+        @JsonSubTypes.Type(value = StopLineStopAssessment.class, name = "StopLineStop"),
 })
 @Getter
 @Setter
@@ -34,6 +35,7 @@ public abstract class Assessment{
     private String assessmentType = "";
     public int intersectionID;
     public int roadRegulatorID;
+    public String source;
 
     
 

@@ -83,7 +83,11 @@ public class SignalStateEventAssessmentTopology
 
         // Map the Windowed K Stream back to a Key Value Pair
         KStream<String, StopLinePassageAssessment> signalStateAssessmentStream = signalStateAssessments.toStream()
-            .map((key, value) -> KeyValue.pair(key, value.getSignalStateEventAssessment())
+            .map((key, value) -> {
+                StopLinePassageAssessment assessment = value.getSignalStateEventAssessment();
+                assessment.setSource(key);
+                return KeyValue.pair(key, assessment);
+            }
         );
 
         signalStateAssessmentStream.to(

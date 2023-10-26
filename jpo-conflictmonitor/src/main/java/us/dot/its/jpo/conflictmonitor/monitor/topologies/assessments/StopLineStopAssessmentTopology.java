@@ -15,11 +15,16 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessme
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.StopLineStopTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentConstants.DEFAULT_STOP_LINE_STOP_ASSESSMENT_ALGORITHM;;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentConstants.DEFAULT_STOP_LINE_STOP_ASSESSMENT_ALGORITHM;
+
+import java.util.ArrayList;
+import java.util.List;;
 
 
 @Component(DEFAULT_STOP_LINE_STOP_ASSESSMENT_ALGORITHM)
@@ -84,13 +89,13 @@ public class StopLineStopAssessmentTopology
         // Map the Windowed K Stream back to a Key Value Pair
         KStream<String, StopLineStopAssessment> stopLineStopAssessmentStream = stopLineStopAssessments.toStream()
             .map((key, value) -> {
-                logger.info("\n\n\n\n\n\n Generating Stop Line Stop Assessment");
-                
-                return KeyValue.pair(key, value.getStopLineStopAssessment());
+                StopLineStopAssessment assessment = value.getStopLineStopAssessment();
+                assessment.setSource(key);
+                return KeyValue.pair(key, assessment);
             }
         );
 
-        logger.error("Stop Line Assesment Output Topic name:" + parameters.getStopLineStopAssessmentOutputTopicName());
+        
 
         stopLineStopAssessmentStream.to(
             parameters.getStopLineStopAssessmentOutputTopicName(), 
@@ -98,6 +103,46 @@ public class StopLineStopAssessmentTopology
                     JsonSerdes.StopLineStopAssessment()));
 
         stopLineStopAssessmentStream.print(Printed.toSysOut());
+
+
+        KStream<String, StopLineStopNotification> notificationEventStream = stopLineStopAssessmentStream.flatMap(
+            (key, value)->{
+                List<KeyValue<String, StopLineStopNotification>> result = new ArrayList<KeyValue<String, StopLineStopNotification>>();
+                
+                for(StopLineStopAssessmentGroup group: value.getStopLineStopAssessmentGroup()){
+                    if(group.getNumberOfEvents() >= parameters.getMinimumEventsToNotify()){
+                        double totalTime = group.getTimeStoppedOnDark() + group.getTimeStoppedOnGreen() + group.getTimeStoppedOnRed() + group.getTimeStoppedOnYellow();
+                        if(group.getTimeStoppedOnGreen() > parameters.getGreenLightPercentToNotify() * totalTime){
+                            StopLineStopNotification notification = new StopLineStopNotification();
+                            notification.setAssessment(value);
+                            notification.setNotificationText("Stop Line Stop Notification, Percent Time stopped on green: " + group.getTimeStoppedOnGreen() + "For Signal group: " + group.getSignalGroup() + " Exceeds Maximum Allowable Percent");
+                            notification.setNotificationHeading("Stop Line Stop Notification");
+                            result.add(new KeyValue<>(key, notification));
+                        }
+                    }
+                }
+
+                return result;
+            }
+        );
+
+        notificationEventStream.print(Printed.toSysOut());
+                
+        KTable<String, StopLineStopNotification> connectionNotificationTable = 
+            notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLineStopNotification()))
+            .reduce(
+                (oldValue, newValue)->{
+                        return newValue;
+                },
+            Materialized.<String, StopLineStopNotification, KeyValueStore<Bytes, byte[]>>as("StopLineStopNotification")
+            .withKeySerde(Serdes.String())
+            .withValueSerde(JsonSerdes.StopLineStopNotification())
+        );
+    
+        connectionNotificationTable.toStream().to(
+            parameters.getStopLineStopNotificationOutputTopicName(),
+            Produced.with(Serdes.String(),
+                    JsonSerdes.StopLineStopNotification()));
 
         return builder.build();
     }    

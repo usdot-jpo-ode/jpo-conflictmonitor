@@ -33,6 +33,11 @@ public class StopLineStopAssessmentParameters {
         updateType = READ_ONLY)
     String stopLineStopAssessmentOutputTopicName;
 
+    @ConfigData(key = "stop.line.stop.assessment.stopLineStopNotificationOutputTopicName", 
+        description = "The name of the topic to write Stop Line Stop Notification to", 
+        updateType = READ_ONLY)
+    String stopLineStopNotificationOutputTopicName;
+
     @ConfigData(key = "stop.line.stop.assessment.lookBackPeriodDays", 
         description = "The number of days to look back for Signal State Events", 
         units = DAYS,
@@ -44,5 +49,18 @@ public class StopLineStopAssessmentParameters {
         units = SECONDS,
         updateType = DEFAULT)
     long lookBackPeriodGraceTimeSeconds;
+
+
+    @ConfigData(key = "stop.line.stop.assessment.minimumEventsToNotify", 
+        units = PER_PERIOD, 
+        description = "Minimum Number of Events to occur in a given period before a notification can be triggered", 
+        updateType = DEFAULT)
+    int minimumEventsToNotify;
+
+    @ConfigData(key = "stop.line.stop.assessment.greenLightPercentToNotify", 
+        units = PER_PERIOD, 
+        description = "The percent of time the light must be green in order to trigger a notification", 
+        updateType = DEFAULT)
+    double greenLightPercentToNotify;
 
 }

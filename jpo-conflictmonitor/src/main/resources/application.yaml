@@ -145,6 +145,8 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmStopLineStopAssessment
       cleanupPolicy: compact
+    - name: topic.CmStopLineStopNotification
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -315,6 +317,9 @@ signal.state.event.assessment:
   signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  # minimumEventsToNotify: 10
+  # greenLightPercentToNotify: 0.1
+  # stopLinePassageNotificationOutputTopicName: topic.CmStopLineStopNotification
 
 stop.line.stop.assessment:
   algorithm: defaultStopLineStopAssessmentAlgorithm
@@ -323,6 +328,9 @@ stop.line.stop.assessment:
   stopLineStopAssessmentOutputTopicName: topic.CmStopLineStopAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  minimumEventsToNotify: 10
+  greenLightPercentToNotify: 0.1
+  stopLineStopNotificationOutputTopicName: topic.CmStopLineStopNotification
 
 # Signal State Vehicle Crosses Analytics
 signal.state.vehicle.crosses:
@@ -406,7 +414,7 @@ config:
     {
       "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
       ,"tasks.max": 3
-      ,"connection.uri": "mongodb://172.250.250.181:27017/?replicaSet=rs0"
+      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
       ,"name": "MongoSource.{{defaultTopicName}}"
       ,"database": "ConflictMonitor"
       ,"collection": "{{defaultCollectionName}}"
@@ -434,7 +442,7 @@ config:
     {
       "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
       ,"tasks.max": 3
-      ,"connection.uri": "mongodb://172.250.250.181:27017/?replicaSet=rs0"
+      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
       ,"name": "MongoSource.{{intersectionTopicName}}"
       ,"database": "ConflictMonitor"
       ,"collection": "{{intersectionCollectionName}}"

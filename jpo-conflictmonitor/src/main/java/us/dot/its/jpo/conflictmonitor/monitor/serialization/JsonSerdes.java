@@ -45,6 +45,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateCo
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
@@ -170,6 +171,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLineStopAssessment>(),
             new JsonDeserializer<>(StopLineStopAssessment.class));
+    }
+
+    public static Serde<StopLineStopNotification> StopLineStopNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLineStopNotification>(),
+            new JsonDeserializer<>(StopLineStopNotification.class));
     }
 
     public static Serde<StopLineStopAggregator> StopLineStopAggregator() {
