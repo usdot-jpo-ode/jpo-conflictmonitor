@@ -20,6 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -72,6 +73,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStore;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
@@ -238,6 +240,8 @@ public class MonitorServiceController {
             spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
             Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
             spatTimeChangeDetailsAlgo.start();
+
+            
             
             
 
@@ -261,7 +265,6 @@ public class MonitorServiceController {
             mapSpatAlignmentAlgo.start();
 
 
-
             //BSM Topology sends a message every time a vehicle drives through the intersection. 
             final String bsmEvent = "bsmEvent";
             final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
@@ -280,10 +283,6 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(bsmEventAlgorithm::stop));
             bsmEventAlgorithm.start();
 
-
-            
-            
-            
 
             
             //Thread.sleep(20000);

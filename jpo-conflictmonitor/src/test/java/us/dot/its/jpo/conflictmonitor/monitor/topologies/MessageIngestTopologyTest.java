@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,7 @@ public class MessageIngestTopologyTest {
     final String mapStoreName = "ProcessedMapWindowStore";
     final String rsuId = "10.11.81.12";
     final int intersectionId = 12109;
+    final String mapSpatialIndexStoreName = "MapSpatialIndexStore";
 
     @Test
     public void testMessageIngestTopology() throws JsonProcessingException {
@@ -106,6 +106,7 @@ public class MessageIngestTopologyTest {
         params.setSpatStoreName(spatStoreName);
         params.setMapStoreName(mapStoreName);
         params.setMapBoundingBoxTopic(mapBoundingBoxTopicName);
+        params.setMapSpatialIndexStoreName(mapSpatialIndexStoreName);
         return params;
     }
 

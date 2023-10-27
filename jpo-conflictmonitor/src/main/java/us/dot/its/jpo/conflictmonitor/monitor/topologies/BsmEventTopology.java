@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.StoreBuilder;
@@ -20,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventConstants.DEFAULT_BSM_EVENT_ALGORITHM;
 
@@ -62,8 +62,13 @@ public class BsmEventTopology
                     },
                 BSM_SOURCE);
 
-        bsmEventBuilder.addSink(BSM_SINK, parameters.getOutputTopic(),
-                JsonSerdes.BsmEventIntersectionKey().serializer(), JsonSerdes.BsmEvent().serializer(), BSM_PROCESSOR);
+        bsmEventBuilder.addSink(
+                BSM_SINK,
+                parameters.getOutputTopic(),
+                JsonSerdes.BsmEventIntersectionKey().serializer(),
+                JsonSerdes.BsmEvent().serializer(),
+                new RsuIdPartitioner<BsmEventIntersectionKey, BsmEvent>(),
+                BSM_PROCESSOR);
 
         StoreBuilder<TimestampedKeyValueStore<BsmEventIntersectionKey, BsmEvent>> storeBuilder
                 = Stores.timestampedKeyValueStoreBuilder(
@@ -98,15 +103,14 @@ public class BsmEventTopology
 
     private MapIndex mapIndex;
 
-    @Override
-    public MapIndex getMapIndex() {
-        return mapIndex;
-    }
+
 
     @Override
     public void setMapIndex(MapIndex mapIndex) {
         this.mapIndex = mapIndex;
     }
+
+
 
     @Override
     protected void validate() {
@@ -115,4 +119,6 @@ public class BsmEventTopology
             throw new IllegalArgumentException("MapIndex is not set");
         }
     }
+
+
 }

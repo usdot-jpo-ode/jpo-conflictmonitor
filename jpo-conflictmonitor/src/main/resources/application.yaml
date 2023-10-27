@@ -400,6 +400,7 @@ message.ingest:
   bsmStoreName: BsmWindowStore
   spatStoreName: SpatWindowStore
   mapStoreName: ProcessedMapWindowStore
+  mapSpatialIndexStoreName: MapSpatialIndexStore
 
 # Config parameters
 config:
