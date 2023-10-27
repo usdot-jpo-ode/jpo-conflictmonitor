@@ -97,7 +97,11 @@ public class ConnectionOfTravelAssessmentTopology
 
         // Map the Windowed K Stream back to a Key Value Pair
         KStream<String, ConnectionOfTravelAssessment> connectionOfTravelAssessmentStream = connectionOfTravelAssessments.toStream()
-            .map((key, value) -> KeyValue.pair(key, value.getConnectionOfTravelAssessment())
+            .map((key, value) -> {
+                ConnectionOfTravelAssessment assessment = value.getConnectionOfTravelAssessment();
+                assessment.setSource(key);
+                return KeyValue.pair(key, assessment);
+            }
         );
 
         if(parameters.isDebug()){

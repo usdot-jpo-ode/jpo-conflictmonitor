@@ -8,7 +8,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent
 
 @Getter
 @Setter
-public class SignalStateEventAssessmentGroup {
+public class StopLinePassageAssessmentGroup {
 
     private int signalGroup;
     private int darkEvents;

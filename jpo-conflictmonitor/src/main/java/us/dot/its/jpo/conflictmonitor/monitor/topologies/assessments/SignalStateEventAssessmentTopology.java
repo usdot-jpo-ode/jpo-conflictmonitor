@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimestampExtractors.SignalStateTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -52,24 +52,28 @@ public class SignalStateEventAssessmentTopology
                     .withTimestampExtractor(new SignalStateTimestampExtractor())
                 );
 
-        Initializer<SignalStateEventAggregator> signalStateAssessmentInitializer = ()->{
-            SignalStateEventAggregator agg = new SignalStateEventAggregator();
+        Initializer<StopLinePassageAggregator> signalStateAssessmentInitializer = ()->{
+            StopLinePassageAggregator agg = new StopLinePassageAggregator();
             agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
+
+            logger.info("Setting up Signal State Event Assessment Topology \n\n\n\n");
             return agg;
         };
 
         signalStateEvents.print(Printed.toSysOut());
 
-        Aggregator<String, StopLinePassageEvent, SignalStateEventAggregator> signalStateEventAggregator =
-            (key, value, aggregate) -> aggregate.add(value);
+        Aggregator<String, StopLinePassageEvent, StopLinePassageAggregator> signalStateEventAggregator =
+            (key, value, aggregate)-> {
+                return aggregate.add(value);
+            };
 
 
-        KTable<String, SignalStateEventAggregator> signalStateAssessments = 
+        KTable<String, StopLinePassageAggregator> signalStateAssessments = 
             signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageEvent()))
             .aggregate(
                 signalStateAssessmentInitializer,
                 signalStateEventAggregator,
-                Materialized.<String, SignalStateEventAggregator, KeyValueStore<Bytes, byte[]>>as("signalStateEventAssessments")
+                Materialized.<String, StopLinePassageAggregator, KeyValueStore<Bytes, byte[]>>as("signalStateEventAssessments")
                     .withKeySerde(Serdes.String())
                     .withValueSerde(JsonSerdes.SignalStateEventAggregator())
             );
@@ -78,8 +82,12 @@ public class SignalStateEventAssessmentTopology
         
 
         // Map the Windowed K Stream back to a Key Value Pair
-        KStream<String, SignalStateEventAssessment> signalStateAssessmentStream = signalStateAssessments.toStream()
-            .map((key, value) -> KeyValue.pair(key, value.getSignalStateEventAssessment())
+        KStream<String, StopLinePassageAssessment> signalStateAssessmentStream = signalStateAssessments.toStream()
+            .map((key, value) -> {
+                StopLinePassageAssessment assessment = value.getSignalStateEventAssessment();
+                assessment.setSource(key);
+                return KeyValue.pair(key, assessment);
+            }
         );
 
         signalStateAssessmentStream.to(

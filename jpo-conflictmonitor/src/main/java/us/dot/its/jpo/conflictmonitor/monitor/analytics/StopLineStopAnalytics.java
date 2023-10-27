@@ -16,16 +16,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -178,7 +174,6 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             event.setFinalEventState(lastSignalState);
             event.setConnectionID(connectionId);
 
-            System.out.println(spats.getSpats().size());
 
             List<ProcessedSpat> filteredSpats = SpatUtils.filterSpatsByTimestamp(spats.getSpats(), firstTimestamp, lastTimestamp);
 

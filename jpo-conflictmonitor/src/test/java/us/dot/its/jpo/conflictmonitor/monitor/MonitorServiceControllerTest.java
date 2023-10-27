@@ -50,6 +50,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
@@ -147,6 +150,10 @@ public class MonitorServiceControllerTest {
     @Mock ConnectionOfTravelAssessmentStreamsAlgorithm connectionOfTravelAssessmentAlgorithm;
     ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentParameters = new ConnectionOfTravelAssessmentParameters();
 
+    @Mock StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory;
+    @Mock StopLineStopAssessmentStreamsAlgorithm stopLineStopAssessmentAlgorithm;
+    StopLineStopAssessmentParameters stopLineStopAssessmentParameters = new StopLineStopAssessmentParameters();
+
     MapIndex mapIndex = new MapIndex();
     
     @Test
@@ -233,6 +240,13 @@ public class MonitorServiceControllerTest {
         when(connectionOfTravelAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(connectionOfTravelAssessmentAlgorithm);
         when(conflictMonitorProperties.getConnectionOfTravelAssessmentAlgorithmParameters()).thenReturn(connectionOfTravelAssessmentParameters);
 
+        when(conflictMonitorProperties.getStopLineStopAssessmentAlgorithmFactory()).thenReturn(stopLineStopAssessmentAlgorithmFactory);
+        when(conflictMonitorProperties.getStopLineStopAssessmentAlgorithm()).thenReturn(defaultAlgo);
+        when(stopLineStopAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(stopLineStopAssessmentAlgorithm);
+        when(conflictMonitorProperties.getStopLineStopAssessmentAlgorithmParameters()).thenReturn(stopLineStopAssessmentParameters);
+
+        
+
         var monitorServiceController = new MonitorServiceController(
                 conflictMonitorProperties,
                 kafkaTemplate,
@@ -256,6 +270,7 @@ public class MonitorServiceControllerTest {
         verify(signalStateEventAssessmentAlgorithm, times(1)).start();
         verify(laneDirectionOfTravelAssessmentAlgorithm, times(1)).start();
         verify(connectionOfTravelAssessmentAlgorithm, times(1)).start();
+        verify(stopLineStopAssessmentAlgorithm, times(1)).start();
     }
     
 }

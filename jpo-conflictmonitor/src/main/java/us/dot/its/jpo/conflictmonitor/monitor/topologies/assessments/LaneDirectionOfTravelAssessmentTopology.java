@@ -93,7 +93,11 @@ public class LaneDirectionOfTravelAssessmentTopology
             );
         
         KStream<String, LaneDirectionOfTravelAssessment> laneDirectionOfTravelAssessmentStream = laneDirectionOfTravelAssessments.toStream()
-            .map((key, value) -> KeyValue.pair(key, value.getLaneDirectionOfTravelAssessment())
+            .map((key, value) -> {
+                LaneDirectionOfTravelAssessment assessment = value.getLaneDirectionOfTravelAssessment();
+                assessment.setSource(key);
+                return KeyValue.pair(key, assessment);
+            }
         );
 
         laneDirectionOfTravelAssessmentStream.to(
