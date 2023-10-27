@@ -56,6 +56,7 @@ public abstract class BaseStreamsTopology<TParams> {
 
     public abstract Topology buildTopology();
 
+
     /**
      * Overridable method for testing
      * @return {@link KafkaStreams}

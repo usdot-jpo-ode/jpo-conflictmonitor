@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStore;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 
 /**
@@ -240,42 +242,45 @@ public class MonitorServiceController {
 
 
             // // the message ingest topology tracks and stores incoming messages for further processing
-            final String messageIngest = "messageIngest";
+//            final String messageIngest = "messageIngest";
             final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
             final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
             final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
             final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
             messageIngestAlgorithm.setMapIndex(mapIndex);
-            if (messageIngestAlgorithm instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
-                algoMap.put(messageIngest, streamsAlgo);
-            }
+//            if (messageIngestAlgorithm instanceof StreamsTopology) {
+//                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
+//                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
+//                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
+//                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
+//                algoMap.put(messageIngest, streamsAlgo);
+//            }
             messageIngestAlgorithm.setParameters(messageIngestParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
-            messageIngestAlgorithm.start();
+            //Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
+            //messageIngestAlgorithm.start();
 
 
 
             //BSM Topology sends a message every time a vehicle drives through the intersection. 
-            final String bsmEvent = "bsmEvent";
+//            final String bsmEvent = "bsmEvent";
             final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
             final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
             final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
             final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
             bsmEventAlgorithm.setMapIndex(mapIndex);
-            if (bsmEventAlgorithm instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)bsmEventAlgorithm;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmEvent));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, healthTopic));
-                algoMap.put(bsmEvent, streamsAlgo);
-            }
+//            if (bsmEventAlgorithm instanceof StreamsTopology) {
+//                final var streamsAlgo = (StreamsTopology)bsmEventAlgorithm;
+//                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmEvent));
+//                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
+//                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, healthTopic));
+//                algoMap.put(bsmEvent, streamsAlgo);
+//            }
             bsmEventAlgorithm.setParameters(bsmEventParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(bsmEventAlgorithm::stop));
-            bsmEventAlgorithm.start();
+            //final BsmEventTopology bsmEventTopology = (BsmEventTopology)bsmEventAlgorithm;
+
+
+            //Runtime.getRuntime().addShutdownHook(new Thread(bsmEventAlgorithm::stop));
+            //bsmEventAlgorithm.start();
 
 
 

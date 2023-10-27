@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseTopologyBuilder;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -25,16 +27,16 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEve
 
 @Component(DEFAULT_BSM_EVENT_ALGORITHM)
 public class BsmEventTopology
-        extends BaseStreamsTopology<BsmEventParameters>
-        implements BsmEventStreamsAlgorithm {
+        extends BaseTopologyBuilder<BsmEventParameters>
+        implements BsmEventAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventTopology.class);
     
     // Tracks when a new stream of BSMS arrives through the system. Once the stream of BSM's ends, emits an event
     // containing the start and end BSM's in the chain.
-    public Topology buildTopology() {
+    public Topology buildTopology(Topology bsmEventBuilder) {
 
-        Topology bsmEventBuilder = new Topology();
+        //Topology bsmEventBuilder = new Topology();
 
         final String BSM_SOURCE = "BSM Event Source";
         final String BSM_PROCESSOR = "BSM Event Processor";
@@ -111,14 +113,6 @@ public class BsmEventTopology
     }
 
 
-
-    @Override
-    protected void validate() {
-        super.validate();
-        if (mapIndex == null) {
-            throw new IllegalArgumentException("MapIndex is not set");
-        }
-    }
 
 
 }
