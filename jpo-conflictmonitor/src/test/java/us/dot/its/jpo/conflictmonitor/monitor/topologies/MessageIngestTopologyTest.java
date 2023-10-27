@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
@@ -47,7 +48,8 @@ public class MessageIngestTopologyTest {
         var messageIngestTopology = new MessageIngestTopology();
         messageIngestTopology.setParameters(parameters);
         messageIngestTopology.setMapIndex(mapIndex);
-        Topology topology = messageIngestTopology.buildTopology();
+        StreamsBuilder builder = messageIngestTopology.buildTopology(new StreamsBuilder());
+        Topology topology = builder.build();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
 

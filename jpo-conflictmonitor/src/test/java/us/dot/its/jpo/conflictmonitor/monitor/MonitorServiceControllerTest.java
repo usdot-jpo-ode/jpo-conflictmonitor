@@ -250,8 +250,8 @@ public class MonitorServiceControllerTest {
         verify(spatValidationAlgorithm, times(1)).start();
         verify(spatTimeChangeDetailsAlgorithm, times(1)).start();
         verify(mapSpatMessageAssessmentAlgorithm, times(1)).start();
-        verify(bsmEventAlgorithm, times(1)).start();
-        verify(messageIngestAlgorithm, times(1)).start();
+        //verify(bsmEventAlgorithm, times(1)).start();
+        //verify(messageIngestAlgorithm, times(1)).start();
         verify(intersectionEventAlgorithm, times(1)).start();
         verify(signalStateEventAssessmentAlgorithm, times(1)).start();
         verify(laneDirectionOfTravelAssessmentAlgorithm, times(1)).start();
