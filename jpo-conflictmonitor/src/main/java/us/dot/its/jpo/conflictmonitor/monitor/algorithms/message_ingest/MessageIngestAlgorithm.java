@@ -8,4 +8,5 @@ public interface MessageIngestAlgorithm
     extends ConfigurableAlgorithm<MessageIngestParameters> {
     MapIndex getMapIndex();
     void setMapIndex(MapIndex mapIndex);
+    void validate();
 }

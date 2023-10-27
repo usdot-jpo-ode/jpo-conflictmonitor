@@ -78,33 +78,16 @@ public class MessageIngestTopology
                     .withTimestampExtractor(new BsmTimestampExtractor())
                 );
 
-        // bsmJsonStream.print(Printed.toSysOut());
+
         
 
         //Group up all of the BSM's based upon the new ID.
         KGroupedStream<BsmIntersectionKey, OdeBsmData> bsmKeyGroup =
                 bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionKey(), JsonSerdes.OdeBsm()));
 
-        // KStream<BsmIntersectionKey, OdeBsmData> vehicleEventsStream = bsmKeyGroup.flatMap(
-        //     (key, value)->{
-
-        //     count +=1;
-        //     System.out.println(count);
-        //     System.out.println(key);
-
-        //     List<KeyValue<BsmIntersectionKey, OdeBsmData>> result = new ArrayList<>();
-        //     return result;
-
-        // });
-
-        // bsmKeyGroup.print(Printed.toSysOut());
 
 
-        Map<String, String> loggingConfig = new HashMap<>();
-        // Set the directory where state store logs will be stored
-        // loggingConfig.put("directory", "/statestore.logs");
-        // // Set the retention time for the state store logs
-        // loggingConfig.put("retention.ms", "86400000");
+
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
@@ -267,11 +250,10 @@ public class MessageIngestTopology
         this.mapIndex = mapIndex;
     }
 
-//    @Override
-//    protected void validate() {
-//        super.validate();
-//        if (mapIndex == null) {
-//            throw new IllegalArgumentException("MapIndex is not set");
-//        }
-//    }
+    @Override
+    public void validate() {
+        if (mapIndex == null) {
+            throw new IllegalArgumentException("MapIndex is not set");
+        }
+    }
 }

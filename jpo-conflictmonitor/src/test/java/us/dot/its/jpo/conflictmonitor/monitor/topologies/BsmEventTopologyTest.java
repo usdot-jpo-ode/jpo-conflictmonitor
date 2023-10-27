@@ -53,12 +53,12 @@ public class BsmEventTopologyTest {
         bsmEventTopology.setParameters(parameters);
         bsmEventTopology.setPunctuationType(PunctuationType.STREAM_TIME);
         var streamsProperties = new Properties();
-        bsmEventTopology.setStreamsProperties(streamsProperties);
+        //bsmEventTopology.setStreamsProperties(streamsProperties);
         var mapIndex = new MapIndex();
         bsmEventTopology.setMapIndex(mapIndex);
         bsmEventTopology.validate();
 
-        Topology topology = bsmEventTopology.buildTopology();
+        Topology topology = bsmEventTopology.buildTopology(new Topology());
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
             
             var inputTopic = driver.createInputTopic(inputTopicName,

@@ -10,9 +10,7 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseTopologyBuilder;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -28,7 +26,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEve
 @Component(DEFAULT_BSM_EVENT_ALGORITHM)
 public class BsmEventTopology
         extends BaseTopologyBuilder<BsmEventParameters>
-        implements BsmEventAlgorithm {
+        implements BsmEventStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventTopology.class);
     
@@ -113,6 +111,11 @@ public class BsmEventTopology
     }
 
 
-
+    @Override
+    public void validate() {
+        if (mapIndex == null) {
+            throw new IllegalArgumentException("MapIndex is not set");
+        }
+    }
 
 }

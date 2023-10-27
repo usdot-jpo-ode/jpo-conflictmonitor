@@ -8,4 +8,5 @@ public interface BsmEventAlgorithm extends ConfigurableAlgorithm<BsmEventParamet
 
     void setMapIndex(MapIndex mapIndex);
 
+    void validate();
 }
