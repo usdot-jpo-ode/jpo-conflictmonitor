@@ -68,6 +68,7 @@ public class MessageIngestTopology
          * 
          */
 
+
         //BSM Input Stream
         KStream<BsmIntersectionKey, OdeBsmData> bsmJsonStream =
             builder.stream(
@@ -76,6 +77,8 @@ public class MessageIngestTopology
                     JsonSerdes.BsmIntersectionKey(),
                     JsonSerdes.OdeBsm())
                     .withTimestampExtractor(new BsmTimestampExtractor())
+                    .withOffsetResetPolicy(Topology.AutoOffsetReset.LATEST)
+                    .withName(BsmEventTopology.BSM_SOURCE)  // Known name to link to BsmEvent Processor
                 );
 
 

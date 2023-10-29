@@ -29,26 +29,18 @@ public class BsmEventTopology
         implements BsmEventStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventTopology.class);
+
+    public final static String BSM_SOURCE = "BSM_Event_Source";
+    final String BSM_PROCESSOR = "BSM_Event_Processor";
+    final String BSM_SINK = "BSM_Event_Sink";
+
     
     // Tracks when a new stream of BSMS arrives through the system. Once the stream of BSM's ends, emits an event
     // containing the start and end BSM's in the chain.
     public Topology buildTopology(Topology bsmEventBuilder) {
 
-        //Topology bsmEventBuilder = new Topology();
 
-        final String BSM_SOURCE = "BSM Event Source";
-        final String BSM_PROCESSOR = "BSM Event Processor";
-        final String BSM_SINK = "BSM Event Sink";
-
-
-
-
-
-        bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(),
-                JsonSerdes.BsmIntersectionKey().deserializer(), JsonSerdes.OdeBsm().deserializer(),
-                parameters.getInputTopic());
-
-
+        // BSM_SOURCE is created in MessageIngestTopology
 
 
         bsmEventBuilder.addProcessor(BSM_PROCESSOR,
@@ -61,6 +53,8 @@ public class BsmEventTopology
                         return processor;
                     },
                 BSM_SOURCE);
+
+
 
         bsmEventBuilder.addSink(
                 BSM_SINK,

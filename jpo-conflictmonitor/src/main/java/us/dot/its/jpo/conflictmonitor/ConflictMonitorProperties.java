@@ -660,7 +660,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    public Properties createStreamProperties(String name) {
       Properties streamProps = new Properties();
-      streamProps.put(StreamsConfig.APPLICATION_ID_CONFIG, "cimms");
+      streamProps.put(StreamsConfig.APPLICATION_ID_CONFIG, name);
 
       streamProps.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
 
