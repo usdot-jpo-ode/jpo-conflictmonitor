@@ -65,6 +65,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
@@ -128,6 +130,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
    private String signalStateEventAssessmentAlgorithm;
    private SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+
+   private StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory;
+   private String stopLineStopAssessmentAlgorithm;
+   private StopLineStopAssessmentParameters stopLineStopAssessmentAlgorithmParameters;
 
    private LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
    private String laneDirectionOfTravelAssessmentAlgorithm;
@@ -396,6 +402,27 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    public void setSignalStateEventAssessmentAlgorithmParameters(
       SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
       this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setStopLineStopAssessmentAlgorithmFactory(
+         StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory) {
+      this.stopLineStopAssessmentAlgorithmFactory = stopLineStopAssessmentAlgorithmFactory;
+   }
+
+ 
+
+   @Value("${stop.line.stop.assessment.algorithm}")
+   public void setStopLineStopAssessmentAlgorithm(String stopLineStopAssessmentAlgorithm) {
+      this.stopLineStopAssessmentAlgorithm = stopLineStopAssessmentAlgorithm;
+   }
+
+
+
+   @Autowired
+   public void setStopLineStopAssessmentAlgorithmParameters(
+      StopLineStopAssessmentParameters stopLineStopAssessmentAlgorithmParameters) {
+      this.stopLineStopAssessmentAlgorithmParameters = stopLineStopAssessmentAlgorithmParameters;
    }
 
 

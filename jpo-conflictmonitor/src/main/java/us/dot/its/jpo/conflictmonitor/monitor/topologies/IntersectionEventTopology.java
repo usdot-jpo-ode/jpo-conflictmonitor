@@ -362,11 +362,11 @@ public class IntersectionEventTopology
 
  
         // Join Spats, Maps and BSMS
-        KStream<BsmEventIntersectionKey, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
+        KStream<RsuIntersectionKey, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
             (key, value)->{
 
                 
-                List<KeyValue<BsmEventIntersectionKey, VehicleEvent>> result = new ArrayList<>();
+                List<KeyValue<RsuIntersectionKey, VehicleEvent>> result = new ArrayList<>();
 
                 
                 
@@ -402,15 +402,15 @@ public class IntersectionEventTopology
 
                     if(map != null){
 
-                        logger.info("Found MAP: {}", map);
+                        // logger.info("Found MAP: {}", map);
                         
                         Intersection intersection = Intersection.fromProcessedMap(map);
 
-                        logger.info("Got Intersection object from MAP: {}", intersection);
+                        // logger.info("Got Intersection object from MAP: {}", intersection);
 
                         VehicleEvent event = new VehicleEvent(bsms, spats, intersection, rsuKey.toString());
 
-                        result.add(new KeyValue<>(key, event));
+                        result.add(new KeyValue<>(rsuKey, event));
     
                         
                     } else{
@@ -431,10 +431,10 @@ public class IntersectionEventTopology
 
 
         // Perform Analytics on Lane direction of Travel Events
-        KStream<BsmEventIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
                 String rsuId = key.getRsuId();
-                List<KeyValue<BsmEventIntersectionKey, LaneDirectionOfTravelEvent>> result = new ArrayList<>();
+                List<KeyValue<RsuIntersectionKey, LaneDirectionOfTravelEvent>> result = new ArrayList<>();
                 if(value.getBsms().getBsms().size() > 2){
                     double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
                     double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
@@ -458,16 +458,16 @@ public class IntersectionEventTopology
         logger.info("LaneDirectionOfTravelEventStream: {}", laneDirectionOfTravelEventStream);
         laneDirectionOfTravelEventStream.to(
             conflictMonitorProps.getKafkaTopicCmLaneDirectionOfTravelEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.LaneDirectionOfTravelEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, LaneDirectionOfTravelEvent>()));
+                    new RsuIdPartitioner<RsuIntersectionKey, LaneDirectionOfTravelEvent>()));
 
         
 
         // Perform Analytics on Lane direction of Travel Events
-        KStream<BsmEventIntersectionKey, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                List<KeyValue<BsmEventIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
+                List<KeyValue<RsuIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
                 if(value.getBsms().getBsms().size() > 2){
                     VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
@@ -487,15 +487,16 @@ public class IntersectionEventTopology
 
         connectionTravelEventsStream.to(
             conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.ConnectionOfTravelEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, ConnectionOfTravelEvent>()));
+                    new RsuIdPartitioner<RsuIntersectionKey, ConnectionOfTravelEvent>()));
 
 
         // Perform Analytics of Signal State Vehicle Crossing Intersection
-        KStream<BsmEventIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                List<KeyValue<BsmEventIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
+                List<KeyValue<RsuIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
+
                 if(value.getBsms().getBsms().size() > 2){
                     VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
 
@@ -514,17 +515,17 @@ public class IntersectionEventTopology
 
         stopLinePassageEventStream.to(
             conflictMonitorProps.getKafkaTopicCmSignalStateEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLinePassageEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, StopLinePassageEvent>())
+                    new RsuIdPartitioner<RsuIntersectionKey, StopLinePassageEvent>())
                 );
 
 
 
         // Perform Analytics of Stop Line Stop Events
-        KStream<BsmEventIntersectionKey, StopLineStopEvent> stopLineStopEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, StopLineStopEvent> stopLineStopEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                List<KeyValue<BsmEventIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
+                List<KeyValue<RsuIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
                 if(value.getBsms().getBsms().size() >2){
                     VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLineStopParameters.getHeadingTolerance());
 
@@ -543,9 +544,9 @@ public class IntersectionEventTopology
 
         stopLineStopEventStream.to(
             conflictMonitorProps.getKafakTopicCmVehicleStopEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLineStopEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, StopLineStopEvent>()));
+                    new RsuIdPartitioner<RsuIntersectionKey, StopLineStopEvent>()));
  
         Topology intersectionTopology = builder.build();
         Topology combinedTopology = null;

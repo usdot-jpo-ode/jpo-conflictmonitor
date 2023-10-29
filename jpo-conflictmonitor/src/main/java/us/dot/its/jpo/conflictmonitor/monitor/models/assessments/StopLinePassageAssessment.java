@@ -12,28 +12,28 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("CmSignalStateEventAssessment")
 @Getter
 @Setter
-public class SignalStateEventAssessment extends Assessment{
+public class StopLinePassageAssessment extends Assessment{
     private long timestamp;
-    private List<SignalStateEventAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();
+    private List<StopLinePassageAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();
 
-    public SignalStateEventAssessment(){
+    public StopLinePassageAssessment(){
         super("SignalStateEvent");
     }
 
 
 
     @JsonIgnore
-    public SignalStateEventAssessment add(StopLinePassageEvent event){
+    public StopLinePassageAssessment add(StopLinePassageEvent event){
         if(this.signalStateEventAssessmentGroup == null){
             signalStateEventAssessmentGroup = new ArrayList<>();
         }
-        for(SignalStateEventAssessmentGroup group : this.signalStateEventAssessmentGroup){
+        for(StopLinePassageAssessmentGroup group : this.signalStateEventAssessmentGroup){
             if(group.getSignalGroup() == event.getSignalGroup()){
                 group.addSignalStateEvent(event);
                 return this;
             }
         }
-        SignalStateEventAssessmentGroup group = new SignalStateEventAssessmentGroup();
+        StopLinePassageAssessmentGroup group = new StopLinePassageAssessmentGroup();
         group.setSignalGroup(event.getSignalGroup());
         group.addSignalStateEvent(event);
         this.signalStateEventAssessmentGroup.add(group);

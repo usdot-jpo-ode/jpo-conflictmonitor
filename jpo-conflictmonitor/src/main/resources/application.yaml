@@ -143,6 +143,10 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmAssessment
       cleanupPolicy: compact
+    - name: topic.CmStopLineStopAssessment
+      cleanupPolicy: compact
+    - name: topic.CmStopLineStopNotification
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -313,6 +317,20 @@ signal.state.event.assessment:
   signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  # minimumEventsToNotify: 10
+  # greenLightPercentToNotify: 0.1
+  # stopLinePassageNotificationOutputTopicName: topic.CmStopLineStopNotification
+
+stop.line.stop.assessment:
+  algorithm: defaultStopLineStopAssessmentAlgorithm
+  debug: false
+  stopLineStopEventTopicName: topic.CmStopLineStopEvent
+  stopLineStopAssessmentOutputTopicName: topic.CmStopLineStopAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+  minimumEventsToNotify: 10
+  greenLightPercentToNotify: 0.1
+  stopLineStopNotificationOutputTopicName: topic.CmStopLineStopNotification
 
 # Signal State Vehicle Crosses Analytics
 signal.state.vehicle.crosses:

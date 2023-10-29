@@ -73,6 +73,8 @@ declare -A CmConnectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAss
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
 declare -A CmSignalStateEventAssessment=([name]="topic.CmSignalStateEventAssessment" [collection]="CmSignalStateEventAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
+declare -A CmStopLineStopAssessment=([name]="topic.CmStopLineStopAssessment" [collection]="CmStopLineStopAssessment"
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
 
 
 # Record Notifications
@@ -89,6 +91,8 @@ declare -A CmSignalStateConflictNotification=([name]="topic.CmSignalStateConflic
 declare -A CmSignalGroupAlignmentNotification=([name]="topic.CmSignalGroupAlignmentNotification" [collection]="CmSignalGroupAlignmentNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
 declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key")
+declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key")
 
 function createSink() {
@@ -185,6 +189,7 @@ createSink CMBsmEvents
 createSink CmLaneDirectionOfTravelAssessment
 createSink CmConnectionOfTravelAssessment
 createSink CmSignalStateEventAssessment
+createSink CmStopLineStopAssessment
 
 createSink CmSpatTimeChangeDetailsNotification
 createSink CmLaneDirectionOfTravelNotification
@@ -193,6 +198,8 @@ createSink CmAppHealthNotifications
 createSink CmSignalStateConflictNotification
 createSink CmSignalGroupAlignmentNotification
 createSink CmNotification
+createSink CmStopLineStopNotification
+
 
 echo "----------------------------------"
 echo "Kafka connector creation complete!"
