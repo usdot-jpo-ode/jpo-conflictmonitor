@@ -241,7 +241,10 @@ public class MonitorServiceController {
 
 
 
-            // // the message ingest topology tracks and stores incoming messages for further processing
+            // Get Algorithms used by intersection event topology
+
+            // The message ingest topology tracks and stores incoming messages for further processing
+            // It is a sub-topology of the IntersectionEvent Topology
             final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
             final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
             final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
@@ -249,9 +252,8 @@ public class MonitorServiceController {
             messageIngestAlgorithm.setMapIndex(mapIndex);
             messageIngestAlgorithm.setParameters(messageIngestParams);
 
-
-            //BSM Topology sends a message every time a vehicle drives through the intersection.
-            // Add BSM Event topology to intersection topology
+            // BSM Topology sends a message every time a vehicle drives through the intersection.
+            // It is a sub-topology of the IntersectionEvent Topology
             final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
             final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
             final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
@@ -259,10 +261,6 @@ public class MonitorServiceController {
             bsmEventAlgorithm.setMapIndex(mapIndex);
             bsmEventAlgorithm.setParameters(bsmEventParams);
             
-
-            
-            // Get Algorithms used by intersection event topology
-
             // Setup Lane Direction of Travel Factory
             final LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
             final String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
