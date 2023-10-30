@@ -5,7 +5,7 @@ import org.apache.kafka.streams.Topology;
 import org.slf4j.Logger;
 
 /**
- * Base class for a chained topology builders to build part of
+ * Base class for an algorithm implemented as a chained topology builder to build part of
  * a larger topology.
  *
  * @param <TParams>

@@ -4,7 +4,6 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.*;
 import org.slf4j.Logger;
@@ -60,8 +59,6 @@ public class MessageIngestTopology
                     JsonSerdes.BsmIntersectionKey(),
                     JsonSerdes.OdeBsm())
                     .withTimestampExtractor(new BsmTimestampExtractor())
-                    .withOffsetResetPolicy(Topology.AutoOffsetReset.LATEST)
-                    .withName(BsmEventTopology.BSM_SOURCE)  // Known name to link to BsmEvent Processor
                 );
 
 

@@ -52,22 +52,13 @@ public class BsmEventTopologyTest {
         var bsmEventTopology = new BsmEventTopology();
         bsmEventTopology.setParameters(parameters);
         bsmEventTopology.setPunctuationType(PunctuationType.STREAM_TIME);
-        //var streamsProperties = new Properties();
-        //bsmEventTopology.setStreamsProperties(streamsProperties);
+        var streamsProperties = new Properties();
+        bsmEventTopology.setStreamsProperties(streamsProperties);
         var mapIndex = new MapIndex();
         bsmEventTopology.setMapIndex(mapIndex);
         bsmEventTopology.validate();
 
-        Topology topology = new Topology();
-
-        // Add BSM source for testing.
-        // In normal operation this source is added by the MessageIngestTopology that this is embedded in.
-        topology.addSource(Topology.AutoOffsetReset.LATEST, BsmEventTopology.BSM_SOURCE, new BsmTimestampExtractor(),
-                JsonSerdes.BsmIntersectionKey().deserializer(), JsonSerdes.OdeBsm().deserializer(),
-                parameters.getInputTopic());
-
-        topology = bsmEventTopology.buildTopology(topology);
-
+        Topology topology = bsmEventTopology.buildTopology();
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
             
             var inputTopic = driver.createInputTopic(inputTopicName,

@@ -21,8 +21,6 @@ import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
@@ -66,7 +64,6 @@ public class IntersectionEventTopology
     ConflictMonitorProperties conflictMonitorProps;
 
 
-    BsmEventAlgorithm bsmEventAlgorithm;
     MessageIngestAlgorithm messageIngestAlgorithm;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
@@ -89,8 +86,6 @@ public class IntersectionEventTopology
     protected void validate() {
         if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");
 
-        if (bsmEventAlgorithm == null) throw new IllegalStateException("BsmEventAlgorithm is not set.");
-        if (!(bsmEventAlgorithm instanceof BsmEventStreamsAlgorithm)) throw new IllegalStateException("Non-KafkaStreams BsmEventAlgorithm is not supported.");
         if (messageIngestAlgorithm == null) throw new IllegalStateException("MessageIngestAlgorithm is not set.");
         if (!(messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm)) throw new IllegalStateException("Non-KafkaStreams MessageIngestAlgorithm is not supported.");
         if (laneDirectionOfTravelAlgorithm == null) throw new IllegalStateException("LaneDirectionOfTravelAlgorithm is not set");
@@ -120,19 +115,7 @@ public class IntersectionEventTopology
     }
 
 
-    @Override
-    public BsmEventAlgorithm getBsmEventAlgorithm() {
-        return bsmEventAlgorithm;
-    }
-
-
-
-    @Override
-    public void setBsmEventAlgorithm(BsmEventAlgorithm bsmEventAlgorithm) {
-        this.bsmEventAlgorithm = bsmEventAlgorithm;
-    }
-
-    @Override
+     @Override
     public MessageIngestAlgorithm getMessageIngestAlgorithm() {
         return messageIngestAlgorithm;
     }
@@ -530,13 +513,7 @@ public class IntersectionEventTopology
                     JsonSerdes.StopLineStopEvent(),
                     new RsuIdPartitioner<RsuIntersectionKey, StopLineStopEvent>()));
  
-        Topology intersectionTopology = builder.build();
-        Topology combinedTopology = null;
-        if (bsmEventAlgorithm instanceof BsmEventStreamsAlgorithm) {
-            var bsmEventStreamsAlgorithm = (BsmEventStreamsAlgorithm)bsmEventAlgorithm;
-            combinedTopology = bsmEventStreamsAlgorithm.buildTopology(intersectionTopology);
-        }
-        return combinedTopology;
+       return builder.build();
     }
 
 

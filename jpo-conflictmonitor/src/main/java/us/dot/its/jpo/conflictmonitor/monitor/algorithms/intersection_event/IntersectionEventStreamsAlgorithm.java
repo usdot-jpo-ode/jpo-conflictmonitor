@@ -19,8 +19,5 @@ public interface IntersectionEventStreamsAlgorithm
     ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore();
     ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore();
 
-//    void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore);
-//    void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore);
-//    void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore);
 
 }

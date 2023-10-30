@@ -303,7 +303,6 @@ public class MonitorServiceController {
             final String intersectionAlgoKey = conflictMonitorProps.getIntersectionEventAlgorithm();
             final IntersectionEventAlgorithm intersectionAlgo = intersectionAlgoFactory.getAlgorithm(intersectionAlgoKey);
             intersectionAlgo.setConflictMonitorProperties(conflictMonitorProps);
-            intersectionAlgo.setBsmEventAlgorithm(bsmEventAlgorithm);
             intersectionAlgo.setMessageIngestAlgorithm(messageIngestAlgorithm);
             intersectionAlgo.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
             intersectionAlgo.setLaneDirectionOfTravelParams(ldotParams);
