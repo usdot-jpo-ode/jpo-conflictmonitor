@@ -241,6 +241,26 @@ public class MonitorServiceController {
 
 
 
+            //BSM Topology sends a message every time a vehicle drives through the intersection.
+            final String bsmEvent = "bsmEvent";
+            final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
+            final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
+            final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
+            final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
+            bsmEventAlgorithm.setMapIndex(mapIndex);
+            if (bsmEventAlgorithm instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)bsmEventAlgorithm;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmEvent));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmEvent, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmEvent, healthTopic));
+                algoMap.put(bsmEvent, streamsAlgo);
+            }
+            bsmEventAlgorithm.setParameters(bsmEventParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(bsmEventAlgorithm::stop));
+            bsmEventAlgorithm.start();
+
+
+
             // Get Algorithms used by intersection event topology
 
             // The message ingest topology tracks and stores incoming messages for further processing
@@ -251,15 +271,6 @@ public class MonitorServiceController {
             final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
             messageIngestAlgorithm.setMapIndex(mapIndex);
             messageIngestAlgorithm.setParameters(messageIngestParams);
-
-            // BSM Topology sends a message every time a vehicle drives through the intersection.
-            // It is a sub-topology of the IntersectionEvent Topology
-            final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
-            final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
-            final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
-            final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
-            bsmEventAlgorithm.setMapIndex(mapIndex);
-            bsmEventAlgorithm.setParameters(bsmEventParams);
             
             // Setup Lane Direction of Travel Factory
             final LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();

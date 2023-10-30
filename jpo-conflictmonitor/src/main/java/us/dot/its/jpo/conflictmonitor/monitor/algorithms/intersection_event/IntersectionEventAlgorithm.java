@@ -17,7 +17,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLine
 public interface IntersectionEventAlgorithm extends ExecutableAlgorithm { 
     
     ConflictMonitorProperties getConflictMonitorProperties();
-    BsmEventAlgorithm getBsmEventAlgorithm();
     MessageIngestAlgorithm getMessageIngestAlgorithm();
     LaneDirectionOfTravelAlgorithm getLaneDirectionOfTravelAlgorithm();
     LaneDirectionOfTravelParameters getLaneDirectionOfTravelParams();
@@ -29,7 +28,6 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     StopLineStopParameters getStopLineStopParameters();
 
     void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps);
-    void setBsmEventAlgorithm(BsmEventAlgorithm bsmEventAlgorithm);
     void setMessageIngestAlgorithm(MessageIngestAlgorithm messageIngestAlgorithm);
     void setLaneDirectionOfTravelAlgorithm(LaneDirectionOfTravelAlgorithm laneAlgorithm);
     void setLaneDirectionOfTravelParams(LaneDirectionOfTravelParameters laneParams);

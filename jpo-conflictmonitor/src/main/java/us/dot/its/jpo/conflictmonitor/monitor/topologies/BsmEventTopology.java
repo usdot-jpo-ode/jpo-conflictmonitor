@@ -10,7 +10,7 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseTopologyBuilder;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -25,22 +25,30 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEve
 
 @Component(DEFAULT_BSM_EVENT_ALGORITHM)
 public class BsmEventTopology
-        extends BaseTopologyBuilder<BsmEventParameters>
+        extends BaseStreamsTopology<BsmEventParameters>
         implements BsmEventStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventTopology.class);
-
-    public final static String BSM_SOURCE = "BSM_Event_Source";
-    final String BSM_PROCESSOR = "BSM_Event_Processor";
-    final String BSM_SINK = "BSM_Event_Sink";
-
     
     // Tracks when a new stream of BSMS arrives through the system. Once the stream of BSM's ends, emits an event
     // containing the start and end BSM's in the chain.
-    public Topology buildTopology(Topology bsmEventBuilder) {
+    public Topology buildTopology() {
+
+        Topology bsmEventBuilder = new Topology();
+
+        final String BSM_SOURCE = "BSM Event Source";
+        final String BSM_PROCESSOR = "BSM Event Processor";
+        final String BSM_SINK = "BSM Event Sink";
 
 
-        // BSM_SOURCE is created in MessageIngestTopology
+
+
+
+        bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(),
+                JsonSerdes.BsmIntersectionKey().deserializer(), JsonSerdes.OdeBsm().deserializer(),
+                parameters.getInputTopic());
+
+
 
 
         bsmEventBuilder.addProcessor(BSM_PROCESSOR,
@@ -53,8 +61,6 @@ public class BsmEventTopology
                         return processor;
                     },
                 BSM_SOURCE);
-
-
 
         bsmEventBuilder.addSink(
                 BSM_SINK,
@@ -105,11 +111,14 @@ public class BsmEventTopology
     }
 
 
+
     @Override
-    public void validate() {
+    protected void validate() {
+        super.validate();
         if (mapIndex == null) {
             throw new IllegalArgumentException("MapIndex is not set");
         }
     }
+
 
 }
