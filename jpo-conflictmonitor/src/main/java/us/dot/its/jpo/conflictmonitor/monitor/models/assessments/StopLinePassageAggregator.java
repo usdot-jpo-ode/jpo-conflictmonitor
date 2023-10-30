@@ -65,6 +65,7 @@ public class StopLinePassageAggregator {
                 signalGroup = new StopLinePassageAssessmentGroup();
                 assessmentGroups.add(signalGroup);
                 signalGroupLookup.put(event.getSignalGroup(),signalGroup);
+                signalGroup.setSignalGroup(event.getSignalGroup());
             }
             signalGroup.addSignalStateEvent(event);
             
