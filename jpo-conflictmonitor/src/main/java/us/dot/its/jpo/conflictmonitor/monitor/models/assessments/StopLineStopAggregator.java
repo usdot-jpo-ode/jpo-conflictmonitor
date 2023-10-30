@@ -68,6 +68,7 @@ public class StopLineStopAggregator {
             StopLineStopAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
             if(signalGroup == null){
                 signalGroup = new StopLineStopAssessmentGroup();
+                signalGroup.setSignalGroup(event.getSignalGroup());
                 assessmentGroups.add(signalGroup);
                 signalGroupLookup.put(event.getSignalGroup(),signalGroup);
             }

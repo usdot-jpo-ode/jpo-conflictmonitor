@@ -75,6 +75,7 @@ public class MapBoundingBox {
         return envelope;
     }
 
+    @JsonIgnore
     public org.locationtech.jts.geom.Polygon boundingPolygon() {
         Envelope envelope = envelope();
         var minX = envelope.getMinX();
