@@ -65,8 +65,10 @@ public class IntersectionEventTopologyTest {
 
     @Mock
     BsmEventStreamsAlgorithm bsmEventAlgorithm;
+
     @Mock
     MessageIngestStreamsAlgorithm messageIngestAlgorithm;
+
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParameters = new LaneDirectionOfTravelParameters();
     @Mock ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -84,6 +86,10 @@ public class IntersectionEventTopologyTest {
 
     @Test
     public void testIntersectionEventTopology() {
+
+        // Return builder inputs unchanged for embedded topologies
+        when(messageIngestAlgorithm.buildTopology(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(bsmEventAlgorithm.buildTopology(any())).thenAnswer(i -> i.getArguments()[0]);
 
         final var startBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId.getBsmId());
         final var endBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId.getBsmId());
