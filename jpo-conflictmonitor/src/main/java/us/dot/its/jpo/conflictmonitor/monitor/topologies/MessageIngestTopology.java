@@ -1,31 +1,18 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.KGroupedStream;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Printed;
-import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.TimeWindows;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
-import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StoreQueryParameters;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseTopologyBuilder;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
@@ -42,10 +29,6 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestConstants.DEFAULT_MESSAGE_INGEST_ALGORITHM;
 
@@ -55,11 +38,11 @@ public class MessageIngestTopology
         implements MessageIngestStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
-    private int count = 0;
+    //private int count = 0;
     
     public StreamsBuilder buildTopology(StreamsBuilder builder) {
 
-        //StreamsBuilder builder = new StreamsBuilder();
+
         
         /*
          * 
@@ -110,7 +93,9 @@ public class MessageIngestTopology
         );
 
         // Check partition of windowed data
-        bsmWindowed.toStream().process(() -> new DiagnosticProcessor<>("Windowed BSMs", logger));
+        if (parameters.isDebug()) {
+            bsmWindowed.toStream().process(() -> new DiagnosticProcessor<>("Windowed BSMs", logger));
+        }
 
 
          /*
@@ -140,7 +125,9 @@ public class MessageIngestTopology
                         }
                     });
 
-        processedSpatStream.process(() -> new DiagnosticProcessor<>("ProcessedSpats", logger));
+        if (parameters.isDebug()) {
+            processedSpatStream.process(() -> new DiagnosticProcessor<>("ProcessedSpats", logger));
+        }
 
         // Group up all of the Spats's based upon the new key. Generally speaking this shouldn't change anything as the Spats's have unique keys
         KGroupedStream<RsuIntersectionKey, ProcessedSpat> spatKeyGroup =
@@ -166,7 +153,9 @@ public class MessageIngestTopology
                     .withRetention(Duration.ofMinutes(5))
         );
 
-        spatWindowed.toStream().process(() -> new DiagnosticProcessor<>("Windowed SPATs", logger));
+        if (parameters.isDebug()) {
+            spatWindowed.toStream().process(() -> new DiagnosticProcessor<>("Windowed SPATs", logger));
+        }
 
         //
         //  MAP MESSAGES

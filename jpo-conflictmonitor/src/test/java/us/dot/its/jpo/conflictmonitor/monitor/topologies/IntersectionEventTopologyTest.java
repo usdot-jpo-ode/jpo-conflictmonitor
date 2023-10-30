@@ -13,10 +13,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
@@ -61,6 +63,10 @@ public class IntersectionEventTopologyTest {
     @Mock KeyValueIterator<Windowed<String>, ProcessedSpat> spatWindowStoreIterator;
     @Mock ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
 
+    @Mock
+    BsmEventStreamsAlgorithm bsmEventAlgorithm;
+    @Mock
+    MessageIngestStreamsAlgorithm messageIngestAlgorithm;
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParameters = new LaneDirectionOfTravelParameters();
     @Mock ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -109,9 +115,9 @@ public class IntersectionEventTopologyTest {
         //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
 
         final var map = new ProcessedMap<LineString>();
-//        when(mapStore.get(anyString())).thenReturn(map);
-        //intersectionEventTopology.setMapStore(mapStore);
 
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -149,40 +155,18 @@ public class IntersectionEventTopologyTest {
     @Test(expected = IllegalStateException.class)
     public void testValidate_StreamsProperties() {
         var intersectionEventTopology = new IntersectionEventTopology();
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.validate();
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testValidate_BsmWindowStore() {
-        var intersectionEventTopology = new IntersectionEventTopology();
-        intersectionEventTopology.setStreamsProperties(streamsProperties);
-        intersectionEventTopology.validate();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testValidate_SpatWindowStore() {
-        var intersectionEventTopology = new IntersectionEventTopology();
-        intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        intersectionEventTopology.validate();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testValidate_MapStore() {
-        var intersectionEventTopology = new IntersectionEventTopology();
-        intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-        intersectionEventTopology.validate();
-    }
 
     @Test(expected = IllegalStateException.class)
     public void testValidate_LaneDirectionOfTravelAlgorithm() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-        //intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.validate();
     }
 
@@ -190,9 +174,8 @@ public class IntersectionEventTopologyTest {
     public void testValidate_LaneDirectionOfTravelParams() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-        //intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.validate();
     }
@@ -201,9 +184,8 @@ public class IntersectionEventTopologyTest {
     public void testValidate_ConnectionOfTravelAlgorithm() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-        //intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.validate();
@@ -213,9 +195,8 @@ public class IntersectionEventTopologyTest {
     public void testValidate_ConnectionOfTravelParams() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-        //intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -226,9 +207,8 @@ public class IntersectionEventTopologyTest {
     public void testValidate_SignalStateVehicleCrossesAlgorithm() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-        //intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-        //intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-        //intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -240,9 +220,8 @@ public class IntersectionEventTopologyTest {
     public void testValidate_SignalStateVehicleCrossesParams() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-//        intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-//        intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-//        intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -255,9 +234,9 @@ public class IntersectionEventTopologyTest {
     public void testValidate_SignalStateVehicleStopsAlgorithm() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-//        intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-//        intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-//        intersectionEventTopology.setMapStore(mapStore);
+
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -271,9 +250,9 @@ public class IntersectionEventTopologyTest {
     public void testValidate_SignalStateVehicleStopsParameters() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-//        intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-//        intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-//        intersectionEventTopology.setMapStore(mapStore);
+
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -288,9 +267,9 @@ public class IntersectionEventTopologyTest {
     public void testValidate_AlreadyRunning() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-//        intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-//        intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-//        intersectionEventTopology.setMapStore(mapStore);
+
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -311,9 +290,8 @@ public class IntersectionEventTopologyTest {
     public void testValidate() {
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setStreamsProperties(streamsProperties);
-//        intersectionEventTopology.setBsmWindowStore(bsmWindowStore);
-//        intersectionEventTopology.setSpatWindowStore(spatWindowStore);
-//        intersectionEventTopology.setMapStore(mapStore);
+        intersectionEventTopology.setBsmEventAlgorithm(bsmEventAlgorithm);
+        intersectionEventTopology.setMessageIngestAlgorithm(messageIngestAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
         intersectionEventTopology.setLaneDirectionOfTravelParams(laneDirectionOfTravelParameters);
         intersectionEventTopology.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -322,12 +300,12 @@ public class IntersectionEventTopologyTest {
         intersectionEventTopology.setStopLinePassageParameters(signalStateVehicleCrossesParameters);
         intersectionEventTopology.setSignalStateVehicleStopsAlgorithm(signalStateVehicleStopsAlgorithm);
         intersectionEventTopology.setStopLineStopParameters(signalStateVehicleStopsParameters);
+
         intersectionEventTopology.validate();
 
         assertThat(intersectionEventTopology.getStreamsProperties(), notNullValue());
-        assertThat(intersectionEventTopology.getBsmWindowStore(), notNullValue());
-        assertThat(intersectionEventTopology.getSpatWindowStore(), notNullValue());
-        assertThat(intersectionEventTopology.getMapStore(), notNullValue());
+        assertThat(intersectionEventTopology.getBsmEventAlgorithm(), notNullValue());
+        assertThat(intersectionEventTopology.getMessageIngestAlgorithm(), notNullValue());
         assertThat(intersectionEventTopology.getLaneDirectionOfTravelAlgorithm(), notNullValue());
         assertThat(intersectionEventTopology.getLaneDirectionOfTravelParams(), notNullValue());
         assertThat(intersectionEventTopology.getConnectionOfTravelAlgorithm(), notNullValue());

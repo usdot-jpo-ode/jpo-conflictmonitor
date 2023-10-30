@@ -11,7 +11,6 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Windowed;
-import org.apache.kafka.streams.processor.api.*;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
@@ -66,9 +65,7 @@ public class IntersectionEventTopology
 
     ConflictMonitorProperties conflictMonitorProps;
 
-//    ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore;
-//    ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
-//    ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
+
     BsmEventAlgorithm bsmEventAlgorithm;
     MessageIngestAlgorithm messageIngestAlgorithm;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
@@ -91,9 +88,7 @@ public class IntersectionEventTopology
     @Override
     protected void validate() {
         if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");
-//        if (bsmWindowStore == null) throw new IllegalStateException("bsmWindowStore is not set.");
-//        if (spatWindowStore == null) throw new IllegalStateException("spatWindowStore is not set.");
-//        if (mapStore == null) throw new IllegalStateException("mapStore is not set.");
+
         if (bsmEventAlgorithm == null) throw new IllegalStateException("BsmEventAlgorithm is not set.");
         if (!(bsmEventAlgorithm instanceof BsmEventStreamsAlgorithm)) throw new IllegalStateException("Non-KafkaStreams BsmEventAlgorithm is not supported.");
         if (messageIngestAlgorithm == null) throw new IllegalStateException("MessageIngestAlgorithm is not set.");
@@ -203,20 +198,7 @@ public class IntersectionEventTopology
         return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getMapStore(streams);
     }
 
-//    @Override
-//    public void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore) {
-//        this.bsmWindowStore = bsmStore;
-//    }
-//
-//    @Override
-//    public void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore) {
-//        this.spatWindowStore = spatStore;
-//    }
-//
-//    @Override
-//    public void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore) {
-//        this.mapStore = mapStore;
-//    }
+
 
 
     @Override
@@ -381,7 +363,7 @@ public class IntersectionEventTopology
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
 
-                ProcessedMap map = null;
+                ProcessedMap<LineString> map = null;
                 BsmAggregator bsms = getBsmsByTimeVehicle(getBsmWindowStore(), firstBsmTime, lastBsmTime, vehicleId);
 
                 SpatAggregator spats = getSpatByTime(getSpatWindowStore(), firstBsmTime, lastBsmTime, key.getIntersectionId());
