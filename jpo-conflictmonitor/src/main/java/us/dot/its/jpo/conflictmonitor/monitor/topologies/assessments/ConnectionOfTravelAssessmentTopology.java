@@ -122,11 +122,12 @@ public class ConnectionOfTravelAssessmentTopology
                 for(ConnectionOfTravelAssessmentGroup assessmentGroup: value.getConnectionOfTravelAssessmentGroups()){
                     if(assessmentGroup.getEventCount() >= parameters.getMinimumNumberOfEvents() && assessmentGroup.getConnectionID() < 0){
                         ConnectionOfTravelNotification notification = new ConnectionOfTravelNotification();
-                        notification.setAssessment(value);
-                        notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane: " + assessmentGroup.getIngressLaneID() + " and egress lane: " + assessmentGroup.getEgressLaneID()+".");
-                        notification.setNotificationHeading("Connection of Travel Notification");
                         notification.setIngressLane(assessmentGroup.getIngressLaneID());
                         notification.setEgressLane(assessmentGroup.getEgressLaneID());
+                        notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane: " + assessmentGroup.getIngressLaneID() + " and egress lane: " + assessmentGroup.getEgressLaneID()+".");
+                        notification.setNotificationHeading("Connection of Travel Notification");
+                        notification.setAssessment(value);
+                        
                         result.add(new KeyValue<>(key, notification));
                     }
                 }
