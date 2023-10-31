@@ -178,7 +178,6 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             List<ProcessedSpat> filteredSpats = SpatUtils.filterSpatsByTimestamp(spats.getSpats(), firstTimestamp, lastTimestamp);
 
             String spatDesc = SpatUtils.describeSpats(filteredSpats, signalGroup);
-            logger.info(spatDesc);
             SpatUtils.SpatStatistics spatStatistics = SpatUtils.getSpatStatistics(filteredSpats, signalGroup);
 
             event.setTimeStoppedDuringRed(spatStatistics.getTimeStoppedDuringRed());

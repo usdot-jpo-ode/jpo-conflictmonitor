@@ -125,6 +125,8 @@ public class ConnectionOfTravelAssessmentTopology
                         notification.setAssessment(value);
                         notification.setNotificationText("Connection of Travel Notification, Unknown Lane connection between ingress lane: " + assessmentGroup.getIngressLaneID() + " and egress lane: " + assessmentGroup.getEgressLaneID()+".");
                         notification.setNotificationHeading("Connection of Travel Notification");
+                        notification.setIngressLane(assessmentGroup.getIngressLaneID());
+                        notification.setEgressLane(assessmentGroup.getEgressLaneID());
                         result.add(new KeyValue<>(key, notification));
                     }
                 }
