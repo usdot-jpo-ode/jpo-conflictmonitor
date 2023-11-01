@@ -6,17 +6,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StopLinePassageAggregator {
     private ArrayList<StopLinePassageEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
-    private double tolerance;
-    private long messageDurationDays;
+    // private double tolerance;
+    // private long messageDurationDays;
 
     
 
@@ -34,22 +35,23 @@ public class StopLinePassageAggregator {
         }
         events.add(event);
 
+        return this;
+    }
+
+    @JsonIgnore
+    public StopLinePassageAssessment getSignalStateEventAssessment(long lookBackPeriodDays){
+
         List<StopLinePassageEvent> removeEvents = new ArrayList<>();
-
-
         for(StopLinePassageEvent previousEvents: this.events){
-            if(previousEvents.getTimestamp() + (messageDurationDays*24 * 3600*1000) < event.getTimestamp()){
+            if(previousEvents.getTimestamp() + (lookBackPeriodDays *24* 3600*1000) <  ZonedDateTime.now().toInstant().toEpochMilli()){
                 removeEvents.add(previousEvents);
             }else{
                 break;
             }
         }
         events.removeAll(removeEvents);
-        return this;
-    }
 
-    @JsonIgnore
-    public StopLinePassageAssessment getSignalStateEventAssessment(){
+
         StopLinePassageAssessment assessment = new StopLinePassageAssessment();
         ArrayList<StopLinePassageAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<Integer,StopLinePassageAssessmentGroup> signalGroupLookup = new HashMap<>(); // laneId, Segment Index
@@ -87,13 +89,13 @@ public class StopLinePassageAggregator {
         this.events = events;
     }
 
-    public double getTolerance() {
-        return tolerance;
-    }
+    // public double getTolerance() {
+    //     return tolerance;
+    // }
 
-    public void setTolerance(double tolerance) {
-        this.tolerance = tolerance;
-    }
+    // public void setTolerance(double tolerance) {
+    //     this.tolerance = tolerance;
+    // }
 
     public long getAggregatorCreationTime() {
         return aggregatorCreationTime;
@@ -103,13 +105,13 @@ public class StopLinePassageAggregator {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
 
-    public long getMessageDurationDays() {
-        return messageDurationDays;
-    }
+    // public long getMessageDurationDays() {
+    //     return messageDurationDays;
+    // }
 
-    public void setMessageDurationDays(long messageDurationDays) {
-        this.messageDurationDays = messageDurationDays;
-    }
+    // public void setMessageDurationDays(long messageDurationDays) {
+    //     this.messageDurationDays = messageDurationDays;
+    // }
 
     @Override
     public String toString() {

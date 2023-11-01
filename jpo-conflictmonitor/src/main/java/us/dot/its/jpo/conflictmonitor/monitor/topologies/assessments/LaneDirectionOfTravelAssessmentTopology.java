@@ -4,7 +4,6 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_o
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 
 

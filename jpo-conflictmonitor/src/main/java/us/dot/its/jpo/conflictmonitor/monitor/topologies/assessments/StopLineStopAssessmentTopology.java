@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.EventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessmentGroup;
@@ -59,9 +60,7 @@ public class StopLineStopAssessmentTopology
 
         Initializer<StopLineStopAggregator> stopLineStopAssessmentInitializer = ()->{
             StopLineStopAggregator agg = new StopLineStopAggregator();
-            agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
-
-            logger.info("Setting up Stop Line Stop Topology \n\n\n\n");
+            // agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
             return agg;
         };
 
@@ -86,11 +85,20 @@ public class StopLineStopAssessmentTopology
 
         
 
-        // Map the Windowed K Stream back to a Key Value Pair
-        KStream<String, StopLineStopAssessment> stopLineStopAssessmentStream = stopLineStopAssessments.toStream()
+        // Map the Windowed K Stream back to a Key Value Pair containing the assessment and the generating event.
+        KStream<String, EventAssessment> stopLineStopEventAssessmentStream = stopLineStopAssessments.toStream()
             .map((key, value) -> {
-                StopLineStopAssessment assessment = value.getStopLineStopAssessment();
-                assessment.setSource(key);
+                // StopLineStopAssessment assessment = value.getStopLineStopAssessment();
+                EventAssessment eventAssessment = value.getEventAssessmentPair(parameters.getLookBackPeriodDays());
+                eventAssessment.getAssessment().setSource(key);
+                return KeyValue.pair(key, eventAssessment);
+            }
+        );
+
+        // Split Apart the Assessment from the event to put back on a topic.
+        KStream<String, StopLineStopAssessment> stopLineStopAssessmentStream = stopLineStopEventAssessmentStream
+            .map((key, value) -> {
+                StopLineStopAssessment assessment = (StopLineStopAssessment)value.getAssessment();
                 return KeyValue.pair(key, assessment);
             }
         );
@@ -105,16 +113,22 @@ public class StopLineStopAssessmentTopology
         stopLineStopAssessmentStream.print(Printed.toSysOut());
 
 
-        KStream<String, StopLineStopNotification> notificationEventStream = stopLineStopAssessmentStream.flatMap(
+        KStream<String, StopLineStopNotification> notificationEventStream = stopLineStopEventAssessmentStream.flatMap(
             (key, value)->{
+
+
                 List<KeyValue<String, StopLineStopNotification>> result = new ArrayList<KeyValue<String, StopLineStopNotification>>();
-                
-                for(StopLineStopAssessmentGroup group: value.getStopLineStopAssessmentGroup()){
-                    if(group.getNumberOfEvents() >= parameters.getMinimumEventsToNotify()){
+                StopLineStopAssessment assessment = (StopLineStopAssessment) value.getAssessment();
+                StopLineStopEvent event = (StopLineStopEvent) value.getEvent();
+
+
+                for(StopLineStopAssessmentGroup group: assessment.getStopLineStopAssessmentGroup()){
+                    // Only Send Assessments that match the generating signal group.
+                    if(group.getSignalGroup() == event.getSignalGroup() && group.getNumberOfEvents() >= parameters.getMinimumEventsToNotify()){
                         double totalTime = group.getTimeStoppedOnDark() + group.getTimeStoppedOnGreen() + group.getTimeStoppedOnRed() + group.getTimeStoppedOnYellow();
                         if(group.getTimeStoppedOnGreen() > parameters.getGreenLightPercentToNotify() * totalTime){
                             StopLineStopNotification notification = new StopLineStopNotification();
-                            notification.setAssessment(value);
+                            notification.setAssessment(assessment);
                             notification.setNotificationText("Stop Line Stop Notification, Percent Time stopped on green: " + group.getTimeStoppedOnGreen() + "For Signal group: " + group.getSignalGroup() + " Exceeds Maximum Allowable Percent");
                             notification.setNotificationHeading("Stop Line Stop Notification");
                             result.add(new KeyValue<>(key, notification));
