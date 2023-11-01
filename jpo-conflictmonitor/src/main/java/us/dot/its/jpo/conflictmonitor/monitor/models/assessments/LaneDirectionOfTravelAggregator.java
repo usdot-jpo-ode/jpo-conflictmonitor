@@ -7,23 +7,20 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.EventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathFunctions;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LaneDirectionOfTravelAggregator {
     private ArrayList<LaneDirectionOfTravelEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
-    private double tolerance;
-    private double distanceFromCenterlineTolerance;
-    
-
-    private long messageDurationDays;
-
-    
 
     public LaneDirectionOfTravelAggregator(){
         this.aggregatorCreationTime = ZonedDateTime.now().toInstant().toEpochMilli();
@@ -32,21 +29,27 @@ public class LaneDirectionOfTravelAggregator {
     @JsonIgnore
     public LaneDirectionOfTravelAggregator add(LaneDirectionOfTravelEvent event){
         events.add(event);
-        List<LaneDirectionOfTravelEvent> removeEvents = new ArrayList<>();
+        
+        return this;
+    }
 
+
+    @JsonIgnore
+    public LaneDirectionOfTravelAssessment getLaneDirectionOfTravelAssessment(double tolerance, double distanceTolerance, long lookBackPeriodDays){
+
+
+        // Prune Events
+        List<LaneDirectionOfTravelEvent> removeEvents = new ArrayList<>();
         for(LaneDirectionOfTravelEvent previousEvents: this.events){
-            if(previousEvents.getTimestamp() + (messageDurationDays *24* 3600*1000) < event.getTimestamp()){
+            if(previousEvents.getTimestamp() + (lookBackPeriodDays *24* 3600*1000) <  ZonedDateTime.now().toInstant().toEpochMilli()){
                 removeEvents.add(previousEvents);
             }else{
                 break;
             }
         }
         events.removeAll(removeEvents);
-        return this;
-    }
 
-    @JsonIgnore
-    public LaneDirectionOfTravelAssessment getLaneDirectionOfTravelAssessment(){
+
         LaneDirectionOfTravelAssessment assessment = new LaneDirectionOfTravelAssessment();
         ArrayList<LaneDirectionOfTravelAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<Integer,HashMap<Integer,ArrayList<LaneDirectionOfTravelEvent>>> laneGroupLookup = new HashMap<>(); // laneId, Segment Index
@@ -111,7 +114,7 @@ public class LaneDirectionOfTravelAggregator {
                 group.setMedianHeading(MathFunctions.getMedian(headings));
                 group.setTolerance(tolerance);
                 group.setExpectedHeading(expectedHeading);
-                group.setDistanceFromCenterlineTolerance(distanceFromCenterlineTolerance);
+                group.setDistanceFromCenterlineTolerance(distanceTolerance);
                 assessmentGroups.add(group);
             }
         }
@@ -130,21 +133,21 @@ public class LaneDirectionOfTravelAggregator {
         this.events = events;
     }
 
-    public double getTolerance() {
-        return tolerance;
-    }
+    // public double getTolerance() {
+    //     return tolerance;
+    // }
 
-    public void setTolerance(double tolerance) {
-        this.tolerance = tolerance;
-    }
+    // public void setTolerance(double tolerance) {
+    //     this.tolerance = tolerance;
+    // }
 
-    public double getDistanceFromCenterlineTolerance() {
-        return distanceFromCenterlineTolerance;
-    }
+    // public double getDistanceFromCenterlineTolerance() {
+    //     return distanceFromCenterlineTolerance;
+    // }
 
-    public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
-        this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
-    }
+    // public void setDistanceFromCenterlineTolerance(double distanceFromCenterlineTolerance) {
+    //     this.distanceFromCenterlineTolerance = distanceFromCenterlineTolerance;
+    // }
 
     public long getAggregatorCreationTime() {
         return aggregatorCreationTime;
@@ -154,14 +157,23 @@ public class LaneDirectionOfTravelAggregator {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
 
-    public long getMessageDurationDays() {
-        return messageDurationDays;
-    }
+    // public long getMessageDurationDays() {
+    //     return messageDurationDays;
+    // }
 
-    public void setMessageDurationDays(long messageDurationDays) {
-        this.messageDurationDays = messageDurationDays;
-    }
+    // public void setMessageDurationDays(long messageDurationDays) {
+    //     this.messageDurationDays = messageDurationDays;
+    // }
 
+    @JsonIgnore
+    public EventAssessment getEventAssessmentPair(double tolerance, double distanceTolerance, long lookBackPeriodDays){
+        EventAssessment eventAssessment =  new EventAssessment();
+        eventAssessment.setAssessment(getLaneDirectionOfTravelAssessment(tolerance, distanceTolerance, lookBackPeriodDays));
+        if(this.events.size() >0){
+            eventAssessment.setEvent(this.events.get(this.events.size()-1));
+        }
+        return eventAssessment;
+    }
     
 
     @Override
