@@ -4,6 +4,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -14,7 +15,7 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 public interface IntersectionEventStreamsAlgorithm 
     extends IntersectionEventAlgorithm, StreamsTopology { 
 
-    ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> getBsmWindowStore();
+    ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> getBsmWindowStore();
     ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore();
     ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore();
 

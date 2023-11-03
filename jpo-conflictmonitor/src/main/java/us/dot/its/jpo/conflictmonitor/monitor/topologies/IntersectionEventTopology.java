@@ -168,7 +168,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> getBsmWindowStore() {
+    public ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> getBsmWindowStore() {
         return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getBsmWindowStore(streams);
     }
 
@@ -234,7 +234,7 @@ public class IntersectionEventTopology
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
-    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
         logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
 
         Instant timeFrom = start.minusSeconds(60);
@@ -243,12 +243,12 @@ public class IntersectionEventTopology
         long startMillis = start.toEpochMilli();
         long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<BsmRsuIdKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<BsmIntersectionIdKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
 
         BsmAggregator agg = new BsmAggregator();
 
         while(bsmRange.hasNext()){
-            KeyValue<Windowed<BsmRsuIdKey>, OdeBsmData> next = bsmRange.next();
+            KeyValue<Windowed<BsmIntersectionIdKey>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
@@ -310,14 +310,13 @@ public class IntersectionEventTopology
         }
 
         
-        KStream<BsmEventIntersectionKey, BsmEvent> bsmEventStream =
+        KStream<BsmIntersectionIdKey, BsmEvent> bsmEventStream =
             builder.stream(
                 conflictMonitorProps.getKafkaTopicCmBsmEvent(), 
                 Consumed.with(
-                    JsonSerdes.BsmEventIntersectionKey(),
+                    JsonSerdes.BsmIntersectionIdKey(),
                     JsonSerdes.BsmEvent())
                 )
-                    // Filter out BSM Events that aren't inside any MAP bounding box
                     .filter(
                             (key, value) -> value != null && value.isInMapBoundingBox()
             );
