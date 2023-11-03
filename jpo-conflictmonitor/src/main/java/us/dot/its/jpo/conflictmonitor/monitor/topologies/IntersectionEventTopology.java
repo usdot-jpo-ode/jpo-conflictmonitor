@@ -26,6 +26,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
@@ -39,6 +41,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTrave
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.DiagnosticProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -60,9 +63,8 @@ public class IntersectionEventTopology
 
     ConflictMonitorProperties conflictMonitorProps;
 
-    ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore;
-    ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
-    ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
+
+    MessageIngestAlgorithm messageIngestAlgorithm;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
     ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -83,9 +85,9 @@ public class IntersectionEventTopology
     @Override
     protected void validate() {
         if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");
-        if (bsmWindowStore == null) throw new IllegalStateException("bsmWindowStore is not set.");
-        if (spatWindowStore == null) throw new IllegalStateException("spatWindowStore is not set.");
-        if (mapStore == null) throw new IllegalStateException("mapStore is not set.");
+
+        if (messageIngestAlgorithm == null) throw new IllegalStateException("MessageIngestAlgorithm is not set.");
+        if (!(messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm)) throw new IllegalStateException("Non-KafkaStreams MessageIngestAlgorithm is not supported.");
         if (laneDirectionOfTravelAlgorithm == null) throw new IllegalStateException("LaneDirectionOfTravelAlgorithm is not set");
         if (laneDirectionOfTravelParams == null) throw new IllegalStateException("LaneDirectionOfTravelParameters is not set");
         if (connectionOfTravelAlgorithm == null) throw new IllegalStateException("ConnectionOfTravelAlgorithm is not set");
@@ -105,12 +107,23 @@ public class IntersectionEventTopology
         return conflictMonitorProps;
     }
 
+
+
     @Override
     public void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps) {
         this.conflictMonitorProps = conflictMonitorProps;
     }
 
 
+     @Override
+    public MessageIngestAlgorithm getMessageIngestAlgorithm() {
+        return messageIngestAlgorithm;
+    }
+
+    @Override
+    public void setMessageIngestAlgorithm(MessageIngestAlgorithm messageIngestAlgorithm) {
+        this.messageIngestAlgorithm = messageIngestAlgorithm;
+    }
 
 
     @Override
@@ -155,33 +168,20 @@ public class IntersectionEventTopology
 
     @Override
     public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore() {
-        return bsmWindowStore;
+        return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getBsmWindowStore(streams);
     }
 
     @Override
     public ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore() {
-        return spatWindowStore;
+        return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getSpatWindowStore(streams);
     }
 
     @Override
     public ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore() {
-        return mapStore;
+        return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getMapStore(streams);
     }
 
-    @Override
-    public void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore) {
-        this.bsmWindowStore = bsmStore;
-    }
 
-    @Override
-    public void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore) {
-        this.spatWindowStore = spatStore;
-    }
-
-    @Override
-    public void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore) {
-        this.mapStore = mapStore;
-    }
 
 
     @Override
@@ -303,6 +303,11 @@ public class IntersectionEventTopology
         
         StreamsBuilder builder = new StreamsBuilder();
 
+        if (messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm) {
+            var messageIngestStreamsAlgorithm = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
+            builder = messageIngestStreamsAlgorithm.buildTopology(builder);
+        }
+
         
         KStream<BsmEventIntersectionKey, BsmEvent> bsmEventStream =
             builder.stream(
@@ -317,7 +322,7 @@ public class IntersectionEventTopology
             );
 
         //bsmEventStream.print(Printed.toSysOut());
-
+        bsmEventStream.process(() -> new DiagnosticProcessor<>("bsmEventStream", logger));
 
 
  
@@ -341,10 +346,10 @@ public class IntersectionEventTopology
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
 
-                ProcessedMap map = null;
-                BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
+                ProcessedMap<LineString> map = null;
+                BsmAggregator bsms = getBsmsByTimeVehicle(getBsmWindowStore(), firstBsmTime, lastBsmTime, vehicleId);
 
-                SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
+                SpatAggregator spats = getSpatByTime(getSpatWindowStore(), firstBsmTime, lastBsmTime, key.getIntersectionId());
 
 
 
@@ -356,7 +361,7 @@ public class IntersectionEventTopology
                     rsuKey.setRsuId(key.getRsuId());
                     rsuKey.setIntersectionId(key.getIntersectionId());
 
-                    map = getMap(mapStore, rsuKey);
+                    map = getMap(getMapStore(), rsuKey);
 
                     
 
@@ -508,7 +513,7 @@ public class IntersectionEventTopology
                     JsonSerdes.StopLineStopEvent(),
                     new RsuIdPartitioner<RsuIntersectionKey, StopLineStopEvent>()));
  
-        return builder.build();
+       return builder.build();
     }
 
 

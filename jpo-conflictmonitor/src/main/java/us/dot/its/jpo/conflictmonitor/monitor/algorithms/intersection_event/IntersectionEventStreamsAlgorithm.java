@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event;
 
+import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 
@@ -18,8 +19,5 @@ public interface IntersectionEventStreamsAlgorithm
     ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore();
     ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore();
 
-    void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore);
-    void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore);
-    void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore);
 
 }

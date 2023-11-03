@@ -1,9 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
-import java.util.concurrent.ConcurrentHashMap;
-
+import lombok.Getter;
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +9,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
-
-import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
@@ -20,7 +16,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -40,13 +35,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
@@ -71,13 +65,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStore;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
-import us.dot.its.jpo.ode.model.OdeBsmData;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service
@@ -126,24 +119,6 @@ public class MonitorServiceController {
             algoMap.put(config, configTopology);
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.start();
-
-            // // the message ingest topology tracks and stores incoming messages for further processing
-            final String messageIngest = "messageIngest";
-            final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
-            final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
-            final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
-            final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
-            messageIngestAlgorithm.setMapIndex(mapIndex);
-            if (messageIngestAlgorithm instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
-                algoMap.put(messageIngest, streamsAlgo);
-            }
-            messageIngestAlgorithm.setParameters(messageIngestParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
-            messageIngestAlgorithm.start();
             
             
 
@@ -265,7 +240,8 @@ public class MonitorServiceController {
             mapSpatAlignmentAlgo.start();
 
 
-            //BSM Topology sends a message every time a vehicle drives through the intersection. 
+
+            //BSM Topology sends a message every time a vehicle drives through the intersection.
             final String bsmEvent = "bsmEvent";
             final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
             final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
@@ -284,13 +260,18 @@ public class MonitorServiceController {
             bsmEventAlgorithm.start();
 
 
-            
-            //Thread.sleep(20000);
-            
 
-            
             // Get Algorithms used by intersection event topology
 
+            // The message ingest topology tracks and stores incoming messages for further processing
+            // It is a sub-topology of the IntersectionEvent Topology
+            final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
+            final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
+            final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
+            final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
+            messageIngestAlgorithm.setMapIndex(mapIndex);
+            messageIngestAlgorithm.setParameters(messageIngestParams);
+            
             // Setup Lane Direction of Travel Factory
             final LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
             final String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
@@ -322,6 +303,7 @@ public class MonitorServiceController {
             final String intersectionAlgoKey = conflictMonitorProps.getIntersectionEventAlgorithm();
             final IntersectionEventAlgorithm intersectionAlgo = intersectionAlgoFactory.getAlgorithm(intersectionAlgoKey);
             intersectionAlgo.setConflictMonitorProperties(conflictMonitorProps);
+            intersectionAlgo.setMessageIngestAlgorithm(messageIngestAlgorithm);
             intersectionAlgo.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
             intersectionAlgo.setLaneDirectionOfTravelParams(ldotParams);
             intersectionAlgo.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -333,18 +315,6 @@ public class MonitorServiceController {
             if (intersectionAlgo instanceof IntersectionEventStreamsAlgorithm) {
                 final var streamsAlgo = (IntersectionEventStreamsAlgorithm)intersectionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(intersectionEvent));
-                if (messageIngestAlgorithm instanceof StreamsTopology) {
-                    final var messageIngestStreams = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
-                    final ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore = messageIngestStreams.getBsmWindowStore();
-
-                    Thread.sleep(20000);
-
-                    streamsAlgo.setBsmWindowStore(bsmWindowStore);
-                    streamsAlgo.setSpatWindowStore(messageIngestStreams.getSpatWindowStore());
-                    streamsAlgo.setMapStore(messageIngestStreams.getMapStore());
-                } else {
-                    logger.error("Message Ingest Algorithm is not a StreamsTopology.  Unable to set streams stores for IntersectionEventTopology.");
-                }
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, intersectionEvent, stateChangeTopic, healthTopic));
                 streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, intersectionEvent, healthTopic));
                 algoMap.put(intersectionEvent, streamsAlgo);
@@ -353,8 +323,6 @@ public class MonitorServiceController {
             intersectionAlgo.start();
             logger.info("Started intersectionEvent topology");
 
-
-            
 
 
             // Signal State Event Assessment Topology

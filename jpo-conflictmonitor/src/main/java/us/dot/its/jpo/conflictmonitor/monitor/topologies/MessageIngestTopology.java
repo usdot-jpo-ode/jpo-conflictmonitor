@@ -1,37 +1,24 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.KGroupedStream;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Printed;
-import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.TimeWindows;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
-import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndexedStateStoreSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.DiagnosticProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -41,24 +28,20 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestConstants.DEFAULT_MESSAGE_INGEST_ALGORITHM;
 
 @Component(DEFAULT_MESSAGE_INGEST_ALGORITHM)
 public class MessageIngestTopology
-        extends BaseStreamsTopology<MessageIngestParameters>
+        extends BaseStreamsBuilder<MessageIngestParameters>
         implements MessageIngestStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
-    private int count = 0;
+    //private int count = 0;
     
-    public Topology buildTopology() {
+    public StreamsBuilder buildTopology(StreamsBuilder builder) {
 
-        StreamsBuilder builder = new StreamsBuilder();
+
         
         /*
          * 
@@ -66,6 +49,7 @@ public class MessageIngestTopology
          *  BSM MESSAGES
          * 
          */
+
 
         //BSM Input Stream
         KStream<BsmIntersectionKey, OdeBsmData> bsmJsonStream =
@@ -77,37 +61,20 @@ public class MessageIngestTopology
                     .withTimestampExtractor(new BsmTimestampExtractor())
                 );
 
-        // bsmJsonStream.print(Printed.toSysOut());
+
         
 
         //Group up all of the BSM's based upon the new ID.
         KGroupedStream<BsmIntersectionKey, OdeBsmData> bsmKeyGroup =
                 bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionKey(), JsonSerdes.OdeBsm()));
 
-        // KStream<BsmIntersectionKey, OdeBsmData> vehicleEventsStream = bsmKeyGroup.flatMap(
-        //     (key, value)->{
-
-        //     count +=1;
-        //     System.out.println(count);
-        //     System.out.println(key);
-
-        //     List<KeyValue<BsmIntersectionKey, OdeBsmData>> result = new ArrayList<>();
-        //     return result;
-
-        // });
-
-        // bsmKeyGroup.print(Printed.toSysOut());
 
 
-        Map<String, String> loggingConfig = new HashMap<>();
-        // Set the directory where state store logs will be stored
-        // loggingConfig.put("directory", "/statestore.logs");
-        // // Set the retention time for the state store logs
-        // loggingConfig.put("retention.ms", "86400000");
+
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(60000)))
+        var bsmWindowed = bsmKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(60000)))
         .reduce(
             (oldValue, newValue)->{
                 System.out.println("Overwriting BSM");
@@ -121,6 +88,11 @@ public class MessageIngestTopology
                     .withLoggingDisabled()
                     .withRetention(Duration.ofMinutes(10))
         );
+
+        // Check partition of windowed data
+        if (parameters.isDebug()) {
+            bsmWindowed.toStream().process(() -> new DiagnosticProcessor<>("Windowed BSMs", logger));
+        }
 
 
          /*
@@ -149,7 +121,10 @@ public class MessageIngestTopology
                             return true;
                         }
                     });
-        
+
+        if (parameters.isDebug()) {
+            processedSpatStream.process(() -> new DiagnosticProcessor<>("ProcessedSpats", logger));
+        }
 
         // Group up all of the Spats's based upon the new key. Generally speaking this shouldn't change anything as the Spats's have unique keys
         KGroupedStream<RsuIntersectionKey, ProcessedSpat> spatKeyGroup =
@@ -162,7 +137,7 @@ public class MessageIngestTopology
 
         // //Take the Spats's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         // //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
-        spatKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(10000)))
+        var spatWindowed = spatKeyGroup.windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMillis(1), Duration.ofMillis(10000)))
         .reduce(
             (oldValue, newValue)->{
                     return newValue;
@@ -175,6 +150,9 @@ public class MessageIngestTopology
                     .withRetention(Duration.ofMinutes(5))
         );
 
+        if (parameters.isDebug()) {
+            spatWindowed.toStream().process(() -> new DiagnosticProcessor<>("Windowed SPATs", logger));
+        }
 
         //
         //  MAP MESSAGES
@@ -214,7 +192,7 @@ public class MessageIngestTopology
 
 
 
-        return builder.build();
+        return builder;
     }
 
 
@@ -228,19 +206,19 @@ public class MessageIngestTopology
 
 
     @Override
-    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore() {
+    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getBsmStoreName(), QueryableStoreTypes.windowStore()));
     }
 
     @Override
-    public ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore() {
+    public ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getSpatStoreName(), QueryableStoreTypes.windowStore()));
     }
 
     @Override
-    public ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore() {
+    public ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }
@@ -262,8 +240,7 @@ public class MessageIngestTopology
     }
 
     @Override
-    protected void validate() {
-        super.validate();
+    public void validate() {
         if (mapIndex == null) {
             throw new IllegalArgumentException("MapIndex is not set");
         }

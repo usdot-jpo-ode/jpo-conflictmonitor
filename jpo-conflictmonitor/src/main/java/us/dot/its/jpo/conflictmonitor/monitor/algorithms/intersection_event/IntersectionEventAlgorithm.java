@@ -6,6 +6,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
@@ -15,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLine
 public interface IntersectionEventAlgorithm extends ExecutableAlgorithm { 
     
     ConflictMonitorProperties getConflictMonitorProperties();
+    MessageIngestAlgorithm getMessageIngestAlgorithm();
     LaneDirectionOfTravelAlgorithm getLaneDirectionOfTravelAlgorithm();
     LaneDirectionOfTravelParameters getLaneDirectionOfTravelParams();
     ConnectionOfTravelAlgorithm getConnectionOfTravelAlgorithm();
@@ -25,6 +27,7 @@ public interface IntersectionEventAlgorithm extends ExecutableAlgorithm {
     StopLineStopParameters getStopLineStopParameters();
 
     void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps);
+    void setMessageIngestAlgorithm(MessageIngestAlgorithm messageIngestAlgorithm);
     void setLaneDirectionOfTravelAlgorithm(LaneDirectionOfTravelAlgorithm laneAlgorithm);
     void setLaneDirectionOfTravelParams(LaneDirectionOfTravelParameters laneParams);
     void setConnectionOfTravelAlgorithm(ConnectionOfTravelAlgorithm connTravelAlgorithm);
