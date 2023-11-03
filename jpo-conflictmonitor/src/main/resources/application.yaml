@@ -229,6 +229,7 @@ lane.direction.of.travel.assessment:
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
   headingToleranceDegrees: 20
+  distanceFromCenterlineToleranceCm: 100
 
 # MAP/SPAT Message Assessment
 map.spat.message.assessment:

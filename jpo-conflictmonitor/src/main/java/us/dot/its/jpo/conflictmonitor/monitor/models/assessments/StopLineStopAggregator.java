@@ -6,19 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.monitor.models.EventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StopLineStopAggregator {
     
     
     private ArrayList<StopLineStopEvent> events = new ArrayList<>();
-    private long messageDurationDays;
+    // private long messageDurationDays;
     private long aggregatorCreationTime;
 
     
@@ -37,24 +40,22 @@ public class StopLineStopAggregator {
             return this;
         }
         events.add(event);
+        return this;
+    }
+
+    @JsonIgnore
+    public StopLineStopAssessment getStopLineStopAssessment(long lookBackPeriodDays){
 
         List<StopLineStopEvent> removeEvents = new ArrayList<>();
-
-        System.out.println("Adding New Event to Aggregation");
-
         for(StopLineStopEvent previousEvents: this.events){
-            if(previousEvents.getFinalTimestamp() + (messageDurationDays*24 * 3600*1000) < event.getFinalTimestamp()){
+            if(previousEvents.getFinalTimestamp() + (lookBackPeriodDays *24* 3600*1000) <  ZonedDateTime.now().toInstant().toEpochMilli()){
                 removeEvents.add(previousEvents);
             }else{
                 break;
             }
         }
         events.removeAll(removeEvents);
-        return this;
-    }
 
-    @JsonIgnore
-    public StopLineStopAssessment getStopLineStopAssessment(){
         StopLineStopAssessment assessment = new StopLineStopAssessment();
         ArrayList<StopLineStopAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<Integer,StopLineStopAssessmentGroup> signalGroupLookup = new HashMap<>(); // laneId, Segment Index
@@ -68,6 +69,7 @@ public class StopLineStopAggregator {
             StopLineStopAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
             if(signalGroup == null){
                 signalGroup = new StopLineStopAssessmentGroup();
+                signalGroup.setSignalGroup(event.getSignalGroup());
                 assessmentGroups.add(signalGroup);
                 signalGroupLookup.put(event.getSignalGroup(),signalGroup);
             }
@@ -81,5 +83,15 @@ public class StopLineStopAggregator {
         assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
 
         return assessment;
+    }
+
+    @JsonIgnore
+    public EventAssessment getEventAssessmentPair(long lookBackPeriodDays){
+        EventAssessment eventAssessment = new EventAssessment();
+        eventAssessment.setAssessment(getStopLineStopAssessment(lookBackPeriodDays));
+        if(this.events.size() >0){
+            eventAssessment.setEvent(this.events.get(this.events.size()-1));
+        }
+        return eventAssessment;
     }
 }
