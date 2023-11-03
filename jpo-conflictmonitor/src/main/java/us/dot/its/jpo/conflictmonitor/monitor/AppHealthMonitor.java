@@ -43,7 +43,7 @@ import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
@@ -299,10 +299,10 @@ public class AppHealthMonitor {
         try (var bsmIterator = bsmWindowStore.all()) {
             while (bsmIterator.hasNext()) {
                 var kvp = bsmIterator.next();
-                Windowed<BsmIntersectionKey> key = kvp.key;
+                Windowed<BsmRsuIdKey> key = kvp.key;
                 Instant startTime = key.window().startTime();
                 Instant endTime = key.window().endTime();
-                BsmIntersectionKey theKey= key.key();
+                BsmRsuIdKey theKey= key.key();
                 OdeBsmData value = kvp.value;
                 // Integer intersectionId = value.();
                 String vehicleId = IntersectionEventTopology.getBsmID(value);

@@ -1,7 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,16 +12,16 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 @EqualsAndHashCode
 @Getter
 @Setter
-public class BsmIntersectionKey implements RsuIdKey {
+public class BsmRsuIdKey implements RsuIdKey {
 
-    private static final Logger logger = LoggerFactory.getLogger(BsmIntersectionKey.class);
+    private static final Logger logger = LoggerFactory.getLogger(BsmRsuIdKey.class);
 
     private String rsuId;
     private String bsmId;
 
-    public BsmIntersectionKey() {}
+    public BsmRsuIdKey() {}
 
-    public BsmIntersectionKey(String rsuId, String bsmId){
+    public BsmRsuIdKey(String rsuId, String bsmId){
         this.rsuId = rsuId;
         this.bsmId = bsmId;
     }

@@ -17,7 +17,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAgg
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
@@ -210,16 +211,22 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
     }
 
-    public static Serde<BsmIntersectionKey> BsmIntersectionKey() {
+    public static Serde<BsmRsuIdKey> BsmRsuIdKey() {
         return Serdes.serdeFrom(
-            new JsonSerializer<BsmIntersectionKey>(),
-            new JsonDeserializer<>(BsmIntersectionKey.class));
+            new JsonSerializer<BsmRsuIdKey>(),
+            new JsonDeserializer<>(BsmRsuIdKey.class));
     }
 
     public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
         return Serdes.serdeFrom(
                 new JsonSerializer<BsmEventIntersectionKey>(),
                 new JsonDeserializer<>(BsmEventIntersectionKey.class));
+    }
+
+    public static Serde<BsmIntersectionIdKey> BsmIntersectionIdKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<BsmIntersectionIdKey>(),
+                new JsonDeserializer<>(BsmIntersectionIdKey.class));
     }
 
     public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {

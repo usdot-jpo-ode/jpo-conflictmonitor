@@ -43,6 +43,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.DiagnosticProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -167,7 +168,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore() {
+    public ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> getBsmWindowStore() {
         return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getBsmWindowStore(streams);
     }
 
@@ -233,7 +234,7 @@ public class IntersectionEventTopology
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
-    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
         logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
 
         Instant timeFrom = start.minusSeconds(60);
@@ -242,12 +243,12 @@ public class IntersectionEventTopology
         long startMillis = start.toEpochMilli();
         long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<BsmIntersectionKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<BsmRsuIdKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
 
         BsmAggregator agg = new BsmAggregator();
 
         while(bsmRange.hasNext()){
-            KeyValue<Windowed<BsmIntersectionKey>, OdeBsmData> next = bsmRange.next();
+            KeyValue<Windowed<BsmRsuIdKey>, OdeBsmData> next = bsmRange.next();
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
             if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
                 agg.add(next.value);
@@ -425,7 +426,7 @@ public class IntersectionEventTopology
             conflictMonitorProps.getKafkaTopicCmLaneDirectionOfTravelEvent(), 
             Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.LaneDirectionOfTravelEvent(),
-                    new RsuIdPartitioner<RsuIntersectionKey, LaneDirectionOfTravelEvent>()));
+                    new IntersectionIdPartitioner<RsuIntersectionKey, LaneDirectionOfTravelEvent>()));
 
         
 
@@ -454,7 +455,7 @@ public class IntersectionEventTopology
             conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
             Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.ConnectionOfTravelEvent(),
-                    new RsuIdPartitioner<RsuIntersectionKey, ConnectionOfTravelEvent>()));
+                    new IntersectionIdPartitioner<RsuIntersectionKey, ConnectionOfTravelEvent>()));
 
 
         // Perform Analytics of Signal State Vehicle Crossing Intersection
@@ -482,7 +483,7 @@ public class IntersectionEventTopology
             conflictMonitorProps.getKafkaTopicCmSignalStateEvent(), 
             Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLinePassageEvent(),
-                    new RsuIdPartitioner<RsuIntersectionKey, StopLinePassageEvent>())
+                    new IntersectionIdPartitioner<RsuIntersectionKey, StopLinePassageEvent>())
                 );
 
 
@@ -511,7 +512,7 @@ public class IntersectionEventTopology
             conflictMonitorProps.getKafakTopicCmVehicleStopEvent(), 
             Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLineStopEvent(),
-                    new RsuIdPartitioner<RsuIntersectionKey, StopLineStopEvent>()));
+                    new IntersectionIdPartitioner<RsuIntersectionKey, StopLineStopEvent>()));
  
        return builder.build();
     }

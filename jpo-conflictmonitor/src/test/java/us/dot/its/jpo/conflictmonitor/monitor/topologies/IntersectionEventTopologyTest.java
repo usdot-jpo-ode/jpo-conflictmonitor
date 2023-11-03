@@ -25,7 +25,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 import us.dot.its.jpo.conflictmonitor.testutils.SpatTestUtils;
@@ -56,7 +56,7 @@ public class IntersectionEventTopologyTest {
 
 
     Properties streamsProperties = new Properties();
-    @Mock ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore;
+    @Mock ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> bsmWindowStore;
     @Mock KeyValueIterator<Windowed<String>, OdeBsmData> bsmWindowStoreIterator;
     @Mock ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
     @Mock KeyValueIterator<Windowed<String>, ProcessedSpat> spatWindowStoreIterator;
@@ -78,7 +78,7 @@ public class IntersectionEventTopologyTest {
 
     final long startMillis = 1682615309868L;
     final long endMillis = 1682615347488L;
-    final BsmIntersectionKey bsmId = new BsmIntersectionKey("127.0.0.1", "A0A0A0");
+    final BsmRsuIdKey bsmId = new BsmRsuIdKey("127.0.0.1", "A0A0A0");
 
     @Test
     public void testIntersectionEventTopology() {
@@ -135,7 +135,7 @@ public class IntersectionEventTopologyTest {
 
             var bsmInputTopic = driver.createInputTopic(
                     bsmEventTopic,
-                    JsonSerdes.BsmIntersectionKey().serializer(),
+                    JsonSerdes.BsmRsuIdKey().serializer(),
                     JsonSerdes.BsmEvent().serializer());
             var connectionOfTravelOutputTopic = driver.createOutputTopic(
                     connectionOfTravelTopic,

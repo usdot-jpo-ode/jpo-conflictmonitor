@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
@@ -20,7 +21,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.map.store.MapSpatiallyIndex
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.DiagnosticProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -52,11 +53,11 @@ public class MessageIngestTopology
 
 
         //BSM Input Stream
-        KStream<BsmIntersectionKey, OdeBsmData> bsmJsonStream =
+        KStream<BsmIntersectionIdKey, OdeBsmData> bsmJsonStream =
             builder.stream(
                 parameters.getBsmTopic(), 
                 Consumed.with(
-                    JsonSerdes.BsmIntersectionKey(),
+                    JsonSerdes.BsmIntersectionIdKey(),
                     JsonSerdes.OdeBsm())
                     .withTimestampExtractor(new BsmTimestampExtractor())
                 );
@@ -65,8 +66,8 @@ public class MessageIngestTopology
         
 
         //Group up all of the BSM's based upon the new ID.
-        KGroupedStream<BsmIntersectionKey, OdeBsmData> bsmKeyGroup =
-                bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionKey(), JsonSerdes.OdeBsm()));
+        KGroupedStream<BsmIntersectionIdKey, OdeBsmData> bsmKeyGroup =
+                bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionIdKey(), JsonSerdes.OdeBsm()));
 
 
 
@@ -80,8 +81,8 @@ public class MessageIngestTopology
                 System.out.println("Overwriting BSM");
                 return newValue;
             },
-            Materialized.<BsmIntersectionKey, OdeBsmData, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
-                    .withKeySerde(JsonSerdes.BsmIntersectionKey())
+            Materialized.<BsmIntersectionIdKey, OdeBsmData, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
+                    .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
                     .withValueSerde(JsonSerdes.OdeBsm())
                     .withCachingDisabled()
                     // .withLoggingEnabled(loggingConfig)
@@ -172,9 +173,8 @@ public class MessageIngestTopology
                         Produced.with(
                                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                                 JsonSerdes.MapBoundingBox(),
-                                new RsuIdPartitioner<RsuIntersectionKey, MapBoundingBox>()));
+                                new IntersectionIdPartitioner<RsuIntersectionKey, MapBoundingBox>()));
 
-        // TODO: Repartition MAPs by Intersection/Region
 
 
         // Read Map Bounding Box Topic into GlobalKTable with spatially indexed state store
@@ -206,7 +206,7 @@ public class MessageIngestTopology
 
 
     @Override
-    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore(KafkaStreams streams) {
+    public ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> getBsmWindowStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getBsmStoreName(), QueryableStoreTypes.windowStore()));
     }

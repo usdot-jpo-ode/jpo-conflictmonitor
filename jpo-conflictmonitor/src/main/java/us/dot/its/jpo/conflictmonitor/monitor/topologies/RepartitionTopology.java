@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -20,7 +20,6 @@ import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionConstants.DEFAULT_REPARTITION_ALGORITHM;
-
 
 @Component(DEFAULT_REPARTITION_ALGORITHM)
 public class RepartitionTopology
@@ -42,36 +41,38 @@ public class RepartitionTopology
     public Topology buildTopology() {
 
         StreamsBuilder builder = new StreamsBuilder();
- 
-        KStream<String, OdeBsmData> bsmRepartitionStream = 
+
+        KStream<String, OdeBsmData> bsmRepartitionStream =
         builder.stream(
-            parameters.getBsmInputTopicName(), 
+            parameters.getBsmInputTopicName(),
             Consumed.with(
                 Serdes.String(),
                 JsonSerdes.OdeBsm())
             );
 
 
-        KStream<BsmIntersectionKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
+        KStream<BsmRsuIdKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
             String ip = "";
             if (value.getMetadata() != null && value.getMetadata() instanceof OdeBsmMetadata) {
-                ip = ((OdeBsmMetadata) value.getMetadata()).getOriginIp();
+                var metadata = (OdeBsmMetadata) value.getMetadata();
+                ip = metadata.getOriginIp();
             }
             String bsmId = "";
             if (value.getPayload() != null
                     && value.getPayload().getData() instanceof J2735Bsm
                     && ((J2735Bsm) value.getPayload().getData()).getCoreData() != null) {
-                bsmId = ((J2735Bsm) value.getPayload().getData()).getCoreData().getId();
+                var coreData = ((J2735Bsm) value.getPayload().getData()).getCoreData();
+                bsmId = coreData.getId();
             }
-            return new BsmIntersectionKey(ip, bsmId);
+            return new BsmRsuIdKey(ip, bsmId);
         });
 
         bsmRekeyedStream.to(
-            parameters.getBsmRepartitionOutputTopicName(), 
+            parameters.getBsmRepartitionOutputTopicName(),
             Produced.with(
-                JsonSerdes.BsmIntersectionKey(),
+                JsonSerdes.BsmRsuIdKey(),
                 JsonSerdes.OdeBsm(),
-                new RsuIdPartitioner<BsmIntersectionKey, OdeBsmData>()
+                new RsuIdPartitioner<BsmRsuIdKey, OdeBsmData>()
             )
         );
 

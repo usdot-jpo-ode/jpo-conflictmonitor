@@ -93,6 +93,9 @@ kafka.topics:
     - name: topic.CmBsmJsonRepartition
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmBsmIntersection
+      cleanupPolicy: delete
+      retentionMs: 300000
     - name: topic.ProcessedSpat
       cleanupPolicy: delete
       retentionMs: 300000
@@ -384,6 +387,7 @@ bsm.event:
   algorithm: defaultBsmEventAlgorithm
   inputTopic: topic.CmBsmJsonRepartition
   outputTopic: topic.CMBsmEvents
+  bsmIntersectionOutputTopic: topic.CmBsmIntersection
   stateStoreName: bsm-event-state-store
   debug: false
   simplifyPath: true
@@ -393,7 +397,7 @@ bsm.event:
 message.ingest:
   algorithm: defaultMessageIngestAlgorithm
   debug: false
-  bsmTopic: topic.CmBsmJsonRepartition
+  bsmTopic: topic.CmBsmIntersection
   spatTopic: topic.ProcessedSpat
   mapTopic: topic.ProcessedMap
   mapBoundingBoxTopic: topic.CmMapBoundingBox

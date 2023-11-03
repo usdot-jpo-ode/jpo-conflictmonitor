@@ -17,13 +17,11 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathTransformPair;
@@ -38,7 +36,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, OdeBsmData, BsmEventIntersectionKey, BsmEvent> {
+public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmData, BsmIntersectionIdKey, Object> {
 
 
 
@@ -46,7 +44,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     private final String fStoreName = "bsm-event-state-store";
     private final Duration fPunctuationInterval = Duration.ofSeconds(10); // Check Every 10 Seconds
     private final long fSuppressTimeoutMillis = Duration.ofSeconds(10).toMillis(); // Emit event if no data for the last 10 seconds
-    private TimestampedKeyValueStore<BsmEventIntersectionKey, BsmEvent> stateStore;
+    private TimestampedKeyValueStore<BsmIntersectionIdKey, BsmEvent> stateStore;
 
     @Getter
     @Setter
@@ -67,7 +65,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
 
     @Override
-    public void init(ProcessorContext<BsmEventIntersectionKey, BsmEvent> context) {
+    public void init(ProcessorContext<BsmIntersectionIdKey, Object> context) {
         try {
             super.init(context);
             stateStore = context.getStateStore(fStoreName);
@@ -78,8 +76,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     }
 
     @Override
-    public void process(Record<BsmIntersectionKey, OdeBsmData> inputRecord) {
-        BsmIntersectionKey key = inputRecord.key();
+    public void process(Record<BsmRsuIdKey, OdeBsmData> inputRecord) {
+        BsmRsuIdKey key = inputRecord.key();
         OdeBsmData value = inputRecord.value();
         long timestamp = inputRecord.timestamp();
 
@@ -89,18 +87,6 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         }
 
         try {
-            // Get all events matching the RSU ID and BSM Vehicle ID from the state store.
-            // There may be multiple events if the BSM is within multiple MAPs.
-            List<KeyValue<BsmEventIntersectionKey, ValueAndTimestamp<BsmEvent>>> storedEvents = new ArrayList<>();
-            try (var storeIterator = stateStore.all()) {
-                while (storeIterator.hasNext()) {
-                    var storedEvent = storeIterator.next();
-                    var storedKey = storedEvent.key;
-                    if (Objects.equals(key, storedKey.getBsmIntersectionKey())) {
-                        storedEvents.add(storedEvent);
-                    }
-                }
-            }
 
             // List MAPs that the new BSM is within
             CoordinateXY newCoord = BsmUtils.getPosition(value);
@@ -108,9 +94,35 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
             // List intersections that the new BSM is in
             Set<IntersectionRegion> newIntersections
                     = mapsContainingNewBsm.stream()
-                        .map(map -> new IntersectionRegion(map.getIntersectionId(), map.getRegion()))
-                        .collect(Collectors.toSet());
+                    .map(map -> new IntersectionRegion(map.getIntersectionId(), map.getRegion()))
+                    .collect(Collectors.toSet());
             boolean newBsmInMap = !newIntersections.isEmpty(); // Whether the new BSM is in any MAP
+
+            // If the BSM is in one or more MAPs, output it BSM to each intersection partition
+            if (newBsmInMap) {
+                for (IntersectionRegion ir : newIntersections) {
+                    int intersectionId = ir.getIntersectionId() != null ? ir.getIntersectionId() : 0;
+                    int region = ir.getRegion() != null ? ir.getRegion() : 0;
+                    var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region);
+                    var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
+                    context().forward(record, BsmEventTopology.PARTITIONED_BSM_SINK);
+                }
+            }
+
+            // Get all events matching the RSU ID and BSM Vehicle ID from the state store.
+            // There may be multiple events if the BSM is within multiple MAPs.
+            List<KeyValue<BsmIntersectionIdKey, ValueAndTimestamp<BsmEvent>>> storedEvents = new ArrayList<>();
+            try (var storeIterator = stateStore.all()) {
+                while (storeIterator.hasNext()) {
+                    var storedEvent = storeIterator.next();
+                    var storedKey = storedEvent.key;
+                    if (Objects.equals(key, storedKey)) {
+                        storedEvents.add(storedEvent);
+                    }
+                }
+            }
+
+
 
 
             if (storedEvents.isEmpty()) {
@@ -121,9 +133,9 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                 Set<IntersectionRegion> extendedIntersections = new HashSet<>();
                 Set<IntersectionRegion> exitedIntersections = new HashSet<>();
                 for (var storedEvent : storedEvents) {
-                    BsmEventIntersectionKey eventKey = storedEvent.key;
+                    var eventKey = storedEvent.key;
                     BsmEvent event = storedEvent.value.value();
-                    if (eventKey.hasIntersectionId()) {
+                    if (event.isInMapBoundingBox()) {
                         // The stored event was in an intersection
                         IntersectionRegion intersection = eventKey.getIntersectionRegion();
                         if (newIntersections.contains(intersection)) {
@@ -174,7 +186,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         }
     }
 
-    private void extendEvent(BsmEventIntersectionKey eventKey, BsmEvent event, Coordinate newCoord, OdeBsmData value, long timestamp) throws ParseException{
+    private void extendEvent(BsmIntersectionIdKey eventKey, BsmEvent event, Coordinate newCoord, OdeBsmData value, long timestamp) throws ParseException{
         String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
         event.setWktPath(wktPath);
 
@@ -197,7 +209,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
-    private void newEvents(OdeBsmData value, BsmIntersectionKey key, List<MapBoundingBox> mapsContainingNewBsm, long timestamp) throws ParseException {
+    private void newEvents(OdeBsmData value, BsmRsuIdKey key, List<MapBoundingBox> mapsContainingNewBsm, long timestamp) throws ParseException {
         if (mapsContainingNewBsm.isEmpty()) {
             // Not in any map.
             // Only create one.
@@ -209,16 +221,16 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         }
     }
 
-    private void newEvent(OdeBsmData value, BsmIntersectionKey key, long timestamp, MapBoundingBox map) throws ParseException {
+    private void newEvent(OdeBsmData value, BsmRsuIdKey key, long timestamp, MapBoundingBox map) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, true);
         event.setWktMapBoundingBox(map.getBoundingPolygonWkt());
-        BsmEventIntersectionKey eventKey = new BsmEventIntersectionKey(key, map.intersectionRegion());
+        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), map.getIntersectionId(), map.getRegion());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
-    private void newEvent(OdeBsmData value, BsmIntersectionKey key, long timestamp) throws ParseException {
+    private void newEvent(OdeBsmData value, BsmRsuIdKey key, long timestamp) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, false);
-        BsmEventIntersectionKey eventKey = new BsmEventIntersectionKey(key);
+        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), 0);
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
@@ -238,9 +250,9 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
 
     private void punctuate(long timestamp) {
-        try (KeyValueIterator<BsmEventIntersectionKey, ValueAndTimestamp<BsmEvent>> iterator = stateStore.all()) {
+        try (KeyValueIterator<BsmIntersectionIdKey, ValueAndTimestamp<BsmEvent>> iterator = stateStore.all()) {
             while (iterator.hasNext()) {
-                KeyValue<BsmEventIntersectionKey, ValueAndTimestamp<BsmEvent>> item = iterator.next();
+                KeyValue<BsmIntersectionIdKey, ValueAndTimestamp<BsmEvent>> item = iterator.next();
                 var key = item.key;
                 var value = item.value.value();
                 long itemTimestamp;
@@ -252,7 +264,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                 var offset = timestamp - itemTimestamp;
                 if (offset > fSuppressTimeoutMillis) {
                     System.out.println("Ending BSM Event, Time limit reached :"+ key.getIntersectionId());
-                    context().forward(new Record<>(key, value, timestamp));
+                    context().forward(new Record<>(key, value, timestamp), BsmEventTopology.BSM_SINK);
                     stateStore.delete(key);
                 }
             }
