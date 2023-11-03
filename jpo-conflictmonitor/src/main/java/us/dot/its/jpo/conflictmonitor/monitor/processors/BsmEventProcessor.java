@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.processors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.processor.Cancellable;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.processor.api.ContextualProcessor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
@@ -62,17 +63,28 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
     @Setter
     private double simplifyPathToleranceMeters;
 
-
+    private Cancellable punctuatorCancellationToken;
 
     @Override
     public void init(ProcessorContext<BsmIntersectionIdKey, Object> context) {
         try {
             super.init(context);
             stateStore = context.getStateStore(fStoreName);
-            context.schedule(fPunctuationInterval, punctuationType, this::punctuate);
+            punctuatorCancellationToken = context.schedule(fPunctuationInterval, punctuationType, this::punctuate);
         } catch (Exception e) {
             logger.error("Error initializing BsmEventProcessor", e);
         }
+    }
+
+
+    @Override
+    public void close() {
+        // Cancel the punctuator if the task thread is closed per recommendation:
+        // https://docs.confluent.io/platform/current/streams/developer-guide/processor-api.html#defining-a-stream-processor
+        if (punctuatorCancellationToken != null) {
+                punctuatorCancellationToken.cancel();
+        }
+        super.close();
     }
 
     @Override
@@ -98,14 +110,15 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
                     .collect(Collectors.toSet());
             boolean newBsmInMap = !newIntersections.isEmpty(); // Whether the new BSM is in any MAP
 
-            // If the BSM is in one or more MAPs, output it BSM to each intersection partition
+            // If the BSM is in one or more MAPs, output BSM to each intersection partition
             if (newBsmInMap) {
                 for (IntersectionRegion ir : newIntersections) {
                     int intersectionId = ir.getIntersectionId() != null ? ir.getIntersectionId() : 0;
                     int region = ir.getRegion() != null ? ir.getRegion() : 0;
                     var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region);
-                    var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
-                    context().forward(record, BsmEventTopology.PARTITIONED_BSM_SINK);
+                    //var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
+                    var intersectionRecord = inputRecord.withKey(bsmIntersectionIdKey);
+                    context().forward(intersectionRecord, BsmEventTopology.PARTITIONED_BSM_SINK);
                 }
             }
 
