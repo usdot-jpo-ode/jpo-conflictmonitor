@@ -46,9 +46,14 @@ public class StopLineStopAggregator {
     @JsonIgnore
     public StopLineStopAssessment getStopLineStopAssessment(long lookBackPeriodDays){
 
+        long lastEventTime = ZonedDateTime.now().toInstant().toEpochMilli();
+        if(this.events.size() > 0){
+            lastEventTime = this.events.get(this.events.size() -1).getFinalTimestamp();
+        }
+
         List<StopLineStopEvent> removeEvents = new ArrayList<>();
         for(StopLineStopEvent previousEvents: this.events){
-            if(previousEvents.getFinalTimestamp() + (lookBackPeriodDays *24* 3600*1000) <  ZonedDateTime.now().toInstant().toEpochMilli()){
+            if(previousEvents.getFinalTimestamp() + (lookBackPeriodDays *24* 3600*1000) <  lastEventTime){
                 removeEvents.add(previousEvents);
             }else{
                 break;

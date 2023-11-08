@@ -37,8 +37,14 @@ public class ConnectionOfTravelAggregator {
 
         // Prune Events
         List<ConnectionOfTravelEvent> removeEvents = new ArrayList<>();
+
+        long lastEventTime = ZonedDateTime.now().toInstant().toEpochMilli();
+        if(this.events.size() > 0){
+            lastEventTime = this.events.get(this.events.size() -1).getTimestamp();
+        }
+        
         for(ConnectionOfTravelEvent previousEvents: this.events){
-            if(previousEvents.getTimestamp() + (lookBackPeriodDays *24* 3600*1000) <  ZonedDateTime.now().toInstant().toEpochMilli()){
+            if(previousEvents.getTimestamp() + (lookBackPeriodDays *24* 3600*1000) < lastEventTime){
                 removeEvents.add(previousEvents);
             }else{
                 break;

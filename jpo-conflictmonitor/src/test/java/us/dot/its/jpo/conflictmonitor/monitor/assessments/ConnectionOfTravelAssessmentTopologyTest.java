@@ -60,8 +60,10 @@ public class ConnectionOfTravelAssessmentTopologyTest {
             
             assertEquals(assessmentResults.size(),1);
 
-            ConnectionOfTravelAssessment output = assessmentResults.get(0).value;;
+            ConnectionOfTravelAssessment output = assessmentResults.get(0).value;
             List<ConnectionOfTravelAssessmentGroup> groups = output.getConnectionOfTravelAssessmentGroups();
+
+            System.out.println(output);
             
             assertEquals(groups.size(), 1);
 
