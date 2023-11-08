@@ -16,7 +16,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAss
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
@@ -217,11 +216,7 @@ public class JsonSerdes {
             new JsonDeserializer<>(BsmRsuIdKey.class));
     }
 
-    public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
-        return Serdes.serdeFrom(
-                new JsonSerializer<BsmEventIntersectionKey>(),
-                new JsonDeserializer<>(BsmEventIntersectionKey.class));
-    }
+
 
     public static Serde<BsmIntersectionIdKey> BsmIntersectionIdKey() {
         return Serdes.serdeFrom(

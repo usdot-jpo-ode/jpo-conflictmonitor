@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
@@ -65,7 +65,7 @@ public class BsmEventTopologyTest {
                 JsonSerdes.OdeBsm().serializer());
 
             var outputTopic = driver.createOutputTopic(outputTopicName,
-                JsonSerdes.BsmEventIntersectionKey().deserializer(),
+                JsonSerdes.BsmIntersectionIdKey().deserializer(),
                 JsonSerdes.BsmEvent().deserializer()
             );
 
@@ -101,7 +101,7 @@ public class BsmEventTopologyTest {
             assertThat(output, hasSize(1));
             var outputItem = output.iterator().next();
             logger.info("BSM Event: {}", outputItem);
-            BsmEventIntersectionKey key = outputItem.key;
+            BsmIntersectionIdKey key = outputItem.key;
             assertThat(key.getBsmId(), endsWith(id1.getBsmId()));
             var value = outputItem.value;
             assertThat(value.getEndingBsmTimestamp(), notNullValue());

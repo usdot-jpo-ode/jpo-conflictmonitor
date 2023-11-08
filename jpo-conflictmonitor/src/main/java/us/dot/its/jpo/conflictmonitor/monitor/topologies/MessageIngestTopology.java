@@ -206,7 +206,7 @@ public class MessageIngestTopology
 
 
     @Override
-    public ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> getBsmWindowStore(KafkaStreams streams) {
+    public ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> getBsmWindowStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getBsmStoreName(), QueryableStoreTypes.windowStore()));
     }
