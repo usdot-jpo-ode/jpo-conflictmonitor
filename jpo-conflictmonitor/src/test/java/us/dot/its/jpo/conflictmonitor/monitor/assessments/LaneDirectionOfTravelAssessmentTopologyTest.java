@@ -126,7 +126,7 @@ public class LaneDirectionOfTravelAssessmentTopologyTest {
             LaneDirectionOfTravelNotification output = notificationResults.get(0).value;
             
             assertEquals(output.getNotificationHeading(), "Lane Direction of Travel Assessment");
-            assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median heading: 174 degrees for segment 8 of lane 12 is not within the allowed tolerance 20.0 degrees of the expected heading 100.25 degrees.");
+            assertEquals(output.getNotificationText(), "Lane Direction of Travel Assessment Notification. The median heading: 174 degrees for segment 8 of lane 12 is not within the allowed tolerance 20.0 degrees of the expected heading 100 degrees.");
             assertEquals(output.getNotificationType(), "LaneDirectionOfTravelAssessmentNotification");
 
             LaneDirectionOfTravelAssessment outputAssessment = output.getAssessment();

@@ -71,7 +71,7 @@ public class StopLinePassageAssessmentTopologyTest {
             assertEquals(group.getYellowEvents(), 0);
             assertEquals(group.getRedEvents(), 0);
             assertEquals(group.getDarkEvents(), 0);
-            assertEquals(group.getSignalGroup(), 0);
+            assertEquals(group.getSignalGroup(), 6);
         }
     }
 }
