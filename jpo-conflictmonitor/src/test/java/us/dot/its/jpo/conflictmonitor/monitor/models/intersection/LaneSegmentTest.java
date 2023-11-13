@@ -25,7 +25,7 @@ public class LaneSegmentTest {
         assertThat("End Point", segment.getEndPoint(), equalTo(endPoint));
         assertThat("Polygon not null", segment.getPolygon(), notNullValue());
         assertThat("Number of polygon coordinates", segment.getPolygon().getCoordinates(), arrayWithSize(5));
-        assertThat("Heading", segment.getHeading(), closeTo(90.0, 0.1));
+        assertThat("Heading", segment.getHeading(), closeTo(270.0, 0.1));
         assertThat("Center line", segment.getCenterLine(), notNullValue());
         assertThat("Center line coordinates", segment.getCenterLine().getCoordinates(), arrayWithSize(2));
         assertThat("Lane width", segment.getLaneWidth(), equalTo(laneWidthCm));
