@@ -77,7 +77,7 @@ public class ScriptRunner {
                 String message = m.group("message");
                 String rsuId = m.group("rsuId");
                 String intersectionIdStr = m.group("intersectionId");
-                int intersectionId = Integer.parseInt(intersectionIdStr);
+                Integer intersectionId = StringUtils.isNotEmpty(intersectionIdStr) ? Integer.parseInt(intersectionIdStr) : null;
                 scheduleMessage(startTime, messageType, timeOffset, message, tempId, rsuId, intersectionId);
             } catch (Exception e) {
                 logger.error(String.format("Exception in line '%s'", line), e);
@@ -86,7 +86,7 @@ public class ScriptRunner {
     }
 
     private void scheduleMessage(final long startTime, final String messageType, 
-        final long timeOffset, final String message, final String tempId, final String rsuId, final int intersectionId) {
+        final long timeOffset, final String message, final String tempId, final String rsuId, final Integer intersectionId) {
         final long sendTime = startTime + timeOffset;
         final Instant sendInstant = Instant.ofEpochMilli(sendTime);
         var job = new SendMessageJob();

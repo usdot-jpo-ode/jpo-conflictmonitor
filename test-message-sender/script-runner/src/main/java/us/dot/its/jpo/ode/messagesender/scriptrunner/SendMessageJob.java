@@ -19,9 +19,10 @@ public class SendMessageJob implements Runnable {
     long sendTime;
     String message;
     String rsuId;
-    int intersectionId;
+    Integer intersectionId;
 
-    
+    final String ProcessedMapTopic = "topic.ProcessedMap";
+    final String ProcessedSpatTopic = "topic.ProcessedSpat";
 
 
     @Override
@@ -39,10 +40,10 @@ public class SendMessageJob implements Runnable {
                     kafkaTemplate.send("topic.OdeBsmJson", message);
                     break;
                 case "ProcessedMap":
-                    kafkaTemplate.send("topic.ProcessedMap", getKey(rsuId, intersectionId), message);
+                    kafkaTemplate.send(ProcessedMapTopic, partitionForIntersection(intersectionId, ProcessedMapTopic), getKey(rsuId, intersectionId), message);
                     break;
                 case "ProcessedSpat":
-                    kafkaTemplate.send("topic.ProcessedSpat", getKey(rsuId, intersectionId), message);
+                    kafkaTemplate.send(ProcessedSpatTopic, partitionForIntersection(intersectionId, ProcessedSpatTopic), getKey(rsuId, intersectionId), message);
                     break;
             }
 
@@ -52,7 +53,18 @@ public class SendMessageJob implements Runnable {
         
     }
 
-    private String getKey(String rsuId, int intersectionId) {
+
+
+    private int partitionForIntersection(Integer intersectionId, String topic) {
+        int numPartitions = kafkaTemplate.partitionsFor(topic).size();
+        if (intersectionId != null) {
+            return intersectionId.intValue() % numPartitions;
+        } else {
+            return 0;
+        }
+    }
+
+    private String getKey(String rsuId, Integer intersectionId) {
         return String.format("{\"rsuId\": \"%s\", \"intersectionId\": %s, \"region\": -1}", rsuId, intersectionId);
     }
 
