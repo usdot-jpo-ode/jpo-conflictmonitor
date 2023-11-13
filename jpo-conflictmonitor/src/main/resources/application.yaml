@@ -396,7 +396,7 @@ bsm.event:
 # Message Ingest
 message.ingest:
   algorithm: defaultMessageIngestAlgorithm
-  debug: false
+  debug: true
   bsmTopic: topic.CmBsmIntersection
   spatTopic: topic.ProcessedSpat
   mapTopic: topic.ProcessedMap

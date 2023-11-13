@@ -19,7 +19,7 @@ public class SendMessageJob implements Runnable {
     long sendTime;
     String message;
     String rsuId;
-    String intersectionId;
+    int intersectionId;
 
     
 
@@ -52,8 +52,8 @@ public class SendMessageJob implements Runnable {
         
     }
 
-    private String getKey(String rsuId, String intersectionId) {
-        return String.format("{\"rsuId\": \"%s\", \"intersectionId\": \"%s\"}", rsuId, intersectionId);
+    private String getKey(String rsuId, int intersectionId) {
+        return String.format("{\"rsuId\": \"%s\", \"intersectionId\": %s, \"region\": -1}", rsuId, intersectionId);
     }
 
     

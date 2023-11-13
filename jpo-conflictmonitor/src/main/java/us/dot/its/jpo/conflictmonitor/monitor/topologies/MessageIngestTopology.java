@@ -53,6 +53,7 @@ public class MessageIngestTopology
 
 
         //BSM Input Stream
+        // Ingest only BSMs within the intersection bounding box
         KStream<BsmIntersectionIdKey, OdeBsmData> bsmJsonStream =
             builder.stream(
                 parameters.getBsmTopic(), 
