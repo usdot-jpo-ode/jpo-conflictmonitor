@@ -49,6 +49,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
@@ -105,7 +107,8 @@ public class AppHealthMonitor {
                     "connectors",
                     "spatial-indexes",
                     "spat-window-store",
-                    "bsm-window-store"
+                    "bsm-window-store",
+                    "map-store"
                 );
             return getJsonResponse(linkMap);
         } catch (Exception ex) {
@@ -255,6 +258,21 @@ public class AppHealthMonitor {
         Quadtree quadtree = mapIndex.getQuadtree();
         var allItems = quadtree.queryAll();
         return getJsonResponse(allItems);
+    }
+
+    @GetMapping(value = "/map-store")
+    public @ResponseBody ResponseEntity<String> mapStore() {
+        var mapStore = intersectionEventTopology.getMapStore();
+        var mapMap = new TreeMap<String, ProcessedMap<LineString>>();
+        try (var mapIterator = mapStore.all()) {
+            while (mapIterator.hasNext()) {
+                var kvp = mapIterator.next();
+                RsuIntersectionKey key = kvp.key;
+                ProcessedMap<LineString> map = kvp.value;
+                mapMap.put(key.toString(), map);
+            }
+        }
+        return getJsonResponse(mapMap);
     }
 
     @GetMapping(value = "/spat-window-store")

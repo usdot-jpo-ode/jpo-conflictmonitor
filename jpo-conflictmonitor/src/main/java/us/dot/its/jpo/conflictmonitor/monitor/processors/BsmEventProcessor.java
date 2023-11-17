@@ -113,8 +113,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
             // If the BSM is in one or more MAPs, output BSM to each intersection partition
             if (newBsmInMap) {
                 for (IntersectionRegion ir : newIntersections) {
-                    int intersectionId = ir.getIntersectionId() != null ? ir.getIntersectionId() : 0;
-                    int region = ir.getRegion() != null ? ir.getRegion() : 0;
+                    int intersectionId = ir.getIntersectionId() != null ? ir.getIntersectionId() : -1;
+                    int region = ir.getRegion() != null ? ir.getRegion() : -1;
                     var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region);
                     //var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
                     var intersectionRecord = inputRecord.withKey(bsmIntersectionIdKey);
@@ -129,7 +129,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
                 while (storeIterator.hasNext()) {
                     var storedEvent = storeIterator.next();
                     var storedKey = storedEvent.key;
-                    if (Objects.equals(key, storedKey)) {
+                    if (Objects.equals(key.getRsuId(), storedKey.getRsuId()) && Objects.equals(key.getBsmId(), storedKey.getBsmId())) {
                         storedEvents.add(storedEvent);
                     }
                 }
@@ -158,7 +158,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
                         } else {
                             // The new point isn't in this map, emit the bsm
                             logger.info("Ending Bsm Event, New BSM not in region: {}", eventKey.getIntersectionId());
-                            context().forward(new Record<>(eventKey, event, timestamp));
+                            context().forward(new Record<>(eventKey, event, timestamp), BsmEventTopology.BSM_SINK);
                             stateStore.delete(eventKey);
                             exitedIntersections.add(intersection);
                         }
@@ -170,7 +170,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
                         } else {
                             // The new BSM is in intersections, emit the stored one
                             logger.info("Ending Bsm Event, New BSM in Region: {}", eventKey.getIntersectionId());
-                            context().forward(new Record<>(eventKey, event, timestamp));
+                            context().forward(new Record<>(eventKey, event, timestamp), BsmEventTopology.BSM_SINK);
                             stateStore.delete(eventKey);
                         }
                     }
@@ -276,7 +276,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
                 }
                 var offset = timestamp - itemTimestamp;
                 if (offset > fSuppressTimeoutMillis) {
-                    System.out.println("Ending BSM Event, Time limit reached :"+ key.getIntersectionId());
+                    logger.info("Ending BSM Event, Time limit reached :"+ key.getIntersectionId());
                     context().forward(new Record<>(key, value, timestamp), BsmEventTopology.BSM_SINK);
                     stateStore.delete(key);
                 }

@@ -234,8 +234,13 @@ public class IntersectionEventTopology
         return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
     }
 
-    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
-        logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore,
+                                                      Instant start, Instant end, BsmIntersectionIdKey key){
+        logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, key: {}", start, end, key);
+        final String rsuId = key.getRsuId();
+        final String vehicleId = key.getBsmId();
+        final int intersectionId = key.getIntersectionId();
+        final int region = key.getRegion();
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -249,9 +254,24 @@ public class IntersectionEventTopology
 
         while(bsmRange.hasNext()){
             KeyValue<Windowed<BsmIntersectionIdKey>, OdeBsmData> next = bsmRange.next();
+            Windowed<BsmIntersectionIdKey> storedWindowedKey = next.key;
+            BsmIntersectionIdKey storedKey = storedWindowedKey.key();
+            String storedVehicleId = storedKey.getBsmId();
+            String storedRsuId = storedKey.getRsuId();
+            int storedIntersectionId = storedKey.getIntersectionId();
+            int storedRegion = storedKey.getRegion();
+            OdeBsmData storedBsm = next.value;
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
-            if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
-                agg.add(next.value);
+
+            // Filter by timestamp and Vehicle ID.
+            // Also filter by RSU and intersection/region to avoid duplicates
+            if(startMillis <= ts && endMillis >= ts
+                    && Objects.equals(storedVehicleId, vehicleId)
+                    && Objects.equals(storedRsuId, rsuId)
+                    && intersectionId == storedIntersectionId){
+                // Filter by region if it is present and not test value
+                if (region > 0 && region != storedRegion) continue;
+                agg.add(storedBsm);
             }
         }
 
@@ -264,9 +284,11 @@ public class IntersectionEventTopology
     }
 
     private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore, Instant start,
-                                                Instant end, Integer intersection){
+                                                Instant end, RsuIntersectionKey key){
 
-        logger.info("getSpatByTime: Start: {}, End: {}, IntersectionId: {}", start, end, intersection);
+        logger.info("getSpatByTime: Start: {}, End: {}, Key: {}", start, end, key);
+        final int intersection = key.getIntersectionId();
+        final int region = key.getRegion();
 
         KeyValueIterator<Windowed<RsuIntersectionKey>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(start, end);
 
@@ -278,7 +300,11 @@ public class IntersectionEventTopology
             KeyValue<Windowed<RsuIntersectionKey>, ProcessedSpat> next = spatRange.next();
 
             ProcessedSpat spat = next.value;
-            if (intersection != null && Objects.equals(spat.getIntersectionId(), intersection)) {
+            int spatIntersectionId = spat.getIntersectionId() != null ? spat.getIntersectionId().intValue() : -1;
+            int spatRegion = spat.getRegion() != null ? spat.getRegion().intValue() : -1;
+            if (spatIntersectionId == intersection) {
+                // Filter by region if it is present and not test value
+                if (region > 0 && region != spatRegion) continue;
                 spatAggregator.add(spat);
             }
 
@@ -296,7 +322,27 @@ public class IntersectionEventTopology
 
 
     private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore, RsuIntersectionKey key){
-        return (ProcessedMap<LineString>) mapStore.get(key);
+        // Find the MAP based on the intersection ID and optionally region
+        try (var mapIterator = mapStore.all()) {
+            while (mapIterator.hasNext()) {
+                var kvp = mapIterator.next();
+                RsuIntersectionKey storedKey = kvp.key;
+                if (key.getRegion() > 0) {
+                    // Non-test region specified, get matching region MAP
+                    if (key.getRegion() == storedKey.getRegion() && key.getIntersectionId() == storedKey.getIntersectionId()) {
+                        logger.info("Found MAP intersectionID = {}, region = {}", storedKey.getIntersectionId(), storedKey.getRegion());
+                        return kvp.value;
+                    }
+                } else {
+                    // No region, or test region; get first MAP matching the intersectionID ignoring the region
+                    if (key.getIntersectionId() == storedKey.getIntersectionId()) {
+                        logger.info("Found MAP intersectionID = {}, region = {}", storedKey.getIntersectionId(), storedKey.getRegion());
+                        return kvp.value;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -337,19 +383,20 @@ public class IntersectionEventTopology
                 
 
                 if(value.getStartingBsm() == null || value.getEndingBsm() == null){
+                    logger.warn("Starting or ending BSM is null in BSM event, returning empty VehicleEvent list.  BsmEvent: {}", value);
                     return result;
                 }
 
-                String vehicleId = getBsmID(value.getStartingBsm());
+
                 
 
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
 
                 ProcessedMap<LineString> map = null;
-                BsmAggregator bsms = getBsmsByTimeVehicle(getBsmWindowStore(), firstBsmTime, lastBsmTime, vehicleId);
+                BsmAggregator bsms = getBsmsByTimeVehicle(getBsmWindowStore(), firstBsmTime, lastBsmTime, key);
 
-                SpatAggregator spats = getSpatByTime(getSpatWindowStore(), firstBsmTime, lastBsmTime, key.getIntersectionId());
+                SpatAggregator spats = getSpatByTime(getSpatWindowStore(), firstBsmTime, lastBsmTime, key);
 
 
 
@@ -367,16 +414,11 @@ public class IntersectionEventTopology
 
                     if(map != null){
 
-                        // logger.info("Found MAP: {}", map);
-                        
                         Intersection intersection = Intersection.fromProcessedMap(map);
-
-                        // logger.info("Got Intersection object from MAP: {}", intersection);
 
                         VehicleEvent event = new VehicleEvent(bsms, spats, intersection, rsuKey.toString());
 
                         result.add(new KeyValue<>(rsuKey, event));
-    
                         
                     } else{
                         logger.warn("Map was Null");
@@ -386,7 +428,7 @@ public class IntersectionEventTopology
 
 
                 logger.info("Detected Vehicle Event");
-                logger.info("Vehicle ID: {}", vehicleId);
+                logger.info("Vehicle ID: {}", key.getBsmId());
                 logger.info("Captured Bsms: {}", bsms.getBsms().size());
                 logger.info("Captured Spats: {}", spats.getSpats().size());
 
