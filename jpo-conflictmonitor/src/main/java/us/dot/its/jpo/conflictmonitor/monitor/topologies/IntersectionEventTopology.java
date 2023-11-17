@@ -8,16 +8,13 @@ import java.util.Objects;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
@@ -357,17 +354,35 @@ public class IntersectionEventTopology
 
         
         KStream<BsmIntersectionIdKey, BsmEvent> bsmEventStream =
-            builder.stream(
-                conflictMonitorProps.getKafkaTopicCmBsmEvent(), 
-                Consumed.with(
-                    JsonSerdes.BsmIntersectionIdKey(),
-                    JsonSerdes.BsmEvent())
-                )
-                    .filter(
-                            (key, value) -> value != null && value.isInMapBoundingBox()
-            );
+            builder
+                .stream(
+                    conflictMonitorProps.getKafkaTopicCmBsmEvent(),
+                    Consumed.with(
+                        JsonSerdes.BsmIntersectionIdKey(),
+                        JsonSerdes.BsmEvent())
+                    )
 
-        //bsmEventStream.print(Printed.toSysOut());
+                // Remove BSM Events outside MAPs
+                .filter((key, value) -> value != null && value.isInMapBoundingBox())
+
+                // De-duplicate BSM Events from different RSUs
+                // Remove RSU ID from the key
+                .selectKey((key, value) -> new BsmIntersectionIdKey(key.getBsmId(), null, key.getIntersectionId(), key.getRegion()))
+                // Repartition with IntersectionIdPartitioner (the partitions won't actually change; this it to
+                // prevent an automatic repartition with the default streams partitioner)
+                .repartition(Repartitioned
+                                .with(JsonSerdes.BsmIntersectionIdKey(), JsonSerdes.BsmEvent())
+                                .withStreamPartitioner(new IntersectionIdPartitioner<>()))
+                    .toTable(Materialized.as("event-dedup-store"))
+                    .filter((key, value) -> {
+                        // TODO check the table store, filter out duplicate events within 1 second
+                        return true;
+                    })
+                    // TODO add RSU ID back into key?
+                    .toStream();
+
+
+
         bsmEventStream.process(() -> new DiagnosticProcessor<>("bsmEventStream", logger));
 
 
