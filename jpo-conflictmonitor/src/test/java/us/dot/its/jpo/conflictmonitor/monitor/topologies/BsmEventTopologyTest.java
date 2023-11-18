@@ -33,6 +33,7 @@ public class BsmEventTopologyTest {
 
     final String inputTopicName = "topic.OdeBsmJson";
     final String outputTopicName = "topic.CMBsmEvents";
+    final String bsmIntersectionOutputTopic = "topic.CmBsmIntersection";
     final String stateStoreName = "bsm-event-state-store";
     final String mapSpatialStoreName = "map-spatial-store";
     final String mapBoundingBoxTopic = "topic.MapBoundingBox";
@@ -114,6 +115,7 @@ public class BsmEventTopologyTest {
         var parameters = new BsmEventParameters();
         parameters.setInputTopic(inputTopicName);
         parameters.setOutputTopic(outputTopicName);
+        parameters.setBsmIntersectionOutputTopic(bsmIntersectionOutputTopic);
         parameters.setStateStoreName(stateStoreName);
         return parameters;
     }
