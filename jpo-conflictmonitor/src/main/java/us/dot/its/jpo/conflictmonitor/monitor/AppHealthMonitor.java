@@ -48,6 +48,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -324,7 +325,7 @@ public class AppHealthMonitor {
                 BsmIntersectionIdKey theKey= key.key();
                 OdeBsmData value = kvp.value;
                 // Integer intersectionId = value.();
-                String vehicleId = IntersectionEventTopology.getBsmID(value);
+                String vehicleId = BsmUtils.getVehicleId(value);
                 TreeMap<String, TreeMap<String, OdeBsmData>> bsms = null;
                 if (intersectionMap.containsKey(vehicleId)) {
                     bsms = intersectionMap.get(vehicleId);

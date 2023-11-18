@@ -374,7 +374,7 @@ public class IntersectionEventTopology
                             null, // Remove RSU ID
                             key.getIntersectionId(),
                             key.getRegion()))
-                // Repartition with IntersectionIdPartitioner (the partitions won't actually change; this it to
+                // Repartition with IntersectionIdPartitioner (the partitions won't actually change; this is to
                 // prevent an automatic repartition with the default streams partitioner)
                 .repartition(Repartitioned
                                 .with(JsonSerdes.BsmIntersectionIdKey(), JsonSerdes.BsmEvent())
@@ -382,11 +382,13 @@ public class IntersectionEventTopology
                 // Filter out if the (vehicle ID, intersection, region) was already added to the downstream table
                 // within the time interval
                 .filter((key, value) -> isNewBsmEvent(key, value))
-                // Queryable table with key (vehicle ID, intersection, region)
+                // Queryable table with key (vehicle ID, intersection, region) that is queried by the above filter
                 .toTable(
                         Materialized.<BsmIntersectionIdKey, BsmEvent, KeyValueStore<Bytes, byte[]>>as(BSM_EVENT_DEDUPLICATE_STORE)
                                 .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
-                                .withValueSerde(JsonSerdes.BsmEvent()))
+                                .withValueSerde(JsonSerdes.BsmEvent())
+                                .withLoggingDisabled() // Don't need to create an internal topic for this
+                                .withCachingDisabled())
                 .toStream()
                 // Add RSU IP back to key
                 .selectKey(
@@ -604,7 +606,13 @@ public class IntersectionEventTopology
                         QueryableStoreTypes.keyValueStore()));
         BsmEvent storedBsmEvent = bsmEventStore.get(key);
         if (storedBsmEvent == null) return true;
-        return Math.abs(storedBsmEvent.getStartingBsmTimestamp() - bsmEvent.getStartingBsmTimestamp()) > BSM_EVENT_INTERVAL_MS;
+        long interval = Math.abs(storedBsmEvent.getStartingBsmTimestamp() - bsmEvent.getStartingBsmTimestamp());
+        logger.info("Stored BSM event exists for key {}. BSMEvent interval = {}", key, interval);
+        boolean filter = interval > BSM_EVENT_INTERVAL_MS;
+        if (!filter) {
+            logger.info("The duplicate BSMEvent interval is less than {} ms, it will be filtered out: {}", BSM_EVENT_INTERVAL_MS, bsmEvent);
+        }
+        return filter;
     }
     
 }
