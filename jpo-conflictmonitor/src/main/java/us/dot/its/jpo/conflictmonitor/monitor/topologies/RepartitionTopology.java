@@ -14,6 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
@@ -52,18 +53,19 @@ public class RepartitionTopology
 
 
         KStream<BsmRsuIdKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
-            String ip = "";
-            if (value.getMetadata() != null && value.getMetadata() instanceof OdeBsmMetadata) {
-                var metadata = (OdeBsmMetadata) value.getMetadata();
-                ip = metadata.getOriginIp();
-            }
-            String bsmId = "";
-            if (value.getPayload() != null
-                    && value.getPayload().getData() instanceof J2735Bsm
-                    && ((J2735Bsm) value.getPayload().getData()).getCoreData() != null) {
-                var coreData = ((J2735Bsm) value.getPayload().getData()).getCoreData();
-                bsmId = coreData.getId();
-            }
+            String ip = BsmUtils.getRsuIp(value);
+//            if (value.getMetadata() != null && value.getMetadata() instanceof OdeBsmMetadata) {
+//                var metadata = (OdeBsmMetadata) value.getMetadata();
+//                ip = metadata.getOriginIp();
+//            }
+            String bsmId = BsmUtils.getVehicleId(value);
+//            if (value.getPayload() != null
+//                    && value.getPayload().getData() instanceof J2735Bsm
+//                    && ((J2735Bsm) value.getPayload().getData()).getCoreData() != null) {
+//                var coreData = ((J2735Bsm) value.getPayload().getData()).getCoreData();
+//                bsmId = coreData.getId();
+//            }
+
             return new BsmRsuIdKey(ip, bsmId);
         });
 

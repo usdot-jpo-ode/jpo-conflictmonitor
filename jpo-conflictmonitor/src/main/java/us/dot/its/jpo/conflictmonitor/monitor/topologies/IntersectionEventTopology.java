@@ -1,17 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.apache.kafka.streams.state.*;
+import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -40,6 +42,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.DiagnosticProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -227,9 +230,7 @@ public class IntersectionEventTopology
 
 
 
-    public static String getBsmID(OdeBsmData value){
-        return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
-    }
+
 
     private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore,
                                                       Instant start, Instant end, BsmIntersectionIdKey key){
@@ -342,6 +343,8 @@ public class IntersectionEventTopology
         return null;
     }
 
+
+
     @Override
     public Topology buildTopology() {
         
@@ -352,6 +355,7 @@ public class IntersectionEventTopology
             builder = messageIngestStreamsAlgorithm.buildTopology(builder);
         }
 
+
         
         KStream<BsmIntersectionIdKey, BsmEvent> bsmEventStream =
             builder
@@ -359,27 +363,43 @@ public class IntersectionEventTopology
                     conflictMonitorProps.getKafkaTopicCmBsmEvent(),
                     Consumed.with(
                         JsonSerdes.BsmIntersectionIdKey(),
-                        JsonSerdes.BsmEvent())
-                    )
-
+                        JsonSerdes.BsmEvent()))
                 // Remove BSM Events outside MAPs
                 .filter((key, value) -> value != null && value.isInMapBoundingBox())
-
                 // De-duplicate BSM Events from different RSUs
                 // Remove RSU ID from the key
-                .selectKey((key, value) -> new BsmIntersectionIdKey(key.getBsmId(), null, key.getIntersectionId(), key.getRegion()))
+                .selectKey(
+                        (key, value) -> new BsmIntersectionIdKey(
+                            key.getBsmId(),
+                            null, // Remove RSU ID
+                            key.getIntersectionId(),
+                            key.getRegion()))
                 // Repartition with IntersectionIdPartitioner (the partitions won't actually change; this it to
                 // prevent an automatic repartition with the default streams partitioner)
                 .repartition(Repartitioned
                                 .with(JsonSerdes.BsmIntersectionIdKey(), JsonSerdes.BsmEvent())
                                 .withStreamPartitioner(new IntersectionIdPartitioner<>()))
-                    .toTable(Materialized.as("event-dedup-store"))
-                    .filter((key, value) -> {
-                        // TODO check the table store, filter out duplicate events within 1 second
-                        return true;
-                    })
-                    // TODO add RSU ID back into key?
-                    .toStream();
+                // Filter out if the (vehicle ID, intersection, region) was already added to the downstream table
+                // within the time interval
+                .filter((key, value) -> isNewBsmEvent(key, value))
+                // Queryable table with key (vehicle ID, intersection, region)
+                .toTable(
+                        Materialized.<BsmIntersectionIdKey, BsmEvent, KeyValueStore<Bytes, byte[]>>as(BSM_EVENT_DEDUPLICATE_STORE)
+                                .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
+                                .withValueSerde(JsonSerdes.BsmEvent()))
+                .toStream()
+                // Add RSU IP back to key
+                .selectKey(
+                        (key, value) -> new BsmIntersectionIdKey(
+                                key.getBsmId(),
+                                BsmUtils.getRsuIp(value.getStartingBsm()),
+                                key.getIntersectionId(),
+                                key.getRegion()))
+                // Prevent default repartitioning
+                .repartition(Repartitioned
+                                .with(JsonSerdes.BsmIntersectionIdKey(), JsonSerdes.BsmEvent())
+                                .withStreamPartitioner(new IntersectionIdPartitioner<>()));
+
 
 
 
@@ -574,5 +594,17 @@ public class IntersectionEventTopology
     }
 
 
+    private static final String BSM_EVENT_DEDUPLICATE_STORE = "bsm-event-deduplicate-store";
+    private static final long BSM_EVENT_INTERVAL_MS = 1000;
+
+    // Test if the stored BSM Event for the key already exists within the interval
+    private boolean isNewBsmEvent(BsmIntersectionIdKey key, BsmEvent bsmEvent) {
+        ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> bsmEventStore = streams.store(
+                StoreQueryParameters.fromNameAndType(BSM_EVENT_DEDUPLICATE_STORE,
+                        QueryableStoreTypes.keyValueStore()));
+        BsmEvent storedBsmEvent = bsmEventStore.get(key);
+        if (storedBsmEvent == null) return true;
+        return Math.abs(storedBsmEvent.getStartingBsmTimestamp() - bsmEvent.getStartingBsmTimestamp()) > BSM_EVENT_INTERVAL_MS;
+    }
     
 }
