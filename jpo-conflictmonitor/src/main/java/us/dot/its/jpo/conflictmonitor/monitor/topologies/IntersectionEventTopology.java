@@ -364,31 +364,39 @@ public class IntersectionEventTopology
                     Consumed.with(
                         JsonSerdes.BsmIntersectionIdKey(),
                         JsonSerdes.BsmEvent()))
-                // Remove BSM Events outside MAPs
-                .filter((key, value) -> value == null || value.isInMapBoundingBox()) // pass through tombstones
-                // De-duplicate BSM Events from different RSUs
-                // Filter out if the (vehicle ID, intersection, region) was already added to the downstream table
-                // within the time interval
-                .filter((key, value) -> value == null || isNewBsmEvent(key, value)) // pass through tombstones
-                // Table that is queried by the above filter
-                .toTable(
+
+                    // Remove BSM Events outside MAPs
+                    .filter((key, value) -> value == null || value.isInMapBoundingBox()) // pass through tombstones
+
+                    // De-duplicate BSM Events from different RSUs.
+                    // Filter out if the (vehicle ID, intersection, region) was already added to the downstream table
+                    // within the time interval
+                    .filter((key, value) -> value == null || isNewBsmEvent(key, value)) // pass through tombstones
+
+                    // Queryable KTable that is queried by the above filter
+                    .toTable(
                         Materialized.<BsmIntersectionIdKey, BsmEvent, KeyValueStore<Bytes, byte[]>>as(BSM_EVENT_DEDUPLICATE_STORE)
-                                .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
-                                .withValueSerde(JsonSerdes.BsmEvent())
-                                .withLoggingDisabled() // Don't need to create an internal topic for this
-                                .withCachingDisabled())
-                .toStream()
-                .filter((key, value) -> value != null); // Remove tombstones
+                            .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
+                            .withValueSerde(JsonSerdes.BsmEvent())
+                            .withLoggingDisabled() // Don't need to create an internal topic for this
+                            .withCachingDisabled())
+                    .toStream()
 
-        // TODO: Clean old entries from the BsmEvent deduplicate store to prevent it from growing indefinitely
-        bsmEventStream.flatMap((key, value) -> {
-           return new ArrayList<KeyValue<BsmIntersectionIdKey, BsmEvent>>();
-        }).to(conflictMonitorProps.getKafkaTopicCmBsmEvent(),
-                Produced.with(
-                        JsonSerdes.BsmIntersectionIdKey(),
-                        JsonSerdes.BsmEvent(),
-                        new IntersectionIdPartitioner<>()));
+                    // Remove tombstones from the stream here that have already served their purpose of deleting from
+                    // the table store
+                    .filter((key, value) -> value != null);
 
+        // Whenever a new BsmEvent is received, clean old entries from the BsmEvent deduplicate store to prevent
+        // it from growing indefinitely
+        bsmEventStream
+                // Get a list of tombstones
+                .flatMap((key, value) -> listBsmEventsToRemove(value))
+                // Write the tombstones back to the BsmEvent topic
+                .to(conflictMonitorProps.getKafkaTopicCmBsmEvent(),
+                    Produced.with(
+                            JsonSerdes.BsmIntersectionIdKey(),
+                            JsonSerdes.BsmEvent(),
+                            new IntersectionIdPartitioner<>()));
 
         bsmEventStream.process(() -> new DiagnosticProcessor<>("bsmEventStream", logger));
 
@@ -583,7 +591,13 @@ public class IntersectionEventTopology
 
     private static final String BSM_EVENT_DEDUPLICATE_STORE = "bsm-event-deduplicate-store";
     private static final long BSM_EVENT_INTERVAL_MS = 1000;
-    private static final long BSM_EVENT_MAX_AGE_MS = 60000;
+    private static final long BSM_EVENT_MAX_AGE_MS = 120 * 1000;
+
+    private ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> getBsmEventDeduplicateStore() {
+        return streams.store(
+                StoreQueryParameters.fromNameAndType(BSM_EVENT_DEDUPLICATE_STORE,
+                        QueryableStoreTypes.keyValueStore()));
+    }
 
     // Test if a stored BSM Event already exists for the same vehicleID, intersectionId and region
     // within the interval
@@ -591,9 +605,7 @@ public class IntersectionEventTopology
         final int intersectionId = key.getIntersectionId();
         final int region = key.getRegion();
         final String vehicleId = key.getBsmId();
-        ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> bsmEventStore = streams.store(
-                StoreQueryParameters.fromNameAndType(BSM_EVENT_DEDUPLICATE_STORE,
-                        QueryableStoreTypes.keyValueStore()));
+        ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> bsmEventStore = getBsmEventDeduplicateStore();
         BsmEvent storedBsmEvent = null;
         try (var iterator = bsmEventStore.all()) {
             while (iterator.hasNext()) {
@@ -621,6 +633,26 @@ public class IntersectionEventTopology
         return filter;
     }
 
-
+    private List<KeyValue<BsmIntersectionIdKey, BsmEvent>> listBsmEventsToRemove(BsmEvent currentBsmEvent) {
+        final long currentTimestamp = currentBsmEvent.getStartingBsmTimestamp();
+        // List of events to remove
+        List<KeyValue<BsmIntersectionIdKey, BsmEvent>> tombstones = new ArrayList<>();
+        ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> bsmEventStore = getBsmEventDeduplicateStore();
+        try (var iterator = bsmEventStore.all()) {
+            while (iterator.hasNext()) {
+                var kvp = iterator.next();
+                var storedKey = kvp.key;
+                var storedValue = kvp.value;
+                long storedTimestamp = storedValue.getStartingBsmTimestamp();
+                long interval = currentTimestamp - storedTimestamp;
+                if (interval > BSM_EVENT_MAX_AGE_MS) {
+                    tombstones.add(KeyValue.pair(storedKey, (BsmEvent)null));
+                    logger.info("Old BSMEvent with key {}, timestamp {} will be removed from deduplicate store",
+                            storedKey, storedTimestamp);
+                }
+            }
+        }
+        return tombstones;
+    }
     
 }
