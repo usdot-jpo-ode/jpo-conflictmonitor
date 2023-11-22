@@ -211,6 +211,7 @@ connection.of.travel.assessment:
   connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  minimumNumberOfEvents: 10
 
 intersection.event:
   algorithm: defaultIntersectionEventAlgorithm
@@ -232,6 +233,8 @@ lane.direction.of.travel.assessment:
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
   headingToleranceDegrees: 20
+  distanceFromCenterlineToleranceCm: 100
+  minimumNumberOfEvents: 10
 
 # MAP/SPAT Message Assessment
 map.spat.message.assessment:

@@ -54,9 +54,9 @@ public class SignalStateEventAssessmentTopology
 
         Initializer<StopLinePassageAggregator> signalStateAssessmentInitializer = ()->{
             StopLinePassageAggregator agg = new StopLinePassageAggregator();
-            agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
+            // agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
 
-            logger.info("Setting up Signal State Event Assessment Topology \n\n\n\n");
+            // logger.info("Setting up Signal State Event Assessment Topology \n\n\n\n");
             return agg;
         };
 
@@ -84,7 +84,7 @@ public class SignalStateEventAssessmentTopology
         // Map the Windowed K Stream back to a Key Value Pair
         KStream<String, StopLinePassageAssessment> signalStateAssessmentStream = signalStateAssessments.toStream()
             .map((key, value) -> {
-                StopLinePassageAssessment assessment = value.getSignalStateEventAssessment();
+                StopLinePassageAssessment assessment = value.getSignalStateEventAssessment(parameters.getLookBackPeriodDays());
                 assessment.setSource(key);
                 return KeyValue.pair(key, assessment);
             }
