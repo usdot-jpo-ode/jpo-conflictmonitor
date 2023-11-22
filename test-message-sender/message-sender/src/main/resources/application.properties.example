@@ -1,10 +1,21 @@
-# Copy this file to application.properties in src/main/resources and fill in the mapbox style WMS endpoint, 
-# including the user name, style ID,  and access token
-# Don't commit the mapbox token to github!
+# Copy this file to application.properties in src/main/resources and fill in the basemap URL and attribution
+# Don't commit private information such as API tokens to github!
 
-spring.main.web-application-type: SERVLET
+spring.main.web-application-type=SERVLET
 server.port=8088
 spring.profiles.active=messageSender
+logging.level.web=INFO
 
-mapbox.tile.endpoint=https://api.mapbox.com/styles/v1/[USERNAME]/[STYLEID]/tiles/{z}/{x}/{y}?access_token=[ACCESSTOKEN]
+# Example basemap URL for a Mapbox Style.  Fill in the USER_NAME, STYLE_ID, and ACCESS_TOKEN
+basemap.url=https://api.mapbox.com/styles/v1/[USER_NAME]/[STYLE_ID]/tiles/{z}/{x}/{y}?access_token=[ACCESS_TOKEN]
+basemap.attribution=Mapbox
+
+# Example basemap URL for Google Satellite Hybrid
+#basemap.url=https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}
+#basemap.attribution="Google Maps"
+
+# Example OpenStreetMap basemap
+#basemap.url=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+#basemap.attribution="Open Street Map"
+
 

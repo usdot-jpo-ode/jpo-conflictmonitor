@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor;
 
-import java.util.concurrent.ConcurrentHashMap;
-
+import lombok.Getter;
 import org.apache.kafka.streams.KafkaStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +9,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
-
-import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
@@ -38,13 +35,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_trave
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
@@ -57,6 +53,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
@@ -69,6 +68,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Launches ToGeoJsonFromJsonConverter service
@@ -117,6 +118,7 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.setKafkaTemplate(kafkaTemplate);
             configTopology.start();
+            
 
 
 
@@ -217,6 +219,8 @@ public class MonitorServiceController {
             spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
             Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
             spatTimeChangeDetailsAlgo.start();
+
+            
             
             
 
@@ -242,7 +246,7 @@ public class MonitorServiceController {
 
 
 
-            //BSM Topology sends a message every time a vehicle drives through the intersection. 
+            //BSM Topology sends a message every time a vehicle drives through the intersection.
             final String bsmEvent = "bsmEvent";
             final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
             configTopology.registerConfigListeners(bsmEventParams);
@@ -262,34 +266,19 @@ public class MonitorServiceController {
             bsmEventAlgorithm.start();
 
 
-            // // the message ingest topology tracks and stores incoming messages for further processing
-            final String messageIngest = "messageIngest";
+
+            // Get Algorithms used by intersection event topology
+
+            // The message ingest topology tracks and stores incoming messages for further processing
+            // It is a sub-topology of the IntersectionEvent Topology
             final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
             configTopology.registerConfigListeners(messageIngestParams);
             final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
             final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
             final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
             messageIngestAlgorithm.setMapIndex(mapIndex);
-            if (messageIngestAlgorithm instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)messageIngestAlgorithm;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(messageIngest));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, messageIngest, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, messageIngest, healthTopic));
-                algoMap.put(messageIngest, streamsAlgo);
-            }
             messageIngestAlgorithm.setParameters(messageIngestParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(messageIngestAlgorithm::stop));
-            messageIngestAlgorithm.start();
             
-            
-
-            
-            //Thread.sleep(20000);
-            
-
-            
-            // Get Algorithms used by intersection event topology
-
             // Setup Lane Direction of Travel Factory
             final LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
             final String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
@@ -324,6 +313,7 @@ public class MonitorServiceController {
             final String intersectionAlgoKey = conflictMonitorProps.getIntersectionEventAlgorithm();
             final IntersectionEventAlgorithm intersectionAlgo = intersectionAlgoFactory.getAlgorithm(intersectionAlgoKey);
             intersectionAlgo.setConflictMonitorProperties(conflictMonitorProps);
+            intersectionAlgo.setMessageIngestAlgorithm(messageIngestAlgorithm);
             intersectionAlgo.setLaneDirectionOfTravelAlgorithm(laneDirectionOfTravelAlgorithm);
             intersectionAlgo.setLaneDirectionOfTravelParams(ldotParams);
             intersectionAlgo.setConnectionOfTravelAlgorithm(connectionOfTravelAlgorithm);
@@ -335,14 +325,6 @@ public class MonitorServiceController {
             if (intersectionAlgo instanceof IntersectionEventStreamsAlgorithm) {
                 final var streamsAlgo = (IntersectionEventStreamsAlgorithm)intersectionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(intersectionEvent));
-                if (messageIngestAlgorithm instanceof StreamsTopology) {
-                    final var messageIngestStreams = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
-                    streamsAlgo.setBsmWindowStore(messageIngestStreams.getBsmWindowStore());
-                    streamsAlgo.setSpatWindowStore(messageIngestStreams.getSpatWindowStore());
-                    streamsAlgo.setMapStore(messageIngestStreams.getMapStore());
-                } else {
-                    logger.error("Message Ingest Algorithm is not a StreamsTopology.  Unable to set streams stores for IntersectionEventTopology.");
-                }
                 streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, intersectionEvent, stateChangeTopic, healthTopic));
                 streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, intersectionEvent, healthTopic));
                 algoMap.put(intersectionEvent, streamsAlgo);
@@ -351,8 +333,6 @@ public class MonitorServiceController {
             intersectionAlgo.start();
             logger.info("Started intersectionEvent topology");
 
-
-            
 
 
             // Signal State Event Assessment Topology
@@ -372,6 +352,23 @@ public class MonitorServiceController {
             signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
             signalStateEventAssesmentAlgo.start();
+
+            // // Stop Line Stop Assessment Topology
+            final String stopLineStopAssessment = "stopLineStopAssessment";
+            final StopLineStopAssessmentAlgorithmFactory slsaAlgoFactory = conflictMonitorProps.getStopLineStopAssessmentAlgorithmFactory();
+            final String stopLineStopAssessmentAlgorithm = conflictMonitorProps.getStopLineStopAssessmentAlgorithm();
+            final StopLineStopAssessmentAlgorithm stopLineStopAssesmentAlgo = slsaAlgoFactory.getAlgorithm(stopLineStopAssessmentAlgorithm);
+            final StopLineStopAssessmentParameters stopLineStopAssessmenAlgoParams = conflictMonitorProps.getStopLineStopAssessmentAlgorithmParameters();
+            if (stopLineStopAssesmentAlgo instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)stopLineStopAssesmentAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(stopLineStopAssessment));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, stopLineStopAssessment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, stopLineStopAssessment, healthTopic));
+                algoMap.put(stopLineStopAssessment, streamsAlgo);
+            }
+            stopLineStopAssesmentAlgo.setParameters(stopLineStopAssessmenAlgoParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(stopLineStopAssesmentAlgo::stop));
+            stopLineStopAssesmentAlgo.start();
             
 
             // Lane Direction Of Travel Assessment Topology

@@ -3,14 +3,14 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -38,6 +38,7 @@ public class MessageIngestTopologyTest {
     final String mapStoreName = "ProcessedMapWindowStore";
     final String rsuId = "10.11.81.12";
     final int intersectionId = 12109;
+    final String mapSpatialIndexStoreName = "MapSpatialIndexStore";
 
     @Test
     public void testMessageIngestTopology() throws JsonProcessingException {
@@ -47,12 +48,13 @@ public class MessageIngestTopologyTest {
         var messageIngestTopology = new MessageIngestTopology();
         messageIngestTopology.setParameters(parameters);
         messageIngestTopology.setMapIndex(mapIndex);
-        Topology topology = messageIngestTopology.buildTopology();
+        StreamsBuilder builder = messageIngestTopology.buildTopology(new StreamsBuilder());
+        Topology topology = builder.build();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
 
             var bsmTopic = driver.createInputTopic(bsmTopicName,
-                    JsonSerdes.BsmIntersectionKey().serializer(),
+                    JsonSerdes.BsmRsuIdKey().serializer(),
                     JsonSerdes.OdeBsm().serializer());
 
             var spatTopic = driver.createInputTopic(spatTopicName,
@@ -71,7 +73,7 @@ public class MessageIngestTopologyTest {
             final var processedMap = getProcessedMap();
             mapTopic.pipeInput(rsuKey, processedMap);
             spatTopic.pipeInput(rsuKey, getProcessedSpat());
-            final var bsmKey = new BsmIntersectionKey();
+            final var bsmKey = new BsmRsuIdKey();
             bsmKey.setBsmId("48C45782");
             bsmTopic.pipeInput(bsmKey, getBsm());
 
@@ -106,6 +108,7 @@ public class MessageIngestTopologyTest {
         params.setSpatStoreName(spatStoreName);
         params.setMapStoreName(mapStoreName);
         params.setMapBoundingBoxTopic(mapBoundingBoxTopicName);
+        params.setMapSpatialIndexStoreName(mapSpatialIndexStoreName);
         return params;
     }
 

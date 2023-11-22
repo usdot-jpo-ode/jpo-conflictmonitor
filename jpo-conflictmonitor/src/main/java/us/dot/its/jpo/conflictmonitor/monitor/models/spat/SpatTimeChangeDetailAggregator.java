@@ -70,7 +70,14 @@ public class SpatTimeChangeDetailAggregator {
                 this.spatTimeChangeDetails.get(1)
             );
             this.spatTimeChangeDetails.remove(0);
-            return outputPair;
+            // logger.info("Emitting Spat Pair First {}  {}  Second {}   {}" + outputPair.getFirst().getTimestamp(),outputPair.getFirst().getIntersectionID(), outputPair.getSecond().getTimestamp(),outputPair.getSecond().getOriginIP());
+            long delta = Math.abs(outputPair.getFirst().getTimestamp() - outputPair.getSecond().getTimestamp());
+            if(delta < 150){
+                //logger.info("Emitting Spat Pair First {}  {}  Second {}   {}", outputPair.getFirst().getTimestamp(),outputPair.getFirst().getIntersectionID(), outputPair.getSecond().getTimestamp(), outputPair.getSecond().getIntersectionID());
+                return outputPair;
+            }else{
+                return null;
+            }
         }
         else{
             return null;

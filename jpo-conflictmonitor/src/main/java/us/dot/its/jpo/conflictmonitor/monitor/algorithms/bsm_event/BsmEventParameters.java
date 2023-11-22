@@ -31,6 +31,11 @@ public class BsmEventParameters {
         updateType = READ_ONLY)
     String outputTopic;
 
+    @ConfigData(key = "bsm.event.bsmIntersectionOutputTopic",
+        description = "The Kafka topic to write BSMs partitioned by intersection to",
+        updateType = READ_ONLY)
+    String bsmIntersectionOutputTopic;
+
     @ConfigData(key = "bsm.event.stateStoreName", 
         description = "The name of the Timestamped KeyValue Store for BSMs",
         updateType = READ_ONLY)

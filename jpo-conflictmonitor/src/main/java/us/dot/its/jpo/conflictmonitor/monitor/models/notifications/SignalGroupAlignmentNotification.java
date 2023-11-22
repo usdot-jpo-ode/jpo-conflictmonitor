@@ -1,10 +1,11 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class SignalGroupAlignmentNotification extends Notification {
     public SignalGroupAlignmentNotification() {

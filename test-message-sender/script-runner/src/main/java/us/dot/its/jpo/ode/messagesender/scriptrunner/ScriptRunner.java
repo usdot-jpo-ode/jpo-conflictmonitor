@@ -25,7 +25,7 @@ public class ScriptRunner {
 
     private final static Logger logger = LoggerFactory.getLogger(ScriptRunner.class);
 
-    private final static Pattern linePattern = Pattern.compile("^(?<messageType>BSM|SPAT|MAP),(?<time>\\d+),(?<message>.+)$");
+    private final static Pattern linePattern = Pattern.compile("^(?<messageType>BSM|SPAT|MAP|ProcessedMap|ProcessedSpat)(;(?<rsuId>[A-Za-z0-9.]+);(?<intersectionId>\\d+))?,(?<time>\\d+),(?<message>.+)$");
     
     @Autowired
     ThreadPoolTaskScheduler scheduler;
@@ -75,7 +75,10 @@ public class ScriptRunner {
                 String messageType = m.group("messageType");
                 long timeOffset = Long.parseLong(m.group("time"));
                 String message = m.group("message");
-                scheduleMessage(startTime, messageType, timeOffset, message, tempId);
+                String rsuId = m.group("rsuId");
+                String intersectionIdStr = m.group("intersectionId");
+                Integer intersectionId = StringUtils.isNotEmpty(intersectionIdStr) ? Integer.parseInt(intersectionIdStr) : null;
+                scheduleMessage(startTime, messageType, timeOffset, message, tempId, rsuId, intersectionId);
             } catch (Exception e) {
                 logger.error(String.format("Exception in line '%s'", line), e);
             }
@@ -83,7 +86,7 @@ public class ScriptRunner {
     }
 
     private void scheduleMessage(final long startTime, final String messageType, 
-        final long timeOffset, final String message, final String tempId) {
+        final long timeOffset, final String message, final String tempId, final String rsuId, final Integer intersectionId) {
         final long sendTime = startTime + timeOffset;
         final Instant sendInstant = Instant.ofEpochMilli(sendTime);
         var job = new SendMessageJob();
@@ -91,6 +94,8 @@ public class ScriptRunner {
         job.setMessageType(messageType);
         job.setSendTime(sendTime);
         job.setMessage(fillTemplate(sendInstant, message, tempId));
+        job.setRsuId(rsuId);
+        job.setIntersectionId(intersectionId);
         scheduler.schedule(job, sendInstant);
         logger.info("Scheduled {} job at {}", messageType, sendTime);
     }
@@ -98,6 +103,8 @@ public class ScriptRunner {
     public static final String ISO_DATE_TIME = "@ISO_DATE_TIME@";
     public static final String MINUTE_OF_YEAR = "\"@MINUTE_OF_YEAR@\"";
     public static final String MILLI_OF_MINUTE = "\"@MILLI_OF_MINUTE@\"";
+    public static final String EPOCH_SECONDS = "\"@EPOCH_SECONDS@\"";
+    public static final Pattern OFFSET_SECONDS = Pattern.compile("\"@OFFSET_SECONDS_(?<offset>-?[0-9.]+)@\"");
     public static final String TEMP_ID = "@TEMP_ID@";
     
 
@@ -115,12 +122,29 @@ public class ScriptRunner {
         Duration minDuration = Duration.between(zdtMinute, zdt);
         long milliOfMinute = minDuration.toMillis();
        
-        
-        return message
+        double epochSecond = sendInstant.toEpochMilli() / 1000.0d;
+
+        // Fill in offset decimal seconds in timing
+        var matcher = OFFSET_SECONDS.matcher(message);
+        String replaced = matcher.replaceAll((matchResult) -> {
+            String offsetStr = matcher.group("offset");
+            double offset = Double.parseDouble(offsetStr);
+
+            // Offset seconds and round to 3 decimals
+            double seconds = epochSecond + offset;
+            return String.format("%.3f", seconds);
+        });
+
+
+
+        return replaced
             .replace(ISO_DATE_TIME, isoDateTime)
             .replace(MINUTE_OF_YEAR, Long.toString(minuteOfYear))
             .replace(MILLI_OF_MINUTE, Long.toString(milliOfMinute))
+            .replace(EPOCH_SECONDS, Double.toString(epochSecond))
             .replace(TEMP_ID, tempId);
+
+
 
     }
 

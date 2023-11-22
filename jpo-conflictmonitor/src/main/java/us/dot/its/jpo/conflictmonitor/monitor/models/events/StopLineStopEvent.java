@@ -18,7 +18,6 @@ public class StopLineStopEvent extends Event{
     private int ingressLane;
     private int egressLane;
     private int connectionID;
-    private J2735MovementPhaseState eventState;
     private J2735MovementPhaseState initialEventState;
     private long initialTimestamp;
     private J2735MovementPhaseState finalEventState;

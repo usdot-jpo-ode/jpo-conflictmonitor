@@ -93,6 +93,9 @@ kafka.topics:
     - name: topic.CmBsmJsonRepartition
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmBsmIntersection
+      cleanupPolicy: delete
+      retentionMs: 300000
     - name: topic.ProcessedSpat
       cleanupPolicy: delete
       retentionMs: 300000
@@ -144,6 +147,10 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmAssessment
       cleanupPolicy: compact
+    - name: topic.CmStopLineStopAssessment
+      cleanupPolicy: compact
+    - name: topic.CmStopLineStopNotification
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -169,6 +176,7 @@ connection.of.travel.assessment:
   connectionOfTravelNotificationTopicName: topic.CmConnectionOfTravelNotification
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  minimumNumberOfEvents: 10
 
 intersection.event:
   algorithm: defaultIntersectionEventAlgorithm
@@ -190,6 +198,8 @@ lane.direction.of.travel.assessment:
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
   headingToleranceDegrees: 20
+  distanceFromCenterlineToleranceCm: 100
+  minimumNumberOfEvents: 10
 
 # MAP/SPAT Message Assessment
 map.spat.message.assessment:
@@ -220,7 +230,7 @@ map.validation:
   minimumDataTopicName: topic.CmMapMinimumDataEvents
   rollingPeriodSeconds: 10
   outputIntervalSeconds: 5
-  gracePeriodMilliseconds: 100
+  gracePeriodMilliseconds: 5000
   lowerBound: 9
   upperBound: 11
   debug: false
@@ -256,7 +266,7 @@ event:
   algorithm: defaultEventAlgorithm
   debug: false
   eventOutputTopicName: topic.CmEvent
-  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventTopicName: topic.CmStopLinePassageEvent
   spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
   spatBroadcastRateTopicName: topic.CmSpatBroadcastRateEvents
   spatMinimumDataTopicName: topic.CmSpatMinimumDataEvents
@@ -274,10 +284,24 @@ event:
 signal.state.event.assessment:
   algorithm: defaultSignalStateEventAssessmentAlgorithm
   debug: false
-  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventTopicName: topic.CmStopLinePassageEvent
   signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  # minimumEventsToNotify: 10
+  # greenLightPercentToNotify: 0.1
+  # stopLinePassageNotificationOutputTopicName: topic.CmStopLineStopNotification
+
+stop.line.stop.assessment:
+  algorithm: defaultStopLineStopAssessmentAlgorithm
+  debug: false
+  stopLineStopEventTopicName: topic.CmStopLineStopEvent
+  stopLineStopAssessmentOutputTopicName: topic.CmStopLineStopAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+  minimumEventsToNotify: 10
+  greenLightPercentToNotify: 0.1
+  stopLineStopNotificationOutputTopicName: topic.CmStopLineStopNotification
 
 # Signal State Vehicle Crosses Analytics
 signal.state.vehicle.crosses:
@@ -316,7 +340,7 @@ spat.validation:
   minimumDataTopicName: topic.CmSpatMinimumDataEvents
   rollingPeriodSeconds: 10
   outputIntervalSeconds: 5
-  gracePeriodMilliseconds: 100
+  gracePeriodMilliseconds: 5000
   lowerBound: 90
   upperBound: 110
   debug: false
@@ -331,6 +355,7 @@ bsm.event:
   algorithm: defaultBsmEventAlgorithm
   inputTopic: topic.CmBsmJsonRepartition
   outputTopic: topic.CMBsmEvents
+  bsmIntersectionOutputTopic: topic.CmBsmIntersection
   stateStoreName: bsm-event-state-store
   debug: false
   simplifyPath: true
@@ -340,13 +365,14 @@ bsm.event:
 message.ingest:
   algorithm: defaultMessageIngestAlgorithm
   debug: false
-  bsmTopic: topic.CmBsmJsonRepartition
+  bsmTopic: topic.CmBsmIntersection
   spatTopic: topic.ProcessedSpat
   mapTopic: topic.ProcessedMap
   mapBoundingBoxTopic: topic.CmMapBoundingBox
   bsmStoreName: BsmWindowStore
   spatStoreName: SpatWindowStore
   mapStoreName: ProcessedMapWindowStore
+  mapSpatialIndexStoreName: MapSpatialIndexStore
 
 # Config parameters
 config:

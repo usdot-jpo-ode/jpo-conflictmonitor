@@ -26,8 +26,8 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptRunnerApplication.class);
 
 	public static void main(String[] args) {
-		
-		SpringApplication.run(ScriptRunnerApplication.class, args);
+		// Run command line, then exit
+		System.exit(SpringApplication.exit(SpringApplication.run(ScriptRunnerApplication.class, args)));
 	}
 
 	final String USAGE = 
@@ -38,9 +38,11 @@ public class ScriptRunnerApplication implements ApplicationRunner  {
 		"    $ java -jar script-runner-cli.jar <filename>\n\n" +
 		"  Maven:\n" +
 		"    $ mvn spring-boot:run -Dspring-boot.run.arguments=<filename>\n\n" +
-		"  <filename> : (Required in script run mode) Input ODE JSON script file\n" +
-		"               Formatted as line-delimited CSV/JSON like:\n" + 
-		"               <BSM or MAP or SPAT>,<millisecond offset>,<Templated ODE JSON>\n\n" +
+		"  <filename> : (Required in script run mode) Input JSON script file consisting of line-delimited JSON like:\n" +
+		"                    <BSM or MAP or SPAT>,<millisecond offset>,<JSON>\n" +
+		"               for ODE Json objects or like:\n" +
+		"                    <ProcessedMap or ProcessedSpat>;<RSU IP>;<Intersection ID>,<millisecond offset>,<JSON>\n" +
+		"               for Processed Maps or Spats.\n\n" +
 		"Send hex log to ODE and create script:\n\n" +
 		"  Executable jar:\n" +
 		"   $ java -jar script-runner-cli.jar --infile=<filename> --outfile=<filename> --ip=<docker host ip> ...\n\n" +

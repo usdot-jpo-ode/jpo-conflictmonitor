@@ -31,11 +31,11 @@
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>usdot.jpo.ode</groupId>
-			<artifactId>script-runner</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>usdot.jpo.ode</groupId>-->
+<!--			<artifactId>script-runner</artifactId>-->
+<!--			<version>1.0-SNAPSHOT</version>-->
+<!--		</dependency>-->
 		
 		<dependency>
 			<groupId>org.projectlombok</groupId>

@@ -1,7 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;

@@ -1,23 +1,22 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Windowed;
-import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.*;
+import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.apache.kafka.streams.kstream.Produced;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
@@ -26,6 +25,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
@@ -34,13 +35,15 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.*;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.DiagnosticProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -61,9 +64,8 @@ public class IntersectionEventTopology
 
     ConflictMonitorProperties conflictMonitorProps;
 
-    ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore;
-    ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
-    ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
+
+    MessageIngestAlgorithm messageIngestAlgorithm;
     LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParams;
     ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm;
@@ -84,9 +86,9 @@ public class IntersectionEventTopology
     @Override
     protected void validate() {
         if (streamsProperties == null) throw new IllegalStateException("Streams properties are not set.");
-        if (bsmWindowStore == null) throw new IllegalStateException("bsmWindowStore is not set.");
-        if (spatWindowStore == null) throw new IllegalStateException("spatWindowStore is not set.");
-        if (mapStore == null) throw new IllegalStateException("mapStore is not set.");
+
+        if (messageIngestAlgorithm == null) throw new IllegalStateException("MessageIngestAlgorithm is not set.");
+        if (!(messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm)) throw new IllegalStateException("Non-KafkaStreams MessageIngestAlgorithm is not supported.");
         if (laneDirectionOfTravelAlgorithm == null) throw new IllegalStateException("LaneDirectionOfTravelAlgorithm is not set");
         if (laneDirectionOfTravelParams == null) throw new IllegalStateException("LaneDirectionOfTravelParameters is not set");
         if (connectionOfTravelAlgorithm == null) throw new IllegalStateException("ConnectionOfTravelAlgorithm is not set");
@@ -106,12 +108,23 @@ public class IntersectionEventTopology
         return conflictMonitorProps;
     }
 
+
+
     @Override
     public void setConflictMonitorProperties(ConflictMonitorProperties conflictMonitorProps) {
         this.conflictMonitorProps = conflictMonitorProps;
     }
 
 
+     @Override
+    public MessageIngestAlgorithm getMessageIngestAlgorithm() {
+        return messageIngestAlgorithm;
+    }
+
+    @Override
+    public void setMessageIngestAlgorithm(MessageIngestAlgorithm messageIngestAlgorithm) {
+        this.messageIngestAlgorithm = messageIngestAlgorithm;
+    }
 
 
     @Override
@@ -155,34 +168,21 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> getBsmWindowStore() {
-        return bsmWindowStore;
+    public ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> getBsmWindowStore() {
+        return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getBsmWindowStore(streams);
     }
 
     @Override
     public ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> getSpatWindowStore() {
-        return spatWindowStore;
+        return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getSpatWindowStore(streams);
     }
 
     @Override
     public ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> getMapStore() {
-        return mapStore;
+        return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getMapStore(streams);
     }
 
-    @Override
-    public void setBsmWindowStore(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmStore) {
-        this.bsmWindowStore = bsmStore;
-    }
 
-    @Override
-    public void setSpatWindowStore(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatStore) {
-        this.spatWindowStore = spatStore;
-    }
-
-    @Override
-    public void setMapStore(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore) {
-        this.mapStore = mapStore;
-    }
 
 
     @Override
@@ -230,12 +230,15 @@ public class IntersectionEventTopology
 
 
 
-    private static String getBsmID(OdeBsmData value){
-        return ((J2735Bsm)value.getPayload().getData()).getCoreData().getId();
-    }
 
-    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionKey, OdeBsmData> bsmWindowStore, Instant start, Instant end, String id){
-        logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, ID: {}", start, end, id);
+
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore,
+                                                      Instant start, Instant end, BsmIntersectionIdKey key){
+        logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, key: {}", start, end, key);
+        final String rsuId = key.getRsuId();
+        final String vehicleId = key.getBsmId();
+        final int intersectionId = key.getIntersectionId();
+        final int region = key.getRegion();
 
         Instant timeFrom = start.minusSeconds(60);
         Instant timeTo = start.plusSeconds(60);
@@ -243,17 +246,31 @@ public class IntersectionEventTopology
         long startMillis = start.toEpochMilli();
         long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<BsmIntersectionKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<BsmIntersectionIdKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
 
         BsmAggregator agg = new BsmAggregator();
 
         while(bsmRange.hasNext()){
-            KeyValue<Windowed<BsmIntersectionKey>, OdeBsmData> next = bsmRange.next();
+            KeyValue<Windowed<BsmIntersectionIdKey>, OdeBsmData> next = bsmRange.next();
+            Windowed<BsmIntersectionIdKey> storedWindowedKey = next.key;
+            BsmIntersectionIdKey storedKey = storedWindowedKey.key();
+            String storedVehicleId = storedKey.getBsmId();
+            String storedRsuId = storedKey.getRsuId();
+            int storedIntersectionId = storedKey.getIntersectionId();
+            int storedRegion = storedKey.getRegion();
+            OdeBsmData storedBsm = next.value;
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
-            if(startMillis <= ts && endMillis >= ts && getBsmID(next.value).equals(id)){
-                agg.add(next.value);
+
+            // Filter by timestamp and Vehicle ID.
+            // Also filter by RSU and intersection/region to avoid duplicates
+            if(startMillis <= ts && endMillis >= ts
+                    && Objects.equals(storedVehicleId, vehicleId)
+                    && Objects.equals(storedRsuId, rsuId)
+                    && intersectionId == storedIntersectionId){
+                // Filter by region if it is present and not test value
+                if (region > 0 && region != storedRegion) continue;
+                agg.add(storedBsm);
             }
-            
         }
 
         bsmRange.close();
@@ -265,9 +282,11 @@ public class IntersectionEventTopology
     }
 
     private static SpatAggregator getSpatByTime(ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore, Instant start,
-                                                Instant end, Integer intersection){
+                                                Instant end, RsuIntersectionKey key){
 
-        logger.info("getSpatByTime: Start: {}, End: {}, IntersectionId: {}", start, end, intersection);
+        logger.info("getSpatByTime: Start: {}, End: {}, Key: {}", start, end, key);
+        final int intersection = key.getIntersectionId();
+        final int region = key.getRegion();
 
         KeyValueIterator<Windowed<RsuIntersectionKey>, ProcessedSpat> spatRange = spatWindowStore.fetchAll(start, end);
 
@@ -279,7 +298,11 @@ public class IntersectionEventTopology
             KeyValue<Windowed<RsuIntersectionKey>, ProcessedSpat> next = spatRange.next();
 
             ProcessedSpat spat = next.value;
-            if (intersection != null && Objects.equals(spat.getIntersectionId(), intersection)) {
+            int spatIntersectionId = spat.getIntersectionId() != null ? spat.getIntersectionId().intValue() : -1;
+            int spatRegion = spat.getRegion() != null ? spat.getRegion().intValue() : -1;
+            if (spatIntersectionId == intersection) {
+                // Filter by region if it is present and not test value
+                if (region > 0 && region != spatRegion) continue;
                 spatAggregator.add(spat);
             }
 
@@ -297,71 +320,145 @@ public class IntersectionEventTopology
 
 
     private static ProcessedMap<LineString> getMap(ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore, RsuIntersectionKey key){
-        return (ProcessedMap<LineString>) mapStore.get(key);
+        // Find the MAP based on the intersection ID and optionally region
+        try (var mapIterator = mapStore.all()) {
+            while (mapIterator.hasNext()) {
+                var kvp = mapIterator.next();
+                RsuIntersectionKey storedKey = kvp.key;
+                if (key.getRegion() > 0) {
+                    // Non-test region specified, get matching region MAP
+                    if (key.getRegion() == storedKey.getRegion() && key.getIntersectionId() == storedKey.getIntersectionId()) {
+                        logger.info("Found MAP intersectionID = {}, region = {}", storedKey.getIntersectionId(), storedKey.getRegion());
+                        return kvp.value;
+                    }
+                } else {
+                    // No region, or test region; get first MAP matching the intersectionID ignoring the region
+                    if (key.getIntersectionId() == storedKey.getIntersectionId()) {
+                        logger.info("Found MAP intersectionID = {}, region = {}", storedKey.getIntersectionId(), storedKey.getRegion());
+                        return kvp.value;
+                    }
+                }
+            }
+        }
+        return null;
     }
+
+
 
     @Override
     public Topology buildTopology() {
         
         StreamsBuilder builder = new StreamsBuilder();
 
+        if (messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm) {
+            var messageIngestStreamsAlgorithm = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
+            builder = messageIngestStreamsAlgorithm.buildTopology(builder);
+        }
+
+
         
-        KStream<BsmEventIntersectionKey, BsmEvent> bsmEventStream =
-            builder.stream(
-                conflictMonitorProps.getKafkaTopicCmBsmEvent(), 
-                Consumed.with(
-                    JsonSerdes.BsmEventIntersectionKey(),
-                    JsonSerdes.BsmEvent())
-                )
-                    // Filter out BSM Events that aren't inside any MAP bounding box
-                    .filter(
-                            (key, value) -> value != null && value.isInMapBoundingBox()
-            );
+        KStream<BsmIntersectionIdKey, BsmEvent> bsmEventStream =
+            builder
+                .stream(
+                    conflictMonitorProps.getKafkaTopicCmBsmEvent(),
+                    Consumed.with(
+                        JsonSerdes.BsmIntersectionIdKey(),
+                        JsonSerdes.BsmEvent()))
 
-        //bsmEventStream.print(Printed.toSysOut());
+                    // Remove BSM Events outside MAPs
+                    .filter((key, value) -> value == null || value.isInMapBoundingBox()) // pass through tombstones
 
+                    // De-duplicate BSM Events from different RSUs.
+                    // Filter out if the (vehicle ID, intersection, region) was already added to the downstream table
+                    // within the time interval
+                    .filter((key, value) -> value == null || isNewBsmEvent(key, value)) // pass through tombstones
+
+                    // Queryable KTable that is queried by the above filter
+                    .toTable(
+                        Materialized.<BsmIntersectionIdKey, BsmEvent, KeyValueStore<Bytes, byte[]>>as(BSM_EVENT_DEDUPLICATE_STORE)
+                            .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
+                            .withValueSerde(JsonSerdes.BsmEvent())
+                            .withLoggingDisabled() // Don't need to create an internal topic for this
+                            .withCachingDisabled())
+                    .toStream()
+
+                    // Remove tombstones from the stream here that have already served their purpose of deleting from
+                    // the table store
+                    .filter((key, value) -> value != null);
+
+        // Whenever a new BsmEvent is received, clean old entries from the BsmEvent deduplicate store to prevent
+        // it from growing indefinitely
+        bsmEventStream
+                // Get a list of tombstones
+                .flatMap((key, value) -> listBsmEventsToRemove(value))
+                // Write the tombstones back to the BsmEvent topic
+                .to(conflictMonitorProps.getKafkaTopicCmBsmEvent(),
+                    Produced.with(
+                            JsonSerdes.BsmIntersectionIdKey(),
+                            JsonSerdes.BsmEvent(),
+                            new IntersectionIdPartitioner<>()));
+
+        bsmEventStream.process(() -> new DiagnosticProcessor<>("bsmEventStream", logger));
 
 
  
         // Join Spats, Maps and BSMS
-        KStream<BsmEventIntersectionKey, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
+        KStream<RsuIntersectionKey, VehicleEvent> vehicleEventsStream = bsmEventStream.flatMap(
             (key, value)->{
-                List<KeyValue<BsmEventIntersectionKey, VehicleEvent>> result = new ArrayList<>();
+
+                
+                List<KeyValue<RsuIntersectionKey, VehicleEvent>> result = new ArrayList<>();
+
+                
+                
+
                 if(value.getStartingBsm() == null || value.getEndingBsm() == null){
+                    logger.warn("Starting or ending BSM is null in BSM event, returning empty VehicleEvent list.  BsmEvent: {}", value);
                     return result;
                 }
 
-                String vehicleId = getBsmID(value.getStartingBsm());
+
+                
+
                 Instant firstBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getStartingBsm()));
                 Instant lastBsmTime = Instant.ofEpochMilli(BsmTimestampExtractor.getBsmTimestamp(value.getEndingBsm()));
-                ProcessedMap map = null;
-                BsmAggregator bsms = getBsmsByTimeVehicle(bsmWindowStore, firstBsmTime, lastBsmTime, vehicleId);
-                SpatAggregator spats = getSpatByTime(spatWindowStore, firstBsmTime, lastBsmTime, key.getIntersectionId());
+
+                ProcessedMap<LineString> map = null;
+                BsmAggregator bsms = getBsmsByTimeVehicle(getBsmWindowStore(), firstBsmTime, lastBsmTime, key);
+
+                SpatAggregator spats = getSpatByTime(getSpatWindowStore(), firstBsmTime, lastBsmTime, key);
 
 
-                // Find the MAP for the BSMs
-                RsuIntersectionKey rsuKey = new RsuIntersectionKey();
-                rsuKey.setRsuId(key.getRsuId());
-                rsuKey.setIntersectionId(key.getIntersectionId());
-                map = getMap(mapStore, rsuKey);
-                if(map != null){
-                    logger.info("Found MAP: {}", map);
-                    Intersection intersection = Intersection.fromProcessedMap(map);
-                    logger.info("Got Intersection object from MAP: {}", intersection);
-                    VehicleEvent event = new VehicleEvent(bsms, spats, intersection);
-                    result.add(new KeyValue<>(key, event));
-                } else{
-                    logger.warn("Map was Null");
-                }
 
-                // Don't require any SPATs to create a vehicle event
-                if (spats.getSpats().size() == 0) {
-                    logger.warn("Created vehicle event with 0 SPATs.");
+
+                if(spats.getSpats().size() > 0){
+
+                    // Find the MAP for the BSMs
+                    RsuIntersectionKey rsuKey = new RsuIntersectionKey();
+                    rsuKey.setRsuId(key.getRsuId());
+                    rsuKey.setIntersectionId(key.getIntersectionId());
+
+                    map = getMap(getMapStore(), rsuKey);
+
+                    
+
+                    if(map != null){
+
+                        Intersection intersection = Intersection.fromProcessedMap(map);
+
+                        VehicleEvent event = new VehicleEvent(bsms, spats, intersection, rsuKey.toString());
+
+                        result.add(new KeyValue<>(rsuKey, event));
+                        
+                    } else{
+                        logger.warn("Map was Null");
+                    }
+
                 }
 
 
                 logger.info("Detected Vehicle Event");
-                logger.info("Vehicle ID: {}", vehicleId);
+                logger.info("Vehicle ID: {}", key.getBsmId());
                 logger.info("Captured Bsms: {}", bsms.getBsms().size());
                 logger.info("Captured Spats: {}", spats.getSpats().size());
 
@@ -371,19 +468,25 @@ public class IntersectionEventTopology
 
 
         // Perform Analytics on Lane direction of Travel Events
-        KStream<BsmEventIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                var intersectionKey = key.getIntersectionKey();
-                double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(intersectionKey);
-                double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(intersectionKey);
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
-                        headingToleranceDegrees);
+                String rsuId = key.getRsuId();
+                List<KeyValue<RsuIntersectionKey, LaneDirectionOfTravelEvent>> result = new ArrayList<>();
+                if(value.getBsms().getBsms().size() > 2){
+                    double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
+                    double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
 
-                List<KeyValue<BsmEventIntersectionKey, LaneDirectionOfTravelEvent>> result = new ArrayList<>();
-                ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
-                
-                for(LaneDirectionOfTravelEvent event: events){
-                    result.add(new KeyValue<>(key, event));
+                    
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
+                            headingToleranceDegrees);
+
+                    
+                    ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
+                    
+                    for(LaneDirectionOfTravelEvent event: events){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                    }
                 }
                 return result;
             }
@@ -392,22 +495,27 @@ public class IntersectionEventTopology
         logger.info("LaneDirectionOfTravelEventStream: {}", laneDirectionOfTravelEventStream);
         laneDirectionOfTravelEventStream.to(
             conflictMonitorProps.getKafkaTopicCmLaneDirectionOfTravelEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.LaneDirectionOfTravelEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, LaneDirectionOfTravelEvent>()));
+                    new IntersectionIdPartitioner<RsuIntersectionKey, LaneDirectionOfTravelEvent>()));
 
         
 
         // Perform Analytics on Lane direction of Travel Events
-        KStream<BsmEventIntersectionKey, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, ConnectionOfTravelEvent> connectionTravelEventsStream = vehicleEventsStream.flatMap(
             (key, value)->{
+                List<KeyValue<RsuIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
+                if(value.getBsms().getBsms().size() > 2){
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
 
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
-
-                List<KeyValue<BsmEventIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
-                ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
-                if(event != null){
-                    result.add(new KeyValue<>(key, event));
+                    
+                    ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
+                    if(event != null){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                    }else{
+                        logger.info("No Lane Connection of Travel Event Found");
+                    }
                 }
                 return result;
                 
@@ -416,20 +524,26 @@ public class IntersectionEventTopology
 
         connectionTravelEventsStream.to(
             conflictMonitorProps.getKafkaTopicCmConnectionOfTravelEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.ConnectionOfTravelEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, ConnectionOfTravelEvent>()));
+                    new IntersectionIdPartitioner<RsuIntersectionKey, ConnectionOfTravelEvent>()));
 
 
         // Perform Analytics of Signal State Vehicle Crossing Intersection
-        KStream<BsmEventIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, StopLinePassageEvent> stopLinePassageEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
+                List<KeyValue<RsuIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
 
-                List<KeyValue<BsmEventIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
-                StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
-                if(event != null){
-                    result.add(new KeyValue<>(key, event));
+                if(value.getBsms().getBsms().size() > 2){
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
+
+                    
+                    StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
+                    if(event != null){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                        logger.info("Found Stop Line Passage Event");
+                    }
                 }
 
                 return result;
@@ -438,23 +552,26 @@ public class IntersectionEventTopology
 
         stopLinePassageEventStream.to(
             conflictMonitorProps.getKafkaTopicCmSignalStateEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLinePassageEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, StopLinePassageEvent>())
+                    new IntersectionIdPartitioner<RsuIntersectionKey, StopLinePassageEvent>())
                 );
 
 
 
         // Perform Analytics of Stop Line Stop Events
-        KStream<BsmEventIntersectionKey, StopLineStopEvent> stopLineStopEventStream = vehicleEventsStream.flatMap(
+        KStream<RsuIntersectionKey, StopLineStopEvent> stopLineStopEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
+                List<KeyValue<RsuIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
+                if(value.getBsms().getBsms().size() >2){
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLineStopParameters.getHeadingTolerance());
 
-                VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLineStopParameters.getHeadingTolerance());
-
-                List<KeyValue<BsmEventIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
-                StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(stopLineStopParameters, path, value.getSpats());
-                if(event != null){
-                    result.add(new KeyValue<>(key, event));
+                    
+                    StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(stopLineStopParameters, path, value.getSpats());
+                    if(event != null){
+                        event.setSource(value.getSource());
+                        result.add(new KeyValue<>(key, event));
+                    }
                 }
 
                 
@@ -464,13 +581,78 @@ public class IntersectionEventTopology
 
         stopLineStopEventStream.to(
             conflictMonitorProps.getKafakTopicCmVehicleStopEvent(), 
-            Produced.with(JsonSerdes.BsmEventIntersectionKey(),
+            Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLineStopEvent(),
-                    new RsuIdPartitioner<BsmEventIntersectionKey, StopLineStopEvent>()));
+                    new IntersectionIdPartitioner<RsuIntersectionKey, StopLineStopEvent>()));
  
-        return builder.build();
+       return builder.build();
     }
 
 
+    private static final String BSM_EVENT_DEDUPLICATE_STORE = "bsm-event-deduplicate-store";
+    private static final long BSM_EVENT_INTERVAL_MS = 1000;
+    private static final long BSM_EVENT_MAX_AGE_MS = 120 * 1000;
+
+    private ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> getBsmEventDeduplicateStore() {
+        return streams.store(
+                StoreQueryParameters.fromNameAndType(BSM_EVENT_DEDUPLICATE_STORE,
+                        QueryableStoreTypes.keyValueStore()));
+    }
+
+    // Test if a stored BSM Event already exists for the same vehicleID, intersectionId and region
+    // within the interval
+    private boolean isNewBsmEvent(BsmIntersectionIdKey key, BsmEvent bsmEvent) {
+        final int intersectionId = key.getIntersectionId();
+        final int region = key.getRegion();
+        final String vehicleId = key.getBsmId();
+        ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> bsmEventStore = getBsmEventDeduplicateStore();
+        BsmEvent storedBsmEvent = null;
+        try (var iterator = bsmEventStore.all()) {
+            while (iterator.hasNext()) {
+                var kvp = iterator.next();
+                var storedKey = kvp.key;
+                String storedVehicleId = storedKey.getBsmId();
+                int storedIntersectionId = storedKey.getIntersectionId();
+                int storedRegion = storedKey.getRegion();
+                // Compare region if any
+                if (region > 0 && region != storedRegion) continue;
+                // Compare vehicleId and intersectionId
+                if (Objects.equals(vehicleId, storedVehicleId) && intersectionId == storedIntersectionId) {
+                    storedBsmEvent = kvp.value;
+                    break;
+                }
+            }
+        }
+        if (storedBsmEvent == null) return true;
+        long interval = Math.abs(storedBsmEvent.getStartingBsmTimestamp() - bsmEvent.getStartingBsmTimestamp());
+        logger.info("Stored BSM event exists for key {}. BSMEvent interval = {}", key, interval);
+        boolean filter = interval > BSM_EVENT_INTERVAL_MS;
+        if (!filter) {
+            logger.info("The duplicate BSMEvent interval is less than {} ms, it will be filtered out", BSM_EVENT_INTERVAL_MS);
+        }
+        return filter;
+    }
+
+    private List<KeyValue<BsmIntersectionIdKey, BsmEvent>> listBsmEventsToRemove(BsmEvent currentBsmEvent) {
+        final long currentTimestamp = currentBsmEvent.getStartingBsmTimestamp();
+        // List of events to remove
+        List<KeyValue<BsmIntersectionIdKey, BsmEvent>> tombstones = new ArrayList<>();
+        ReadOnlyKeyValueStore<BsmIntersectionIdKey, BsmEvent> bsmEventStore = getBsmEventDeduplicateStore();
+        try (var iterator = bsmEventStore.all()) {
+            while (iterator.hasNext()) {
+                var kvp = iterator.next();
+                var storedKey = kvp.key;
+                var storedValue = kvp.value;
+                long storedTimestamp = storedValue.getStartingBsmTimestamp();
+                long interval = currentTimestamp - storedTimestamp;
+                if (interval > BSM_EVENT_MAX_AGE_MS) {
+                    tombstones.add(KeyValue.pair(storedKey, (BsmEvent)null));
+                    logger.info("Old BSMEvent with key {}, timestamp {} will be removed from deduplicate store",
+                            storedKey, storedTimestamp);
+                }
+            }
+        }
+        return tombstones;
+    }
     
 }

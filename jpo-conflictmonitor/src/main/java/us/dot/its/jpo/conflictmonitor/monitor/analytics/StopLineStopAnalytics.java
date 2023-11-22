@@ -16,16 +16,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -93,6 +89,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         event.setIngressLane(ingressLane.getId());
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());
+        }else{
+            event.setEgressLane(-1);
         }
         Optional<Double> optionalHeading = BsmUtils.getHeading(firstStoppedBsm);
         if (optionalHeading.isPresent()) {
@@ -102,21 +100,37 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         event.setLongitude(firstBsmPosition.getX());
         event.setLatitude(firstBsmPosition.getY());
 
+
         int signalGroup = -1;
-        if (egressLane != null) {
-            LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-            if (connection != null) {
-                signalGroup = connection.getSignalGroup();
-            } else {
-                logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
+        int connectionId = -1;
+
+        Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
+        if(signalGroups.size() ==0){
+            return null;
+        }else if(signalGroups.size() ==1){
+            signalGroup = signalGroups.iterator().next();
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    connectionId = connection.getSignalGroup();
+                }
             }
-        } else {
-            Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-            if (signalGroups.size() == 1) {
-                signalGroup = signalGroups.iterator().next();
-            } else {
-                logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
-                return null;
+        }else if(signalGroups.size()>=2){
+            if(egressLane != null){
+                LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
+                if(connection!= null){
+                    signalGroup = connection.getSignalGroup();
+                }else{
+                    Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
+                    Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
+                    if(matchingConnection != null){
+                        signalGroup = matchingConnection;
+                    }else{
+                        signalGroup = -1;
+                    }
+                }
+            }else{
+                signalGroup = -1;
             }
         }
 
@@ -126,19 +140,39 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
             event.setInitialEventState(firstSignalState);
             event.setFinalEventState(lastSignalState);
+            event.setConnectionID(connectionId);
+
 
             List<ProcessedSpat> filteredSpats = SpatUtils.filterSpatsByTimestamp(spats.getSpats(), firstTimestamp, lastTimestamp);
-            String spatDesc = SpatUtils.describeSpats(filteredSpats, signalGroup);
-            logger.info(spatDesc);
+
+            // String spatDesc = SpatUtils.describeSpats(filteredSpats, signalGroup);
             SpatUtils.SpatStatistics spatStatistics = SpatUtils.getSpatStatistics(filteredSpats, signalGroup);
 
             event.setTimeStoppedDuringRed(spatStatistics.getTimeStoppedDuringRed());
             event.setTimeStoppedDuringYellow(spatStatistics.getTimeStoppedDuringYellow());
             event.setTimeStoppedDuringGreen(spatStatistics.getTimeStoppedDuringGreen());
+        }else{
+            event.setTimeStoppedDuringRed(-1);
+            event.setTimeStoppedDuringYellow(-1);
+            event.setTimeStoppedDuringGreen(-1);
+            event.setSignalGroup(-1);
+            event.setInitialEventState(null);
+            event.setFinalEventState(null);
         }
 
         logger.info("StopLineStopEvent: {}", event);
         return event;
+    }
+
+    private Integer getMatchingSignalGroup(Set<Integer> ingressGroups, Set<Integer> egressGroups){
+        for(Integer ingressGroupID: ingressGroups){
+            for(Integer egressGroupID: egressGroups){
+                if(ingressGroupID == egressGroupID){
+                    return ingressGroupID;
+                }
+            }
+        }
+        return null;
     }
 
 

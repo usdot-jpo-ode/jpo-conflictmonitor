@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -75,7 +76,7 @@ public class SpatValidationTopology
                 Produced.with(
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                     JsonSerdes.SpatMinimumDataEvent(),
-                    new RsuIdPartitioner<RsuIntersectionKey, SpatMinimumDataEvent>())
+                    new IntersectionIdPartitioner<RsuIntersectionKey, SpatMinimumDataEvent>())
             );
         
         // Perform count for Broadcast Rate analysis
@@ -120,8 +121,9 @@ public class SpatValidationTopology
             .map((windowedKey, counts) -> {
                 // Generate an event
                 SpatBroadcastRateEvent event = new SpatBroadcastRateEvent();
-                event.setSourceDeviceId(windowedKey.key().getRsuId());
-                event.setIntersectionId(windowedKey.key().getIntersectionId());
+                event.setSource(windowedKey.key().toString());
+                event.setIntersectionID(windowedKey.key().getIntersectionId());
+                event.setRoadRegulatorID(-1);
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 
@@ -145,7 +147,7 @@ public class SpatValidationTopology
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.SpatBroadcastRateEvent(),
-                new RsuIdPartitioner<RsuIntersectionKey, SpatBroadcastRateEvent>())
+                new IntersectionIdPartitioner<RsuIntersectionKey, SpatBroadcastRateEvent>())
         );
         
         return builder.build();

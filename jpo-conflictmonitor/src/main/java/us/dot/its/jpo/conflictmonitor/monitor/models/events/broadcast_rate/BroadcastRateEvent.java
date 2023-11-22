@@ -29,12 +29,7 @@ public abstract class BroadcastRateEvent extends Event {
     /**
      * The source RSU Device ID
      */
-    private String sourceDeviceId;
-
-    /**
-     * The intersection id
-     */
-    private int intersectionId;
+    private String source;
 
     /**
      * The message processing time period.

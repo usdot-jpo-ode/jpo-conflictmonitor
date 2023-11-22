@@ -8,14 +8,24 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties()
 public class TestMessageSenderConfiguration {
     
-    String mapboxTileEndpoint;
+    String basemapUrl;
+    String basemapAttribution;
 
-    @Value("${mapbox.tile.endpoint}")
-    public void setMapboxTileEndpoint(String mapboxTileEndpoint) {
-        this.mapboxTileEndpoint = mapboxTileEndpoint;
+    @Value("${basemap.url}")
+    public void setBasemapUrl(String basemapUrl) {
+        this.basemapUrl = basemapUrl;
     }
 
-    public String getMapboxTileEndpoint() {
-        return mapboxTileEndpoint;
+    public String getBasemapUrl() {
+        return basemapUrl;
+    }
+
+    @Value("${basemap.attribution}")
+    public void setBasemapAttribution(String basemapAttribution) {
+        this.basemapAttribution = basemapAttribution;
+    }
+
+    public String getBasemapAttribution() {
+        return basemapAttribution;
     }
 }

@@ -16,7 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 @Generated
 public class IntersectionReferenceAlignmentEvent extends Event{
     
-    private String sourceID;
+    private String source;
     private long timestamp;
 
     private Set<RegulatorIntersectionId> spatRegulatorIntersectionIds;

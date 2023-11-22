@@ -1,14 +1,11 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 
 
@@ -28,6 +25,7 @@ public class LaneDirectionOfTravelEvent extends Event{
     private double medianVehicleHeading;
     private double medianDistanceFromCenterline;
     private int aggregateBSMCount;
+    private String source;
 
     public LaneDirectionOfTravelEvent(){
         super("LaneDirectionOfTravel");

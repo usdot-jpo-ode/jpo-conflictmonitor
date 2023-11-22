@@ -10,12 +10,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTra
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.LaneDirectionOfTravelAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.SignalStateEventAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAggregator;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
+import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
@@ -32,6 +34,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -44,6 +47,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateCo
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
@@ -153,16 +157,34 @@ public class JsonSerdes {
             new JsonDeserializer<>(SignalStateAssessment.class));
     }
 
-    public static Serde<SignalStateEventAssessment> SignalStateEventAssessment() {
+    public static Serde<StopLinePassageAssessment> SignalStateEventAssessment() {
         return Serdes.serdeFrom(
-            new JsonSerializer<SignalStateEventAssessment>(),
-            new JsonDeserializer<>(SignalStateEventAssessment.class));
+            new JsonSerializer<StopLinePassageAssessment>(),
+            new JsonDeserializer<>(StopLinePassageAssessment.class));
     }
 
-    public static Serde<SignalStateEventAggregator> SignalStateEventAggregator() {
+    public static Serde<StopLinePassageAggregator> SignalStateEventAggregator() {
         return Serdes.serdeFrom(
-            new JsonSerializer<SignalStateEventAggregator>(),
-            new JsonDeserializer<>(SignalStateEventAggregator.class));
+            new JsonSerializer<StopLinePassageAggregator>(),
+            new JsonDeserializer<>(StopLinePassageAggregator.class));
+    }
+
+    public static Serde<StopLineStopAssessment> StopLineStopAssessment() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLineStopAssessment>(),
+            new JsonDeserializer<>(StopLineStopAssessment.class));
+    }
+
+    public static Serde<StopLineStopNotification> StopLineStopNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLineStopNotification>(),
+            new JsonDeserializer<>(StopLineStopNotification.class));
+    }
+
+    public static Serde<StopLineStopAggregator> StopLineStopAggregator() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLineStopAggregator>(),
+            new JsonDeserializer<>(StopLineStopAggregator.class));
     }
 
     public static Serde<LaneDirectionOfTravelAssessment> LaneDirectionOfTravelAssessment() {
@@ -189,16 +211,18 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
     }
 
-    public static Serde<BsmIntersectionKey> BsmIntersectionKey() {
+    public static Serde<BsmRsuIdKey> BsmRsuIdKey() {
         return Serdes.serdeFrom(
-            new JsonSerializer<BsmIntersectionKey>(),
-            new JsonDeserializer<>(BsmIntersectionKey.class));
+            new JsonSerializer<BsmRsuIdKey>(),
+            new JsonDeserializer<>(BsmRsuIdKey.class));
     }
 
-    public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
+
+
+    public static Serde<BsmIntersectionIdKey> BsmIntersectionIdKey() {
         return Serdes.serdeFrom(
-                new JsonSerializer<BsmEventIntersectionKey>(),
-                new JsonDeserializer<>(BsmEventIntersectionKey.class));
+                new JsonSerializer<BsmIntersectionIdKey>(),
+                new JsonDeserializer<>(BsmIntersectionIdKey.class));
     }
 
     public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {
@@ -319,6 +343,10 @@ public class JsonSerdes {
         );
     }
     
-
-    
+    public static Serde<MapBoundingBox> MapBoundingBox() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<MapBoundingBox>(),
+                new JsonDeserializer<>(MapBoundingBox.class)
+        );
+    }
 }

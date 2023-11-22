@@ -5,7 +5,6 @@ import java.util.*;
 import lombok.*;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
@@ -170,6 +169,22 @@ public class Intersection {
         }
         return signalGroups;
     }
+
+    public Set<Integer> getSignalGroupsForEgressLane(Lane egressLane) {
+
+        Set<Integer> signalGroups = new HashSet<>();
+        if (egressLane == null) {
+            return signalGroups;
+        }
+        for(LaneConnection laneConnection: this.laneConnections){
+            if(laneConnection.getEgressLane().getId() == egressLane.getId()){
+                signalGroups.add(laneConnection.getSignalGroup());
+            }
+        }
+        return signalGroups;
+    }
+
+
 
     public ArrayList<LaneConnection> getLaneConnectionBySignalGroup(int signalGroup){
         ArrayList<LaneConnection> connections = new ArrayList<>();

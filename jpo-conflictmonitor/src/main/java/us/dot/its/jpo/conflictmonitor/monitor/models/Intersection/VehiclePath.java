@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
-
+import org.locationtech.jts.linearref.LengthIndexedLine;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.locationtech.jts.operation.buffer.BufferOp;
@@ -164,18 +164,14 @@ public class VehiclePath {
         final double upstreamSearchDistanceCm = CoordinateConversion.feetToCM(upstreamSearchDistanceFeet);
         final double laneWidthCm = lane.getLaneWidthCm();
         final double halfLaneWidthCm = laneWidthCm / 2.0;
-        LineString laneCenterline = lane.getPoints();
 
-        // Find the upstream line based on the upstream search distance
-        LocationIndexedLine locationLine = new LocationIndexedLine(laneCenterline);
-        LinearLocation startLocation = locationLine.getStartIndex();
-        Coordinate endPoint = locationLine.extractPoint(startLocation, upstreamSearchDistanceCm);
-        LinearLocation endLocation = locationLine.project(endPoint);
-        LineString upstreamLine = (LineString)locationLine.extractLine(startLocation, endLocation);
+        LineString laneCenterline = lane.getPoints();
+        LengthIndexedLine indexedLine = new LengthIndexedLine(laneCenterline);
+        LineString upstreamLine = (LineString) indexedLine.extractLine(0, upstreamSearchDistanceCm * 10);
 
         // Construct a buffer around the upstream line based on the lane width
         BufferParameters bufferParams = new BufferParameters();
-        bufferParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+        bufferParams.setEndCapStyle(BufferParameters.CAP_SQUARE);
         Geometry buffer = BufferOp.bufferOp(upstreamLine, halfLaneWidthCm, bufferParams);
 
         // Find the BSMs that are within the buffer
@@ -183,6 +179,9 @@ public class VehiclePath {
         int index = 0;
         for (OdeBsmData bsm : this.bsms.getBsms()) {
             Point p = this.pathPoints.getPointN(index);
+
+            
+
             if (buffer.contains(p)) {
                 bsmsInLane.add(bsm);
             }
@@ -209,11 +208,13 @@ public class VehiclePath {
         for (int i = 0; i < bsmList.size(); i++) {
             OdeBsmData bsm = bsmList.get(i);
             Optional<Double> optionalSpeed = BsmUtils.getSpeedMPH(bsm);
+            
             if (optionalSpeed.isEmpty()) {
                 logger.warn("No speed found in BSM");
                 continue;
             }
             double speed = optionalSpeed.get();
+            // logger.info("Evaluating BSM Speed:" + speed + "Stop Speed Threshold:" + stopSpeedThresholdMPH);
             if (speed <= stopSpeedThresholdMPH) {
                 stoppedBsmIndices.add(i);
             }
