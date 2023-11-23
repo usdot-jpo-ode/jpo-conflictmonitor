@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
@@ -76,7 +76,7 @@ public class MapValidationTopology
 
         
         minDataStream = minDataStream.peek((key, value) -> {
-            var intersectionKey = IntersectionKey.fromRsuIntersectionKey(key);
+            var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(key);
             if (parameters.getDebug(intersectionKey)) {
                 logger.info("MAP Min Data Event for intersection {}", intersectionKey);
             }
@@ -117,7 +117,7 @@ public class MapValidationTopology
 
 
         countStream = countStream.peek((windowedKey, value) -> {
-            var intersectionKey = IntersectionKey.fromRsuIntersectionKey(windowedKey.key());
+            var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(windowedKey.key());
             if (parameters.getDebug(intersectionKey)) {
                 logger.info("Map Count {} {}", windowedKey, value);
             }
@@ -128,7 +128,7 @@ public class MapValidationTopology
             .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
-                    var intersectionKey = IntersectionKey.fromRsuIntersectionKey(windowedKey.key());
+                    var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(windowedKey.key());
                     return (counts < parameters.getLowerBound(intersectionKey) || counts > parameters.getUpperBound(intersectionKey));
                 }
                 return false;
@@ -154,7 +154,7 @@ public class MapValidationTopology
 
         
         eventStream = eventStream.peek((key, event) -> {
-            var intersectionKey = IntersectionKey.fromRsuIntersectionKey(key);
+            var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(key);
             if (parameters.getDebug(intersectionKey)) {
                 logger.info("MAP Broadcast Rate {}, {}", key, event);
             }

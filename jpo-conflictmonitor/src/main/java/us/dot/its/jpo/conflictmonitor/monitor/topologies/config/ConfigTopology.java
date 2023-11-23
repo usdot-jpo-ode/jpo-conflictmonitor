@@ -268,9 +268,9 @@ public class ConfigTopology
 
     @Override
     public <T> Optional<IntersectionConfig<T>> getIntersectionConfig(IntersectionConfigKey configKey) {
-        if (configKey.getIntersectionID() <= 0) {
+        if (configKey.getIntersectionId() <= 0) {
             // Special handling for unknown region
-            return getIntersectionConfigUnknownRegion(configKey.getIntersectionID(), configKey.getKey());
+            return getIntersectionConfigUnknownRegion(configKey.getIntersectionId(), configKey.getKey());
         }
         if (streams != null) {
             var intersectionStore = getIntersectionStore();
@@ -316,7 +316,7 @@ public class ConfigTopology
                 List<IntersectionConfig<?>> configs = new ArrayList<>();
                 while (store.hasNext()) {
                     KeyValue<IntersectionConfigKey, IntersectionConfig<?>> keyValue = store.next();
-                    if (intersectionId != keyValue.key.getIntersectionID()) continue;
+                    if (intersectionId != keyValue.key.getIntersectionId()) continue;
                     if (!StringUtils.equals(key, keyValue.key.getKey())) continue;
                     configs.add(keyValue.value);
                 }

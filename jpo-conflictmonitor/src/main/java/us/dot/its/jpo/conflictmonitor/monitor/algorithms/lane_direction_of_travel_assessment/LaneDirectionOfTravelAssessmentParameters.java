@@ -6,10 +6,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
+
 
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 
@@ -80,10 +81,10 @@ public class LaneDirectionOfTravelAssessmentParameters {
 
 
     // Intersection-specific parameters
-    public double getHeadingToleranceDegrees(IntersectionKey intersectionKey) {
+    public double getHeadingToleranceDegrees(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, headingToleranceDegreesMap, headingToleranceDegrees);
     }
-    public double getDistanceFromCenterlineToleranceCm(IntersectionKey intersectionKey) {
+    public double getDistanceFromCenterlineToleranceCm(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, distanceFromCenterlineToleranceCmMap, distanceFromCenterlineToleranceCm);
     }
 

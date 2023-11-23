@@ -5,10 +5,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
+
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUtil.getIntersectionValue;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
@@ -60,11 +61,11 @@ public class StopLinePassageParameters {
     //
     // Intersection-specific properties
     //
-    public double getStopLineMinDistance(IntersectionKey intersectionKey) {
+    public double getStopLineMinDistance(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, stopLineMinDistanceMap, stopLineMinDistance);
     }
 
-    public double getHeadingTolerance(IntersectionKey intersectionKey) {
+    public double getHeadingTolerance(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, headingToleranceMap, headingTolerance);
     }
 

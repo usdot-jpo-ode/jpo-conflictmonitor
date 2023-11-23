@@ -7,10 +7,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
+
 
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
@@ -44,10 +45,10 @@ public class LaneDirectionOfTravelParameters {
     final ConfigMap<Double> minimumSpeedThresholdMap = new ConfigMap<>();
      
     // Intersection-specific parameters
-    public int getMinimumPointsPerSegment(IntersectionKey intersectionKey) {
+    public int getMinimumPointsPerSegment(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, minimumPointsPerSegmentMap, minimumPointsPerSegment);
     }
-    public double getMinimumSpeedThreshold(IntersectionKey intersectionKey) {
+    public double getMinimumSpeedThreshold(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, minimumSpeedThresholdMap, minimumSpeedThreshold);
     }
    

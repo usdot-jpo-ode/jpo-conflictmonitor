@@ -19,7 +19,7 @@ import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.*;
-import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
@@ -113,8 +113,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
             // If the BSM is in one or more MAPs, output BSM to each intersection partition
             if (newBsmInMap) {
                 for (IntersectionRegion ir : newIntersections) {
-                    int intersectionId = ir.getIntersectionId() != null ? ir.getIntersectionId() : -1;
-                    int region = ir.getRegion() != null ? ir.getRegion() : -1;
+                    int intersectionId = ir.getIntersectionId();
+                    int region = ir.getRegion();
                     var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region);
                     //var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
                     var intersectionRecord = inputRecord.withKey(bsmIntersectionIdKey);

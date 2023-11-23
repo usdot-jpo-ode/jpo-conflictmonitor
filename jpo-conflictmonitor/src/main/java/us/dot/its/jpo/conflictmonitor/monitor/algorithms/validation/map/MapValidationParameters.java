@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionKey;
+
 
 @Data
 @Generated
@@ -85,13 +86,13 @@ public class MapValidationParameters {
     //
     // Intersection-specific properties 
     //
-    public int getLowerBound(IntersectionKey intersectionKey) {
+    public int getLowerBound(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, lowerBoundMap, lowerBound);
     }
-    public int getUpperBound(IntersectionKey intersectionKey) {
+    public int getUpperBound(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, upperBoundMap, upperBound);
     }
-    public boolean getDebug(IntersectionKey intersectionKey) {
+    public boolean getDebug(IntersectionRegion intersectionKey) {
         return getIntersectionValue(intersectionKey, debugMap, debug);
     }
 }

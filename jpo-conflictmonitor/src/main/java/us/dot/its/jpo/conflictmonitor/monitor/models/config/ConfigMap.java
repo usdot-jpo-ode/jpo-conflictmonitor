@@ -1,14 +1,16 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.config;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
+
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
- * Thread safe map of a {@link IntersectionKey} to a configuration value (String or Number).
+ * Thread safe map of a {@link IntersectionRegion} to a configuration value (String or Number).
  * 
  * <p>Keys are naturally ordered.
  * <p>Null values are not allowed by the underlying data structure.
  */
-public class ConfigMap<T> extends ConcurrentSkipListMap<IntersectionKey, T> {
+public class ConfigMap<T> extends ConcurrentSkipListMap<IntersectionRegion, T> {
 
     /**
      * A bit of a hack to allow setting either a String or numeric value 
@@ -17,7 +19,7 @@ public class ConfigMap<T> extends ConcurrentSkipListMap<IntersectionKey, T> {
      * @param value
      */
     @SuppressWarnings("unchecked")
-    public void putObject(IntersectionKey key, Object value) {
+    public void putObject(IntersectionRegion key, Object value) {
         this.put(key, (T)value);
     }
 

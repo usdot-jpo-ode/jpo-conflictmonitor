@@ -31,6 +31,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -470,11 +471,11 @@ public class IntersectionEventTopology
         // Perform Analytics on Lane direction of Travel Events
         KStream<RsuIntersectionKey, LaneDirectionOfTravelEvent> laneDirectionOfTravelEventStream = vehicleEventsStream.flatMap(
             (key, value)->{
-                String rsuId = key.getRsuId();
+                IntersectionRegion intersectionRegion = new IntersectionRegion(key.getIntersectionId(), key.getRegion());
                 List<KeyValue<RsuIntersectionKey, LaneDirectionOfTravelEvent>> result = new ArrayList<>();
                 if(value.getBsms().getBsms().size() > 2){
-                    double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(rsuId);
-                    double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(rsuId);
+                    double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(intersectionRegion);
+                    double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(intersectionRegion);
 
                     
                     VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,

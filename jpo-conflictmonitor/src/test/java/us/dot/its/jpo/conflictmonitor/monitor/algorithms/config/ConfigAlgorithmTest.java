@@ -14,6 +14,7 @@ import com.google.common.collect.Multimap;
 
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 /**
@@ -70,7 +71,7 @@ public class ConfigAlgorithmTest {
 
         final int roadRegulatorId = 10;
         final int intersectionId = 100000;
-        final var intersectionKey = new IntersectionKey(roadRegulatorId, intersectionId);
+        final var intersectionKey = new IntersectionRegion(intersectionId, roadRegulatorId);
 
         var newIntersectionConfig = new IntersectionConfig<String>(TestParameters.INTERSECTION_PARAM, 
             "", roadRegulatorId, intersectionId, newIntersectionValue, "", UnitsEnum.NONE, "");
@@ -190,7 +191,7 @@ public class ConfigAlgorithmTest {
 
         ConfigMap<String> intersectionParamMap = new ConfigMap<>();
 
-        public String getIntersectionParam(IntersectionKey intersectionKey) {
+        public String getIntersectionParam(IntersectionRegion intersectionKey) {
             return ConfigUtil.getIntersectionValue(intersectionKey, intersectionParamMap, intersectionParam);
         }
     }
