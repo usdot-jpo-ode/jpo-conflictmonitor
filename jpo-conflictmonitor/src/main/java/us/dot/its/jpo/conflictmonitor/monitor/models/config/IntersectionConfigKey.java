@@ -29,7 +29,7 @@ public class IntersectionConfigKey
     public IntersectionConfigKey() {}
 
     public IntersectionConfigKey(int region, int intersectionId, String key) {
-        super(region, intersectionId);
+        super(intersectionId, region);
         this.key = key;
     }
 
