@@ -49,8 +49,9 @@ public class SpatValidationTopologyTest {
 
 
     final String rsuId = "127.0.0.1";
-    final String source = "{ rsuId='127.0.0.1', intersectionId='11111'}";
+    final String source = "{ rsuId='127.0.0.1', intersectionId='11111', region='10'}";
     final int intersectionId = 11111;
+    final int region = 10;
 
     @Test
     public void testMapValidationTopology() {
@@ -85,7 +86,7 @@ public class SpatValidationTopologyTest {
                 JsonSerdes.SpatMinimumDataEvent().deserializer()
             );
 
-            final RsuIntersectionKey key = new RsuIntersectionKey(rsuId, intersectionId);
+            final RsuIntersectionKey key = new RsuIntersectionKey(rsuId, intersectionId, region);
 
             // Send maps at 5 Hz (slow)
             final int slowPeriodMillis = 200;

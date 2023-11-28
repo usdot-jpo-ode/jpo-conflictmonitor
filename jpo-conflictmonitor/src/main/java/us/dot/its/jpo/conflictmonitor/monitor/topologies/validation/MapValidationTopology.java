@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -85,7 +86,7 @@ public class MapValidationTopology
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.MapMinimumDataEvent(), 
-                new RsuIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
+                new IntersectionIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
         );
 
         
@@ -163,7 +164,7 @@ public class MapValidationTopology
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.MapBroadcastRateEvent(), 
-                new RsuIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
+                new IntersectionIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
         );
         
         return builder.build();

@@ -11,8 +11,12 @@ public class IntersectionRegion {
     public IntersectionRegion() {}
 
     public IntersectionRegion(Integer intersectionId, Integer region) {
-        this.intersectionId = intersectionId;
-        this.region = region;
+        if (intersectionId != null && intersectionId.intValue() >= 0) {
+            this.intersectionId = intersectionId;
+        }
+        if (region != null && region.intValue() >= 0) {
+            this.region = region;
+        }
     }
 
     public IntersectionRegion(ProcessedMap map) {

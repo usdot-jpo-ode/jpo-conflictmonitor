@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -54,7 +54,7 @@ public class MessageIngestTopologyTest {
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
 
             var bsmTopic = driver.createInputTopic(bsmTopicName,
-                    JsonSerdes.BsmIntersectionKey().serializer(),
+                    JsonSerdes.BsmRsuIdKey().serializer(),
                     JsonSerdes.OdeBsm().serializer());
 
             var spatTopic = driver.createInputTopic(spatTopicName,
@@ -73,7 +73,7 @@ public class MessageIngestTopologyTest {
             final var processedMap = getProcessedMap();
             mapTopic.pipeInput(rsuKey, processedMap);
             spatTopic.pipeInput(rsuKey, getProcessedSpat());
-            final var bsmKey = new BsmIntersectionKey();
+            final var bsmKey = new BsmRsuIdKey();
             bsmKey.setBsmId("48C45782");
             bsmTopic.pipeInput(bsmKey, getBsm());
 
