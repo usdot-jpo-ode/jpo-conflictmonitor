@@ -49,7 +49,7 @@ public class SpatValidationTopologyTest {
 
 
     final String rsuId = "127.0.0.1";
-    final String source = "{ rsuId='127.0.0.1', intersectionId='11111'}";
+    final String source = "{ rsuId='127.0.0.1', intersectionId='11111', region='0'}";
     final int intersectionId = 11111;
 
     @Test
