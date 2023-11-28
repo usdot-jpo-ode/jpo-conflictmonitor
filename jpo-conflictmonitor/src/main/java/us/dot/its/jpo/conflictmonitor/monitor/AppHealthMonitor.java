@@ -43,11 +43,15 @@ import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
@@ -104,7 +108,8 @@ public class AppHealthMonitor {
                     "connectors",
                     "spatial-indexes",
                     "spat-window-store",
-                    "bsm-window-store"
+                    "bsm-window-store",
+                    "map-store"
                 );
             return getJsonResponse(linkMap);
         } catch (Exception ex) {
@@ -256,6 +261,21 @@ public class AppHealthMonitor {
         return getJsonResponse(allItems);
     }
 
+    @GetMapping(value = "/map-store")
+    public @ResponseBody ResponseEntity<String> mapStore() {
+        var mapStore = intersectionEventTopology.getMapStore();
+        var mapMap = new TreeMap<String, ProcessedMap<LineString>>();
+        try (var mapIterator = mapStore.all()) {
+            while (mapIterator.hasNext()) {
+                var kvp = mapIterator.next();
+                RsuIntersectionKey key = kvp.key;
+                ProcessedMap<LineString> map = kvp.value;
+                mapMap.put(key.toString(), map);
+            }
+        }
+        return getJsonResponse(mapMap);
+    }
+
     @GetMapping(value = "/spat-window-store")
     public @ResponseBody ResponseEntity<String> spatWindowStore() {
         var spatWindowStore = intersectionEventTopology.getSpatWindowStore();
@@ -299,13 +319,13 @@ public class AppHealthMonitor {
         try (var bsmIterator = bsmWindowStore.all()) {
             while (bsmIterator.hasNext()) {
                 var kvp = bsmIterator.next();
-                Windowed<BsmIntersectionKey> key = kvp.key;
+                Windowed<BsmIntersectionIdKey> key = kvp.key;
                 Instant startTime = key.window().startTime();
                 Instant endTime = key.window().endTime();
-                BsmIntersectionKey theKey= key.key();
+                BsmIntersectionIdKey theKey= key.key();
                 OdeBsmData value = kvp.value;
                 // Integer intersectionId = value.();
-                String vehicleId = IntersectionEventTopology.getBsmID(value);
+                String vehicleId = BsmUtils.getVehicleId(value);
                 TreeMap<String, TreeMap<String, OdeBsmData>> bsms = null;
                 if (intersectionMap.containsKey(vehicleId)) {
                     bsms = intersectionMap.get(vehicleId);
