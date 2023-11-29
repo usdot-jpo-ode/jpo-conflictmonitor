@@ -7,11 +7,12 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
+
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.SignalStateEventAssessmentTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.StopLinePassageAssessmentTopology;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,11 +26,11 @@ public class StopLinePassageAssessmentTopologyTest {
     String SignalStateEvent = "{\"eventGeneratedAt\":1673974273330,\"eventType\":\"StopLinePassage\",\"timestamp\":1655493260761,\"roadRegulatorID\":-1,\"ingressLane\":12,\"egressLane\":5,\"connectionID\":1,\"eventState\":\"PROTECTED_MOVEMENT_ALLOWED\",\"vehicleID\":\"E6A99808\",\"latitude\":-105.091055,\"longitude\":-105.091055,\"heading\":169.4,\"speed\":22.64,\"signalGroup\":6}";
     @Test
     public void testTopology() {
-        SignalStateEventAssessmentTopology assessment = new SignalStateEventAssessmentTopology();
-        SignalStateEventAssessmentParameters parameters = new SignalStateEventAssessmentParameters();
+        StopLinePassageAssessmentTopology assessment = new StopLinePassageAssessmentTopology();
+        StopLinePassageAssessmentParameters parameters = new StopLinePassageAssessmentParameters();
         parameters.setDebug(false);
-        parameters.setSignalStateEventAssessmentOutputTopicName(kafkaTopicSignalStateAssessment);
-        parameters.setSignalStateEventTopicName(kafkaTopicSignalStateEvent);
+        parameters.setStopLineStopAssessmentOutputTopicName(kafkaTopicSignalStateAssessment);
+        parameters.setStopLinePassageEventTopicName(kafkaTopicSignalStateEvent);
         parameters.setLookBackPeriodGraceTimeSeconds(30);
         parameters.setLookBackPeriodDays(1);
 
@@ -49,7 +50,7 @@ public class StopLinePassageAssessmentTopologyTest {
             TestOutputTopic<String, StopLinePassageAssessment> outputTopic = driver.createOutputTopic(
                 kafkaTopicSignalStateAssessment, 
                 Serdes.String().deserializer(), 
-                JsonSerdes.SignalStateEventAssessment().deserializer());
+                JsonSerdes.StopLinePassageAssessment().deserializer());
             
             inputTopic.pipeInput(SignalStateEventKey, SignalStateEvent);
             inputTopic.pipeInput(SignalStateEventKey, SignalStateEvent);

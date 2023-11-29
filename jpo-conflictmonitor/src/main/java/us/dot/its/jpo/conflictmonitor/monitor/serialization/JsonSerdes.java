@@ -47,6 +47,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDet
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLinePassageNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
@@ -156,7 +157,7 @@ public class JsonSerdes {
             new JsonDeserializer<>(SignalStateAssessment.class));
     }
 
-    public static Serde<StopLinePassageAssessment> SignalStateEventAssessment() {
+    public static Serde<StopLinePassageAssessment> StopLinePassageAssessment() {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLinePassageAssessment>(),
             new JsonDeserializer<>(StopLinePassageAssessment.class));
@@ -178,6 +179,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLineStopNotification>(),
             new JsonDeserializer<>(StopLineStopNotification.class));
+    }
+
+    public static Serde<StopLinePassageNotification> StopLinePassageNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLinePassageNotification>(),
+            new JsonDeserializer<>(StopLinePassageNotification.class));
     }
 
     public static Serde<StopLineStopAggregator> StopLineStopAggregator() {

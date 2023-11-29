@@ -59,10 +59,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithmFactory;
@@ -127,9 +127,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String mapTimeChangeDetailsAlgorithm;
    private MapTimeChangeDetailsParameters mapTimeChangeDetailsParameters;
 
-   private SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
+   private StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
    private String signalStateEventAssessmentAlgorithm;
-   private SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+   private StopLinePassageAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
 
    private StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory;
    private String stopLineStopAssessmentAlgorithm;
@@ -385,7 +385,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateEventAssessmentAlgorithmFactory(
-         SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory) {
+         StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory) {
       this.signalStateEventAssessmentAlgorithmFactory = signalStateEventAssessmentAlgorithmFactory;
    }
 
@@ -400,7 +400,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateEventAssessmentAlgorithmParameters(
-      SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
+      StopLinePassageAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
       this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
    }
 
