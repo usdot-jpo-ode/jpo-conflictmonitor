@@ -138,17 +138,19 @@ public class StopLinePassageAssessmentTopology
                         if(group.getRedEvents() / eventCount > parameters.getRedLightPercentToNotify()){
                             StopLinePassageNotification notification = new StopLinePassageNotification();
                             notification.setSignalGroup(group.getSignalGroup());
-                            notification.setNotificationText("Stop Line Passage Notification, Percent of Passage Events on Red " + group.getRedEvents() + " For Signal group: " + group.getSignalGroup() + " Exceeds Maximum Allowable Percent");
-                            notification.setNotificationHeading("Stop Line Stop Notification");
+                            notification.setNotificationText("Stop Line Passage Notification, percent of passage events on red: " + (100 * group.getRedEvents() / eventCount) + "% for signal group: " + group.getSignalGroup() + " exceeds maximum allowable percent.");
+                            notification.setNotificationHeading("Stop Line Passage Notification");
                             notification.setAssessment(assessment);
                             
                             result.add(new KeyValue<>(key, notification));
                         }else if((group.getYellowEvents() + group.getRedEvents()) / eventCount > parameters.getYellowLightPercentToNotify()){
                             StopLinePassageNotification notification = new StopLinePassageNotification();
                             notification.setSignalGroup(group.getSignalGroup());
-                            notification.setNotificationText("Stop Line Passage Notification, Percent of Passage Events on Red and Yellow " + (group.getRedEvents() + group.getYellowEvents()) + " For Signal group: " + group.getSignalGroup() + " Exceeds Maximum Allowable Percent");
-                            notification.setNotificationHeading("Stop Line Stop Notification");
+                            notification.setNotificationText("Stop Line Passage Notification, percent of passage events on red and yellow: " + (100 * (group.getRedEvents() + group.getYellowEvents()) / eventCount) + "% for signal group: " + group.getSignalGroup() + " exceeds Maximum Allowable Percent.");
+                            notification.setNotificationHeading("Stop Line Passage Notification");
                             notification.setAssessment(assessment);
+
+                            result.add(new KeyValue<>(key, notification));
                         }
                     }
                 }

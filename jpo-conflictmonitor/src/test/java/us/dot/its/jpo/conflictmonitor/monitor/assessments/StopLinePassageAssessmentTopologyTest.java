@@ -29,7 +29,7 @@ public class StopLinePassageAssessmentTopologyTest {
         StopLinePassageAssessmentTopology assessment = new StopLinePassageAssessmentTopology();
         StopLinePassageAssessmentParameters parameters = new StopLinePassageAssessmentParameters();
         parameters.setDebug(false);
-        parameters.setStopLineStopAssessmentOutputTopicName(kafkaTopicSignalStateAssessment);
+        parameters.setStopLinePassageAssessmentOutputTopicName(kafkaTopicSignalStateAssessment);
         parameters.setStopLinePassageEventTopicName(kafkaTopicSignalStateEvent);
         parameters.setLookBackPeriodGraceTimeSeconds(30);
         parameters.setLookBackPeriodDays(1);

@@ -391,7 +391,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
  
 
-   @Value("${signal.state.event.assessment.algorithm}")
+   @Value("${stop.line.passage.assessment.algorithm}")
    public void setSignalStateEventAssessmentAlgorithm(String signalStateEventAssessmentAlgorithm) {
       this.signalStateEventAssessmentAlgorithm = signalStateEventAssessmentAlgorithm;
    }

@@ -327,16 +327,16 @@ event:
 
 
 # Signal State Event Assessment
-signal.state.event.assessment:
+stop.line.passage.assessment:
   algorithm: defaultStopLinePassageAssessmentAlgorithm
   debug: false
-  signalStateEventTopicName: topic.CmStopLinePassageEvent
-  signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
+  stopLinePassageEventTopicName: topic.CmStopLinePassageEvent
+  stopLinePassageAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
   minimumEventsToNotify: 10
-  redLightPercentToNotify: 0.25
-  yellowLightPercentToNotify: 0.5
+  redLightPercentToNotify: 0.20
+  yellowLightPercentToNotify: 0.25
   stopLinePassageNotificationOutputTopicName: topic.CmStopLinePassageNotification
 
 
