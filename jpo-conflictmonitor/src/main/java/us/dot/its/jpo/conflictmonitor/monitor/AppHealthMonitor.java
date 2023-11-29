@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,10 +43,13 @@ import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
+import us.dot.its.jpo.ode.model.OdeBsmData;
 
 @Getter
 @Setter
@@ -103,7 +103,8 @@ public class AppHealthMonitor {
                     "streams",
                     "connectors",
                     "spatial-indexes",
-                    "spat-window-store"
+                    "spat-window-store",
+                    "bsm-window-store"
                 );
             return getJsonResponse(linkMap);
         } catch (Exception ex) {
@@ -263,36 +264,68 @@ public class AppHealthMonitor {
        try (var spatIterator = spatWindowStore.all()) {
            while (spatIterator.hasNext()) {
                var kvp = spatIterator.next();
-               Windowed<String> key = kvp.key;
+               Windowed<RsuIntersectionKey> key = kvp.key;
                Instant startTime = key.window().startTime();
                Instant endTime = key.window().endTime();
+               RsuIntersectionKey theKey= key.key();
                ProcessedSpat value = kvp.value;
                Integer intersectionId = value.getIntersectionId();
-               TreeMap<String, List<ProcessedSpat>> spats = null;
+               TreeMap<String, TreeMap<String, ProcessedSpat>> spats = null;
                if (intersectionMap.containsKey(intersectionId)) {
                    spats = intersectionMap.get(intersectionId);
                } else {
-                   spats = new TreeMap<String, List<ProcessedSpat>>();
+                   spats = new TreeMap<String, TreeMap<String, ProcessedSpat>>();
                    intersectionMap.put(intersectionId, spats);
                }
                String window = String.format("%s / %s", formatter.format(startTime.atZone(ZoneOffset.UTC)), formatter.format(endTime.atZone(ZoneOffset.UTC)));
-               List<ProcessedSpat> spatList = null;
+               TreeMap<String, ProcessedSpat> spatList = null;
                if (spats.containsKey(window)) {
                    spatList = spats.get(window);
                } else {
-                   spatList = new ArrayList<ProcessedSpat>();
+                   spatList = new TreeMap<String, ProcessedSpat>();
                    spats.put(window, spatList);
                }
-               spatList.add(value);
+               spatList.put(theKey.toString(), value);
            }
        }
        return getJsonResponse(intersectionMap);
     }
 
-//    @GetMapping(value = "/bsm-window-store")
-//    public @ResponseBody ResponseEntity<String> bsmWindowStore() {
-//
-//    }
+   @GetMapping(value = "/bsm-window-store")
+   public @ResponseBody ResponseEntity<String> bsmWindowStore() {
+        var bsmWindowStore = intersectionEventTopology.getBsmWindowStore();
+        var intersectionMap = new IntersectionBsm();
+        var formatter = DateTimeFormatter.ISO_DATE_TIME;
+        try (var bsmIterator = bsmWindowStore.all()) {
+            while (bsmIterator.hasNext()) {
+                var kvp = bsmIterator.next();
+                Windowed<BsmIntersectionKey> key = kvp.key;
+                Instant startTime = key.window().startTime();
+                Instant endTime = key.window().endTime();
+                BsmIntersectionKey theKey= key.key();
+                OdeBsmData value = kvp.value;
+                // Integer intersectionId = value.();
+                String vehicleId = IntersectionEventTopology.getBsmID(value);
+                TreeMap<String, TreeMap<String, OdeBsmData>> bsms = null;
+                if (intersectionMap.containsKey(vehicleId)) {
+                    bsms = intersectionMap.get(vehicleId);
+                } else {
+                    bsms = new TreeMap<String, TreeMap<String, OdeBsmData>>();
+                    intersectionMap.put(vehicleId, bsms);
+                }
+                String window = String.format("%s / %s", formatter.format(startTime.atZone(ZoneOffset.UTC)), formatter.format(endTime.atZone(ZoneOffset.UTC)));
+                TreeMap<String, OdeBsmData> bsmList = null;
+                if (bsms.containsKey(window)) {
+                    bsmList = bsms.get(window);
+                } else {
+                    bsmList = new TreeMap<String, OdeBsmData>();
+                    bsms.put(window, bsmList);
+                }
+                bsmList.put(theKey.toString(), value);
+            }
+        }
+        return getJsonResponse(intersectionMap);
+   }
 
     private Map<String, KafkaStreams> getKafkaStreamsMap() {
 
@@ -360,7 +393,8 @@ public class AppHealthMonitor {
         return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }
 
-    public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, List<ProcessedSpat>>> {}
+    public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, TreeMap<String, ProcessedSpat>>> {}
+    public class IntersectionBsm extends TreeMap<String, TreeMap<String, TreeMap<String, OdeBsmData>>> {}
 
 
 

@@ -48,7 +48,7 @@ $ docker-compose up --build -d
 
 ## Compile and Run
 
-Kafka must be running locally, and the "topic.OdeBsmJson" topic must have been created.  Then start up this application via:
+Kafka must be running locally, and the "topic.OdeBsmJson" topic must have been created.  Then start up this application by running the following from the `test-message-sender/message-sender` directory:
 
 ```bash
 $ mvn clean package

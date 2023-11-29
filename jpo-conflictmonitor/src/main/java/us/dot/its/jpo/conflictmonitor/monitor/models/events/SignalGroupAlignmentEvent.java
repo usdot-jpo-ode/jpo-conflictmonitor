@@ -7,13 +7,13 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
-@Document("CmSignalGroupAlignmentEvent")
+@Document("CmSignalGroupAlignment")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
 public class SignalGroupAlignmentEvent extends Event{
-    String sourceID;
+    String source;
     long timestamp;
     Set<Integer> spatSignalGroupIds;
     Set<Integer> mapSignalGroupIds;

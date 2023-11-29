@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
 
@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.js"></script>
     <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
     <script src=" https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js "></script>
+    <script th:src="@{/script-utilities.js}"></script>
     <title>Test Message Sender</title>
 </head>
 
@@ -31,7 +32,7 @@
         <div class="side" style="width: 20%">
             
             <h3 class="sideHeader">SPAT Phases</h3>
-            <div class="sideItem tableContainer" id="spatTableContainer" style="padding: 0px" >
+            <div class="sideItem tableContainer" id="spatTableContainer" style="padding: 0" >
                 <table id="spatTable" class="selectTable">
                 </table>
             </div>
@@ -41,38 +42,31 @@
 
         <div id="map">
         </div>
-        <div class="side" style="width: 20%">
+        <div class="side" style="width: 25%">
             <div class="sideItem">
 
-
+                <div >
+                    <a th:href="@{help}" target="_blank" style="font-size:1em; font-weight:bold">Help</a>
+                </div>
                 
                     
                 <div id="uploads">
                     <hr />
-                    <h3>Upload line-delimited JSON</h3>
-                    <label for="ulBsms">BSMs</label>
-                    <input type="file" id="ulBsms" accept=".json,.jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
+                    <h3>Uploads</h3>
+                    <label for="ulBsms">BSMs</label><input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
                     <br/>
-                    <label for="ulSpats">SPATs</label>
-                    <input type="file" id="ulSpats" accept=".json,.jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
-<!--                    <br/>-->
-<!--                    <label for="ulProcessedSpats">ProcessedSpats</label>-->
-<!--                    <input type="file" id="ulProcessedSpats" accept=".json,.jsonl,.ndjson,.csv"-->
-<!--                        onchange="uploadProcessedSpats(this);"/>-->
-                    
-                    <h3>Upload JSON Template</h3>
-                    <label for="btnOdeMapJsonUpload">MAP</label>
-                    <input type="file" id="btnOdeMapJsonUpload" accept=".json,.csv"
+                    <label for="ulSpats">SPATs</label><input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+                    <br/>
+                    <label for="btnProcessedSpatUpload">ProcessedSpats</label><input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv"
+                        onchange="uploadProcessedSpats(this);"/>
+                    <br/>
+
+                    <label for="btnOdeMapJsonUpload">MAP</label><input type="file" id="btnOdeMapJsonUpload" accept=".json,.csv"
                         onchange="uploadOdeMapJson(this);" />
                     <br/>
-                    <label for="btnProcessedMapUpload">ProcessedMap</label>
-                    <input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
+                    <label for="btnProcessedMapUpload">ProcessedMap</label><input type="file" id="btnProcessedMapUpload" accept=".json,.csv"
                            onchange="uploadMapGeojson(this);"/>
-                    <br/>
-                    <label for="btnOdeSpatJsonUpload">SPAT</label>
-                    <input type="file" id="btnOdeSpatJsonUpload" accept=".json"
-                        onchange="uploadOdeSpatJson(this);" />
-                    <br/>
+
                 </div>
                 
                 <hr />
@@ -94,22 +88,10 @@
 
                 </div>
                 <hr />
-                <div id="spatControls">
-                    
-                    <h3>Send SPAT Template</h3>
-                    <button type="button" onclick="startSendingSpat();">Start</button>
-                    <button type="button" onclick="stopSendingSpat();">Stop</button>
-                    <br/>
-                    
-                    <input type="range" min="50" max="150" value="100" step="5" name="spatInterval"
-                        id="spatInterval" oninput="this.nextElementSibling.value = this.value" />
-                    <output>100</output>
-                    <br />
-                    <label for="spatInterval">SPAT Interval (ms)</label>
-                </div>
+
                 <div id="rtSpatControls">
-                    <hr />
-                    <h3>Send Selected SPAT Phases (Real Time)</h3>
+
+                    <h3>Send Selected SPAT Phases</h3>
                     <button type="button" onclick="sendSpatsRealTime();">Start</button>
                     <button type="button" onclick="stopSendingSpatsRealTime();">Stop</button>
                     <label for="spatLoop">Loop</label>
@@ -118,8 +100,8 @@
                 <hr />
                 <div id="bsmControls">
                     
-                    <h3>Send BSMs (Real Time)</h3>
-                    <button type="buttom" onclick="sendBsmsRealTime();">Start</button>
+                    <h3>Send BSMs</h3>
+                    <button type="button" onclick="sendBsmsRealTime();">Start</button>
                     <button type="button" onclick="stopSendingBsms();">Stop</button>
                     <label for="bsmFixedInterval">Fixed Interval</label>
                     <input type="checkbox" id="bsmFixedInterval" checked /><br/>
@@ -128,40 +110,24 @@
                     <output>100</output><br/>
                     <label for="bsmInterval">BSM Interval (ms)</label>
                 </div>
-                <div>
-                    <hr />
-                    <h3>Send BSMs (All at once)</h3>
-                    <button type="button" onclick="sendBsms();">Send</button>
-                </div>
+
                 
                 <hr />
                 <div>
-                    <h3>Download line-delimited JSON</h3>
-                    <div>
-                        <button type="button" onclick="downloadBsms();">BSMs</button>
-                        <button type="button" onclick="downloadSpats();">SPATs</button>
-                    </div>
-                    <h3>Download Edited Template JSON</h3>
-                    <div>
-                        <button type="button" onclick="downloadBsmTemplate();">BSM</button>
-                        <button type="button" onclick="downloadSpatTemplate();">SPAT</button>
-                    </div>
+                    <h3>Download Created BSMs</h3>
+                    <button type="button" onclick="downloadBsms();">Download BSMs</button>
                 </div>
                 <hr/>
                 <div id="scriptControls">
-                    <h3>Script</h3>
-                    <button type="button" onclick="clearScript();">Clear</button>
-                    <button type="button" onclick="startRecording();">Start Recording</button>
-                    <button type="button" onclick="stopRecording();">Stop Recording</button>
+                    <h3>Record Scripts</h3>
+                    <button type="button" onclick="startRecording();">Start</button>
+                    <button type="button" onclick="stopRecording();">Stop</button>
                     <button type="button" onclick="downloadScript();">Download</button>
-                    
-                    <button type="button" onclick="runScript();">Run</button>
-                    <br/>
-                    <label for="ulScript">Upload</label>
-                    <input type="file" id="ulScript" accept=".csv,.txt" onchange="uploadScript(this);" />
+                    <button type="button" onclick="clearScript();">Clear</button>
                 </div>
 
                 <hr />
+
             </div>
 
         </div>
@@ -169,80 +135,38 @@
 </body>
 <script>
 
-    var map = L.map('map').setView([39.5952649, -105.0914122], 19);
+    const map = L.map('map').setView([39, -98], 5);
 
-    /* Base Maps */
-    var osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var osmAttrib = '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-    var googUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
-    var googAttrib = 'Google Maps';
+    /* Base Map */
+    /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#expression-inlining */
+    const basemapUrl = '[(${basemapUrl})]';
+    console.log('basemapUrl = ' + basemapUrl);
+    const basemapAttrib = '[(${basemapAttribution})]';
+    console.log('basemapAttribution = ' + basemapAttrib);
 
+    const empty = L.tileLayer('', {maxZoom: 22});
+    const basemap = L.tileLayer(basemapUrl, {maxZoom: 22, attribution: basemapAttrib});
 
-    var oamAttrib = '<a href="http://openaerialmap.org/about/" target="_blank">Open Aerial Map</a>';
-
-    /* See https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-inlining */
-    var mapboxUrl = '[(${mapboxTileEndpoint})]';
-    console.log(mapboxUrl);
-    var mapboxAttrib = 'Mapbox';
-
-    var empty = L.tileLayer('', { maxZoom: 22 });
-    var osm = L.tileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib });
-    var goog = L.tileLayer(googUrl, { maxZoom: 22, attribution: googAttrib });
-    var mapbox = L.tileLayer(mapboxUrl, { maxZoom: 22, attribution: mapboxAttrib });
-
-
-    // Open Aerial Map
-    const oamUrlArr = [
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9d/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc3/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc5/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3dec/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3dee/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9d/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9f/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc0/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3dc2/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3de9/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b9191037900144c3dd4/0/5bcf6b9191037900144c3deb/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9a/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bb491037900144c3e3a/0/5bcf6bb491037900144c3e9c/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9b/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d75/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9d/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d76/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec2/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec4/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ec5/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee7/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee6/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee8/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3efe/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6bd791037900144c3ea0/0/5bcf6bd791037900144c3ee9/{z}/{x}/{y}',
-        'https://tiles.openaerialmap.org/5bcf6b6a91037900144c3d6e/0/5bcf6b6a91037900144c3d9c/{z}/{x}/{y}'
-    ];
-    const oamLayerArr = [];
-    for (const oamUrl of oamUrlArr) {
-        oamLayerArr.push(L.tileLayer(oamUrl, { maxZoom: 23, minZoom: 15, attribution: oamAttrib }));
-    }
-    const oam = L.layerGroup(oamLayerArr);
 
     const drawnItems = new L.FeatureGroup();
 
     const bsmList = [];  /* Array of BSM locations */
     const spatList = [];
-    const processedSpatList = [];
+
+    let bsmTemplate = ""; /* BSM template string */
+
+    // Flag indicates whether the SPAT and spatList contain raw or ProcessedSpats.
+    let useProcessedSpats = false;
+    let useProcessedMap = false;
+
 
     const diffSpatEvents = [];
-    const diffSpatStates = [];
+
 
     const script = [];
 
     const baseMaps = {
-        'No Base Map': empty,  
-        'Google Hybrid': goog,
-        'Mapbox Satellite Streets': mapbox,
-        'Open Street Map (zoom <= 19)': osm,   
-        'Open Aerial Map (zoom >= 15)': oam.addTo(map),  // Show by default
+        basemapAttrib: basemap.addTo(map)
     };
 
     const overlayMaps = {
@@ -250,9 +174,10 @@
     };
 
 
-
-    var layerControl = L.control.layers(baseMaps, overlayMaps, {
-        positiion: 'topright', collapsed: false
+    const layerControl = L.control.layers(baseMaps, overlayMaps, {
+        positiion: 'topright',
+        collapsed: true,
+        hideSingleBase: true
     }).addTo(map);
 
 
@@ -261,8 +186,7 @@
     map.addLayer(drawnItems);
 
 
-
-    var drawControl = new L.Control.Draw({
+    const drawControl = new L.Control.Draw({
         position: 'topleft',
         draw: {
             polyline: false,
@@ -308,7 +232,7 @@
             const msgCnt = (prevMsgCnt + 1) % 128;
 
             // Get Origin IP and temp ID from template
-            const bsmTemplate = getCurrentBsmTemplate();
+            const bsmTemplate = bsmTemplate;
             const originIp = bsmTemplate.metadata.originIp;
             const id = bsmTemplate.payload.data.coreData.id;
 
@@ -356,26 +280,15 @@
         /* TODO: Don't assume all items were deleted */
     });
 
-    async function getMapGeojson() {
-        //const response = await fetch('map_wadsworth_and_coalmine.geojson');
-        const response = await fetch('MAP_wadsworth_and_coalmine.json');
-        const mapJson = await response.json();
-        odeMapJsonToGeojson(JSON.stringify(mapJson));
-        // setMapGeojson(mapJson.mapFeatureCollection);
-        // setConnectingLanesGeojson(mapJson.connectingLanesFeatureCollection);
 
-    }
 
     async function getBsmTemplate() {
         const response = await fetch('BSMTemplate.json');
         const text = await response.text();
-        setBsmTemplate(text);
+        bsmTemplate = JSON.parse(text);
     }
 
-    function setBsmTemplate(text) {
-        var json = JSON.parse(text);
-        document.getElementById("bsmTemplate").innerText = JSON.stringify(json, null, 1);
-    }
+
 
     let geojsonLayer = undefined;
     let connectingLayer = undefined;
@@ -430,14 +343,10 @@
     }
 
 
-    getMapGeojson();
+
     getBsmTemplate();
 
-    function sendBsms() {
-        if (bsmList.length < 1) return;
-        console.log("sendBsms with no delay");
-        sendBsmListRealTime(bsmList, true);    // No delay
-    }
+
 
     function sendBsmsRealTime() {
         if (bsmList.length < 1) return;
@@ -461,9 +370,15 @@
             bsm.odeReceivedAt += offset;
         }
 
-        const bsmTemplate = getCurrentBsmTemplate();
+
 
         let idx = 0;
+
+        // Use random BSM ID
+        const bsmId = getRandomBsmID();
+
+        // Use originIp from MAP, if available
+        const originIp = getOriginIpForBsm();
 
         // Send each with timer
         let nextTime = startIn;
@@ -475,7 +390,7 @@
             if (!BSM_SEND) return;
             const bsm = theBsmList[idx];
             const id = bsm.id;
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate);
+            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
             sendBsmAsync(postDataItem).then(successCallback, failureCallback);
             if (idx < theBsmList.length - 1) {
                 ++idx;
@@ -516,14 +431,14 @@
         document.getElementById('bsmControls').style = '';
     }
 
-    function buildBsmFromTemplate(bsm, bsmTemplate) {
+    function buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp) {
         // Copy via serialization
         const bsmJson = JSON.stringify(bsmTemplate);
         const bsmObj = JSON.parse(bsmJson);
-        bsmObj.payload.data.coreData.id = bsm.id;
+        bsmObj.payload.data.coreData.id = bsmId;
         bsmObj.payload.data.coreData.msgCnt = bsm.msgCnt;
         bsmObj.payload.data.coreData.speed = bsm.speed;
-        bsmObj.payload.data.coreData.heading = bsm.heading;       
+        bsmObj.payload.data.coreData.heading = bsm.heading;
         bsmObj.payload.data.coreData.position.longitude = bsm.coords[0];
         bsmObj.payload.data.coreData.position.latitude = bsm.coords[1];
         const dt = new Date(bsm.timestamp);
@@ -532,16 +447,44 @@
         const minuteMillis = dtMinute.getTime();
         const millis = dtMillis - minuteMillis;
         bsmObj.payload.data.coreData.secMark = millis;
-        bsmObj.metadata.originIp = bsm.originIp;
+        bsmObj.metadata.originIp = originIp;
 
 
         bsmObj.metadata.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
         return bsmObj;
     }
 
+    function getRandomBsmID() {
+        return genRanHex(8);
+    }
+
+    // Source: https://stackoverflow.com/questions/58325771/how-to-generate-random-hex-string-in-javascript
+    function genRanHex(size) {
+        let output = '';
+        for (let i = 0; i < size; ++i) {
+            output += (Math.floor(Math.random() * 16)).toString(16);
+        }
+        return output;
+    }
+
+    function getOriginIpForBsm() {
+        const defaultIp = "127.0.0.1";
+        if (useProcessedMap) {
+            if (odeMapTemplate?.properties?.originIp)
+                return odeMapTemplate.properties.originIp;
+            else
+                return defaultIp;
+        } else {
+            if (odeMapTemplate?.metadata?.originIp)
+                return odeMapTemplate.metadata.originIp;
+            else
+                return defaultIp;
+        }
+    }
+
     async function sendBsmAsync(postDataItem) {
         if (RECORD_SCRIPT) {
-            script.push(buildScriptFromBsm(postDataItem));
+            script.push(scriptUtil.buildScriptFromBsm(postDataItem));
         }
         const response = await fetch('/kafka/topic.OdeBsmJson', {
             method: 'POST',
@@ -560,16 +503,7 @@
 
 
 
-    function getCurrentBsmTemplate() {
-        let bsmTemplateObj = null;
-        try {
-            let bsmText = document.getElementById("bsmTemplate").innerText;
-            bsmTemplateObj = JSON.parse(bsmText);
-        } catch {
-            /* Ignore exception if there is no bsm template */
-        }
-        return bsmTemplateObj;
-    }
+
 
     function successCallback(e) {
         //console.log("success");
@@ -593,8 +527,7 @@
                 bsmList.length = 0;
                 const lines = text.split(/\r?\n/);
 
-                // Set the first BSM as the template
-                setBsmTemplate(lines[0]);
+
 
                 for (const line of lines) {
                     if (line) {
@@ -626,6 +559,16 @@
         }
     }
 
+    //
+    // Function: extractBsmData
+    //
+    // Extracts key data from a BSM
+    //
+    // Input: An ODE JSON BSM object
+    //
+    // Output: A flat JSON object containing the key useful data from the BSM
+    // including timestamps, coordinates, speed, heading, etc.
+    //
     function extractBsmData(json) {
         const dtReceivedAtMillis = Date.parse(json.metadata.odeReceivedAt);
         const dt = new Date(dtReceivedAtMillis);
@@ -668,25 +611,18 @@
 
 
 
-    function uploadBsmTemplate(e) {
-        console.log("uploadBsmTemplate")
-        if (e?.files.length > 0) {
-            let file = e.files[0];
-            file.text().then(text => {
-                setBsmTemplate(text);
-            });
-        }
-    }
 
     function uploadMapGeojson(e) {
         console.log("uploadMapGeojson (ProcessedMap)");
         if (e?.files.length > 0) {
             let file = e.files[0];
             file.text().then(text => {
-                var json = JSON.parse(text);
+                const json = JSON.parse(text);
                 console.log(json);
                 setMapGeojson(json.mapFeatureCollection);
                 setConnectingLanesGeojson(json.connectingLanesFeatureCollection);
+                odeMapTemplate = json;
+                useProcessedMap = true;
             });
         }
     }
@@ -697,19 +633,14 @@
             let file = e.files[0];
             console.log("MAP JSON File:");
             console.log(file);
-            file.text().then(text => odeMapJsonToGeojson(text));
+            file.text().then(text => {
+                odeMapJsonToGeojson(text);
+                useProcessedMap = false;
+            });
         }
     }
 
-    function uploadOdeSpatJson(e) {
-        console.log("uploadOdeSpatJson");
-        if (e?.files.length > 0) {
-            let file = e.files[0];
-            console.log("SPAT JSON File:");
-            console.log(file);
-            file.text().then(text => setSpatTemplate(text));
-        }
-    }
+
 
     var odeMapTemplate;
 
@@ -731,7 +662,7 @@
     }
 
     async function odeMapJsonToGeojsonAsync(json) {
-        const response = await fetch('/odeMapJsonToGeojson', {
+        return await fetch('/odeMapJsonToGeojson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -739,7 +670,6 @@
             },
             body: json
         });
-        return response;
     }
 
     var MAP_SEND = true;
@@ -751,9 +681,17 @@
         setTimeout(function sendMapTimed() {
             if (!MAP_SEND) return;
             intervalMs = document.getElementById('mapInterval').value;
-            const odeMap = buildMapFromTemplate(odeMapTemplate);
-            console.log("Sending MAP, next " + intervalMs);
-            sendMapAsync(odeMap).then(successCallback, failureCallback);
+
+            if (useProcessedMap) {
+                const processedMap = buildProcessedMapFromTemplate(odeMapTemplate);
+                console.log("Sending ProcessedMap, next " + intervalMs);
+                sendProcessedMapAsync(processedMap).then(successCallback, failureCallback);
+            } else {
+                const odeMap = buildMapFromTemplate(odeMapTemplate);
+                console.log("Sending MAP, next " + intervalMs);
+                sendMapAsync(odeMap).then(successCallback, failureCallback);
+            }
+
             setTimeout(sendMapTimed, intervalMs);
         }, intervalMs);
     }
@@ -765,15 +703,34 @@
 
     async function sendMapAsync(odeMap) {
         if (RECORD_SCRIPT) {
-            script.push(buildScriptFromMap(odeMap));
+            script.push(scriptUtil.buildScriptFromMap(odeMap));
         }
-        const response = await fetch('/kafka/topic.OdeMapJson', {
+        await fetch('/kafka/topic.OdeMapJson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(odeMap)
+        });
+    }
+
+    async function sendProcessedMapAsync(processedMap) {
+        const key = {
+            rsuId: processedMap.properties.originIp,
+            intersectionId: processedMap.properties.intersectionId
+        };
+        if (RECORD_SCRIPT) {
+            script.push(scriptUtil.buildScriptFromProcessedMap(processedMap, key));
+        }
+        await fetch ('/kafka/topic.ProcessedMap', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-kafka-key': JSON.stringify(key)
+            },
+            body: JSON.stringify(processedMap)
         });
     }
 
@@ -784,15 +741,24 @@
         return mapCopy;
     }
 
+    function buildProcessedMapFromTemplate() {
+        let processedMap = JSON.parse(JSON.stringify(odeMapTemplate));
+        const nowMillis = Date.now();
+        const strTimestamp = new Date(nowMillis).toISOString();
+        processedMap.properties.odeReceivedAt = strTimestamp;
+        processedMap.properties.timeStamp = strTimestamp;
+        return processedMap;
+    }
+
     
 
     function getHeadingAndSpeed(coords1, coords2, deltaTimestampMillis) {
-        var point1 = turf.point(coords1);
-        var point2 = turf.point(coords2);
-        var heading = Math.round(turf.bearingToAzimuth(turf.bearing(point1, point2)) * 10) / 10;
-        var distanceMeters = turf.distance(point1, point2, { units: 'kilometers' }) * 1000;
-        var tSeconds = deltaTimestampMillis / 1000;
-        var speed = distanceMeters / tSeconds;
+        const point1 = turf.point(coords1);
+        const point2 = turf.point(coords2);
+        const heading = Math.round(turf.bearingToAzimuth(turf.bearing(point1, point2)) * 10) / 10;
+        const distanceMeters = turf.distance(point1, point2, {units: 'kilometers'}) * 1000;
+        const tSeconds = deltaTimestampMillis / 1000;
+        const speed = distanceMeters / tSeconds;
         return [heading, speed];
     }
 
@@ -808,38 +774,24 @@
 
     function downloadBsms() {
         let ldjson = '';
-        const bsmTemplate = getCurrentBsmTemplate();
+
+
+        // Use random BSM ID
+        const bsmId = getRandomBsmID();
+
+        // Use originIp from MAP, if available
+        const originIp = getOriginIpForBsm();
+
         for (const bsm of bsmList) {
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate);
+            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
             ldjson += JSON.stringify(postDataItem) + '\n';
         }
         downloadText('BSMData.jsonl', ldjson);
     }
 
-    function downloadSpats() {
-        let ldjson = '';
-        const phases = getSelectedSpatPhases();
-        for (const phase of phases) {
-            const event = diffSpatEvents[phase];
-            const spats = event.spats;
-            for (const spat of spats) {
-                ldjson += JSON.stringify(spat.json) + '\n';
-            }
-        } 
-        downloadText('SPATData.jsonl', ldjson);
-    }
 
-    function downloadBsmTemplate() {
-        const bsmTemplate = getCurrentBsmTemplate();
-        const bsmStr = JSON.stringify(bsmTemplate);
-        downloadText('BSMTemplate.json', bsmStr);
-    }
 
-    function downloadSpatTemplate() {
-        const spatTemplate = getCurrentSpatTemplate();
-        const spatStr = JSON.stringify(spatTemplate);
-        downloadText('SPATTemplate.json', spatStr);
-    }
+
 
 
     // ------------------------- SPAT Upload --------------------------------
@@ -851,13 +803,13 @@
             file.text().then(text => {
                 // Clear existing spats
                 spatList.length = 0;
-                processedSpatList.length = 0;
+                //processedSpatList.length = 0;
                 diffSpatEvents.length = 0;
                 const lines = text.split(/\r?\n/);
                 console.log("Read " + lines.length + " spats from file");
 
                 // Set the first SPAT as the template
-                setSpatTemplate(lines[0])
+                setSpatTemplate(lines[0], false)
                 for (const line of lines) {
                     if (line) {
                         const json = JSON.parse(line);
@@ -921,92 +873,102 @@
         }
     }
 
-    // function uploadProcessedSpats(e) {
-    //     console.log("uploadProcessedSpats");
-    //     if (e?.files.length > 0) {
-    //         let file = e.files[0];
-    //         file.text().then(text => {
-    //             // Clear existing spats
-    //             spatList.length = 0;
-    //             processedSpatList.length = 0;
-    //             diffSpatEvents.length = 0;
-    //             diffSpatStates.length = 0;
-    //             const lines = text.split(/\r?\n/);
-    //             console.log("Read " + lines.length + " processed spats from file");
-    //
-    //             // Clear the SPAT template
-    //             setSpatTemplate("");
-    //
-    //             for (const line of lines) {
-    //                 if (line) {
-    //                     const json = JSON.parse(line);
-    //                     const spat = extractProcessedSpatData(json);
-    //                     processedSpatList.push(spat);
-    //                 }
-    //             }
-    //
-    //             // Sort by ingest time
-    //             processedSpatList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
-    //
-    //             // Split the spats into an array of streams with the same phase
-    //
-    //             // Get the first phase and start the stream of spats
-    //             const firstSpat = _.head(spatList);
-    //             const firstEvent = firstSpat.states;
-    //             let previousEvent = uniqueProcessedSpatId(firstEvent);
-    //             previousEvent.spats = [];
-    //             previousEvent.spats.push(firstSpat);
-    //             diffSpatStates.push(previousEvent);
-    //
-    //             for (const spat of processedSpatList) {
-    //                 const event = spat.states;
-    //                 // Remove timing
-    //                 const strippedEvent = uniqueProcessedSpatId(event);
-    //                 if (!_.isEqual(strippedEvent, previousEvent)) {
-    //                     // The phase is different, create a new stream
-    //                     previousEvent = strippedEvent;
-    //                     previousEvent.spats = [];
-    //                     previousEvent.spats.push(spat);
-    //                     diffSpatStates.push(previousEvent);
-    //                 } else {
-    //                     // The phase is the same, add to the latest stream
-    //                     previousEvent.spats.push(spat);
-    //                 }
-    //             }
-    //             console.log("Found " + diffSpatStates.length + " diff spat states");
-    //
-    //
-    //             // Group the first stream of each unique spat id with the event
-    //             for (const event of diffSpatStates) {
-    //                 const firstItem = _.head(event.spats);
-    //                 const lastItem = _.last(event.spats);
-    //                 event.firstOdeTime = firstItem.odeReceivedAt;
-    //                 event.lastOdeTime = lastItem.odeReceivedAt;
-    //                 event.firstTimestamp = firstItem.utcTimeStamp;
-    //                 event.lastTimestamp = lastItem.utcTimeStamp;
-    //                 event.odeDurationMs = event.lastOdeTime - event.firstOdeTime;
-    //                 event.durationMs = event.lastTimestamp - event.firstTimestamp;
-    //             }
-    //
-    //
-    //             const earliestOdeTime = _.head(diffSpatEvents).firstOdeTime;
-    //             for (const event of diffSpatEvents) {
-    //                 event.firstOdeTimeOffset = event.firstOdeTime - earliestOdeTime;
-    //             }
-    //
-    //             //console.log(uniqueSpatEvents);
-    //             showSpatTable(diffSpatEvents);
-    //         })
-    //     }
-    // }
+    function uploadProcessedSpats(e) {
+        console.log("uploadProcessedSpats");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+            file.text().then(text => {
+                // Clear existing spats
+                spatList.length = 0;
+                //processedSpatList.length = 0;
+                diffSpatEvents.length = 0;
+                const lines = text.split(/\r?\n/);
+                console.log("Read " + lines.length + " ProcessedSpats from file");
+
+                // Set the first ProcessedSpat as the template
+                setSpatTemplate(lines[0], true);
 
 
- 
-    function setSpatTemplate(text) {
+                for (const line of lines) {
+                    if (line) {
+                        const json = JSON.parse(line);
+                        const spat = extractProcessedSpatData(json);
+                        spatList.push(spat);
+                    }
+                }
+
+                // Sort by ingest time
+                spatList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
+
+                // Split the spats into an array of streams with the same phase
+
+                // Get the first phase and start the stream of spats
+                const firstSpat = _.head(spatList);
+                const firstEvent = firstSpat.events;
+                let previousEvent = uniqueSpatId(firstEvent);
+                previousEvent.spats = [];
+                previousEvent.spats.push(firstSpat);
+                diffSpatEvents.push(previousEvent);
+
+                for (const spat of spatList) {
+                    const event = spat.events;
+                    // Remove timing
+                    const strippedEvent = uniqueSpatId(event);
+                    if (!_.isEqual(strippedEvent, previousEvent)) {
+                        // The phase is different, create a new stream
+                        previousEvent = strippedEvent;
+                        previousEvent.spats = [];
+                        previousEvent.spats.push(spat);
+                        diffSpatEvents.push(previousEvent);
+                    } else {
+                        // The phase is the same, add to the latest stream
+                        previousEvent.spats.push(spat);
+                    }
+                }
+                console.log("Found " + diffSpatEvents.length + " diff spat events");
+
+
+                // Group the first stream of each unique spat id with the event
+                for (const event of diffSpatEvents) {
+                    const firstItem = _.head(event.spats);
+                    const lastItem = _.last(event.spats);
+                    event.firstOdeTime = firstItem.odeReceivedAt;
+                    event.lastOdeTime = lastItem.odeReceivedAt;
+                    event.firstTimestamp = firstItem.timestamp;
+                    event.lastTimestamp = lastItem.timestamp;
+                    event.odeDurationMs = event.lastOdeTime - event.firstOdeTime;
+                    event.durationMs = event.lastTimestamp - event.firstTimestamp;
+                }
+
+
+                const earliestOdeTime = _.head(diffSpatEvents).firstOdeTime;
+                for (const event of diffSpatEvents) {
+                    event.firstOdeTimeOffset = event.firstOdeTime - earliestOdeTime;
+                }
+
+                //console.log(uniqueSpatEvents);
+                showSpatTable(diffSpatEvents);
+            })
+        }
+    }
+
+
+
+    function setSpatTemplate(text, isProcessedSpat) {
+        useProcessedSpats = isProcessedSpat;
         const json = JSON.parse(text);
         document.getElementById("spatTemplate").innerText = JSON.stringify(json, null, 1);
     }
 
+
+    //
+    // Function: extractSpatData
+    //
+    // Extracts key data from a SPAT message
+    //
+    // Input: An ODE JSON SPAT object
+    //
+    // Out
     function extractSpatData(json) {
         const metadata = json?.metadata;
         const dtReceivedAtMillis = Date.parse(metadata.odeReceivedAt);
@@ -1026,7 +988,7 @@
         const events = [];
 
         
-        for (movement of movementList) {
+        for (const movement of movementList) {
             const signalGroup = movement.signalGroup;
             const eventList = movement.state_time_speed?.movementEventList;
             // Assume 1 event
@@ -1060,6 +1022,44 @@
         return spat;
     }
 
+    function extractProcessedSpatData(json) {
+        const dtReceivedAtMillis = Date.parse(json.odeReceivedAt);
+        const millis = 1000 * json.utcTimeStamp;
+        const msgCnt = json.revision;
+        const states = json.states;
+        const events = [];
+        for (const state of states) {
+            const signalGroup = state.signalGroup;
+            const eventList = state.stateTimeSpeed;
+            // Assume only 1 event
+            let eventState;
+            let minEndTime;
+            let maxEndTime;
+            for (const event of eventList) {
+                eventState = event.eventState;
+                minEndTime = event.timing?.minEndTime;
+                maxEndTime = event.timing?.maxEndTime;
+            }
+            events.push({
+                signalGroup: signalGroup,
+                eventState: eventState,
+                minEndTime: minEndTime,
+                maxEndTime: maxEndTime
+            });
+        }
+        const spat = {
+            odeReceivedAt: dtReceivedAtMillis,
+            timestamp: millis,
+            msgCnt: msgCnt,
+            events: events,
+            spatId: serializeSpatId(uniqueSpatId(events)),
+            json: json
+        }
+        return spat;
+    }
+
+
+
     function uniqueSpatId(event) {
         const spatId = new Map();
         for (const item of event) {
@@ -1073,9 +1073,7 @@
         return JSON.stringify(Array.from(id.entries()));
     }
 
-    function deserializeSpatId(text) {
-        return new Map(JSON.parse(text));
-    }
+
 
     
     
@@ -1161,39 +1159,38 @@
         return eventStateMap;
     }
 
-    // -------------------- Send SPAT Template --------------------------
-    var SPAT_SEND = true;
 
-    function startSendingSpat() {
-        SPAT_SEND = true;
-        document.getElementById('spatControls').style = 'background-color:lightgreen';
-        let intervalMs = document.getElementById('spatInterval').value;
-        setTimeout(function sendSpatTimed() {
-            if (!SPAT_SEND) return;
-            intervalMs = document.getElementById('spatInterval').value;
-            const odeSpat = buildSpatFromTemplate(getCurrentSpatTemplate());
-            console.log("Sending SPAT, next " + intervalMs);
-            sendSpatAsync(odeSpat).then(successCallback, failureCallback);
-            setTimeout(sendSpatTimed, intervalMs);
-        }, intervalMs);
-    }
-
-    function stopSendingSpat() {
-        SPAT_SEND = false;
-        document.getElementById('spatControls').style = '';
-    }
 
     async function sendSpatAsync(odeSpat) {
         if (RECORD_SCRIPT) {
-            script.push(buildScriptFromSpat(odeSpat));
+            script.push(scriptUtil.buildScriptFromSpat(odeSpat));
         }
-        const response = await fetch('/kafka/topic.OdeSpatJson', {
+        await fetch('/kafka/topic.OdeSpatJson', {
             method: 'POST',
             cache: 'no-cache',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(odeSpat)
+        });
+    }
+
+    async function sendProcessedSpatAsync(processedSpat) {
+        const key = {
+            rsuId: processedSpat.originIp,
+            intersectionId: processedSpat.intersectionId
+        };
+        if (RECORD_SCRIPT) {
+            script.push(scriptUtil.buildScriptFromProcessedSpat(processedSpat, key));
+        }
+        await fetch('/kafka/topic.ProcessedSpat', {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-kafka-key': JSON.stringify(key)
+            },
+            body: JSON.stringify(processedSpat)
         });
     }
 
@@ -1219,16 +1216,28 @@
         return spatCopy;
     }
 
-    function getCurrentSpatTemplate() {
-        let spatTemplateObj = null;
-        try {
-            let spatText = document.getElementById("spatTemplate").innerText;
-            spatTemplateObj = JSON.parse(spatText);
-        } catch {
-            // Ignore exception if no spat template
+    function buildProcessedSpatFromTemplate(spatTemplate) {
+        let spatCopy = JSON.parse(JSON.stringify(spatTemplate));
+        const nowMillis = Date.now();
+        const utcTimeStampMillis = 1000 * spatTemplate.utcTimeStamp;
+        const offsetMillis = nowMillis - utcTimeStampMillis;
+        const offsetSeconds = offsetMillis / 1000.0;
+        spatCopy.odeReceivedAt = new Date(nowMillis).toISOString();
+        spatCopy.utcTimeStamp = nowMillis / 1000.0;
+        for (const state of spatCopy.states) {
+            for (const event of state.stateTimeSpeed) {
+                if (event.timing != null && event.timing.minEndTime != null) {
+                    event.timing.minEndTime += offsetSeconds;
+                }
+                if (event.timing != null && event.timing.maxEndTime != null) {
+                    event.timing.maxEndTime += offsetSeconds;
+                }
+            }
         }
-        return spatTemplateObj;
+        return spatCopy;
     }
+
+
 
     // --------------------- Send SPATs Real Time ------------------------------
     var RT_SPAT_SEND = false;
@@ -1271,13 +1280,21 @@
         console.log("Sending SPAT in " + nextTime + " ms");
         setTimeout(function sendSpatTimed() {
             if (!RT_SPAT_SEND) return;
-            const spat = JSON.parse(JSON.stringify(spats[idx].json));
-            const dtCurrent = spats[idx].odeReceivedAt;
-            spat.metadata.odeReceivedAt = new Date(Date.now()).toISOString();
-            sendSpatAsync(spat).then(successCallback, failureCallback);
+
+            let dtCurrent;
+            if (useProcessedSpats) {
+                const processedSpat = buildProcessedSpatFromTemplate(spats[idx].json);
+                dtCurrent = spats[idx].odeReceivedAt;
+                sendProcessedSpatAsync(processedSpat);
+            } else {
+                const spat = buildSpatFromTemplate(spats[idx].json);
+                dtCurrent = spats[idx].odeReceivedAt;
+                sendSpatAsync(spat).then(successCallback, failureCallback);
+            }
+
             if (idx < spats.length - 1) {
                 ++idx;
-                const nextSpat = spats[idx].json;
+                //const nextSpat = spats[idx].json;
                 const dtNext = spats[idx].odeReceivedAt;
                 nextTime = dtNext - dtCurrent;           
                 console.log("Sending SPAT in " + nextTime + " ms");
@@ -1342,18 +1359,18 @@
 
 
     // ------------------------------------ Script ------------------------------
-    var RECORD_SCRIPT = false;
-    var RECORD_START_TIME = 0;
+    let RECORD_SCRIPT = false;
+    //var RECORD_START_TIME = 0;
+    let scriptUtil = new ScriptUtilities(Date.now(), false);
 
     function clearScript() {
         script.length = 0;
-        RECORD_START_TIME = 0;
     }
 
     function startRecording() {
         RECORD_SCRIPT = true;
         scriptControls = document.getElementById('scriptControls').style = 'background-color:lightgreen';
-        RECORD_START_TIME = Date.now();
+        scriptUtil = new ScriptUtilities(Date.now(), false);
     }
 
     function stopRecording() {
@@ -1362,95 +1379,10 @@
     }
 
     function downloadScript() {
-        let lines = '';
-        for (const line of script) {
-            lines += line + '\n';
-        }
+        let lines = scriptUtil.buildScriptFromLines(script);
         downloadText('script.csv', lines);
     }
 
-    function runScript() {
-        console.log("Run script");
-        if (script.length == 0) {
-            console.warn("No script to run");
-            return;
-        }
-        if (RECORD_SCRIPT) {
-            console.warn("Stop recording to run");
-            return;
-        }
-        console.log("Running script");
-        let lines = '';
-        for (const line of script) {
-            lines += line + '\n';
-        }
-        runScriptAsync(lines).then(successCallback, failureCallback);
-    }
-
-    function uploadScript(e) {
-        console.log("upload Script");
-        if (e?.files.length > 0) {
-            let file = e.files[0];
-            console.log("Script file:");
-            console.log(file);
-            file.text().then(text => {
-                RECORD_SCRIPT = false;
-                script.length = 0;
-                const lines = text.split(/\r?\n/);
-                script.push(...lines);
-            });
-        }
-    }
-    
-    async function runScriptAsync(lines) {
-        const response = await fetch('/script', {
-            method: 'POST',
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: lines
-        });
-    }
-
-    const ISO_DATE_TIME = '@ISO_DATE_TIME@';
-    const MINUTE_OF_YEAR = '@MINUTE_OF_YEAR@';
-    const MILLI_OF_MINUTE = '@MILLI_OF_MINUTE@';
-    const TEMP_ID = '@TEMP_ID@';
-
-    function buildScriptFromMap(odeMap) {
-        const scriptMap = JSON.parse(JSON.stringify(odeMap))
-        scriptMap.metadata.odeReceivedAt = ISO_DATE_TIME;
-        const strMap = JSON.stringify(scriptMap);
-        const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "MAP," + time + "," + strMap;
-        return scriptLine;
-    }
-
-    function buildScriptFromSpat(odeSpat) {
-        const scriptSpat = JSON.parse(JSON.stringify(odeSpat))
-        scriptSpat.metadata.odeReceivedAt = ISO_DATE_TIME;
-        scriptSpat.payload.data.timeStamp = MINUTE_OF_YEAR;
-        for (const intersection of scriptSpat.payload.data.intersectionStateList.intersectionStatelist) {
-            intersection.moy = MINUTE_OF_YEAR;
-            intersection.timeStamp = MILLI_OF_MINUTE;
-        }
-        const strSpat = JSON.stringify(scriptSpat);
-        const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "SPAT," + time + "," + strSpat;
-        return scriptLine;
-    }
-
-    function buildScriptFromBsm(odeBsm) {
-        const scriptBsm = JSON.parse(JSON.stringify(odeBsm))
-        scriptBsm.metadata.odeReceivedAt = ISO_DATE_TIME;
-        scriptBsm.payload.data.coreData.secMark = MILLI_OF_MINUTE;
-        scriptBsm.payload.data.coreData.id = TEMP_ID;
-        const strBsm = JSON.stringify(scriptBsm);
-        const time = Date.now() - RECORD_START_TIME;
-        const scriptLine = "BSM," + time + "," + strBsm;
-        return scriptLine;
-    }
 
 
 

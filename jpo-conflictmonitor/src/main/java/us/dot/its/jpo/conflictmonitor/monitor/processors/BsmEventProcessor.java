@@ -14,6 +14,7 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
@@ -21,9 +22,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
+import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.MathTransformPair;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.model.OdeBsmPayload;
@@ -36,6 +39,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, OdeBsmData, BsmEventIntersectionKey, BsmEvent> {
+
 
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventProcessor.class);
@@ -51,6 +55,14 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     @Setter
     @Getter
     private PunctuationType punctuationType;
+
+    @Getter
+    @Setter
+    private boolean simplifyPath;
+
+    @Getter
+    @Setter
+    private double simplifyPathToleranceMeters;
 
 
 
@@ -92,11 +104,11 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
             // List MAPs that the new BSM is within
             CoordinateXY newCoord = BsmUtils.getPosition(value);
-            List<ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString>> mapsContainingNewBsm = mapIndex.mapsContainingPoint(newCoord);
+            List<MapBoundingBox> mapsContainingNewBsm = mapIndex.mapsContainingPoint(newCoord);
             // List intersections that the new BSM is in
             Set<IntersectionRegion> newIntersections
                     = mapsContainingNewBsm.stream()
-                        .map(map -> new IntersectionRegion(map))
+                        .map(map -> new IntersectionRegion(map.getIntersectionId(), map.getRegion()))
                         .collect(Collectors.toSet());
             boolean newBsmInMap = !newIntersections.isEmpty(); // Whether the new BSM is in any MAP
 
@@ -120,6 +132,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                             extendedIntersections.add(intersection);
                         } else {
                             // The new point isn't in this map, emit the bsm
+                            logger.info("Ending Bsm Event, New BSM not in region: {}", eventKey.getIntersectionId());
                             context().forward(new Record<>(eventKey, event, timestamp));
                             stateStore.delete(eventKey);
                             exitedIntersections.add(intersection);
@@ -131,6 +144,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                             extendEvent(eventKey, event, newCoord, value, timestamp);
                         } else {
                             // The new BSM is in intersections, emit the stored one
+                            logger.info("Ending Bsm Event, New BSM in Region: {}", eventKey.getIntersectionId());
                             context().forward(new Record<>(eventKey, event, timestamp));
                             stateStore.delete(eventKey);
                         }
@@ -139,8 +153,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
 
                 // Create new events for intersections that the BSM is in that haven't been extended already
                 // (it has newly entered the intersection bb)
-                for (ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString> map : mapsContainingNewBsm) {
-                    IntersectionRegion intersection = new IntersectionRegion(map);
+                for (MapBoundingBox map : mapsContainingNewBsm) {
+                    IntersectionRegion intersection = map.intersectionRegion();
                     if (!extendedIntersections.contains(intersection)) {
                         newEvent(value, key, timestamp, map);
                     }
@@ -161,7 +175,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     }
 
     private void extendEvent(BsmEventIntersectionKey eventKey, BsmEvent event, Coordinate newCoord, OdeBsmData value, long timestamp) throws ParseException{
-        String wktPath = addPointToPath(event.getWktPath(), newCoord);
+        String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
         event.setWktPath(wktPath);
 
         long newRecTime = BsmTimestampExtractor.getBsmTimestamp(value);
@@ -183,7 +197,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
-    private void newEvents(OdeBsmData value, BsmIntersectionKey key, List<ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString>> mapsContainingNewBsm, long timestamp) throws ParseException {
+    private void newEvents(OdeBsmData value, BsmIntersectionKey key, List<MapBoundingBox> mapsContainingNewBsm, long timestamp) throws ParseException {
         if (mapsContainingNewBsm.isEmpty()) {
             // Not in any map.
             // Only create one.
@@ -195,10 +209,10 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         }
     }
 
-    private void newEvent(OdeBsmData value, BsmIntersectionKey key, long timestamp, ProcessedMap<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString> map) throws ParseException {
+    private void newEvent(OdeBsmData value, BsmIntersectionKey key, long timestamp, MapBoundingBox map) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, true);
-        event.setWktMapBoundingBox(MapIndex.getBoundingPolygon(map).toText());
-        BsmEventIntersectionKey eventKey = new BsmEventIntersectionKey(key, new IntersectionRegion(map));
+        event.setWktMapBoundingBox(map.getBoundingPolygonWkt());
+        BsmEventIntersectionKey eventKey = new BsmEventIntersectionKey(key, map.intersectionRegion());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
@@ -213,7 +227,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
     private BsmEvent getNewEvent(OdeBsmData value, long timestamp, boolean inMapBoundingBox) throws ParseException {
         BsmEvent event = new BsmEvent(value);
         CoordinateXY newCoord = BsmUtils.getPosition(value);
-        String wktPath = addPointToPath(event.getWktPath(), newCoord);
+        String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
         event.setWktPath(wktPath);
         event.setStartingBsmTimestamp(timestamp);
         event.setWallClockTimestamp(Instant.now().toEpochMilli());
@@ -237,6 +251,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
                 }
                 var offset = timestamp - itemTimestamp;
                 if (offset > fSuppressTimeoutMillis) {
+                    System.out.println("Ending BSM Event, Time limit reached :"+ key.getIntersectionId());
                     context().forward(new Record<>(key, value, timestamp));
                     stateStore.delete(key);
                 }
@@ -246,7 +261,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         }
     }
 
-    public boolean validateBSM(OdeBsmData bsm){
+    public static boolean validateBSM(OdeBsmData bsm){
         if (bsm == null) {
             logger.error("Null BSM");
             return false;
@@ -354,7 +369,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
      * @param wktPath original WKT LineString or null
      * @return new WKT LineString with the new point added
      */
-    public String addPointToPath(final String wktPath, final Coordinate coordinate) throws ParseException {
+    public String addPointToPath(final String wktPath, final Coordinate coordinate,
+                                 final boolean simplifyPath, final double simplifyPathToleranceCM) throws ParseException {
         List<Coordinate> coords = new ArrayList<>();
         if (wktPath != null) {
             WKTReader wktReader = new WKTReader();
@@ -370,8 +386,28 @@ public class BsmEventProcessor extends ContextualProcessor<BsmIntersectionKey, O
         if (coords.size() == 1) {
             return factory.createPoint(coords.get(0)).toText();
         } else {
-            return factory.createLineString(coords.toArray(new Coordinate[0])).toText();
+            LineString path = factory.createLineString(coords.toArray(new Coordinate[0]));
+
+            if (simplifyPath) {
+                return simplifyPath(path, simplifyPathToleranceCM).toText();
+            } else {
+                return path.toText();
+            }
         }
+    }
+
+    public LineString simplifyPath(LineString path, double simplifyPathToleranceMeters) {
+        MathTransformPair transforms = CoordinateConversion.findGcsToUtmTransforms(path);
+        if (transforms == null) {
+            logger.error("Can't simplify path because coordinate transform wasn't found. Returning unsimplified path.");
+            return path;
+        }
+        LineString utmPath = CoordinateConversion.transformLineString(path, transforms.getTransform());
+        var simplifier = new DouglasPeuckerSimplifier(utmPath);
+        simplifier.setDistanceTolerance(simplifyPathToleranceMeters);
+        LineString utmSimplifiedPath = (LineString)simplifier.getResultGeometry();
+        LineString gcsSimplifiedPath = CoordinateConversion.transformLineString(utmSimplifiedPath, transforms.getInverseTransform());
+        return gcsSimplifiedPath;
     }
 
 }

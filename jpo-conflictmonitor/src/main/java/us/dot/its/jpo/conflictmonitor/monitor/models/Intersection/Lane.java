@@ -63,8 +63,10 @@ public class Lane {
             lanePoints = lanePoints.reverse();
         }
 
+
+
         lane.setPoints(lanePoints);
-        lane.region = 0;
+        lane.region = -1;
 
         return lane;
     }

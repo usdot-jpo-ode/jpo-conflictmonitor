@@ -18,4 +18,5 @@ public class VehicleEvent {
     private BsmAggregator bsms;
     private SpatAggregator spats;
     private Intersection intersection;
+    private String source;
 }

@@ -30,7 +30,7 @@ public class ConnectionOfTravelAggregator {
         List<ConnectionOfTravelEvent> removeEvents = new ArrayList<>();
         
         for(ConnectionOfTravelEvent previousEvents: this.events){
-            if(previousEvents.getTimestamp() + (messageDurationDays * 3600*1000) < event.getTimestamp()){
+            if(previousEvents.getTimestamp() + (messageDurationDays* 24 * 3600*1000) < event.getTimestamp()){
                 removeEvents.add(previousEvents);
             }else{
                 break;

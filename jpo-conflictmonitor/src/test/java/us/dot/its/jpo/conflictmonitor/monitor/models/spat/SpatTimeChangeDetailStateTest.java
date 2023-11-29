@@ -57,12 +57,12 @@ public class SpatTimeChangeDetailStateTest {
         MovementState state = new MovementState();
         state.setSignalGroup(signalGroup);
         MovementEvent event = new MovementEvent();
-        if (maxTime != null || minTime != null) {
-            TimingChangeDetails timing = new TimingChangeDetails();
-            timing.setMaxEndTime(maxTime);
-            timing.setMinEndTime(minTime);
-            event.setTiming(timing);
-        }
+        
+        TimingChangeDetails timing = new TimingChangeDetails();
+        timing.setMaxEndTime(maxTime);
+        timing.setMinEndTime(minTime);
+        event.setTiming(timing);
+        
         event.setEventState(eventState);
         state.setStateTimeSpeed(Collections.singletonList(event));
 
@@ -72,13 +72,30 @@ public class SpatTimeChangeDetailStateTest {
             expectedResult.setSignalGroup(signalGroup.intValue());
         }
         if (maxTime != null) {
-            expectedResult.setMaxEndTime(maxTime.toInstant().toEpochMilli());
+            long millis = maxTime.toInstant().toEpochMilli();
+            if(millis > 0){
+                expectedResult.setMaxEndTime(millis);
+            }else{
+                expectedResult.setMaxEndTime(0);
+            }
+            
+        }else{
+            expectedResult.setMaxEndTime(-1);
         }
+
         if (minTime != null) {
-            expectedResult.setMinEndTime(minTime.toInstant().toEpochMilli());
+            long millis = minTime.toInstant().toEpochMilli();
+            if(millis > 0){
+                expectedResult.setMinEndTime(millis);
+            }else{
+                expectedResult.setMinEndTime(0);
+            }
+        }else{
+            expectedResult.setMinEndTime(-1);
         }
+
         expectedResult.setEventState(eventState);
-        
+        System.out.println(expectedResult);
         return new Object[] { state, expectedResult};
     }
 

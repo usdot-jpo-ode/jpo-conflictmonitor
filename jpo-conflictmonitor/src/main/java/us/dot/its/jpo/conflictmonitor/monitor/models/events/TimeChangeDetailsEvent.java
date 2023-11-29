@@ -8,6 +8,7 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 enum TimeMarkType {
     MIN_END_TIME,
@@ -23,10 +24,15 @@ public class TimeChangeDetailsEvent extends Event{
     private int signalGroup;
     private long firstSpatTimestamp;
     private long secondSpatTimestamp;
-    private long firstTimeMarkType;
-    private long secondTimeMarkType;
+    private String firstTimeMarkType;
+    private String secondTimeMarkType;
     private long firstConflictingTimemark;
     private long secondConflictingTimemark;
+    private J2735MovementPhaseState firstState;
+    private J2735MovementPhaseState secondState;
+    private long firstConflictingUtcTimestamp;
+    private long secondConflictingUtcTimestamp;
+    private String source;
 
     public TimeChangeDetailsEvent(){
         super("TimeChangeDetails");

@@ -1,13 +1,9 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,6 +19,7 @@ public class SignalStateConflictEvent extends Event{
     private J2735MovementPhaseState firstConflictingSignalState;
     private int secondConflictingSignalGroup;
     private J2735MovementPhaseState secondConflictingSignalState;
+    private String source;
 
     public SignalStateConflictEvent(){
         super("SignalStateConflict");

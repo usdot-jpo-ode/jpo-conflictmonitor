@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Generated
 public class IntersectionReferenceAlignmentEvent extends Event{
     
-    private String sourceID;
+    private String source;
     private long timestamp;
 
     private Set<RegulatorIntersectionId> spatRegulatorIntersectionIds;

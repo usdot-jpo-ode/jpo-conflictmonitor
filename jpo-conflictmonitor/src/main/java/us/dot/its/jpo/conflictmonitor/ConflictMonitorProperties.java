@@ -61,10 +61,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_crosses.SignalStateVehicleCrossesParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_vehicle_stops.SignalStateVehicleStopsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
@@ -103,13 +105,13 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String connectionOfTravelAlgorithm;
    private ConnectionOfTravelParameters connectionOfTravelParameters;
 
-   private SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
+   private StopLinePassageAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory;
    private String signalStateVehicleCrossesAlgorithm;
-   private SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters;
+   private StopLinePassageParameters signalStateVehicleCrossesParameters;
 
-   private SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
+   private StopLineStopAlgorithmFactory signalStateVehicleStopsAlgorithmFactory;
    private String signalStateVehicleStopsAlgorithm;
-   private SignalStateVehicleStopsParameters signalStateVehicleStopsParameters;
+   private StopLineStopParameters signalStateVehicleStopsParameters;
 
    private MapSpatMessageAssessmentAlgorithmFactory mapSpatMessageAssessmentAlgorithmFactory;
    private String mapSpatMessageAssessmentAlgorithm;
@@ -128,6 +130,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
    private String signalStateEventAssessmentAlgorithm;
    private SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+
+   private StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory;
+   private String stopLineStopAssessmentAlgorithm;
+   private StopLineStopAssessmentParameters stopLineStopAssessmentAlgorithmParameters;
 
    private LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
    private String laneDirectionOfTravelAssessmentAlgorithm;
@@ -259,7 +265,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateVehicleCrossesAlgorithmFactory(
-         SignalStateVehicleCrossesAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory) {
+         StopLinePassageAlgorithmFactory signalStateVehicleCrossesAlgorithmFactory) {
       this.signalStateVehicleCrossesAlgorithmFactory = signalStateVehicleCrossesAlgorithmFactory;
    }
    
@@ -274,7 +280,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateVehicleCrossesParameters(
-         SignalStateVehicleCrossesParameters signalStateVehicleCrossesParameters) {
+         StopLinePassageParameters signalStateVehicleCrossesParameters) {
       this.signalStateVehicleCrossesParameters = signalStateVehicleCrossesParameters;
    }
 
@@ -282,7 +288,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    @Autowired
    public void setSignalStateVehicleStopsAlgorithmFactory(
-         SignalStateVehicleStopsAlgorithmFactory signalStateVehicleStopsAlgorithmFactory) {
+         StopLineStopAlgorithmFactory signalStateVehicleStopsAlgorithmFactory) {
       this.signalStateVehicleStopsAlgorithmFactory = signalStateVehicleStopsAlgorithmFactory;
    }
 
@@ -296,7 +302,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
 
    @Autowired
-   public void setSignalStateVehicleStopsParameters(SignalStateVehicleStopsParameters signalStateVehicleStopsParameters) {
+   public void setSignalStateVehicleStopsParameters(StopLineStopParameters signalStateVehicleStopsParameters) {
       this.signalStateVehicleStopsParameters = signalStateVehicleStopsParameters;
    }
 
@@ -396,6 +402,27 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    public void setSignalStateEventAssessmentAlgorithmParameters(
       SignalStateEventAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
       this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setStopLineStopAssessmentAlgorithmFactory(
+         StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory) {
+      this.stopLineStopAssessmentAlgorithmFactory = stopLineStopAssessmentAlgorithmFactory;
+   }
+
+ 
+
+   @Value("${stop.line.stop.assessment.algorithm}")
+   public void setStopLineStopAssessmentAlgorithm(String stopLineStopAssessmentAlgorithm) {
+      this.stopLineStopAssessmentAlgorithm = stopLineStopAssessmentAlgorithm;
+   }
+
+
+
+   @Autowired
+   public void setStopLineStopAssessmentAlgorithmParameters(
+      StopLineStopAssessmentParameters stopLineStopAssessmentAlgorithmParameters) {
+      this.stopLineStopAssessmentAlgorithmParameters = stopLineStopAssessmentAlgorithmParameters;
    }
 
 
@@ -644,7 +671,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("KAFKA_BROKER_IP");
+         String kafkaBroker = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
          if (kafkaBroker == null) {
             kafkaBroker = "localhost";
          }

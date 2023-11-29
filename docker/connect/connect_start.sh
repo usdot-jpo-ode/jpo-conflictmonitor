@@ -8,12 +8,13 @@ echo "------------------------------------------"
 
 
 
-
+# Record BSM JSON Data
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 
+# Record Map Data
 declare -A OdeMapJson=([name]="topic.OdeMapJson" [collection]="OdeMapJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 declare -A ProcessedMap=([name]="topic.ProcessedMap" [collection]="ProcessedMap"
@@ -21,6 +22,7 @@ declare -A ProcessedMap=([name]="topic.ProcessedMap" [collection]="ProcessedMap"
 declare -A OdeRawEncodedMAPJson=([name]="topic.OdeRawEncodedMAPJson" [collection]="OdeRawEncodedMAPJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 
+# Record Spat Data
 declare -A OdeRawEncodedSPATJson=([name]="topic.OdeRawEncodedSPATJson" [collection]="OdeRawEncodedSPATJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
@@ -28,8 +30,12 @@ declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
 declare -A ProcessedSpat=([name]="topic.ProcessedSpat" [collection]="ProcessedSpat"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
 
-declare -A CmSignalStopEvent=([name]="topic.CmSignalStopEvent" [collection]="CmSignalStopEvent"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    
+# Record Events
+declare -A CmStopLinePassageEvent=([name]="topic.CmStopLinePassageEvent" [collection]="CmStopLinePassageEvent"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+declare -A CmStopLineStopEvent=([name]="topic.CmStopLineStopEvent" [collection]="CmStopLineStopEvent"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmSignalStateConflictEvents=([name]="topic.CmSignalStateConflictEvents" [collection]="CmSignalStateConflictEvents"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmIntersectionReferenceAlignmentEvents=([name]="topic.CmIntersectionReferenceAlignmentEvents" [collection]="CmIntersectionReferenceAlignmentEvents"
@@ -45,21 +51,33 @@ declare -A CmSignalStateEvent=([name]="topic.CmSignalStateEvent" [collection]="C
 declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEvent" [collection]="CmSpatTimeChangeDetailsEvent"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmSpatMinimumDataEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
-    [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
-    [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
 declare -A CmMapMinimumDataEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
-    [convert_timestamp]=false [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+# declare -A CmSignalStopEvent=([name]="topic.CmSignalStopEvent" [collection]="CmSignalStopEvent"
+#     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+
+# Record BSM Events
 declare -A CmBsmEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+
+
+# Record Assessments
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
-declare -A CmLaneConnectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
+declare -A CmConnectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
 declare -A CmSignalStateEventAssessment=([name]="topic.CmSignalStateEventAssessment" [collection]="CmSignalStateEventAssessment"
     [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
-declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+declare -A CmStopLineStopAssessment=([name]="topic.CmStopLineStopAssessment" [collection]="CmStopLineStopAssessment"
+    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
+
+
+# Record Notifications
 declare -A CmSpatTimeChangeDetailsNotification=([name]="topic.CmSpatTimeChangeDetailsNotification" [collection]="CmSpatTimeChangeDetailsNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
 declare -A CmLaneDirectionOfTravelNotification=([name]="topic.CmLaneDirectionOfTravelNotification" [collection]="CmLaneDirectionOfTravelNotification"
@@ -72,9 +90,9 @@ declare -A CmSignalStateConflictNotification=([name]="topic.CmSignalStateConflic
     [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
 declare -A CmSignalGroupAlignmentNotification=([name]="topic.CmSignalGroupAlignmentNotification" [collection]="CmSignalGroupAlignmentNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
-
-
 declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotification"
+    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key")
+declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
     [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key")
 
 function createSink() {
@@ -111,7 +129,7 @@ function createSink() {
         "errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
         "errors.deadletterqueue.context.headers.enable": true,
         "errors.log.enable": true,
-        "errors.log.include.messages": true,
+        "errors.log.include.messages": false,
         "errors.deadletterqueue.topic.replication.factor": 1'    
 
 
@@ -151,7 +169,9 @@ createSink OdeRawEncodedSPATJson
 createSink OdeSpatJson
 createSink ProcessedSpat
 
-createSink CmSignalStopEvent
+
+createSink CmStopLinePassageEvent
+createSink CmStopLineStopEvent
 createSink CmSignalStateConflictEvents
 createSink CmIntersectionReferenceAlignmentEvents
 createSink CmSignalGroupAlignmentEvents
@@ -162,11 +182,14 @@ createSink CmSpatTimeChangeDetailsEvent
 createSink CmSpatMinimumDataEvents
 createSink CmMapBroadcastRateEvents
 createSink CmMapMinimumDataEvents
+createSink CmSpatBroadcastRateEvents
+
+createSink CMBsmEvents
+
 createSink CmLaneDirectionOfTravelAssessment
 createSink CmConnectionOfTravelAssessment
 createSink CmSignalStateEventAssessment
-createSink CmSpatBroadcastRateEvents
-createSink CMBsmEvents
+createSink CmStopLineStopAssessment
 
 createSink CmSpatTimeChangeDetailsNotification
 createSink CmLaneDirectionOfTravelNotification
@@ -174,9 +197,8 @@ createSink CmConnectionOfTravelNotification
 createSink CmAppHealthNotifications
 createSink CmSignalStateConflictNotification
 createSink CmSignalGroupAlignmentNotification
-
 createSink CmNotification
-
+createSink CmStopLineStopNotification
 
 
 echo "----------------------------------"

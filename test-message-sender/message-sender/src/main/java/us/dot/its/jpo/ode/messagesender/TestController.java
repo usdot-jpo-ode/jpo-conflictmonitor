@@ -1,5 +1,7 @@
 package us.dot.its.jpo.ode.messagesender;
 
+import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -11,19 +13,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
-import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLog;
-import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
-import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogItem;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLog;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
+//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogItem;
 import us.dot.its.jpo.ode.model.OdeMapData;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.converter.map.MapProcessedJsonConverter;
@@ -57,15 +55,30 @@ public class TestController {
     @Autowired
     KafkaTemplate<String, String> template;
 
-    @Autowired
-    ScriptRunner scriptRunner;
+//    @Autowired
+//    ScriptRunner scriptRunner;
+
+    public static final String X_KAFKA_KEY = "x-kafka-key";
 
     @PostMapping(value = "/kafka/{topic}", consumes = "*/*", produces = "*/*")
-    public @ResponseBody ResponseEntity<String> kafka(@RequestBody String message, @PathVariable String topic) {
+    public @ResponseBody ResponseEntity<String> kafka(@RequestBody String message, @PathVariable String topic, @RequestHeader Map<String, String> headers) {
         try {
-            var result = template.send(topic, message);
-            SendResult<String, String> sendResult = result.completable().join();
+            var sb = new StringBuilder();
+            headers.forEach((k, v) -> sb.append(String.format("%s: %s%n", k.toLowerCase(), v)));
+            logger.info("Headers:");
+            logger.info(sb.toString());
+            SendResult<String, String> sendResult = null;
+            if (headers.containsKey(X_KAFKA_KEY)) {
+                String key = headers.get(X_KAFKA_KEY);
+                logger.info("Found Kafka key in header: {}", key);
+                var result = template.send(topic, key, message);
+                sendResult = result.completable().join();
+            } else {
+                var result = template.send(topic, message);
+                sendResult = result.completable().join();
+            }
             String strResult = sendResult.toString();
+            logger.info("Send Result: {}", sendResult);
             return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body(strResult);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
@@ -76,17 +89,17 @@ public class TestController {
 
     
 
-    @PostMapping(value = "/script", consumes = "*/*", produces = "*/*")
-    public @ResponseBody ResponseEntity<String> runScript(@RequestBody String script) {
-        logger.info("runScript");
-        try {
-            scriptRunner.scheduleScript(script);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body("running script");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
-                    .body(ExceptionUtils.getStackTrace(e));
-        }
-    }
+//    @PostMapping(value = "/script", consumes = "*/*", produces = "*/*")
+//    public @ResponseBody ResponseEntity<String> runScript(@RequestBody String script) {
+//        logger.info("runScript");
+//        try {
+//            scriptRunner.scheduleScript(script);
+//            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body("running script");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.TEXT_PLAIN)
+//                    .body(ExceptionUtils.getStackTrace(e));
+//        }
+//    }
 
     
    

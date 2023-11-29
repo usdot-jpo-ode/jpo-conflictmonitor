@@ -131,6 +131,7 @@ public class KafkaConfiguration {
 
     public void setNumPartitions(int numPartitions) {
         this.numPartitions = numPartitions;
+        logger.info("kafka.topics.numPartitions = {}", numPartitions);
     }
 
     public void setNumReplicas(int numReplicas) {

@@ -63,5 +63,10 @@ public class MessageIngestParameters {
         description = "The name of the state store for MAPs",
         updateType = READ_ONLY)
     String mapStoreName;
+
+    @ConfigData(key = "message.ingest.mapSpatialIndexStoreName",
+        description = "The name of the spatially indexed global state store for MAP bounding boxes.",
+        updateType = READ_ONLY)
+    String mapSpatialIndexStoreName;
     
 }

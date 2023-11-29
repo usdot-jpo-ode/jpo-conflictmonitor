@@ -38,8 +38,8 @@ kafkaTopicProcessedMap: topic.ProcessedMap
 #Vehicle Events
 kafkaTopicCmLaneDirectionOfTravelEvent: topic.CmLaneDirectionOfTravelEvent
 kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
-kafkaTopicCmSignalStateEvent: topic.CmSignalStateEvent
-kafakTopicCmVehicleStopEvent: topic.CmSignalStopEvent 
+kafkaTopicCmSignalStateEvent: topic.CmStopLinePassageEvent
+kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 
 
 # Custom kafka properties
@@ -72,10 +72,10 @@ kafka.topics:
     - name: topic.CmLaneDirectionOfTravelEvent
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmSignalStateEvent
+    - name: topic.CmStopLinePassageEvent
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmSignalStateEvent
+    - name: topic.CmStopLineStopEvent
       cleanupPolicy: delete
       retentionMs: 300000
     - name: "topic.CmSpatTimeChangeDetailsEvent"
@@ -139,6 +139,14 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmMapBoundingBox
       cleanupPolicy: compact
+    - name: topic.CmEvent
+      cleanupPolicy: compact
+    - name: topic.CmAssessment
+      cleanupPolicy: compact
+    - name: topic.CmStopLineStopAssessment
+      cleanupPolicy: compact
+    - name: topic.CmStopLineStopNotification
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -151,7 +159,7 @@ spring.data.mongodb.database: ConflictMonitor
 
 # TTL initial settings
 mongo.indexes:
-  - name: CmSignalStopEvent
+  - name: CmStopLineStopEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
   - name: CmSignalStateConflictEvents
@@ -169,7 +177,7 @@ mongo.indexes:
   - name: CmConnectionOfTravelEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
-  - name: CmSignalStateEvent
+  - name: CmStopLinePassageEvent
     timefield: eventGeneratedAt
     expiretime: 7884000
   - name: CmSpatTimeChangeDetailsEvent
@@ -251,7 +259,7 @@ map.validation:
   minimumDataTopicName: topic.CmMapMinimumDataEvents
   rollingPeriodSeconds: 10
   outputIntervalSeconds: 5
-  gracePeriodMilliseconds: 100
+  gracePeriodMilliseconds: 5000
   lowerBound: 9
   upperBound: 11
   debug: false
@@ -275,18 +283,60 @@ notification:
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
 
+assessment:
+  algorithm: defaultAssessmentAlgorithm
+  debug: false
+  assessmentOutputTopicName: topic.CmAssessment
+  laneDirectionOfTravelAssessmentTopicName: topic.CmLaneDirectionOfTravelAssessment
+  connectionOfTravelAssessmentTopicName: topic.CmConnectionOfTravelAssessment
+  signalStateEventAssessmentTopicName: topic.CmSignalStateEventAssessment
+
+event:
+  algorithm: defaultEventAlgorithm
+  debug: false
+  eventOutputTopicName: topic.CmEvent
+  signalStateEventTopicName: topic.CmStopLinePassageEvent
+  spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
+  spatBroadcastRateTopicName: topic.CmSpatBroadcastRateEvents
+  spatMinimumDataTopicName: topic.CmSpatMinimumDataEvents
+  mapBroadcastRateTopicName: topic.CmMapBroadcastRateEvents
+  mapMinimumDataTopicName: topic.CmMapMinimumDataEvents
+  signalGroupAlignmentEventTopicName: topic.CmSignalGroupAlignmentEvents
+  intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
+  signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
+  laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
+  connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
+
+
+
 # Signal State Event Assessment
 signal.state.event.assessment:
   algorithm: defaultSignalStateEventAssessmentAlgorithm
   debug: false
-  signalStateEventTopicName: topic.CmSignalStateEvent
+  signalStateEventTopicName: topic.CmStopLinePassageEvent
   signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
+  # minimumEventsToNotify: 10
+  # greenLightPercentToNotify: 0.1
+  # stopLinePassageNotificationOutputTopicName: topic.CmStopLineStopNotification
+
+stop.line.stop.assessment:
+  algorithm: defaultStopLineStopAssessmentAlgorithm
+  debug: false
+  stopLineStopEventTopicName: topic.CmStopLineStopEvent
+  stopLineStopAssessmentOutputTopicName: topic.CmStopLineStopAssessment
+  lookBackPeriodDays: 1
+  lookBackPeriodGraceTimeSeconds: 60
+  minimumEventsToNotify: 10
+  greenLightPercentToNotify: 0.1
+  stopLineStopNotificationOutputTopicName: topic.CmStopLineStopNotification
 
 # Signal State Vehicle Crosses Analytics
 signal.state.vehicle.crosses:
   algorithm: defaultSignalStateVehicleCrossesAlgorithm
+  stopLineMinDistance: 15
+  headingTolerance: 20
   debug: false
   spatBsmMatchWindowMillis: 500
 
@@ -295,7 +345,10 @@ signal.state.vehicle.stops:
   algorithm: defaultSignalStateVehicleStopsAlgorithm
   debug: false
   spatBsmMatchWindowMillis: 500
-  stopSpeedThreshold: 5
+  stopSpeedThreshold: 1
+  upstreamSearchDistance: 100
+  minTimeStopped: 1
+  headingTolerance: 20
 
 # SPAT Time Change Details
 spat.time.change.details:
@@ -316,7 +369,7 @@ spat.validation:
   minimumDataTopicName: topic.CmSpatMinimumDataEvents
   rollingPeriodSeconds: 10
   outputIntervalSeconds: 5
-  gracePeriodMilliseconds: 100
+  gracePeriodMilliseconds: 5000
   lowerBound: 90
   upperBound: 110
   debug: false
@@ -333,18 +386,21 @@ bsm.event:
   outputTopic: topic.CMBsmEvents
   stateStoreName: bsm-event-state-store
   debug: false
+  simplifyPath: true
+  simplifyPathToleranceMeters: 0.05
 
 # Message Ingest
 message.ingest:
   algorithm: defaultMessageIngestAlgorithm
   debug: false
-  bsmTopic: topic.OdeBsmJson
+  bsmTopic: topic.CmBsmJsonRepartition
   spatTopic: topic.ProcessedSpat
   mapTopic: topic.ProcessedMap
   mapBoundingBoxTopic: topic.CmMapBoundingBox
   bsmStoreName: BsmWindowStore
   spatStoreName: SpatWindowStore
   mapStoreName: ProcessedMapWindowStore
+  mapSpatialIndexStoreName: MapSpatialIndexStore
 
 # Config parameters
 config:
