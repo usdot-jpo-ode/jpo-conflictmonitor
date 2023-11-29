@@ -134,25 +134,34 @@ public class StopLinePassageAssessmentTopology
                 for(StopLinePassageAssessmentGroup group: assessment.getSignalStateEventAssessmentGroup()){
                     // Only Send Assessments that match the generating signal group.
                     int eventCount = group.getDarkEvents() + group.getGreenEvents() + group.getYellowEvents() +  group.getRedEvents();
-                    if(group.getSignalGroup() == event.getSignalGroup() && eventCount >= parameters.getMinimumEventsToNotify()){
-                        if(group.getRedEvents() / eventCount > parameters.getRedLightPercentToNotify()){
+                    if(group.getSignalGroup() == event.getSignalGroup() && eventCount >= parameters.getMinimumEventsToNotify()){;
+                        if((group.getRedEvents() / eventCount) >= parameters.getRedLightPercentToNotify()){
                             StopLinePassageNotification notification = new StopLinePassageNotification();
                             notification.setSignalGroup(group.getSignalGroup());
-                            notification.setNotificationText("Stop Line Passage Notification, percent of passage events on red: " + (100 * group.getRedEvents() / eventCount) + "% for signal group: " + group.getSignalGroup() + " exceeds maximum allowable percent.");
+                            notification.setNotificationText("Stop Line Passage Notification, percent of passage events on red: " + Math.round(100 * group.getRedEvents() / eventCount) + "% for signal group: " + group.getSignalGroup() + " exceeds maximum allowable percent.");
                             notification.setNotificationHeading("Stop Line Passage Notification");
+                            notification.setIntersectionID(assessment.getIntersectionID());
+                            notification.setRoadRegulatorID(assessment.getRoadRegulatorID());
                             notification.setAssessment(assessment);
                             
                             result.add(new KeyValue<>(key, notification));
-                        }else if((group.getYellowEvents() + group.getRedEvents()) / eventCount > parameters.getYellowLightPercentToNotify()){
+                            
+
+                        }else if((group.getYellowEvents() + group.getRedEvents()) / eventCount >= parameters.getYellowLightPercentToNotify()){
                             StopLinePassageNotification notification = new StopLinePassageNotification();
                             notification.setSignalGroup(group.getSignalGroup());
-                            notification.setNotificationText("Stop Line Passage Notification, percent of passage events on red and yellow: " + (100 * (group.getRedEvents() + group.getYellowEvents()) / eventCount) + "% for signal group: " + group.getSignalGroup() + " exceeds Maximum Allowable Percent.");
+                            notification.setNotificationText("Stop Line Passage Notification, percent of passage events on red and yellow: " + Math.round(100 * (group.getRedEvents() + group.getYellowEvents()) / eventCount) + "% for signal group: " + group.getSignalGroup() + " exceeds Maximum Allowable Percent.");
                             notification.setNotificationHeading("Stop Line Passage Notification");
+                            notification.setIntersectionID(assessment.getIntersectionID());
+                            notification.setRoadRegulatorID(assessment.getRoadRegulatorID());
                             notification.setAssessment(assessment);
 
                             result.add(new KeyValue<>(key, notification));
+                            
                         }
                     }
+
+
                 }
 
                 return result;

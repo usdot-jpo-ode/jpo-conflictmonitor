@@ -129,8 +129,10 @@ public class StopLineStopAssessmentTopology
                         if(group.getTimeStoppedOnGreen() > parameters.getGreenLightPercentToNotify() * totalTime){
                             StopLineStopNotification notification = new StopLineStopNotification();
                             notification.setSignalGroup(group.getSignalGroup());
-                            notification.setNotificationText("Stop Line Stop Notification, Percent Time stopped on green: " + group.getTimeStoppedOnGreen() + " For Signal group: " + group.getSignalGroup() + " Exceeds Maximum Allowable Percent");
+                            notification.setNotificationText("Stop Line Stop Notification, percent time stopped on green: " + Math.round(100 * group.getTimeStoppedOnGreen()/totalTime) + "% for signal group: " + group.getSignalGroup() + " exceeds maximum allowable percent.");
                             notification.setNotificationHeading("Stop Line Stop Notification");
+                            notification.setIntersectionID(assessment.getIntersectionID());
+                            notification.setRoadRegulatorID(assessment.getRoadRegulatorID());
                             notification.setAssessment(assessment);
                             
                             result.add(new KeyValue<>(key, notification));
