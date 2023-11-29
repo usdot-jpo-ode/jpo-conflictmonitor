@@ -9,17 +9,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import us.dot.its.jpo.conflictmonitor.monitor.models.EventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StopLinePassageAggregator {
     private ArrayList<StopLinePassageEvent> events = new ArrayList<>();
-    private long aggregatorCreationTime;
-    // private double tolerance;
-    // private long messageDurationDays;
-
-    
+    private long aggregatorCreationTime;    
 
     public StopLinePassageAggregator(){
         
@@ -39,7 +37,7 @@ public class StopLinePassageAggregator {
     }
 
     @JsonIgnore
-    public StopLinePassageAssessment getSignalStateEventAssessment(long lookBackPeriodDays){
+    public StopLinePassageAssessment getStopLinePassageAssessment(long lookBackPeriodDays){
 
 
         long lastEventTime = ZonedDateTime.now().toInstant().toEpochMilli();
@@ -95,14 +93,6 @@ public class StopLinePassageAggregator {
         this.events = events;
     }
 
-    // public double getTolerance() {
-    //     return tolerance;
-    // }
-
-    // public void setTolerance(double tolerance) {
-    //     this.tolerance = tolerance;
-    // }
-
     public long getAggregatorCreationTime() {
         return aggregatorCreationTime;
     }
@@ -110,14 +100,6 @@ public class StopLinePassageAggregator {
     public void setAggregatorCreationTime(long aggregatorCreationTime) {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
-
-    // public long getMessageDurationDays() {
-    //     return messageDurationDays;
-    // }
-
-    // public void setMessageDurationDays(long messageDurationDays) {
-    //     this.messageDurationDays = messageDurationDays;
-    // }
 
     @Override
     public String toString() {
@@ -129,6 +111,16 @@ public class StopLinePassageAggregator {
             System.out.println(e);
         }
         return testReturn;
+    }
+
+    @JsonIgnore
+    public EventAssessment getEventAssessmentPair(long lookBackPeriodDays){
+        EventAssessment eventAssessment = new EventAssessment();
+        eventAssessment.setAssessment(getStopLinePassageAssessment(lookBackPeriodDays));
+        if(this.events.size() >0){
+            eventAssessment.setEvent(this.events.get(this.events.size()-1));
+        }
+        return eventAssessment;
     }
     
 }
