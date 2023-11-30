@@ -41,12 +41,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
@@ -138,9 +138,9 @@ public class MonitorServiceControllerTest {
     @Mock IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
     @Mock IntersectionEventStreamsAlgorithm intersectionEventAlgorithm;
     
-    @Mock SignalStateEventAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
-    @Mock SignalStateEventAssessmentStreamsAlgorithm signalStateEventAssessmentAlgorithm;
-    SignalStateEventAssessmentParameters signalStateEventAssessmentParameters = new SignalStateEventAssessmentParameters();
+    @Mock StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
+    @Mock StopLinePassageAssessmentStreamsAlgorithm signalStateEventAssessmentAlgorithm;
+    StopLinePassageAssessmentParameters signalStateEventAssessmentParameters = new StopLinePassageAssessmentParameters();
 
     @Mock LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
     @Mock LaneDirectionOfTravelAssessmentStreamsAlgorithm laneDirectionOfTravelAssessmentAlgorithm;

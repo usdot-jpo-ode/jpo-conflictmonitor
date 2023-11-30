@@ -40,6 +40,8 @@ public class StopLinePassageAssessment extends Assessment{
         return this;
     }
 
+    
+
 
     
 }

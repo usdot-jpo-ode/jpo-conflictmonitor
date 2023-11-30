@@ -141,16 +141,27 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmNotification
       cleanupPolicy: compact
+      retentionMs: 300000
     - name: topic.CmMapBoundingBox
       cleanupPolicy: compact
     - name: topic.CmEvent
       cleanupPolicy: compact
+      retentionMs: 300000
     - name: topic.CmAssessment
       cleanupPolicy: compact
+      retentionMs: 300000
     - name: topic.CmStopLineStopAssessment
       cleanupPolicy: compact
+      retentionMs: 300000
     - name: topic.CmStopLineStopNotification
       cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmSignalStateEventAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmStopLinePassageNotification
+      cleanupPolicy: compact
+      retentionMs: 300000
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -281,16 +292,18 @@ event:
 
 
 # Signal State Event Assessment
-signal.state.event.assessment:
-  algorithm: defaultSignalStateEventAssessmentAlgorithm
+stop.line.passage.assessment:
+  algorithm: defaultStopLinePassageAssessmentAlgorithm
   debug: false
-  signalStateEventTopicName: topic.CmStopLinePassageEvent
-  signalStateEventAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
+  stopLinePassageEventTopicName: topic.CmStopLinePassageEvent
+  stopLinePassageAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
-  # minimumEventsToNotify: 10
-  # greenLightPercentToNotify: 0.1
-  # stopLinePassageNotificationOutputTopicName: topic.CmStopLineStopNotification
+  minimumEventsToNotify: 10
+  redLightPercentToNotify: 0.20
+  yellowLightPercentToNotify: 0.25
+  stopLinePassageNotificationOutputTopicName: topic.CmStopLinePassageNotification
+
 
 stop.line.stop.assessment:
   algorithm: defaultStopLineStopAssessmentAlgorithm
