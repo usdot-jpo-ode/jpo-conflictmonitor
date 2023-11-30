@@ -7,8 +7,8 @@ import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 
 
-
-
+@Getter
+@Setter
 public class StopLinePassageNotification extends Notification {
     public StopLinePassageNotification() {
         super("StopLinePassageNotification");
