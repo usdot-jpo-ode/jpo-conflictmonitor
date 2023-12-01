@@ -1,0 +1,107 @@
+{
+    "type": "object",
+    "properties": {
+        "timestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "laneID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "laneSegmentNumber": {
+            "type": [
+                "integer"
+            ]
+        },
+        "laneSegmentInitialLatitude": {
+            "type": [
+                "number"
+            ]
+        },
+        "laneSegmentInitialLongitude": {
+            "type": [
+                "number"
+            ]
+        },
+        "laneSegmentFinalLatitude": {
+            "type": [
+                "number"
+            ]
+        },
+        "laneSegmentFinalLongitude": {
+            "type": [
+                "number"
+            ]
+        },
+        "expectedHeading": {
+            "type": [
+                "number"
+            ]
+        },
+        "medianVehicleHeading": {
+            "type": [
+                "number"
+            ]
+        },
+        "medianDistanceFromCenterline": {
+            "type": [
+                "number"
+            ]
+        },
+        "aggregateBSMCount": {
+            "type": [
+                "integer"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "eventGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        }
+    },
+    "required": [
+        "timestamp",
+        "laneID",
+        "laneSegmentNumber",
+        "laneSegmentInitialLatitude",
+        "laneSegmentInitialLongitude",
+        "laneSegmentFinalLatitude",
+        "laneSegmentFinalLongitude",
+        "expectedHeading",
+        "medianVehicleHeading",
+        "medianDistanceFromCenterline",
+        "aggregateBSMCount",
+        "source",
+        "eventGeneratedAt",
+        "eventType",
+        "intersectionID",
+        "roadRegulatorID"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/LaneDirectionOfTravelEvent.schema.json"
+}

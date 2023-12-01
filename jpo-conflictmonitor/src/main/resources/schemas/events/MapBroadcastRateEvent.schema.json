@@ -1,0 +1,66 @@
+{
+    "type": "object",
+    "properties": {
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "topicName": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "timePeriod":{
+            "type":"object",
+            "properties":{
+                "beginTimestamp": {
+                    "type": "integer"
+                },
+                "endTimestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "numberOfMessages": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        }
+    },
+    "required": [
+        "source",
+        "topicName",
+        "timePeriod",
+        "numberOfMessages",
+        "eventGeneratedAt",
+        "eventType",
+        "intersectionID",
+        "roadRegulatorID"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/MapBroadcastRateEvent.schema.json"
+}
