@@ -57,5 +57,5 @@
         "roadRegulatorID"
     ],
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/SignalGroupAlignmentEvent.schema.json"
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/events/SignalGroupAlignmentEvent.schema.json"
 }

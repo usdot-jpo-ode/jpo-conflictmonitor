@@ -1,0 +1,83 @@
+{
+    "type": "object",
+    "properties": {
+        "assessment": {
+            "$ref": "../assessment/ConnectionOfTravelAssessment.schema.json"
+        },
+        "ingressLane": {
+            "type": [
+                "integer"
+            ]
+        },
+        "egressLane": {
+            "type": [
+                "integer"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "key": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "notificationGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "notificationType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "notificationText": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "notificationHeading": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "notificationExpiresAt": {
+            "type": "array",
+            "items": {}
+        }
+    },
+    "required": [
+        "assessment",
+        "ingressLane",
+        "egressLane",
+        "id",
+        "key",
+        "notificationGeneratedAt",
+        "notificationType",
+        "notificationText",
+        "notificationHeading",
+        "intersectionID",
+        "roadRegulatorID",
+        "notificationExpiresAt"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/notifications/ConnectionOfTravelNotification.schema.json"
+}

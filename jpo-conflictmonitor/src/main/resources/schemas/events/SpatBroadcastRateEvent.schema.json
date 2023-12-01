@@ -62,5 +62,5 @@
         "roadRegulatorID"
     ],
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/SpatBroadcastrateEvent.schema.json"
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/events/SpatBroadcastrateEvent.schema.json"
 }
