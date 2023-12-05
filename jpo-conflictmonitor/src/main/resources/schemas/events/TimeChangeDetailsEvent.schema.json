@@ -1,0 +1,129 @@
+{
+    "type": "object",
+    "properties": {
+        "signalGroup": {
+            "type": [
+                "integer"
+            ]
+        },
+        "firstSpatTimestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "secondSpatTimestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "firstTimeMarkType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "secondTimeMarkType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "firstConflictingTimemark": {
+            "type": [
+                "integer"
+            ]
+        },
+        "secondConflictingTimemark": {
+            "type": [
+                "integer"
+            ]
+        },
+        "firstConflictingUtcTimestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "secondConflictingUtcTimestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "eventGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "firstState": {
+            "type": "string",
+            "enum": [
+                "UNAVAILABLE",
+                "DARK",
+                "STOP_THEN_PROCEED",
+                "STOP_AND_REMAIN",
+                "PRE_MOVEMENT",
+                "PERMISSIVE_MOVEMENT_ALLOWED",
+                "PROTECTED_MOVEMENT_ALLOWED",
+                "PERMISSIVE_CLEARANCE",
+                "PROTECTED_CLEARANCE",
+                "CAUTION_CONFLICTING_TRAFFIC"
+            ]
+        },
+        "secondState": {
+            "type": "string",
+            "enum": [
+                "UNAVAILABLE",
+                "DARK",
+                "STOP_THEN_PROCEED",
+                "STOP_AND_REMAIN",
+                "PRE_MOVEMENT",
+                "PERMISSIVE_MOVEMENT_ALLOWED",
+                "PROTECTED_MOVEMENT_ALLOWED",
+                "PERMISSIVE_CLEARANCE",
+                "PROTECTED_CLEARANCE",
+                "CAUTION_CONFLICTING_TRAFFIC"
+            ]
+        }
+    },
+    "required": [
+        "signalGroup",
+        "firstSpatTimestamp",
+        "secondSpatTimestamp",
+        "firstTimeMarkType",
+        "secondTimeMarkType",
+        "firstConflictingTimemark",
+        "secondConflictingTimemark",
+        "firstConflictingUtcTimestamp",
+        "secondConflictingUtcTimestamp",
+        "source",
+        "eventGeneratedAt",
+        "eventType",
+        "intersectionID",
+        "roadRegulatorID",
+        "firstState",
+        "secondState"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/events/TimeChangeDetailsEvent.schema.json"
+}

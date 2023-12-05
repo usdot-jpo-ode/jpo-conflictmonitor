@@ -1,0 +1,72 @@
+{
+    "type": "object",
+    "properties": {
+        "event": {
+            "$ref": "../events/SignalstateConflictEvent.schema.json"
+        },
+        "id": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "key": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "notificationGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "notificationType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "notificationText": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "notificationHeading": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "notificationExpiresAt": {
+            "type": [
+                "string",
+                "null"
+            ]
+        }
+    },
+    "required": [
+        "event",
+        "id",
+        "key",
+        "notificationGeneratedAt",
+        "notificationType",
+        "notificationText",
+        "notificationHeading",
+        "intersectionID",
+        "roadRegulatorID"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/notifications/SignalGroupConflictNotification.schema.json"
+}
