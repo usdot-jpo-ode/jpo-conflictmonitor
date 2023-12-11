@@ -19,7 +19,7 @@ public class LaneSegmentTest {
         final double laneWidthCm = 1000.0;
         final boolean ingress = false;
 
-        var segment = new LaneSegment(startPoint, endPoint, laneWidthCm, ingress, factory);
+        var segment = new LaneSegment(startPoint, endPoint, laneWidthCm, ingress, 1, factory);
 
         assertThat("Start Point", segment.getStartPoint(), equalTo(startPoint));
         assertThat("End Point", segment.getEndPoint(), equalTo(endPoint));
