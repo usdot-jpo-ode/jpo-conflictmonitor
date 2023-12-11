@@ -7,11 +7,9 @@ import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
 
 
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter 
 @Setter
-@Document("CmStopLineStopNotification")
 public class StopLineStopNotification extends Notification {
     public StopLineStopNotification() {
         super("StopLineStopNotification");

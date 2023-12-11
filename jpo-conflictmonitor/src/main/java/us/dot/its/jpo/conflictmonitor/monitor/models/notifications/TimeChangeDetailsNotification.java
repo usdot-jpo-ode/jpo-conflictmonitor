@@ -6,9 +6,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("CmTimeChangeDetailsNotification")
 public class TimeChangeDetailsNotification extends Notification {
     public TimeChangeDetailsNotification() {
         super("TimeChangeDetailsNotification");

@@ -70,6 +70,10 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
         ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
         ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
+        if (firstSpat == null || lastSpat == null) {
+            logger.warn("Can't generate StopLineStop event because SPATs not found.");
+            return null;
+        }
 
 
 

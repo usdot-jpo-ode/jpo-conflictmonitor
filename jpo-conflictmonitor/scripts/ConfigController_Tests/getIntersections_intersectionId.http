@@ -1,0 +1,2 @@
+GET http://localhost:8082/config/intersections?intersectionId=101010
+Accept: application/json

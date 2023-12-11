@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("CmSignalStateEventAssessment")
+
+
 @Getter
 @Setter
 public class StopLinePassageAssessment extends Assessment{

@@ -1,8 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.config;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.InvalidPropertyException;
@@ -10,12 +10,7 @@ import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.ExecutableAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 /**
  * Service for monitoring updates to configuration parameters for other algorithms.
@@ -23,13 +18,18 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 public interface ConfigAlgorithm extends ExecutableAlgorithm {
 
 
-    DefaultConfig<?> getDefaultConfig(String key);
-    Map<String, DefaultConfig<?>> mapDefaultConfigs();
-    Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID);
-    Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key);
-    Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs();
+    <T> DefaultConfig<T> getDefaultConfig(String key);
+    <T> Optional<IntersectionConfig<T>> getIntersectionConfig(IntersectionConfigKey configKey);
+    Collection<IntersectionConfig<?>> listIntersectionConfigs(String key);
+    DefaultConfigMap mapDefaultConfigs();
+    IntersectionConfigMap mapIntersectionConfigs();
+    <T> void updateDefaultConfig(DefaultConfig<T> value);
+    <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) throws ConfigException;
+    <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value) throws ConfigException;
+
     void registerDefaultListener(String key, DefaultConfigListener handler);
     void registerIntersectionListener(String key, IntersectionConfigListener handler);
+
     /**
      * Initialize previously updated properties.
      * <p>Call this after all topologies have been initialized.
@@ -84,7 +84,7 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
                             var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);
                             logger.info("Intersection listener {}: {}", key, value);
                             final var propValue = value.getValue();
-                            configMap.putObject(value.getRsuID(), propValue);
+                            configMap.putObject(value.intersectionKey(), propValue);
                         });
                     } catch (InvalidPropertyException ex) {
                         var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);

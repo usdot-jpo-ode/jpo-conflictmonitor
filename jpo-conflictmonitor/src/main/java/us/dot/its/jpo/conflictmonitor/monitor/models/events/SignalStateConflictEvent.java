@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-@Document("CmSignalStateConflictEvent")
+
+
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)

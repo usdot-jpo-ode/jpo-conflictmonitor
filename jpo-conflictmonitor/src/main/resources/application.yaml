@@ -6,8 +6,8 @@ version: ^project.version^
 server.port: 8082
 
 # Kafka properties
-# spring.kafka.bootstrap-servers: localhost:9092
 spring.kafka.bootstrap-servers: localhost:9092
+
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
 log4j.logger.kafka: OFF
@@ -131,11 +131,12 @@ kafka.topics:
     - name: topic.CmConnectionOfTravelAssessment
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmDefaultConfig
+    - name: topic.CmDefaultConfigTable
       cleanupPolicy: compact
-    - name: topic.CmIntersectionConfig
-      cleanupPolicy: delete
-      retentionMs: 3000
+    - name: topic.CmCustomConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmMergedConfigTable
+      cleanupPolicy: compact
     - name: topic.CmIntersectionConfigTable
       cleanupPolicy: compact
     - name: topic.CmNotification
@@ -167,45 +168,9 @@ kafka.topics:
     #   cleanupPolicy: compact    
     
 
-# Mongo properties
-spring.data.mongodb.uri: mongodb://localhost:27017/ConflictMonitor
-spring.data.mongodb.database: ConflictMonitor
 
-# TTL initial settings
-mongo.indexes:
-  - name: CmStopLineStopEvent
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmSignalStateConflictEvents
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmIntersectionReferenceAlignmentEvents
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmSignalGroupAlignmentEvents
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmLaneDirectionOfTravelEvent
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmConnectionOfTravelEvent
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmStopLinePassageEvent
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmSpatTimeChangeDetailsEvent
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmMapBroadcastRateEvents
-    timefield: eventGeneratedAt
-    expiretime: 7884000
-  - name: CmLaneDirectionOfTravelAssessment
-    timefield: assessmentGeneratedAt
-    expiretime: 7884000
-  - name: CmSpatBroadcastRateEvents
-    timefield: eventGeneratedAt
-    expiretime: 7884000
+
+
 
 
 # Connection of Travel
@@ -424,66 +389,12 @@ message.ingest:
 
 # Config parameters
 config:
-  defaultTopicName: topic.CmDefaultConfig
-  intersectionTopicName: topic.CmIntersectionConfig
   defaultStateStore: default-config
   intersectionStateStore: intersection-config
+  defaultTopicName: topic.CmDefaultConfigTable
+  customTopicName: topic.CmCustomConfigTable
+  mergedTopicName: topic.CmMergedConfigTable
   intersectionTableName: topic.CmIntersectionConfigTable
-  defaultCollectionName: CmDefaultConfig
-  intersectionCollectionName: CmIntersectionConfig
-  createDefaultConnectorJsonParams: >
-    {
-      "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
-      ,"tasks.max": 3
-      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
-      ,"name": "MongoSource.{{defaultTopicName}}"
-      ,"database": "ConflictMonitor"
-      ,"collection": "{{defaultCollectionName}}"
-      ,"topic.namespace.map": "{ \"ConflictMonitor.{{defaultCollectionName}}\": \"{{defaultTopicName}}\" }"
-      ,"copy.existing": true
-      ,"publish.full.document.only": true
-      ,"publish.full.document.only.tombstones.on.delete": true
-      ,"change.stream.full.document": "required"
-      ,"pipeline": "[{$addFields:{\"fullDocument.key\":\"$fullDocument._id\"}},{$project:{\"fullDocument._id\":0,\"fullDocument._class\":0}}]"
-      ,"key.converter": "org.apache.kafka.connect.storage.StringConverter"
-      ,"key.converter.schemas.enable": false
-      ,"value.converter": "org.apache.kafka.connect.json.JsonConverter"
-      ,"value.converter.schemas.enable": false
-      ,"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson"
-      ,"output.format.key": "schema"
-      ,"output.format.value": "schema"
-      ,"output.schema.infer.value": true
-      ,"transforms": "ValueToKey,ExtractKey"
-      ,"transforms.ValueToKey.type": "org.apache.kafka.connect.transforms.ValueToKey"
-      ,"transforms.ValueToKey.fields": "key"
-      ,"transforms.ExtractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key"
-      ,"transforms.ExtractKey.field": "key"
-    }
-  createIntersectionConnectorJsonParams: >
-    {
-      "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector"
-      ,"tasks.max": 3
-      ,"connection.uri": "mongodb://{{DB_HOST_IP}}:27017/?replicaSet=rs0"
-      ,"name": "MongoSource.{{intersectionTopicName}}"
-      ,"database": "ConflictMonitor"
-      ,"collection": "{{intersectionCollectionName}}"
-      ,"topic.namespace.map": "{ \"ConflictMonitor.{{intersectionCollectionName}}\": \"{{intersectionTopicName}}\" }"
-      ,"startup.mode": "copy_existing"
-      ,"publish.full.document.only": true
-      ,"publish.full.document.only.tombstones.on.delete": true
-      ,"change.stream.full.document": "required"
-      ,"pipeline": "[{$addFields:{\"fullDocument.key\":\"$fullDocument._id.key\",\"fullDocument.rsuID\":\"$fullDocument._id.rsuID\"}},{$project:{\"fullDocument._class\":0,\"fullDocument._id\":0}}]"
-      ,"key.converter": "org.apache.kafka.connect.json.JsonConverter"
-      ,"key.converter.schemas.enable": false
-      ,"value.converter": "org.apache.kafka.connect.json.JsonConverter"
-      ,"value.converter.schemas.enable": false
-      ,"output.json.formatter": "com.mongodb.kafka.connect.source.json.formatter.SimplifiedJson"
-      ,"output.format.key": "schema"
-      ,"output.format.value": "schema"
-      ,"output.schema.infer.value": true
-      ,"transforms": "ValueToKey"
-      ,"transforms.ValueToKey.type": "org.apache.kafka.connect.transforms.ValueToKey"
-      ,"transforms.ValueToKey.fields": "rsuID,key"
-    }
+
 
 

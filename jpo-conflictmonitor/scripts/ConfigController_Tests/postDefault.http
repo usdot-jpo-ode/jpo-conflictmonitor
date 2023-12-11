@@ -1,0 +1,12 @@
+POST http://localhost:8082/config/default/map.validation.outputIntervalSeconds
+Content-Type: application/json
+
+{
+  "key": "map.validation.outputIntervalSeconds",
+  "category": "",
+  "value": 5,
+  "type": "java.lang.Integer",
+  "units": "SECONDS",
+  "description": "Window hop",
+  "updateType": "DEFAULT"
+}

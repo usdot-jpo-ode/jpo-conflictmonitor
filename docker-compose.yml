@@ -17,6 +17,11 @@ services:
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
       spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+    healthcheck:
+      test: ["CMD", "java", "-version"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
     logging:
       options:
         max-size: "10m"
@@ -38,7 +43,7 @@ services:
     volumes:
       - mongodb_data_container:/data/db
     healthcheck:
-      test: | 
+      test: |
         test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 10s
       start_period: 30s
@@ -51,6 +56,26 @@ services:
       resources:
         limits:
           memory: 3G
+
+  mongodb_initializer:
+    image: mongo:6
+    build:
+      context: ./docker/mongo
+      dockerfile: Dockerfile
+    container_name: jpo-conflictmonitor-mongodb-mongodb_initializer
+    restart: always
+    environment:
+      DB_HOST_IP: ${DB_HOST_IP}
+    depends_on:
+      mongodb_container:
+        condition: service_healthy
+      conflictmonitor:
+        condition: service_healthy
+      connect:
+        condition: service_healthy
+    command: bash /scripts/mongo_initialize.sh "mongodb://${DB_HOST_IP}:27017/ConflictMonitor?replicaSet=rs0"
+
+
 
   connect:
     image: cp-kafka-connect:6.1.9
@@ -111,5 +136,6 @@ services:
       resources:
         limits:
           memory: 3G
+
 volumes:
   mongodb_data_container:
