@@ -4,9 +4,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("CmSignalStateConflictNotification")
+
 public class SignalStateConflictNotification extends Notification {
     public SignalStateConflictNotification() {
         super("SignalStateConflictNotification");

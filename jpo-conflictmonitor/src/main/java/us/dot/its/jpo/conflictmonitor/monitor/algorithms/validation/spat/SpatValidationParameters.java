@@ -12,9 +12,12 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUti
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
+
+
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 
 
@@ -90,11 +93,11 @@ public class SpatValidationParameters {
     final ConfigMap<Integer> upperBoundMap = new ConfigMap<>();
 
     // Intersection-specific parameters
-    public int getLowerBound(String rsuID) {
-        return getIntersectionValue(rsuID, lowerBoundMap, lowerBound);
+    public int getLowerBound(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, lowerBoundMap, lowerBound);
     }
-    public int getUpperBound(String rsuID) {
-        return getIntersectionValue(rsuID, upperBoundMap, upperBound);
+    public int getUpperBound(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, upperBoundMap, upperBound);
     }
 
 

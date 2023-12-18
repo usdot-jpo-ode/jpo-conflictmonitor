@@ -7,13 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+
 
 /**
  * Stop Line Passage Event
  * <p>Specified in Table 14, "CIMMS Software Design Document - FINAL", April 2023</p>
  */
-@Document("CmStopLinePassageEvent")
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)

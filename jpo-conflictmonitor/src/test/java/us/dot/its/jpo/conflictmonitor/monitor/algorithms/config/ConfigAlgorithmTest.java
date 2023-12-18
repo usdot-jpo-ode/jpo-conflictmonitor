@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.config;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,13 +14,8 @@ import com.google.common.collect.Multimap;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 
 /**
  * Unit tests for {@link ConfigAlgorithm}.
@@ -66,19 +62,24 @@ public class ConfigAlgorithmTest {
 
 
         // Test that intersection listener can update an RSU-specific value independent of default value update
-        final String rsuId = "127.0.0.1";
+        //final String rsuId = "127.0.0.1";
         final String newIntersectionDefault = "newIntersectionDefaultValue";
         final String newIntersectionValue = "newIntersectionValue";
         var intDefaultConfig = new DefaultConfig<String>(TestParameters.INTERSECTION_PARAM, "", 
             newIntersectionDefault, "", UnitsEnum.NONE, "");
         defaultIntersectionListener.accept(intDefaultConfig);
-        
+
+        final int roadRegulatorId = 10;
+        final int intersectionId = 100000;
+        final var intersectionKey = new IntersectionRegion(intersectionId, roadRegulatorId);
+
         var newIntersectionConfig = new IntersectionConfig<String>(TestParameters.INTERSECTION_PARAM, 
-            "", 0, 0, rsuId, newIntersectionValue, "", UnitsEnum.NONE, "");
+            "", roadRegulatorId, intersectionId, newIntersectionValue, "", UnitsEnum.NONE, "");
         intersectionListener.accept(newIntersectionConfig);
 
         assertThat(testParameters.getIntersectionParam(), equalTo(newIntersectionDefault));
-        assertThat(testParameters.getIntersectionParam(rsuId), equalTo(newIntersectionValue));
+
+        assertThat(testParameters.getIntersectionParam(intersectionKey), equalTo(newIntersectionValue));
         
     }
 
@@ -115,24 +116,45 @@ public class ConfigAlgorithmTest {
         }
 
         @Override
-        public Map<String, DefaultConfig<?>> mapDefaultConfigs() {
+        public DefaultConfigMap mapDefaultConfigs() {
+            return null;
+        }
+
+
+
+        @Override
+        public Optional<IntersectionConfig<?>> getIntersectionConfig(IntersectionConfigKey configKey) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Collection<IntersectionConfig<?>> listIntersectionConfigs(String key) {
+            return null;
+        }
+
+
+        @Override
+        public IntersectionConfigMap mapIntersectionConfigs() {
             return null;
         }
 
         @Override
-        public Optional<IntersectionConfig<?>> getIntersectionConfig(String key, String rsuID) {
+        public <T> void updateDefaultConfig(DefaultConfig<T> value) {
+
+        }
+
+        @Override
+        public <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) {
             return null;
         }
 
         @Override
-        public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs(String key) {
+        public <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> config) {
             return null;
         }
 
-        @Override
-        public Map<RsuConfigKey, IntersectionConfig<?>> mapIntersectionConfigs() {
-            return null;
-        }
+
+
 
         @Override
         public void initializeProperties() {
@@ -169,8 +191,8 @@ public class ConfigAlgorithmTest {
 
         ConfigMap<String> intersectionParamMap = new ConfigMap<>();
 
-        public String getIntersectionParam(String rsuID) {
-            return ConfigUtil.getIntersectionValue(rsuID, intersectionParamMap, intersectionParam);
+        public String getIntersectionParam(IntersectionRegion intersectionKey) {
+            return ConfigUtil.getIntersectionValue(intersectionKey, intersectionParamMap, intersectionParam);
         }
     }
 }

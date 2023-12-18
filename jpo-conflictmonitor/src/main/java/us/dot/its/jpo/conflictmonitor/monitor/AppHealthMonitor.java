@@ -46,7 +46,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -60,7 +60,7 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 @RestController
 @RequestMapping(path = "/health", produces = MediaType.APPLICATION_JSON_VALUE)
 @DependsOn("createKafkaTopics")
-@Profile("!test")
+@Profile("!test && !testConfig")
 public class AppHealthMonitor {
 
     private static final ObjectMapper mapper;

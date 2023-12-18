@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import us.dot.its.jpo.conflictmonitor.monitor.models.map.IntersectionRegion;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 @Getter

@@ -1,27 +1,22 @@
-package us.dot.its.jpo.conflictmonitor.monitor.mongo;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.config;
 
-import java.lang.reflect.Field;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultBooleanConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultDoubleConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultIntConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultLongConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultStringConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
+
+import java.lang.reflect.Field;
 
 @Component
 @Profile("!test")
@@ -29,31 +24,26 @@ public class ConfigInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigInitializer.class);
 
-    final MongoTemplate mongoTemplate;
-    
+
+
     final ConfigParameters configParams;
 
     final AlgorithmParameters algorithmParameters;
 
+    final ConfigTopology configTopology;
+
     @Autowired
     public ConfigInitializer(
-            ConfigParameters configParams, 
-            MongoTemplate mongoTemplate,
-            AlgorithmParameters algorithmParameters) {
-        this.mongoTemplate = mongoTemplate;
+            ConfigParameters configParams,
+            AlgorithmParameters algorithmParameters,
+            ConfigTopology configTopology) {
         this.configParams = configParams;
         this.algorithmParameters = algorithmParameters;
+        this.configTopology = configTopology;
     }
 
 
-    public void createCollections() {
-        if (!mongoTemplate.collectionExists(configParams.getDefaultCollectionName())) {
-            mongoTemplate.createCollection(configParams.getDefaultCollectionName());
-        }
-        if (!mongoTemplate.collectionExists(configParams.getIntersectionCollectionName())) {
-            mongoTemplate.createCollection(configParams.getIntersectionCollectionName());
-        }
-    }
+
 
     /**
      * Initialize the database with parameters fields annotated with {@link ConfigData}.
@@ -81,8 +71,8 @@ public class ConfigInitializer {
             var updatable = field.getAnnotation(ConfigData.class);
             final Class<?> type = field.getType();
             final DefaultConfig<?> config = createConfig(type, propValue, updatable);
-            logger.info("config: {}", config);
-            writeDefaultConfigDocument(config);
+            logger.info("Writing default config to topic. {}", config);
+            configTopology.updateDefaultConfig(config);
         }
     }
 
@@ -130,16 +120,5 @@ public class ConfigInitializer {
         config.setType(actualType.getName());
     }
 
-    private void writeDefaultConfigDocument(DefaultConfig<?> document) {
-        final var collection = configParams.getDefaultCollectionName();
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(document.getKey()));
-        long counts = mongoTemplate.count(query, collection);
 
-        if (counts == 0) {
-            // Doesn't exist, create it
-            mongoTemplate.insert(document, collection);
-        } 
-    }
-    
 }

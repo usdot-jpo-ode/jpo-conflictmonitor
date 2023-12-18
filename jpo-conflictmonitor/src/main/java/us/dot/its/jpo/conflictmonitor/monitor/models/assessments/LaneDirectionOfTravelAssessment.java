@@ -13,9 +13,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTrave
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("CmLaneDirectionOfTravelAssessment")
 @Getter
 @Setter
 @Generated
