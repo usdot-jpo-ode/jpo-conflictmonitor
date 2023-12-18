@@ -16,8 +16,11 @@ public class LaneSegment {
     private final LineString centerLine;
     private final double heading;
     private final double laneWidth;
+    private final int segmentID;
 
-    public LaneSegment(Point startPoint, Point endPoint, double laneWidthCm, boolean ingress, GeometryFactory factory) {
+    
+
+    public LaneSegment(Point startPoint, Point endPoint, double laneWidthCm, boolean ingress, int segmentID, GeometryFactory factory) {
         double headingRadians = 0;
 
         headingRadians = Angle.angle(endPoint.getCoordinate(), startPoint.getCoordinate());
@@ -74,6 +77,7 @@ public class LaneSegment {
         this.heading = headingFromNorth;
         this.laneWidth = laneWidthCm;
         this.centerLine = factory.createLineString(centerLineCoordinates);
+        this.segmentID = segmentID;
 
     }
 
@@ -99,5 +103,9 @@ public class LaneSegment {
 
     public LineString getCenterLine() {
         return centerLine;
+    }
+
+    public int getSegmentID() {
+        return segmentID;
     }
 }
