@@ -1,47 +1,59 @@
 // Create indexes on all collections
 
 console.log("");
-console.log("Running create_ttl_indexes.js");
+console.log("Running create_indexes.js");
 
 const expire_seconds = 7884000; // 3 months
 const retry_milliseconds = 10000;
 
-const collections = [
-    {name: "OdeBsmJson", timefield: "none", intersectionfield: "none"},
-    {name: "OdeRawEncodedBSMJson", timefield: "none", intersectionfield: "none"},
-    {name: "OdeMapJson", timefield: "none", intersectionfield: "none"},
-    {name: "OdeSpatJson", timefield: "none", intersectionfield: "none"},
-    {name: "ProcessedMap", timefield: "none", intersectionfield: "none"},
-    {name: "ProcessedSpat", timefield: "none", intersectionfield: "none"},
-    {name: "OdeRawEncodedMAPJson", timefield: "none", intersectionfield: "none"},
+// name -> collection name
+// ttlField -> field to perform ttl on 
+// timeField -> field to index for time queries
+// intersectionField -> field containing intersection id for id queries
 
-    { name: "CmStopLineStopEvent", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmStopLinePassageEvent", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSignalStateConflictEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmIntersectionReferenceAlignmentEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSignalGroupAlignmentEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmConnectionOfTravelEvent", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmLaneDirectionOfTravelEvent", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSignalStateEvent", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSpatTimeChangeDetailsEvent", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSpatMinimumDataEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmMapBroadcastRateEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmMapMinimumDataEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmLaneDirectionOfTravelAssessment", timefield: "assessmentGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmConnectionOfTravelAssessment", timefield: "assessmentGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSignalStateEventAssessment", timefield: "assessmentGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSpatBroadcastRateEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CMBsmEvents", timefield: "eventGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSpatTimeChangeDetailsNotification", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmLaneDirectionOfTravelNotification", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmConnectionOfTravelNotification", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmAppHealthNotifications", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSignalStateConflictNotification", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmSignalGroupAlignmentNotification", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" },
-    { name: "CmNotification", timefield: "notificationGeneratedAt", intersectionfield: "intersectionID" }
+
+const collections = [
+    {name: "OdeBsmJson", ttlField: "recordGeneratedAt", timeField: "metadata.odeReceivedAt", intersectionField: "none"},
+    {name: "OdeRawEncodedBSMJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
+    {name: "OdeMapJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
+    {name: "OdeSpatJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
+    {name: "ProcessedMap", ttlField: "recordGeneratedAt", timeField: "properties.timeStamp", intersectionField: "properties.intersectionId"},
+    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "properties.intersectionId", intersectionField: "properties.timeStamp"},
+    {name: "OdeRawEncodedMAPJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
+
+
+    { name: "CmStopLineStopEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmStopLinePassageEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmIntersectionReferenceAlignmentEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSignalGroupAlignmentEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmConnectionOfTravelEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmLaneDirectionOfTravelEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSpatTimeChangeDetailsEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSpatMinimumDataEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmMapBroadcastRateEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmMapMinimumDataEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSpatBroadcastRateEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CMBsmEvents", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
+
+
+    { name: "CmLaneDirectionOfTravelAssessment", ttlField: "assessmentGeneratedAt", timeField: "assessmentGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmConnectionOfTravelAssessment", ttlField: "assessmentGeneratedAt", timeField: "assessmentGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSignalStateEventAssessment", ttlField: "assessmentGeneratedAt", timeField: "assessmentGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmStopLineStopAssessment", ttlField: "assessmentGeneratedAt", timeField: "assessmentGeneratedAt", intersectionField: "intersectionID" },
+    
+    
+    { name: "CmSpatTimeChangeDetailsNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmLaneDirectionOfTravelNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmConnectionOfTravelNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmAppHealthNotifications", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSignalStateConflictNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmSignalGroupAlignmentNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmStopLinePassageNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmStopLineStopNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" },
+    { name: "CmNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" }
 ];
 
-
+db = db.getSiblingDB("ConflictMonitor");
 
 // Wait for the collections to exist in mongo before trying to create indexes on them
 let missing_collection_count;
@@ -61,13 +73,15 @@ do {
             }
 
             if(created){
-                if (collection.timefield !== 'none') {
-                    createTTLIndex(collection);
-
-                    if(collection.intersectionfield !== 'none'){
-                        createTimeIntersectionIndex(collection)
-                    }
+                if (collection.hasOwnProperty('ttlField') && collection.ttlField !== 'none') {
+                    createTTLIndex(collection);  
                 }
+
+                if(collection.hasOwnProperty('timeField') && collection.timeField !== 'none'){
+                    createTimeIntersectionIndex(collection)
+                }
+
+
             }else{
                 missing_collection_count++;
                 console.log("Collection " + collection.name + " does not exist yet");
@@ -104,7 +118,7 @@ function createTTLIndex(collection) {
     }
 
     const collection_name = collection.name;
-    const timefield = collection.timefield;
+    const timeField = collection.ttlField;
 
     console.log(
         "Creating TTL index for " + collection_name + " to remove documents after " +
@@ -114,14 +128,14 @@ function createTTLIndex(collection) {
 
     try {
         var index_json = {};
-        index_json[timefield] = 1;
+        index_json[timeField] = 1;
         db[collection_name].createIndex(index_json,
             {expireAfterSeconds: expire_seconds}
         );
-        console.log("Created TTL index for " + collection_name + " using the field: " + timefield + " as the timestamp");
+        console.log("Created TTL index for " + collection_name + " using the field: " + timeField + " as the timestamp");
     } catch (err) {
         var pattern_json = {};
-        pattern_json[timefield] = 1;
+        pattern_json[timeField] = 1;
         db.runCommand({
             "collMod": collection_name,
             "index": {
@@ -129,7 +143,7 @@ function createTTLIndex(collection) {
                 expireAfterSeconds: expire_seconds
             }
         });
-        console.log("Updated TTL index for " + collection_name + " using the field: " + timefield + " as the timestamp");
+        console.log("Updated TTL index for " + collection_name + " using the field: " + timeField + " as the timestamp");
     }
 
 }
@@ -144,8 +158,7 @@ function createTimeIntersectionIndex(collection){
 
 
     const collection_name = collection.name;
-    const timefield = collection.timefield;
-    const intersection_field = collection.intersectionfield;
+    const timeField = collection.timeField;
 
     console.log(
         "Creating Time Intersection index for " + collection_name + " to remove documents after " +
@@ -154,12 +167,17 @@ function createTimeIntersectionIndex(collection){
     );
 
     var index_json = {};
-    index_json[timefield] = -1;
-    index_json[intersection_field] = -1
+    index_json[timeField] = -1;
+
+    if(collection.hasOwnProperty('intersectionField') && collection.intersectionField !== 'none'){
+        index_json[collection.intersectionField] = -1
+    }
+
+    
 
     try {
         db[collection_name].createIndex(index_json);
-        console.log("Created Time Intersection index for " + collection_name + " using the field: " + timefield + " as the timestamp");
+        console.log("Created Time Intersection index for " + collection_name + " using the field: " + timeField + " as the timestamp");
     } catch (err) {
         db.runCommand({
             "collMod": collection_name,
@@ -167,7 +185,7 @@ function createTimeIntersectionIndex(collection){
                 keyPattern: index_json
             }
         });
-        console.log("Updated TTL index for " + collection_name + " using the field: " + timefield + " as the timestamp");
+        console.log("Updated TTL index for " + collection_name + " using the field: " + timeField + " as the timestamp");
     }
 
 
@@ -180,5 +198,5 @@ function ttlIndexExists(collection) {
 }
 
 function timeIntersectionIndexExists(collection){
-    return db[collection.name].getIndexes().find((idx) => idx.name == collection.timefield + "_-1_" + collection.intersectionfield + "_-1") !== undefined;
+    return db[collection.name].getIndexes().find((idx) => idx.name == collection.timeField + "_-1_" + collection.intersectionField + "_-1") !== undefined;
 }
