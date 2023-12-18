@@ -81,8 +81,9 @@ public class Lane {
         for(int i=1; i < this.points.getNumPoints(); i++){
             Point segmentStartPoint = this.points.getPointN(i-1);
             Point segmentEndPoint = this.points.getPointN(i);
-            LaneSegment segment = new LaneSegment(segmentStartPoint, segmentEndPoint, this.laneWidthCm, this.ingress, this.geometryFactory);
+            LaneSegment segment = new LaneSegment(segmentStartPoint, segmentEndPoint, this.laneWidthCm, this.ingress, i, this.geometryFactory);
             laneSegments.add(segment);
+
         }
 
 
