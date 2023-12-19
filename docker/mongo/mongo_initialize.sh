@@ -7,6 +7,7 @@ echo "connect_string = ${connect_string}"
 cd /scripts
 ls
 
-mongosh "${connect_string}" create_ttl_indexes.js
+use ConflictMonitor
+mongosh "${connect_string}" create_indexes.js
 
 $SHELL
