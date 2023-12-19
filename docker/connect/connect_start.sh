@@ -64,34 +64,34 @@ declare -A CmBsmEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
 
 # Record Assessments
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmConnectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalStateEventAssessment=([name]="topic.CmSignalStateEventAssessment" [collection]="CmSignalStateEventAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmStopLineStopAssessment=([name]="topic.CmStopLineStopAssessment" [collection]="CmStopLineStopAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 
 
 # Record Notifications
 declare -A CmSpatTimeChangeDetailsNotification=([name]="topic.CmSpatTimeChangeDetailsNotification" [collection]="CmSpatTimeChangeDetailsNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmLaneDirectionOfTravelNotification=([name]="topic.CmLaneDirectionOfTravelNotification" [collection]="CmLaneDirectionOfTravelNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmConnectionOfTravelNotification=([name]="topic.CmConnectionOfTravelNotification" [collection]="CmConnectionOfTravelNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmAppHealthNotifications=([name]="topic.CmAppHealthNotifications" [collection]="CmAppHealthNotifications"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalStateConflictNotification=([name]="topic.CmSignalStateConflictNotification" [collection]="CmSignalStateConflictNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalGroupAlignmentNotification=([name]="topic.CmSignalGroupAlignmentNotification" [collection]="CmSignalGroupAlignmentNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmStoLinePassageNotification=([name]="topic.CmStopLinePassageNotification" [collection]="CmStopLinePassageNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 
 function createSink() {
     local -n topic=$1
