@@ -10,7 +10,12 @@ const retry_milliseconds = 10000;
 // ttlField -> field to perform ttl on 
 // timeField -> field to index for time queries
 // intersectionField -> field containing intersection id for id queries
-
+try{
+	rs.initiate()
+}
+catch{
+	console.log("DB Already Initialized");
+}
 
 const collections = [
     {name: "OdeBsmJson", ttlField: "recordGeneratedAt", timeField: "metadata.odeReceivedAt", intersectionField: "none"},
@@ -18,7 +23,7 @@ const collections = [
     {name: "OdeMapJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
     {name: "OdeSpatJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
     {name: "ProcessedMap", ttlField: "recordGeneratedAt", timeField: "properties.timeStamp", intersectionField: "properties.intersectionId"},
-    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "properties.intersectionId", intersectionField: "properties.timeStamp"},
+    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "odeReceivedAt", intersectionField: "intersectionId"},
     {name: "OdeRawEncodedMAPJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
 
 

@@ -1,5 +1,5 @@
 # bin/bash
-DOCKER_HOST_IP = $1
+DB_HOST_IP = $1
 
 echo "------------------------------------------"
 echo "Kafka connector creation started."
@@ -117,7 +117,7 @@ function createSink() {
         "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
         "tasks.max":3,
         "topics":"'$name'",
-        "connection.uri":"mongodb://'$DOCKER_HOST_IP':27017",
+        "connection.uri":"mongodb://'$DB_HOST_IP':27017",
         "database":"ConflictMonitor",
         "collection":"'$collection'",
         "key.converter":"org.apache.kafka.connect.storage.StringConverter",
@@ -126,11 +126,16 @@ function createSink() {
         "value.converter.schemas.enable":false,
         "errors.tolerance": "all",
         "mongo.errors.tolerance": "all",
-        "errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
-        "errors.deadletterqueue.context.headers.enable": true,
-        "errors.log.enable": true,
+        "errors.deadletterqueue.topic.name": "",
+	"errors.log.enable": false,
         "errors.log.include.messages": false,
-        "errors.deadletterqueue.topic.replication.factor": 1'    
+	"errors.deadletterqueue.topic.replication.factor": 0' 
+
+	#"errors.deadletterqueue.context.headers.enable": true,
+        #"errors.log.enable": false,
+        #"errors.log.include.messages": false,
+        #"errors.deadletterqueue.topic.replication.factor": 1'    
+	#"errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
 
 
     if [ "$convert_timestamp" == true ]
