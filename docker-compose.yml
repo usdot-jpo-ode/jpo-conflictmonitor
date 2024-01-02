@@ -42,8 +42,10 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data_container:/data/db
+      - ./docker/mongo/a_init_replicas.js:/docker-entrypoint-initdb.d/a_init_replicas.js
+      - ./docker/mongo/b_create_indexes.js:/docker-entrypoint-initdb.d/b_create_indexes.js
     healthcheck:
-      test: |
+      test: | 
         test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 10s
       start_period: 30s
@@ -56,26 +58,6 @@ services:
       resources:
         limits:
           memory: 3G
-
-  mongodb_initializer:
-    image: mongo:6
-    build:
-      context: ./docker/mongo
-      dockerfile: Dockerfile
-    container_name: jpo-conflictmonitor-mongodb-mongodb_initializer
-    restart: always
-    environment:
-      DB_HOST_IP: ${DB_HOST_IP}
-    depends_on:
-      mongodb_container:
-        condition: service_healthy
-      conflictmonitor:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
-    command: bash /scripts/mongo_initialize.sh "mongodb://${DB_HOST_IP}:27017/ConflictMonitor?replicaSet=rs0"
-
-
 
   connect:
     image: cp-kafka-connect:6.1.9

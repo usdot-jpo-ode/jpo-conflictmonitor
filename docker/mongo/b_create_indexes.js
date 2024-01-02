@@ -11,7 +11,6 @@ const retry_milliseconds = 10000;
 // timeField -> field to index for time queries
 // intersectionField -> field containing intersection id for id queries
 
-
 const collections = [
     {name: "OdeBsmJson", ttlField: "recordGeneratedAt", timeField: "metadata.odeReceivedAt", intersectionField: "none"},
     {name: "OdeRawEncodedBSMJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
@@ -53,7 +52,22 @@ const collections = [
     { name: "CmNotification", ttlField: "notificationGeneratedAt", timeField: "notificationGeneratedAt", intersectionField: "intersectionID" }
 ];
 
-db = db.getSiblingDB("ConflictMonitor");
+try{
+    db.getMongo().setReadPref("primaryPreferred");
+    db = db.getSiblingDB("ConflictMonitor");
+    db.getMongo().setReadPref("primaryPreferred");
+    var isMaster = db.isMaster();
+    if (isMaster.primary) {
+        print("Connected to the primary replica set member.");
+    } else {
+        print("Not connected to the primary replica set member. Current node: " + isMaster.host);
+    }
+} 
+catch(err){
+    console.log("Could not switch DB to Sibling DB");
+    console.log(err);
+}
+
 
 // Wait for the collections to exist in mongo before trying to create indexes on them
 let missing_collection_count;
@@ -63,11 +77,12 @@ do {
         missing_collection_count = 0;
         const collection_names = db.getCollectionNames();
         for (collection of collections) {
-            
+            console.log("Creating Indexes for Collection" + collection);
             // Create Collection if It doesn't exist
             let created = false;
             if(!collection_names.includes(collection.name)){
                 created = createCollection(collection);
+                // created = true;
             }else{
                 created = true;
             }
@@ -92,6 +107,8 @@ do {
             sleep(retry_milliseconds);
         }
     } catch (err) {
+        console.log("Error while setting up TTL indexs in collections");
+        console.log(rs.status());
         console.error(err);
         sleep(retry_milliseconds);
     }
@@ -106,6 +123,7 @@ function createCollection(collection){
         return true;
     } catch (err) {
         console.log("Unable to Create Collection: " + collection.name);
+        console.log(err);
         return false;
     }
 }
