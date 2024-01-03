@@ -167,6 +167,21 @@ public class ConfigController {
         return saveIntersectionConfigHelper(0, intersectionId, key, config, false);
     }
 
+    @DeleteMapping(value = "intersection/{region}/{intersectionId}/{key}")
+    public @ResponseBody ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfig(
+            @PathVariable(name = "region") int region,
+            @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "key") String key) {
+        return deleteIntersectionConfigHelper(region, intersectionId, key, true);
+    }
+
+    @DeleteMapping(value = "intersection/{intersectionId}/{key}")
+    public @ResponseBody ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfig(
+            @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "key") String key) {
+        return deleteIntersectionConfigHelper(0, intersectionId, key, false);
+    }
+
     private <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfigHelper(
             int region, int intersectionId, String key, IntersectionConfig<T> config, boolean useRegion) {
 
@@ -204,6 +219,28 @@ public class ConfigController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<T>)ce.getResult());
         } catch (Exception e) {
             String msg = String.format("Exception saving intersection config %s", config);
+            logger.error(msg, e);
+            updateResult.setMessage(msg);
+            updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(updateResult);
+        }
+
+    }
+
+    private ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfigHelper(
+            int region, int intersectionId, String key, boolean useRegion) {
+
+       var updateResult = new ConfigUpdateResult<Void>();
+        try {
+            var configKey = new IntersectionConfigKey(region, intersectionId, key);
+            updateResult = configAlgorithm.deleteIntersectionConfig(configKey);
+            return ResponseEntity.ok(updateResult);
+
+        } catch (ConfigException ce) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<Void>)ce.getResult());
+        } catch (Exception e) {
+            String msg = String.format("Exception deleting intersection config region, intersection, key = %s, %s, %s",
+                    region, intersectionId, key);
             logger.error(msg, e);
             updateResult.setMessage(msg);
             updateResult.setResult(ConfigUpdateResult.Result.ERROR);

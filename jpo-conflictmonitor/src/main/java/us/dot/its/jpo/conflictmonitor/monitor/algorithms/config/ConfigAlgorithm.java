@@ -27,6 +27,8 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
     <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) throws ConfigException;
     <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value) throws ConfigException;
 
+    ConfigUpdateResult<Void> deleteIntersectionConfig(IntersectionConfigKey configKey) throws ConfigException;
+
     void registerDefaultListener(String key, DefaultConfigListener handler);
     void registerIntersectionListener(String key, IntersectionConfigListener handler);
 
