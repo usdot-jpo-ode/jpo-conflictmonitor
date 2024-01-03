@@ -17,7 +17,7 @@ const collections = [
     {name: "OdeMapJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
     {name: "OdeSpatJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
     {name: "ProcessedMap", ttlField: "recordGeneratedAt", timeField: "properties.timeStamp", intersectionField: "properties.intersectionId"},
-    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "properties.intersectionId", intersectionField: "properties.timeStamp"},
+    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "odeReceivedAt", intersectionField: "intersectionId"},
     {name: "OdeRawEncodedMAPJson", ttlField: "recordGeneratedAt", timeField: "none", intersectionField: "none"},
 
 
