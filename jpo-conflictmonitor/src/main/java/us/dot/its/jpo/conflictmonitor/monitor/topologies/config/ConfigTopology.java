@@ -259,6 +259,48 @@ public class ConfigTopology
         return result;
     }
 
+    @Override
+    public ConfigUpdateResult<Void> deleteIntersectionConfig(IntersectionConfigKey configKey) throws ConfigException {
+        var result = new ConfigUpdateResult<Void>();
+        try {
+            validateInitialized(result);
+
+            logger.info("Deleting intersection config from kafka: {}", configKey);
+            var mapper = DateJsonMapper.getInstance();
+            String keyString = null;
+            try {
+                keyString = mapper.writeValueAsString(configKey);
+            } catch (JsonProcessingException e) {
+                result.setMessage(String.format("JsonProcessingException: %s", e.getMessage()));
+                result.setResult(ConfigUpdateResult.Result.ERROR);
+                throw new ConfigException(result, e);
+            }
+
+            kafkaTemplate.send(parameters.getIntersectionTableName(), keyString, null);
+
+            // Call intersection listeners to update properties in Spring components
+            intersectionListeners.get(configKey.getKey()).forEach(listener -> {
+               logger.info("Executing listener for {}", configKey.getKey());
+               var deleteConfig = new IntersectionConfig<Void>();
+               deleteConfig.setRoadRegulatorID(configKey.getRegion());
+               deleteConfig.setIntersectionID(configKey.getIntersectionId());
+               deleteConfig.setKey(configKey.getKey());
+               deleteConfig.setValue(null);
+               listener.accept(deleteConfig);
+            });
+
+            result.setResult(ConfigUpdateResult.Result.REMOVED);
+        } catch (ConfigException ce) {
+            throw ce;
+        } catch (Exception ex) {
+            result.setResult(ConfigUpdateResult.Result.ERROR);
+            result.setMessage(String.format("Exception deleting intersection config: %s", ex.getMessage()));
+            logger.error(result.getMessage(), ex);
+            throw new ConfigException(result);
+        }
+
+        return result;
+    }
 
 
     @Override
