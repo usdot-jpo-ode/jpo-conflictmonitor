@@ -1,5 +1,11 @@
 // Create indexes on all collections
 
+/*
+This is the second script responsible for configuring mongoDB automatically on startup.
+This script is responsible for creating collections, adding indexes and TTLs
+For more information see the header in a_init_replicas.js
+*/
+
 console.log("");
 console.log("Running create_indexes.js");
 
