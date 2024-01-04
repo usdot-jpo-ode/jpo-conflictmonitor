@@ -236,6 +236,11 @@ public class ConfigTopology
                 throw new ConfigException(result, e);
             }
 
+            //Delete the entire record if the value field is null
+            if((Object)value.getValue() == null || value.getValue().toString().length() == 0){
+                valueString = null;
+            }
+
             kafkaTemplate.send(parameters.getIntersectionTableName(), keyString, valueString);
 
             // Call intersection listeners to update properties in Spring components
@@ -258,8 +263,6 @@ public class ConfigTopology
 
         return result;
     }
-
-
 
     @Override
     public void setKafkaTemplate(KafkaTemplate<String, String> kafkaTemplate) {
