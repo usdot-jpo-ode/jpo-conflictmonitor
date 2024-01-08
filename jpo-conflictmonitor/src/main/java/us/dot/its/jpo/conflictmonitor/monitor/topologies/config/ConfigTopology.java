@@ -310,8 +310,8 @@ public class ConfigTopology
 
     @Override
     public <T> Optional<IntersectionConfig<T>> getIntersectionConfig(IntersectionConfigKey configKey) {
-        if (configKey.getIntersectionId() <= 0) {
-            // Special handling for unknown region
+        if (configKey.getIntersectionId() < 0) {
+            // Special handling for unknown region (-1)
             return getIntersectionConfigUnknownRegion(configKey.getIntersectionId(), configKey.getKey());
         }
         if (streams != null) {
