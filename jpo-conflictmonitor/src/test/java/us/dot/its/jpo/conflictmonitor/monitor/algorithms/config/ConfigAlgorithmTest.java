@@ -153,7 +153,10 @@ public class ConfigAlgorithmTest {
             return null;
         }
 
-
+        @Override
+        public ConfigUpdateResult<Void> deleteIntersectionConfig(IntersectionConfigKey configKey) throws ConfigException {
+            return null;
+        }
 
 
         @Override
