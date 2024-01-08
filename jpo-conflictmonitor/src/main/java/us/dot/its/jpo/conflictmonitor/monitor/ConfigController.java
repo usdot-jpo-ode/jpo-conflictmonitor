@@ -92,7 +92,7 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         try {
-            var configKey = new IntersectionConfigKey(0, intersectionId, key);
+            var configKey = new IntersectionConfigKey(-1, intersectionId, key);
             var config = configAlgorithm.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
@@ -164,7 +164,7 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key,
             @RequestBody IntersectionConfig<T> config) {
-        return saveIntersectionConfigHelper(0, intersectionId, key, config, false);
+        return saveIntersectionConfigHelper(-1, intersectionId, key, config, false);
     }
 
     @DeleteMapping(value = "intersection/{region}/{intersectionId}/{key}")
@@ -179,7 +179,7 @@ public class ConfigController {
     public @ResponseBody ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfig(
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
-        return deleteIntersectionConfigHelper(0, intersectionId, key, false);
+        return deleteIntersectionConfigHelper(-1, intersectionId, key, false);
     }
 
     private <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfigHelper(
