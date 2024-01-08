@@ -117,7 +117,7 @@ public class ConfigTestUtils {
 
     public static IntersectionConfig<Integer> getIntersectionConfig_NoRegion() {
         var intersectionConfig = getIntersectionConfig();
-        intersectionConfig.setRoadRegulatorID(0);
+        intersectionConfig.setRoadRegulatorID(-1);
         return intersectionConfig;
     }
 
@@ -129,7 +129,7 @@ public class ConfigTestUtils {
         intersectionConfig.setUnits(units);
         intersectionConfig.setDescription(description);
         intersectionConfig.setIntersectionID(intersectionId);
-        intersectionConfig.setRoadRegulatorID(0);
+        intersectionConfig.setRoadRegulatorID(-1);
         intersectionConfig.setType(type);
         return intersectionConfig;
     }
