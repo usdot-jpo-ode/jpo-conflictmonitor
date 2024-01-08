@@ -197,8 +197,8 @@ public class ConfigController {
                     errMsg.format("Region in path does not match RoadRegulatorID in body %s != %s%n", region, config.getRoadRegulatorID());
                 }
             } else {
-                if (config.getRoadRegulatorID() != 0) {
-                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is non-zero in the body: %s != 0.  Use the intersection/{region}/{intersectionId}/{key} endpoint to post with the region.%n", config.getRoadRegulatorID());
+                if (config.getRoadRegulatorID() > -1) {
+                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is specified in the body: %s > -1.  Use the intersection/{region}/{intersectionId}/{key} endpoint to post with the region, or set RoadRegulatorID = -1 in the body to indicate no region.%n", config.getRoadRegulatorID());
                 }
             }
             if (intersectionId != config.getIntersectionID()) {
