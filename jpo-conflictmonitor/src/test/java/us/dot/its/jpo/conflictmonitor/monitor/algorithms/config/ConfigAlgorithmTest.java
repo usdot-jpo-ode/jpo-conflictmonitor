@@ -80,6 +80,14 @@ public class ConfigAlgorithmTest {
         assertThat(testParameters.getIntersectionParam(), equalTo(newIntersectionDefault));
 
         assertThat(testParameters.getIntersectionParam(intersectionKey), equalTo(newIntersectionValue));
+
+        // Test that null-valued intersection parameter is removed
+        var deleteIntersectionConfig = new IntersectionConfig<Void>(TestParameters.INTERSECTION_PARAM, "", roadRegulatorId,
+                intersectionId, null, "", UnitsEnum.NONE, "");
+        intersectionListener.accept(deleteIntersectionConfig);
+
+        assertThat(testParameters.getIntersectionParam(), equalTo(newIntersectionDefault));
+        assertThat(testParameters.getIntersectionParam(intersectionKey), equalTo(newIntersectionDefault));
         
     }
 
@@ -153,7 +161,10 @@ public class ConfigAlgorithmTest {
             return null;
         }
 
-
+        @Override
+        public ConfigUpdateResult<Void> deleteIntersectionConfig(IntersectionConfigKey configKey) throws ConfigException {
+            return null;
+        }
 
 
         @Override

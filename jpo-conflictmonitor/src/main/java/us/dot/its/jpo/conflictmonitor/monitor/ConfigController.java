@@ -92,7 +92,7 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
         try {
-            var configKey = new IntersectionConfigKey(0, intersectionId, key);
+            var configKey = new IntersectionConfigKey(-1, intersectionId, key);
             var config = configAlgorithm.getIntersectionConfig(configKey);
             return ResponseEntity.ok(config.orElse(null));
         } catch (Exception e) {
@@ -164,7 +164,22 @@ public class ConfigController {
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key,
             @RequestBody IntersectionConfig<T> config) {
-        return saveIntersectionConfigHelper(0, intersectionId, key, config, false);
+        return saveIntersectionConfigHelper(-1, intersectionId, key, config, false);
+    }
+
+    @DeleteMapping(value = "intersection/{region}/{intersectionId}/{key}")
+    public @ResponseBody ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfig(
+            @PathVariable(name = "region") int region,
+            @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "key") String key) {
+        return deleteIntersectionConfigHelper(region, intersectionId, key, true);
+    }
+
+    @DeleteMapping(value = "intersection/{intersectionId}/{key}")
+    public @ResponseBody ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfig(
+            @PathVariable(name = "intersectionId") int intersectionId,
+            @PathVariable(name = "key") String key) {
+        return deleteIntersectionConfigHelper(-1, intersectionId, key, false);
     }
 
     private <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfigHelper(
@@ -182,8 +197,8 @@ public class ConfigController {
                     errMsg.format("Region in path does not match RoadRegulatorID in body %s != %s%n", region, config.getRoadRegulatorID());
                 }
             } else {
-                if (config.getRoadRegulatorID() != 0) {
-                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is non-zero in the body: %s != 0.  Use the intersection/{region}/{intersectionId}/{key} endpoint to post with the region.%n", config.getRoadRegulatorID());
+                if (config.getRoadRegulatorID() > -1) {
+                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is specified in the body: %s > -1.  Use the intersection/{region}/{intersectionId}/{key} endpoint to post with the region, or set RoadRegulatorID = -1 in the body to indicate no region.%n", config.getRoadRegulatorID());
                 }
             }
             if (intersectionId != config.getIntersectionID()) {
@@ -204,6 +219,28 @@ public class ConfigController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<T>)ce.getResult());
         } catch (Exception e) {
             String msg = String.format("Exception saving intersection config %s", config);
+            logger.error(msg, e);
+            updateResult.setMessage(msg);
+            updateResult.setResult(ConfigUpdateResult.Result.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(updateResult);
+        }
+
+    }
+
+    private ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfigHelper(
+            int region, int intersectionId, String key, boolean useRegion) {
+
+       var updateResult = new ConfigUpdateResult<Void>();
+        try {
+            var configKey = new IntersectionConfigKey(region, intersectionId, key);
+            updateResult = configAlgorithm.deleteIntersectionConfig(configKey);
+            return ResponseEntity.ok(updateResult);
+
+        } catch (ConfigException ce) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((ConfigUpdateResult<Void>)ce.getResult());
+        } catch (Exception e) {
+            String msg = String.format("Exception deleting intersection config region, intersection, key = %s, %s, %s",
+                    region, intersectionId, key);
             logger.error(msg, e);
             updateResult.setMessage(msg);
             updateResult.setResult(ConfigUpdateResult.Result.ERROR);

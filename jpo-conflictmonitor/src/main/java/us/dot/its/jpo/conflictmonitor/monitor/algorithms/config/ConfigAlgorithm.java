@@ -27,6 +27,8 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
     <T> ConfigUpdateResult<T> updateCustomConfig(DefaultConfig<T> value) throws ConfigException;
     <T> ConfigUpdateResult<T> updateIntersectionConfig(IntersectionConfig<T> value) throws ConfigException;
 
+    ConfigUpdateResult<Void> deleteIntersectionConfig(IntersectionConfigKey configKey) throws ConfigException;
+
     void registerDefaultListener(String key, DefaultConfigListener handler);
     void registerIntersectionListener(String key, IntersectionConfigListener handler);
 
@@ -84,7 +86,13 @@ public interface ConfigAlgorithm extends ExecutableAlgorithm {
                             var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);
                             logger.info("Intersection listener {}: {}", key, value);
                             final var propValue = value.getValue();
-                            configMap.putObject(value.intersectionKey(), propValue);
+                            if (propValue != null) {
+                                configMap.putObject(value.intersectionKey(), propValue);
+                            } else {
+                                if (configMap.containsKey(value.intersectionKey())) {
+                                    configMap.remove(value.intersectionKey());
+                                }
+                            }
                         });
                     } catch (InvalidPropertyException ex) {
                         var logger = LoggerFactory.getLogger(ConfigAlgorithm.class);

@@ -114,7 +114,7 @@ public class ConfigControllerTest {
 
         final String key = ConfigTestUtils.key;
         final int intersectionId = ConfigTestUtils.intersectionId;
-        final var intersectionKey = new IntersectionConfigKey(0, intersectionId, key);
+        final var intersectionKey = new IntersectionConfigKey(-1, intersectionId, key);
         final int value = 10;
 
         final var config = Optional.of(ConfigTestUtils.getIntersectionConfig_NoRegion());
