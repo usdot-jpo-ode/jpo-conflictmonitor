@@ -1,4 +1,5 @@
 FROM mongo:6
 
-COPY mongo_initialize.sh /scripts/mongo_initialize.sh
-COPY create_indexes.js /scripts/create_indexes.js
+COPY a_init_replicas.js /docker-entrypoint-initdb.d/a_init_replicas.js
+COPY b_create_indexes.js /docker-entrypoint-initdb.d/b_create_indexes.js
+
