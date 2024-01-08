@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "key": "spat.validation.lowerBound",
-  "roadRegulatorID": 0,
+  "roadRegulatorID": -1,
   "intersectionID": 111111,
   "category": "",
   "value": 80,
