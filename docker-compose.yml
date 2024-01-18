@@ -38,10 +38,13 @@ services:
     environment:
       - MONGO_REPLICA_SET_NAME=rs0
       - DB_HOST_IP=${DB_HOST_IP}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data_container:/data/db
+      - ./docker/mongo/keyfile.txt:/data/keyfile.txt
       - ./docker/mongo/a_init_replicas.js:/docker-entrypoint-initdb.d/a_init_replicas.js
       - ./docker/mongo/b_create_indexes.js:/docker-entrypoint-initdb.d/b_create_indexes.js
     healthcheck:
@@ -49,7 +52,15 @@ services:
         test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 10s
       start_period: 30s
-    command: ["--replSet", "rs0", "--bind_ip_all"]
+    entrypoint:
+      - bash
+      - -c
+      - | 
+        chmod 400 /data/keyfile.txt
+        chown 999:999 /data/keyfile.txt
+        exec docker-entrypoint.sh $$@
+
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/data/keyfile.txt"]
     logging:
       options:
         max-size: "10m"
