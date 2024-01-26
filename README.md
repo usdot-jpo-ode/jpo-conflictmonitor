@@ -174,7 +174,9 @@ docker-compose ps
 
 **Notes:**
 - Docker builds may fail if you are on a corporate network due to DNS resolution errors.
-- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.**
+- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.
+- The MongoDB keyfile should be randomized for each deployment. To Create a new keyfile run the following `openssl rand -base64 756 > ./docker/mongo/keyfile.txt`
+**
 
 Navigate to the root directory of the jpo-conflictmonitor project and run the following command:
 

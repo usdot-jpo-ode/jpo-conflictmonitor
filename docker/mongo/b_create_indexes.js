@@ -2,7 +2,7 @@
 
 /*
 This is the second script responsible for configuring mongoDB automatically on startup.
-This script is responsible for creating collections, adding indexes and TTLs
+This script is responsible for creating users, creating collections, adding indexes, and configuring TTLs
 For more information see the header in a_init_replicas.js
 */
 
