@@ -207,7 +207,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
-          <jvmArguments>${argLine}</jvmArguments>
+          <jvmArguments>@{argLine}</jvmArguments>
         </configuration>
         <executions>
             <execution>
@@ -225,6 +225,12 @@
         <configuration>
             <enableProcessChecker>all</enableProcessChecker>
             <shutdown>exit</shutdown>
+            <!-- Prevent JDK 21 warnings related to Mockito during tests. -->
+            <!-- See:  https://github.com/mockito/mockito/issues/3037 -->
+             <argLine>
+               @{argLine}
+               -XX:+EnableDynamicAgentLoading
+            </argLine>
         </configuration>
         <dependencies>
             <dependency>
@@ -234,7 +240,7 @@
               <version>3.2.5</version>
             </dependency>
         </dependencies>
-      </plugin>
+       </plugin>
 
       <plugin>
         <groupId>org.jacoco</groupId>
@@ -283,8 +289,9 @@
           <version>3.2.5</version>
         </plugin>
 
-
     </plugins>
   </build>
+
+
 
 </project>

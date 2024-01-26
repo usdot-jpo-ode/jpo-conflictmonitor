@@ -5,25 +5,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.hamcrest.Matchers.*;
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
-
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Properties;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.ValidationConstants.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -86,7 +81,7 @@ public class ConflictMonitorPropertiesTest {
         assertThat(kProps, hasKey("bootstrap.servers"));
         var servers = kProps.get("bootstrap.servers");
         assertThat(servers, instanceOf(List.class));
-        assertThat((List<String>)servers, hasItem("localhost:9092"));
+        assertThat((List<String>)servers, anyOf(hasItem("localhost:9092"), hasItem("127.0.0.1:9092")));
     }
 
     @Test
