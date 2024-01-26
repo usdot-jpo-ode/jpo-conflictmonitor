@@ -1,4 +1,4 @@
-FROM maven:3.8.1-openjdk-11 as builder
+FROM maven:3.8-eclipse-temurin-21-alpine as builder
 
 WORKDIR /home
 
@@ -31,7 +31,7 @@ WORKDIR /home/jpo-conflictmonitor
 
 RUN mvn clean package -DskipTests
 
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /home
 
