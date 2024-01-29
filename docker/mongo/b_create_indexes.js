@@ -137,6 +137,7 @@ do {
                 createTTLIndex(collection);
                 createTimeIntersectionIndex(collection);
                 createTimeRsuIpIndex(collection);
+                createTimeIndex(collection);
             }else{
                 missing_collection_count++;
                 console.log("Collection " + collection.name + " does not exist yet");
@@ -316,9 +317,9 @@ function timeIntersectionIndexExists(collection){
 }
 
 function timeRsuIpIndexExists(collection){
-    return false;
+    return db[collection.name].getIndexes().find((idx) => idx.name == collection.timeField + "_-1_" + collection.rsuIP + "_-1") !== undefined;
 }
 
 function timeIndexExists(collection){
-    return false;
+    return db[collection.name].getIndexes().find((idx) => idx.name == collection.timeField + "_-1") !== undefined;
 }
