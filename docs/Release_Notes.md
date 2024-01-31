@@ -1,5 +1,20 @@
 ## JPO Conflict Monitor Release Notes
 
+## Version 1.2.0
+
+### **Summary**
+The third release for the jpo-conflictmonitor, version 1.2.0.
+
+- Moved Configuration Parameters to Kafka Topics
+- Added REST API to enable easy configuration of data on configuration topics
+- Added new scripts to automatically create mongoDB indexes
+- Added new scripts to automatically configure mongoDB as a replica set
+- Updated Kafka Connecto to add expiry times to Ode Data
+- Bug Fixes
+- Updated to Java 21
+
+
+
 ## Version 1.1.0
 
 ### **Summary**
