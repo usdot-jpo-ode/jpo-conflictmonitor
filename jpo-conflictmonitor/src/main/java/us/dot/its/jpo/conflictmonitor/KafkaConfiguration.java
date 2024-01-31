@@ -4,17 +4,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
+import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaAdmin.NewTopics;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.stereotype.Component;
+import org.apache.kafka.clients.producer.ProducerConfig;
 
 @Component
 @ConfigurationProperties(prefix = "kafka.topics")
@@ -48,7 +60,6 @@ public class KafkaConfiguration {
                     
                     // Get the name and config settings for the topic
                     String topicName = (String)topic.getOrDefault("name", null);
-
                     if (topicName == null) {
                         logger.error("CreateTopic {} has no topic name", topic);
                         break;
@@ -94,12 +105,53 @@ public class KafkaConfiguration {
             }
         }
 
-        
+        // List out existing topics
+        Admin adminClient = Admin.create(properties.createStreamProperties("ConflictMonitorAdminClient"));
+        ListTopicsOptions listTopicsOptions = new ListTopicsOptions().listInternal(true);
+        ListTopicsResult topicsResult = adminClient.listTopics(listTopicsOptions);
+        KafkaFuture<Set<String>> topicsFuture = topicsResult.names();
+        try {
+            List<String> topicNames = new ArrayList<>();
+            for(String topicName: topicsFuture.get()){
+                logger.info("Found Topic: " + topicName);
+                topicNames.add(topicName);
+            }
+
+        } catch (InterruptedException e) {
+            logger.error("Interruption Exception in createKafkaTopics. Unable to List existing Topics", e);
+        } catch (ExecutionException e) {
+            logger.error("Execution Exception in createKafkaTopics. Unable to List existing Topics", e);
+        }
 
 
-        return new NewTopics(newTopics.toArray(NewTopic[]::new));
-        
-        
+        return new NewTopics(newTopics.toArray(NewTopic[]::new));    
+    }
+
+    @Bean
+    public ProducerFactory<String, String> producerFactory() {
+        Properties configProps = properties.createStreamProperties("conflictmonitor-producer-factory");
+
+        Map<String, Object> map = new HashMap<>();
+
+        for (Map.Entry<Object, Object> entry : configProps.entrySet()) {
+            String key = (String) entry.getKey();
+            Object value = entry.getValue();
+            map.put(key, value);
+        }
+
+        map.put(
+          ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, 
+          StringSerializer.class);
+        map.put(
+          ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, 
+          StringSerializer.class);
+
+        return new DefaultKafkaProducerFactory<String, String>(map);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaConfiguration.class);
