@@ -20,7 +20,8 @@ The latest image can be pulled using the following command:
 	- Kafka Connect
 
 ## Indirect Dependencies
-The Conflict Monitor will not receive messages to process if the ODE is not running.
+- The ODE must be running in order for the Conflict Monitor to consume BSM data to process.
+- The Geojson Converter must be running in order for the Conflict Monitor to consume MAP & SPAT data to process.
 
 ## Example docker-compose.yml with direct dependencies:
 ```
