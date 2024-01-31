@@ -1,15 +1,7 @@
 package us.dot.its.jpo.conflictmonitor;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collection;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.streams.KafkaStreams.State;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,21 +12,25 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFuture;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.app_health.KafkaStreamsStateChangeEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.app_health.KafkaStreamsAnomalyNotification;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link StateChangeHandler}.
@@ -52,7 +48,7 @@ public class StateChangeHandlerTest {
     KafkaTemplate<String, String> kafkaTemplate;
 
     @Mock
-    ListenableFuture<SendResult<String, String>> mockSendResult;
+    CompletableFuture<SendResult<String, String>> mockSendResult;
 
     final String topic = "testTopic";
     final String notificationTopic = "testNotificationTopic";
@@ -71,7 +67,7 @@ public class StateChangeHandlerTest {
 
     State oldState;
     State newState;
-    boolean expectNotification;
+
 
     public StateChangeHandlerTest(State oldState, State newState) {
         this.oldState = oldState;
@@ -88,7 +84,7 @@ public class StateChangeHandlerTest {
     }
     
     @Test
-    public void testOnChange() throws JsonMappingException, JsonProcessingException {
+    public void testOnChange() throws JsonProcessingException {
         when(kafkaTemplate.send(eq(topic), eq(topology), anyString())).thenReturn(mockSendResult);
         when(kafkaTemplate.send(eq(notificationTopic), anyString(), anyString())).thenReturn(mockSendResult);
        
