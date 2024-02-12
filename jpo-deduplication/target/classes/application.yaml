@@ -1,0 +1,140 @@
+#General Properties
+#==================
+groupId: ^project.groupId^
+artifactId: ^project.artifactId^
+version: ^project.version^
+server.port: 8082
+
+# Kafka properties
+spring.kafka.bootstrap-servers: localhost:9092
+logging.level.org.apache.kafka: INFO
+logging.level: INFO
+log4j.logger.kafka: OFF
+log4j.logger.org.apache.kafka: OFF
+
+
+
+# Custom kafka properties
+kafka.topics:
+  autoCreateTopics: true  # Override auto-create in test properties
+  numPartitions: 1
+  numReplicas: 1
+  createTopics:
+    - name: topic.CmAppHealthNotifications
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapMinimumDataEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatBroadcastRateEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatMinimumDataEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CMBsmEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmConnectionOfTravelEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmLaneDirectionOfTravelEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmStopLinePassageEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmStopLineStopEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSpatTimeChangeDetailsEvent"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSignalGroupAlignmentEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmIntersectionReferenceAlignmentEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: "topic.CmSignalStateConflictEvents"
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmBsmJsonRepartition
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmBsmIntersection
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedSpat
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.ProcessedMap
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.OdeBsmJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateEventAssessment
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmLaneDirectionOfTravelNotification
+      cleanupPolicy: compact
+    - name: topic.CmConnectionOfTravelNotification
+      cleanupPolicy: compact
+    - name: topic.CmKafkaStateChangeEvents
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmAppHealthNotification
+      cleanupPolicy: compact
+    - name: topic.CmSpatTimeChangeDetailsNotification
+      cleanupPolicy: compact
+    - name: topic.CmSignalStateConflictNotification
+      cleanupPolicy: compact
+    - name: topic.CmSignalGroupAlignmentNotification
+      cleanupPolicy: compact
+    - name: topic.CmIntersectionReferenceAlignmentNotification
+      cleanupPolicy: compact
+    - name: topic.CmLaneDirectionOfTravelAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmConnectionOfTravelAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmDefaultConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmCustomConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmMergedConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmIntersectionConfigTable
+      cleanupPolicy: compact
+    - name: topic.CmNotification
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmMapBoundingBox
+      cleanupPolicy: compact
+    - name: topic.CmEvent
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmStopLineStopAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmStopLineStopNotification
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmSignalStateEventAssessment
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmStopLinePassageNotification
+      cleanupPolicy: compact
+      retentionMs: 300000
+    # - name: topic.CmSpatBroadcastRateNotification
+    #   cleanupPolicy: compact
+    # - name: topic.CmMapBroadcastRateNotification
+    #   cleanupPolicy: compact    

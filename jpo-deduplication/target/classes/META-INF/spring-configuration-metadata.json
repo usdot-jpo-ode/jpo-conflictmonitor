@@ -1,0 +1,62 @@
+{
+  "groups": [
+    {
+      "name": "",
+      "type": "us.dot.its.jpo.deduplication.DeduplicationProperties",
+      "sourceType": "us.dot.its.jpo.deduplication.DeduplicationProperties"
+    },
+    {
+      "name": "kafka.topics",
+      "type": "us.dot.its.jpo.deduplication.KafkaConfiguration",
+      "sourceType": "us.dot.its.jpo.deduplication.KafkaConfiguration"
+    }
+  ],
+  "properties": [
+    {
+      "name": "confluent-cloud-enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "us.dot.its.jpo.deduplication.DeduplicationProperties"
+    },
+    {
+      "name": "confluent-key",
+      "type": "java.lang.String",
+      "sourceType": "us.dot.its.jpo.deduplication.DeduplicationProperties"
+    },
+    {
+      "name": "confluent-secret",
+      "type": "java.lang.String",
+      "sourceType": "us.dot.its.jpo.deduplication.DeduplicationProperties"
+    },
+    {
+      "name": "kafka-brokers",
+      "type": "java.lang.String",
+      "sourceType": "us.dot.its.jpo.deduplication.DeduplicationProperties"
+    },
+    {
+      "name": "kafka.topics.auto-create-topics",
+      "type": "java.lang.Boolean",
+      "sourceType": "us.dot.its.jpo.deduplication.KafkaConfiguration"
+    },
+    {
+      "name": "kafka.topics.create-topics",
+      "type": "java.util.List<java.util.Map<java.lang.String,java.lang.Object>>",
+      "sourceType": "us.dot.its.jpo.deduplication.KafkaConfiguration"
+    },
+    {
+      "name": "kafka.topics.num-partitions",
+      "type": "java.lang.Integer",
+      "sourceType": "us.dot.its.jpo.deduplication.KafkaConfiguration"
+    },
+    {
+      "name": "kafka.topics.num-replicas",
+      "type": "java.lang.Integer",
+      "sourceType": "us.dot.its.jpo.deduplication.KafkaConfiguration"
+    },
+    {
+      "name": "version",
+      "type": "java.lang.String",
+      "sourceType": "us.dot.its.jpo.deduplication.DeduplicationProperties"
+    }
+  ],
+  "hints": []
+}
