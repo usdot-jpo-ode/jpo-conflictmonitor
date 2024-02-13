@@ -141,6 +141,7 @@ do {
                 createTTLIndex(collection);
                 createTimeIntersectionIndex(collection);
                 createTimeRsuIpIndex(collection);
+                createTimeIndex(collection);
             }else{
                 missing_collection_count++;
                 console.log("Collection " + collection.name + " does not exist yet");
