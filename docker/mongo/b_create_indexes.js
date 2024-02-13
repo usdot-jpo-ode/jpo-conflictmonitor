@@ -9,26 +9,31 @@ For more information see the header in a_init_replicas.js
 console.log("");
 console.log("Running create_indexes.js");
 
+
 // Setup Username and Password Definitions
-const CM_MONGO_CONNECTOR_USERNAME = process.env.CM_MONGO_CONNECTOR_USERNAME || "connector";
-const CM_MONGO_CONNECTOR_PASSWORD = process.env.CM_MONGO_CONNECTOR_PASSWORD || "connector";
+const CM_MONGO_ROOT_USERNAME = process.env.CM_MONGO_ROOT_USERNAME;
+const CM_MONGO_ROOT_PASSWORD = process.env.CM_MONGO_ROOT_PASSWORD;
 
-const CM_MONGO_API_USERNAME = process.env.CM_MONGO_API_USERNAME || "api";
-const CM_MONGO_API_PASSWORD = process.env.CM_MONGO_API_PASSWORD || "api";
+const CM_MONGO_CONNECTOR_USERNAME = process.env.CM_MONGO_CONNECTOR_USERNAME;
+const CM_MONGO_CONNECTOR_PASSWORD = process.env.CM_MONGO_CONNECTOR_PASSWORD;
 
-const CM_MONGO_USER_USERNAME = process.env.CM_MONGO_USER_USERNAME || "user";
-const CM_MONGO_USER_PASSWORD = process.env.CM_MONGO_USER_PASSWORD || "user";
+const CM_MONGO_API_USERNAME = process.env.CM_MONGO_API_USERNAME;
+const CM_MONGO_API_PASSWORD = process.env.CM_MONGO_API_PASSWORD;
+
+const CM_MONGO_USER_USERNAME = process.env.CM_MONGO_USER_USERNAME;
+const CM_MONGO_USER_PASSWORD = process.env.CM_MONGO_USER_PASSWORD;
 
 const CM_DATABASE_NAME = process.env.CM_DATABASE_NAME || "ConflictMonitor";
 
-const expireSeconds = 2592000; // 1 month
+const expireSeconds = 5184000; // 2 months
 const retryMilliseconds = 10000;
 
 
 const users = [
-    {username: CM_MONGO_CONNECTOR_USERNAME, password: CM_MONGO_CONNECTOR_PASSWORD, roles: "readWrite"},
-    {username: CM_MONGO_API_USERNAME, password: CM_MONGO_API_PASSWORD, roles: "readWrite"},
-    {username: CM_MONGO_USER_USERNAME, password: CM_MONGO_USER_PASSWORD, roles: "read"},
+    // {username: CM_MONGO_ROOT_USERNAME, password: CM_MONGO_ROOT_PASSWORD, roles: "root", database: "admin" },
+    {username: CM_MONGO_CONNECTOR_USERNAME, password: CM_MONGO_CONNECTOR_PASSWORD, roles: "readWrite", database: CM_DATABASE_NAME},
+    {username: CM_MONGO_API_USERNAME, password: CM_MONGO_API_PASSWORD, roles: "readWrite", database: CM_DATABASE_NAME},
+    {username: CM_MONGO_USER_USERNAME, password: CM_MONGO_USER_PASSWORD, roles: "read", database: CM_DATABASE_NAME},
 ];
 
 
@@ -101,9 +106,9 @@ try{
     db.getMongo().setReadPref("primaryPreferred");
     var isMaster = db.isMaster();
     if (isMaster.primary) {
-        print("Connected to the primary replica set member.");
+        console.log("Connected to the primary replica set member.");
     } else {
-        print("Not connected to the primary replica set member. Current node: " + isMaster.host);
+        console.log("Not connected to the primary replica set member. Current node: " + isMaster.host);
     }
 } 
 catch(err){
@@ -119,7 +124,6 @@ for(user of users){
 // Wait for the collections to exist in mongo before trying to create indexes on them
 let missing_collection_count;
 do {
-    print("");
     try {
         missing_collection_count = 0;
         const collectionNames = db.getCollectionNames();
@@ -137,14 +141,13 @@ do {
                 createTTLIndex(collection);
                 createTimeIntersectionIndex(collection);
                 createTimeRsuIpIndex(collection);
-                createTimeIndex(collection);
             }else{
                 missing_collection_count++;
                 console.log("Collection " + collection.name + " does not exist yet");
             }
         }
         if (missing_collection_count > 0) {
-            print("Waiting on " + missing_collection_count + " collections to be created...will try again in " + retryMilliseconds + " ms");
+            console.log("Waiting on " + missing_collection_count + " collections to be created...will try again in " + retryMilliseconds + " ms");
             sleep(retryMilliseconds);
         }
     } catch (err) {
@@ -165,11 +168,12 @@ function createUser(user){
             user: user.username,
             pwd: user.password,
             roles: [
-                { role: user.roles, db: CM_DATABASE_NAME },
+                { role: user.roles, db: user.database },
             ]
         });
 
     }catch (err){
+        console.log(err);
         console.log("Unable to Create User. Perhaps the User already exists.");
     }
 }
@@ -258,8 +262,9 @@ function createTimeRsuIpIndex(){
         console.log("Creating Time rsuIP Index for " + collectionName);
 
         var indexJson = {};
-        indexJson[timeField] = -1;
         indexJson[rsuIP] = -1;
+        indexJson[timeField] = -1;
+        
 
         try {
             db[collectionName].createIndex(indexJson);
@@ -290,8 +295,9 @@ function createTimeIntersectionIndex(collection){
         console.log("Creating time intersection index for " + collectionName);
 
         var indexJson = {};
-        indexJson[timeField] = -1;
         indexJson[intersectionField] = -1;
+        indexJson[timeField] = -1;
+        
 
         try {
             db[collectionName].createIndex(indexJson);
@@ -313,11 +319,11 @@ function ttlIndexExists(collection) {
 }
 
 function timeIntersectionIndexExists(collection){
-    return db[collection.name].getIndexes().find((idx) => idx.name == collection.timeField + "_-1_" + collection.intersectionField + "_-1") !== undefined;
+    return db[collection.name].getIndexes().find((idx) => idx.name == collection.intersectionField + "_-1_" + collection.timeField + "_-1") !== undefined;
 }
 
 function timeRsuIpIndexExists(collection){
-    return db[collection.name].getIndexes().find((idx) => idx.name == collection.timeField + "_-1_" + collection.rsuIP + "_-1") !== undefined;
+    return db[collection.name].getIndexes().find((idx) => idx.name == collection.rsuIP + "_-1_" + collection.timeField + "_-1") !== undefined;
 }
 
 function timeIndexExists(collection){
