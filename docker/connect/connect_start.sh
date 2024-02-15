@@ -17,7 +17,7 @@ declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
 # Record Map Data
 declare -A OdeMapJson=([name]="topic.OdeMapJson" [collection]="OdeMapJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
-declare -A ProcessedMap=([name]="topic.ProcessedMap" [collection]="ProcessedMap"
+declare -A ProcessedMap=([name]="topic.DeduplicatedProcessedMap" [collection]="ProcessedMap"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeRawEncodedMAPJson=([name]="topic.OdeRawEncodedMAPJson" [collection]="OdeRawEncodedMAPJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
