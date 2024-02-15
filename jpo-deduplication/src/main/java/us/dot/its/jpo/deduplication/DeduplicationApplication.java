@@ -50,6 +50,7 @@ public class DeduplicationApplication {
       // SystemConfig mBean = new SystemConfig(DEFAULT_NO_THREADS, DEFAULT_SCHEMA);
       // ObjectName name = new ObjectName("us.dot.its.jpo.geojson:type=SystemConfig");
       // mbs.registerMBean(mBean, name);
+      logger.info("Message Deduplication has started");
 
    }
 

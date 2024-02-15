@@ -106,22 +106,22 @@ public class KafkaConfiguration {
         }
 
         // List out existing topics
-        Admin adminClient = Admin.create(properties.createStreamProperties("DeduplicationAdminClient"));
-        ListTopicsOptions listTopicsOptions = new ListTopicsOptions().listInternal(true);
-        ListTopicsResult topicsResult = adminClient.listTopics(listTopicsOptions);
-        KafkaFuture<Set<String>> topicsFuture = topicsResult.names();
-        try {
-            List<String> topicNames = new ArrayList<>();
-            for(String topicName: topicsFuture.get()){
-                logger.info("Found Topic: " + topicName);
-                topicNames.add(topicName);
-            }
+        // Admin adminClient = Admin.create(properties.createStreamProperties("DeduplicationAdminClient"));
+        // ListTopicsOptions listTopicsOptions = new ListTopicsOptions().listInternal(true);
+        // ListTopicsResult topicsResult = adminClient.listTopics(listTopicsOptions);
+        // KafkaFuture<Set<String>> topicsFuture = topicsResult.names();
+        // try {
+        //     List<String> topicNames = new ArrayList<>();
+        //     for(String topicName: topicsFuture.get()){
+        //         logger.info("Found Topic: " + topicName);
+        //         topicNames.add(topicName);
+        //     }
 
-        } catch (InterruptedException e) {
-            logger.error("Interruption Exception in createKafkaTopics. Unable to List existing Topics", e);
-        } catch (ExecutionException e) {
-            logger.error("Execution Exception in createKafkaTopics. Unable to List existing Topics", e);
-        }
+        // } catch (InterruptedException e) {
+        //     logger.error("Interruption Exception in createKafkaTopics. Unable to List existing Topics", e);
+        // } catch (ExecutionException e) {
+        //     logger.error("Execution Exception in createKafkaTopics. Unable to List existing Topics", e);
+        // }
 
 
         return new NewTopics(newTopics.toArray(NewTopic[]::new));    

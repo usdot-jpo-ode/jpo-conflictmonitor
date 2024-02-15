@@ -2,3 +2,4 @@ jpo-conflictmonitor/target/**
 .env
 *.log
 .idea/
+jpo-deduplication/target/**

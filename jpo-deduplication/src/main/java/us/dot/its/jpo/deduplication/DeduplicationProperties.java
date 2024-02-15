@@ -40,8 +40,11 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
+import us.dot.its.jpo.conflictmonitor.AlwaysContinueProductionExceptionHandler;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.util.CommonUtils;
+
+// import us.dot.its.jpo.conflictmonitor.AlwaysContinueProductionExceptionHandler;
 
 @Getter
 @Setter
@@ -70,6 +73,7 @@ public class DeduplicationProperties implements EnvironmentAware  {
    private String kafkaBrokers = null;
 
    private static final String DEFAULT_KAFKA_PORT = "9092";
+   private static final String DEFAULT_CONNECT_PORT = "8083";
    
    @Setter(AccessLevel.NONE)
    private String hostId;

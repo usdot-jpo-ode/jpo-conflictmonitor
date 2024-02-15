@@ -19,7 +19,7 @@ import org.springframework.kafka.core.KafkaTemplate;
  */
 public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler {
 
-    final static Logger logger = LoggerFactory.getLogger(StateChangeHandler.class);
+    final static Logger logger = LoggerFactory.getLogger(StreamsExceptionHandler.class);
 
     final KafkaTemplate<String, String> kafkaTemplate;
     final String topology;
