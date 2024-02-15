@@ -7,26 +7,14 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
 import us.dot.its.jpo.deduplication.deduplicator.models.ProcessedMapPair;
 import us.dot.its.jpo.deduplication.deduplicator.serialization.PairSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
-
-// import us.dot.its.jpo.deduplication.deduplicator.transformers.ProcessedMapDeduplicationTransformer;
-import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.state.StoreBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.util.Pair;
-import org.springframework.kafka.support.serializer.JsonSerializer;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
@@ -76,11 +64,15 @@ public class MapDeduplicatorTopology {
             .aggregate(() -> new ProcessedMapPair(new ProcessedMap(), true),
             (key, newValue, aggregate)->{
 
+                // Handle the first message where the aggregate map isn't good.
+                if(aggregate.getMessage().getProperties() == null){
+                    return new ProcessedMapPair(newValue, true );
+                }
+
                 Instant newValueTime = newValue.getProperties().getTimeStamp().toInstant();
                 Instant oldValueTime = aggregate.getMessage().getProperties().getTimeStamp().toInstant();
                 
                 if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
-                    
                     return new ProcessedMapPair(newValue, true );
                 }else{
                     ZonedDateTime newValueTimestamp = newValue.getProperties().getTimeStamp();
@@ -113,13 +105,13 @@ public class MapDeduplicatorTopology {
     }
 
     public void stop() {
-        logger.info("Stopping SPaT Socket Broadcast Topology.");
+        logger.info("Stopping Processed Map Deduplication Socket Broadcast Topology.");
         if (streams != null) {
             streams.close();
             streams.cleanUp();
             streams = null;
         }
-        logger.info("Stopped SPaT Socket Broadcast Topology.");
+        logger.info("Stopped Processed Map Deduplication Socket Broadcast Topology.");
     }
 
     StateListener stateListener;

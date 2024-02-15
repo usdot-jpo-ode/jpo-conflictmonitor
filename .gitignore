@@ -3,3 +3,4 @@ jpo-conflictmonitor/target/**
 *.log
 .idea/
 jpo-deduplication/target/**
+*.class
