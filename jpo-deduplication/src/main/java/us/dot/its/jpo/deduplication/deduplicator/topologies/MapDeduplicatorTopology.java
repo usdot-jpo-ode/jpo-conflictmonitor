@@ -7,11 +7,15 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
-import us.dot.its.jpo.deduplication.deduplicator.models.ProcessedMapPair;
+import us.dot.its.jpo.deduplication.deduplicator.models.OdeMapPair;
 import us.dot.its.jpo.deduplication.deduplicator.serialization.PairSerdes;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
+import us.dot.its.jpo.ode.model.OdeMapData;
+import us.dot.its.jpo.ode.model.OdeMapMetadata;
+import us.dot.its.jpo.ode.model.OdeMapPayload;
+import us.dot.its.jpo.ode.plugin.j2735.J2735IntersectionReferenceID;
+
 import org.apache.kafka.streams.kstream.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Properties;
 
 public class MapDeduplicatorTopology {
@@ -32,6 +37,7 @@ public class MapDeduplicatorTopology {
     String outputTopic;
     Properties streamsProperties;
     ObjectMapper objectMapper;
+    DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
     public MapDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
         this.inputTopic = inputTopic;
@@ -39,7 +45,6 @@ public class MapDeduplicatorTopology {
         this.streamsProperties = streamsProperties;
         this.objectMapper = new ObjectMapper();
         this.start();
-        
     }
 
     
@@ -51,67 +56,89 @@ public class MapDeduplicatorTopology {
         streams = new KafkaStreams(topology, streamsProperties);
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
         if (stateListener != null) streams.setStateListener(stateListener);
+        logger.info("Starting Map Deduplicator Topology");
         streams.start();
+    }
+
+    public Instant getInstantFromMap(OdeMapData map){
+        String time = ((OdeMapMetadata)map.getMetadata()).getOdeReceivedAt();
+
+        return Instant.from(formatter.parse(time));
+    }
+
+    public int hashMapMessage(OdeMapData map){
+        OdeMapPayload payload = (OdeMapPayload)map.getPayload();
+        return Objects.hash(payload.toJson());
+        
     }
 
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        KStream<Void, OdeMapData> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.Void(), JsonSerdes.OdeMap()));
 
-        KStream<String, ProcessedMap<LineString>> deduplicatedStream = inputStream
-            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()))
-            .aggregate(() -> new ProcessedMapPair(new ProcessedMap(), true),
+
+        KStream<String, OdeMapData> mapRekeyedStream = inputStream.selectKey((key, value)->{
+                J2735IntersectionReferenceID intersectionId = ((OdeMapPayload)value.getPayload()).getMap().getIntersections().getIntersections().get(0).getId();
+                RsuIntersectionKey newKey = new RsuIntersectionKey();
+                newKey.setRsuId(((OdeMapMetadata)value.getMetadata()).getOriginIp());
+                newKey.setIntersectionReferenceID(intersectionId);
+                return newKey.toString();
+        });
+
+        KStream<String, OdeMapData> deduplicatedStream = mapRekeyedStream
+            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeMap()))
+            .aggregate(() -> new OdeMapPair(new OdeMapData(), true),
             (key, newValue, aggregate)->{
+                logger.info("Received New Ode Map Json" + key);
 
-                // Handle the first message where the aggregate map isn't good.
-                if(aggregate.getMessage().getProperties() == null){
-                    return new ProcessedMapPair(newValue, true );
-                }
+                Instant newValueTime = getInstantFromMap(newValue);
+                Instant oldValueTime = getInstantFromMap(aggregate.getMessage());
 
-                Instant newValueTime = newValue.getProperties().getTimeStamp().toInstant();
-                Instant oldValueTime = aggregate.getMessage().getProperties().getTimeStamp().toInstant();
-                
                 if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
-                    return new ProcessedMapPair(newValue, true );
+                    return new OdeMapPair(newValue, true );
+                    
                 }else{
-                    ZonedDateTime newValueTimestamp = newValue.getProperties().getTimeStamp();
-                    ZonedDateTime newValueOdeReceivedAt = newValue.getProperties().getOdeReceivedAt();
 
-                    newValue.getProperties().setTimeStamp(aggregate.getMessage().getProperties().getTimeStamp());
-                    newValue.getProperties().setOdeReceivedAt(aggregate.getMessage().getProperties().getOdeReceivedAt());
+                    OdeMapPayload oldPayload = (OdeMapPayload)aggregate.getMessage().getPayload();
+                    OdeMapPayload newPayload = (OdeMapPayload)newValue.getPayload();
 
-                    int oldHash = aggregate.getMessage().getProperties().hashCode();
-                    int newhash = newValue.getProperties().hashCode();
+                    Integer oldTimestamp = oldPayload.getMap().getTimeStamp();
+                    Integer newTimestamp = newPayload.getMap().getTimeStamp();
+                    
+
+                    newPayload.getMap().setTimeStamp(oldTimestamp);
+
+                    int oldHash = hashMapMessage(aggregate.getMessage());
+                    int newhash = hashMapMessage(newValue);
 
                     if(oldHash != newhash){
-                        newValue.getProperties().setTimeStamp(newValueTimestamp);
-                        newValue.getProperties().setOdeReceivedAt(newValueOdeReceivedAt);
-                        return new ProcessedMapPair(newValue, true);
+                        newPayload.getMap().setTimeStamp(newTimestamp);
+                        return new OdeMapPair(aggregate.getMessage(), true);
                     }else{
-                        return new ProcessedMapPair(aggregate.getMessage(), false);
+                        return new OdeMapPair(aggregate.getMessage(), false);
                     }
                 }
-            }, Materialized.with(Serdes.String(), PairSerdes.ProcessedMapPair()))
+            }, Materialized.with(Serdes.String(), PairSerdes.OdeMapPair()))
             .filter((key, pair) -> pair.isShouldSend() && pair.getMessage()!= null)
-            .mapValues((key, pair) -> pair.getMessage())
+            .mapValues((key, pair) -> (OdeMapData)pair.getMessage())
             .toStream();
 
         
-        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.OdeMap()));
 
         return builder.build();
 
     }
 
     public void stop() {
-        logger.info("Stopping Processed Map Deduplication Socket Broadcast Topology.");
+        logger.info("Stopping Map Deduplication Socket Broadcast Topology.");
         if (streams != null) {
             streams.close();
             streams.cleanUp();
             streams = null;
         }
-        logger.info("Stopped Processed Map Deduplication Socket Broadcast Topology.");
+        logger.info("Stopped Map Deduplication Socket Broadcast Topology.");
     }
 
     StateListener stateListener;
@@ -123,7 +150,4 @@ public class MapDeduplicatorTopology {
     public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
-
-
-
 }

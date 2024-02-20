@@ -27,7 +27,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
-
 @SpringBootApplication
 @EnableConfigurationProperties(DeduplicationProperties.class)
 public class DeduplicationApplication {
@@ -40,7 +39,7 @@ public class DeduplicationApplication {
    public static void main(String[] args) throws MalformedObjectNameException, InterruptedException,
          InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
 
-
+      logger.info("Starting Message Deduplication");
       SpringApplication.run(DeduplicationApplication.class, args);
       // MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
       // SystemConfig mBean = new SystemConfig(DEFAULT_NO_THREADS, DEFAULT_SCHEMA);
