@@ -38,8 +38,6 @@ public class ProcessedMapDeduplicatorTopology {
         this.outputTopic = outputTopic;
         this.streamsProperties = streamsProperties;
         this.objectMapper = new ObjectMapper();
-        this.start();
-        
     }
 
     

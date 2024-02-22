@@ -2,6 +2,7 @@ package us.dot.its.jpo.deduplication.deduplicator.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
@@ -24,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -39,13 +42,14 @@ public class MapDeduplicatorTopology {
     ObjectMapper objectMapper;
     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
+
     public MapDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
         this.inputTopic = inputTopic;
         this.outputTopic = outputTopic;
         this.streamsProperties = streamsProperties;
         this.objectMapper = new ObjectMapper();
-        this.start();
     }
+
 
     
     public void start() {
@@ -90,7 +94,10 @@ public class MapDeduplicatorTopology {
             .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeMap()))
             .aggregate(() -> new OdeMapPair(new OdeMapData(), true),
             (key, newValue, aggregate)->{
-                logger.info("Received New Ode Map Json" + key);
+                
+                if(aggregate.getMessage().getMetadata() == null){
+                    return new OdeMapPair(newValue, true);
+                }
 
                 Instant newValueTime = getInstantFromMap(newValue);
                 Instant oldValueTime = getInstantFromMap(aggregate.getMessage());
@@ -114,16 +121,20 @@ public class MapDeduplicatorTopology {
 
                     if(oldHash != newhash){
                         newPayload.getMap().setTimeStamp(newTimestamp);
-                        return new OdeMapPair(aggregate.getMessage(), true);
+                        return new OdeMapPair(newValue, true);
                     }else{
                         return new OdeMapPair(aggregate.getMessage(), false);
                     }
                 }
             }, Materialized.with(Serdes.String(), PairSerdes.OdeMapPair()))
-            .filter((key, pair) -> pair.isShouldSend() && pair.getMessage()!= null)
-            .mapValues((key, pair) -> (OdeMapData)pair.getMessage())
-            .toStream();
-
+            .toStream()
+            .flatMap((key, value) ->{
+                ArrayList<KeyValue<String, OdeMapData>> outputList = new ArrayList<>();
+                if(value != null && value.isShouldSend()){
+                    outputList.add(new KeyValue<>(key, value.getMessage()));   
+                }
+                return outputList;
+            });
         
         deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.OdeMap()));
 

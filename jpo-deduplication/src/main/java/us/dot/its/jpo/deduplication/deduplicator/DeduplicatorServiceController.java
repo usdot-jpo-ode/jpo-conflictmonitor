@@ -47,18 +47,21 @@ public class DeduplicatorServiceController {
                 "topic.DeduplicatedProcessedMap",
                 props.createStreamProperties("ProcessedMapDeduplication")
             );
+            processedMapDeduplicatorTopology.start();
 
             MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
                 "topic.OdeMapJson",
                 "topic.DeduplicatedOdeMapJson",
                 props.createStreamProperties("MapDeduplication")
             );
+            mapDeduplicatorTopology.start();
 
             TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
                 "topic.OdeTimJson",
                 "topic.DeduplicatedOdeTimJson",
                 props.createStreamProperties("TimDeduplication")
             );
+            timDeduplicatorTopology.start();
 
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);

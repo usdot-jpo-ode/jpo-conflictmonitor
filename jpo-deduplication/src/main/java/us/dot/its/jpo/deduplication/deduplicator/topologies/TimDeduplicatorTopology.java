@@ -62,7 +62,6 @@ public class TimDeduplicatorTopology {
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
         if (stateListener != null) streams.setStateListener(stateListener);
         logger.info("Starting Map Deduplicator Topology");
-        streams.start();
     }
 
     public JsonNode genJsonNode(){
