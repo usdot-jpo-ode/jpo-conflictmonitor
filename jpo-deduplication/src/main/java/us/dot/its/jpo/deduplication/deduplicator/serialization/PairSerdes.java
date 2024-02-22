@@ -5,11 +5,11 @@ import org.apache.kafka.common.serialization.Serdes;
 
 import us.dot.its.jpo.deduplication.deduplicator.models.ProcessedMapPair;
 import us.dot.its.jpo.deduplication.deduplicator.models.OdeMapPair;
+import us.dot.its.jpo.deduplication.deduplicator.models.JsonPair;
 import us.dot.its.jpo.deduplication.deduplicator.models.Pair;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.DeserializedRawMap;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
-import us.dot.its.jpo.ode.model.OdeSpatData;
 
 
 public class PairSerdes {
@@ -35,6 +35,12 @@ public class PairSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<DeserializedRawMap>(), 
             new JsonDeserializer<>(DeserializedRawMap.class));
+    }
+
+    public static Serde<JsonPair> JsonPair() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<JsonPair>(), 
+            new JsonDeserializer<>(JsonPair.class));
     }
 
     // public static Serde<ProcessedMap<LineString>> ProcessedMapGeoJson() {

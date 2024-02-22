@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplication.DeduplicationProperties;
 import us.dot.its.jpo.deduplication.deduplicator.topologies.MapDeduplicatorTopology;
 import us.dot.its.jpo.deduplication.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
+import us.dot.its.jpo.deduplication.deduplicator.topologies.TimDeduplicatorTopology;
 
 @Controller
 @DependsOn("createKafkaTopics")
@@ -51,6 +52,12 @@ public class DeduplicatorServiceController {
                 "topic.OdeMapJson",
                 "topic.DeduplicatedOdeMapJson",
                 props.createStreamProperties("MapDeduplication")
+            );
+
+            TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
+                "topic.OdeTimJson",
+                "topic.DeduplicatedOdeTimJson",
+                props.createStreamProperties("TimDeduplication")
             );
 
         } catch (Exception e) {
