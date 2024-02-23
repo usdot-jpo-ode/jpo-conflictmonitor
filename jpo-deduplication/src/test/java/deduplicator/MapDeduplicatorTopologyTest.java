@@ -88,6 +88,5 @@ public class MapDeduplicatorTopologyTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        assertEquals(0,0);
     }
 }

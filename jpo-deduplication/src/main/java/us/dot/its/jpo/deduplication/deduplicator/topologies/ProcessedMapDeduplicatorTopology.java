@@ -62,7 +62,7 @@ public class ProcessedMapDeduplicatorTopology {
 
         KStream<String, ProcessedMap<LineString>> deduplicatedStream = inputStream
             .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()))
-            .aggregate(() -> new ProcessedMapPair(new ProcessedMap(), true),
+            .aggregate(() -> new ProcessedMapPair(new ProcessedMap<LineString>(), true),
             (key, newValue, aggregate)->{
 
                 // Handle the first message where the aggregate map isn't good.
