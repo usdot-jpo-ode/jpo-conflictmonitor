@@ -32,4 +32,10 @@ kafka.topics:
     - name: topic.DeduplicatedOdeMapJson
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.OdeTimJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.DeduplicatedOdeTimJson
+      cleanupPolicy: delete
+      retentionMs: 300000
     

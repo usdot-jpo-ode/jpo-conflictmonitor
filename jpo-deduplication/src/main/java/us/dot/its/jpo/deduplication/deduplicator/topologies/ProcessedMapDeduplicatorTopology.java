@@ -5,6 +5,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 import us.dot.its.jpo.deduplication.deduplicator.models.ProcessedMapPair;
@@ -12,6 +13,7 @@ import us.dot.its.jpo.deduplication.deduplicator.serialization.PairSerdes;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
+
 import org.apache.kafka.streams.kstream.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public class ProcessedMapDeduplicatorTopology {
@@ -91,9 +94,14 @@ public class ProcessedMapDeduplicatorTopology {
                     }
                 }
             }, Materialized.with(Serdes.String(), PairSerdes.ProcessedMapPair()))
-            .filter((key, pair) -> pair.isShouldSend() && pair.getMessage()!= null)
-            .mapValues((key, pair) -> pair.getMessage())
-            .toStream();
+            .toStream()
+            .flatMap((key, value) ->{
+                ArrayList<KeyValue<String, ProcessedMap<LineString>>> outputList = new ArrayList<>();
+                if(value != null && value.isShouldSend()){
+                    outputList.add(new KeyValue<>(key, value.getMessage()));   
+                }
+                return outputList;
+            });
 
         
         deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
