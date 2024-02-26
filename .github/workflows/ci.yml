@@ -1,6 +1,9 @@
-name: ci
-
-on: [pull_request]
+name: CI
+on: 
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches: [develop, master]
 
 jobs:
   docker:
@@ -20,7 +23,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: "11"
+          java-version: "21"
           distribution: "temurin"
       - name: Run Sonar
         env:

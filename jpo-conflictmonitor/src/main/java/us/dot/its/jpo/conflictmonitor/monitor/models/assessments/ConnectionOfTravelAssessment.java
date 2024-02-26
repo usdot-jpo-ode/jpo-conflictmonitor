@@ -13,8 +13,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEv
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 
-import org.springframework.data.mongodb.core.mapping.Document;
-@Document("CmConnectionOfTravelAssessment")
+
+
 @Getter
 @Setter
 @Generated

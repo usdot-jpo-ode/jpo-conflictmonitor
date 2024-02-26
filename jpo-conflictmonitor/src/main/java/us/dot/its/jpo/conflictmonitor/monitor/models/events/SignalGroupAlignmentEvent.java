@@ -4,10 +4,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Set;
-@Document("CmSignalGroupAlignment")
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)

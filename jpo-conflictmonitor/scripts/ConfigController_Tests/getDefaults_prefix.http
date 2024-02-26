@@ -1,0 +1,2 @@
+GET http://localhost:8082/config/defaults?prefix=map.validation
+Accept: application/json

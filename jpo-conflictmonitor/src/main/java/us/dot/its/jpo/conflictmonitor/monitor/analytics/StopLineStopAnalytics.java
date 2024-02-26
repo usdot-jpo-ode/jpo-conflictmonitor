@@ -70,6 +70,10 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
         ProcessedSpat firstSpat = spats.getSpatAtTime(firstTimestamp);
         ProcessedSpat lastSpat = spats.getSpatAtTime(lastTimestamp);
+        if (firstSpat == null || lastSpat == null) {
+            logger.warn("Can't generate StopLineStop event because SPATs not found.");
+            return null;
+        }
 
 
 
@@ -130,42 +134,6 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             }
         }
 
-
-        // int signalGroup = -1;
-        // if (egressLane != null) {
-        //     LaneConnection connection = path.getIntersection().getLaneConnection(ingressLane, egressLane);
-        //     if (connection != null) {
-        //         signalGroup = connection.getSignalGroup();
-        //         Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-        //         if (signalGroups.size() == 1) {
-        //             signalGroup = signalGroups.iterator().next();
-        //         }else if(signalGroups.size() > 1){
-        //             Set<Integer> egressSignalGroups = path.getIntersection().getSignalGroupsForEgressLane(egressLane);
-        //             Integer matchingConnection = getMatchingSignalGroup(signalGroups, egressSignalGroups);
-        //             if(matchingConnection != null){
-        //                 signalGroup = matchingConnection;
-        //             }else{
-        //                 signalGroup = -1;
-        //                 // return null;
-        //             }
-        //         }else{
-        //             signalGroup = -1;
-        //             // return null;
-        //         }
-
-        //     } else {
-        //         logger.info("No lane connection found for ingressLane {} and egressLane {}", ingressLane, egressLane);
-        //     }
-        // } else {
-        //     Set<Integer> signalGroups = path.getIntersection().getSignalGroupsForIngressLane(ingressLane);
-        //     if (signalGroups.size() == 1) {
-        //         signalGroup = signalGroups.iterator().next();
-        //     } else {
-        //         logger.info("No egress lane found for path {}, and ingress lane {} has multiple signal groups {}, can't determine signalGroup to generate StopLinePassage event", path, ingressLane, signalGroups);
-        //         return null;
-        //     }
-        // }
-
         if (signalGroup > -1) {
             event.setSignalGroup(signalGroup);
             J2735MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
@@ -177,8 +145,7 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
             List<ProcessedSpat> filteredSpats = SpatUtils.filterSpatsByTimestamp(spats.getSpats(), firstTimestamp, lastTimestamp);
 
-            String spatDesc = SpatUtils.describeSpats(filteredSpats, signalGroup);
-            logger.info(spatDesc);
+            // String spatDesc = SpatUtils.describeSpats(filteredSpats, signalGroup);
             SpatUtils.SpatStatistics spatStatistics = SpatUtils.getSpatStatistics(filteredSpats, signalGroup);
 
             event.setTimeStoppedDuringRed(spatStatistics.getTimeStoppedDuringRed());

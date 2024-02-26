@@ -16,10 +16,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAss
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
@@ -47,6 +48,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDet
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLinePassageNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
@@ -156,7 +158,7 @@ public class JsonSerdes {
             new JsonDeserializer<>(SignalStateAssessment.class));
     }
 
-    public static Serde<StopLinePassageAssessment> SignalStateEventAssessment() {
+    public static Serde<StopLinePassageAssessment> StopLinePassageAssessment() {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLinePassageAssessment>(),
             new JsonDeserializer<>(StopLinePassageAssessment.class));
@@ -178,6 +180,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLineStopNotification>(),
             new JsonDeserializer<>(StopLineStopNotification.class));
+    }
+
+    public static Serde<StopLinePassageNotification> StopLinePassageNotification() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<StopLinePassageNotification>(),
+            new JsonDeserializer<>(StopLinePassageNotification.class));
     }
 
     public static Serde<StopLineStopAggregator> StopLineStopAggregator() {
@@ -210,16 +218,18 @@ public class JsonSerdes {
             new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
     }
 
-    public static Serde<BsmIntersectionKey> BsmIntersectionKey() {
+    public static Serde<BsmRsuIdKey> BsmRsuIdKey() {
         return Serdes.serdeFrom(
-            new JsonSerializer<BsmIntersectionKey>(),
-            new JsonDeserializer<>(BsmIntersectionKey.class));
+            new JsonSerializer<BsmRsuIdKey>(),
+            new JsonDeserializer<>(BsmRsuIdKey.class));
     }
 
-    public static Serde<BsmEventIntersectionKey> BsmEventIntersectionKey() {
+
+
+    public static Serde<BsmIntersectionIdKey> BsmIntersectionIdKey() {
         return Serdes.serdeFrom(
-                new JsonSerializer<BsmEventIntersectionKey>(),
-                new JsonDeserializer<>(BsmEventIntersectionKey.class));
+                new JsonSerializer<BsmIntersectionIdKey>(),
+                new JsonDeserializer<>(BsmIntersectionIdKey.class));
     }
 
     public static Serde<IntersectionReferenceAlignmentNotification> IntersectionReferenceAlignmentNotification() {
@@ -330,6 +340,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<RsuConfigKey>(),
             new JsonDeserializer<>(RsuConfigKey.class)
+        );
+    }
+
+    public static Serde<IntersectionConfigKey> IntersectionConfigKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<IntersectionConfigKey>(),
+                new JsonDeserializer<>(IntersectionConfigKey.class)
         );
     }
     

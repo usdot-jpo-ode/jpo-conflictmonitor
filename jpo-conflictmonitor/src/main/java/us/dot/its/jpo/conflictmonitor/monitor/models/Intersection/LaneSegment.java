@@ -16,16 +16,24 @@ public class LaneSegment {
     private final LineString centerLine;
     private final double heading;
     private final double laneWidth;
+    private final int segmentID;
 
-    public LaneSegment(Point startPoint, Point endPoint, double laneWidthCm, boolean ingress, GeometryFactory factory) {
+    
+
+    public LaneSegment(Point startPoint, Point endPoint, double laneWidthCm, boolean ingress, int segmentID, GeometryFactory factory) {
         double headingRadians = 0;
-        if(ingress){
-            //headingRadians = Math.atan2(startPoint.getY() - endPoint.getY(),startPoint.getX() - endPoint.getX());
-            headingRadians = Angle.angle(endPoint.getCoordinate(), startPoint.getCoordinate());
-        }else{
-            //headingRadians = Math.atan2(endPoint.getY() - startPoint.getY(),endPoint.getX() - startPoint.getX());
-            headingRadians = Angle.angle(startPoint.getCoordinate(), endPoint.getCoordinate());
-        }
+
+        headingRadians = Angle.angle(endPoint.getCoordinate(), startPoint.getCoordinate());
+        
+        
+        // It should no longer be required to flip egress lane direction. This is flipped when the lane is originally parsed from the map.
+        // if(ingress){
+        //     //headingRadians = Math.atan2(startPoint.getY() - endPoint.getY(),startPoint.getX() - endPoint.getX());
+        //     headingRadians = Angle.angle(endPoint.getCoordinate(), startPoint.getCoordinate());
+        // }else{
+        //     //headingRadians = Math.atan2(endPoint.getY() - startPoint.getY(),endPoint.getX() - startPoint.getX());
+        //     headingRadians = Angle.angle(startPoint.getCoordinate(), endPoint.getCoordinate());
+        // }
         
         double headingFromNorth = CircleMath.headingXYToHeadingFromNorth(Math.toDegrees(headingRadians));
         double positiveHeadingShift = headingRadians + Math.PI / 2.0;
@@ -69,6 +77,7 @@ public class LaneSegment {
         this.heading = headingFromNorth;
         this.laneWidth = laneWidthCm;
         this.centerLine = factory.createLineString(centerLineCoordinates);
+        this.segmentID = segmentID;
 
     }
 
@@ -94,5 +103,9 @@ public class LaneSegment {
 
     public LineString getCenterLine() {
         return centerLine;
+    }
+
+    public int getSegmentID() {
+        return segmentID;
     }
 }

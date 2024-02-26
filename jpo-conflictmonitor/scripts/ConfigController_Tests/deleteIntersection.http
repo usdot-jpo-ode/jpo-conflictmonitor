@@ -1,0 +1,2 @@
+DELETE http://localhost:8082/config/intersection/10/101010/spat.validation.lowerBound
+Accept: application/json

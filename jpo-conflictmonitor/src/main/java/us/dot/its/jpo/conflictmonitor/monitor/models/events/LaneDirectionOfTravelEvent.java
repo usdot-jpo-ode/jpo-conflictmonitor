@@ -7,8 +7,8 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-@Document("CmLaneDirectionOfTravelEvent")
+
+
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)

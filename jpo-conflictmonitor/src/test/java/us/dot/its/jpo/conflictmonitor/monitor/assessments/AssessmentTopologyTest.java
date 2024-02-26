@@ -68,7 +68,7 @@ public class AssessmentTopologyTest {
             TestInputTopic<String, StopLinePassageAssessment> inputSignalStateEvent = driver.createInputTopic(
                 laneDirectionOfTravelAssessmentTopicName, 
                 Serdes.String().serializer(), 
-                JsonSerdes.SignalStateEventAssessment().serializer());
+                JsonSerdes.StopLinePassageAssessment().serializer());
 
             inputSignalStateEvent.pipeInput("12109", sseaAssessment);
 

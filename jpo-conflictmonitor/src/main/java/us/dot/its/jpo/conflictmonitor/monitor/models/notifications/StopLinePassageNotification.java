@@ -3,18 +3,19 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document("CmStopLinePassageNotification")
+@Getter
+@Setter
 public class StopLinePassageNotification extends Notification {
     public StopLinePassageNotification() {
         super("StopLinePassageNotification");
     }
 
-    
+    private int signalGroup;
+
     @Getter private StopLinePassageAssessment assessment;
     
     public void setAssessment(StopLinePassageAssessment assessment){
@@ -30,10 +31,11 @@ public class StopLinePassageNotification extends Notification {
     @Override
     @JsonIgnore
     public String getUniqueId() {
-        return String.format("%s_%s_%s", 
+        return String.format("%s_%s_%s_%s", 
             this.getNotificationType(), 
             assessment.getIntersectionID(),
-            assessment.getRoadRegulatorID()
+            assessment.getRoadRegulatorID(),
+            this.getSignalGroup()
         );
     }
 }

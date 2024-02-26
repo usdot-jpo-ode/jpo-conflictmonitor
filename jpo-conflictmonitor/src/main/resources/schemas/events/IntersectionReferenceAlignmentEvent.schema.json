@@ -1,0 +1,85 @@
+{
+    "type": "object",
+    "properties": {
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "timestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "mapRegulatorIntersectionIds": {
+            "type": "array",
+            "items":{
+                "type": "object",
+                "properties": {
+                    "roadRegulatorId":{
+                        "type":["integer", "null"]
+                    },
+                    "intersectionId":{
+                        "type":["integer","null"]
+                    }
+                },
+                "required":[
+                    "roadRegulatorId",
+                    "intersectionId"
+                ]      
+            }
+        },
+        "spatRegulatorIntersectionIds": {
+            "type": "array",
+            "items":{
+                "type": "object",
+                "properties": {
+                    "roadRegulatorId":{
+                        "type":["integer", "null"]
+                    },
+                    "intersectionId":{
+                        "type":["integer","null"]
+                    }
+                },
+                "required":[
+                    "roadRegulatorId",
+                    "intersectionId"
+                ]      
+            }
+        }
+    },
+    "required": [
+        "source",
+        "timestamp",
+        "eventGeneratedAt",
+        "eventType",
+        "intersectionID",
+        "roadRegulatorID",
+      	"spatRegulatorIntersectionIds",
+      	"mapRegulatorIntersectionIds"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/events/IntersectionReferenceAlignmentEvent.schema.json"
+}

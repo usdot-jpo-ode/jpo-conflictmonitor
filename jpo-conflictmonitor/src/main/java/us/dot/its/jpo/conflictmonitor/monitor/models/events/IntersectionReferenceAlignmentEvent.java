@@ -6,10 +6,10 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 
-@Document("CmIntersectionReferenceAlignmentEvent")
+
+
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)

@@ -3,9 +3,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("CmIntersectionReferenceAlignmentNotification")
+
+
 public class IntersectionReferenceAlignmentNotification extends Notification {
     public IntersectionReferenceAlignmentNotification() {
         super("IntersectionReferenceAlignmentNotification");

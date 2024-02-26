@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
 import org.locationtech.jts.geom.CoordinateXY;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.model.OdeBsmPayload;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
@@ -63,5 +64,14 @@ public class BsmUtils {
         if (optionalCoreData.isEmpty()) return "";
         J2735BsmCoreData coreData = optionalCoreData.get();
         return coreData.getId();
+    }
+
+    public static String getRsuIp(OdeBsmData bsm) {
+        String ip = "";
+        if (bsm.getMetadata() != null && bsm.getMetadata() instanceof OdeBsmMetadata) {
+            var metadata = (OdeBsmMetadata) bsm.getMetadata();
+            ip = metadata.getOriginIp();
+        }
+        return ip;
     }
 }

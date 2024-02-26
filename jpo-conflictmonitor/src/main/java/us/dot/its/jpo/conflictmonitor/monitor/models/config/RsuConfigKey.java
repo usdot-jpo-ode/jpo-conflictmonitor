@@ -15,7 +15,10 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 /**
  * Kafka key for {@link IntersectionConfig} settings
  * that implements {@link us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey}
+ *
+ * @deprecated use {@link IntersectionConfigKey} instead
  */
+@Deprecated
 @EqualsAndHashCode
 public class RsuConfigKey implements RsuIdKey, Comparable<RsuConfigKey> {
 

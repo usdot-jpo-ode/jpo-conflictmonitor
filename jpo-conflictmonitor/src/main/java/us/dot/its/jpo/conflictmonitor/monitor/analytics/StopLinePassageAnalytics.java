@@ -49,6 +49,8 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
 
         if(matchingSpat == null || Math.abs(spats.getSpatTimeDelta(matchingSpat, bsmTime)) > parameters.getSpatBsmMatchWindowMillis()){
             // Don't generate event if the spat time delta is greater than configurable threshold
+            // Or if there are no SPATs
+            logger.warn("No SPAT found, or SPAT time delta is greater than configurable threshold");
             return null;
         }
 

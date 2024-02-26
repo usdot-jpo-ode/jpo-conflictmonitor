@@ -5,9 +5,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
+
 
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
@@ -69,19 +71,19 @@ public class StopLineStopParameters {
     final ConfigMap<Double> minTimeStoppedMap = new ConfigMap<>();
 
     // Intersection-specific parameters
-    public double getUpstreamSearchDistance(String rsuID) {
-        return getIntersectionValue(rsuID, upstreamSearchDistanceMap, upstreamSearchDistance);
+    public double getUpstreamSearchDistance(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, upstreamSearchDistanceMap, upstreamSearchDistance);
     }
 
-    public double getHeadingTolerance(String rsuID) {
-        return getIntersectionValue(rsuID, headingToleranceMap, headingTolerance);
+    public double getHeadingTolerance(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, headingToleranceMap, headingTolerance);
     }
-    public double getStopSpeedThreshold(String rsuID) {
-        return getIntersectionValue(rsuID, stopSpeedThresholdMap, stopSpeedThreshold);
+    public double getStopSpeedThreshold(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, stopSpeedThresholdMap, stopSpeedThreshold);
     }
 
-    public double getMinTimeStopped(String rsuID) {
-        return getIntersectionValue(rsuID, minTimeStoppedMap, minTimeStopped);
+    public double getMinTimeStopped(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, minTimeStoppedMap, minTimeStopped);
     }
 
 }

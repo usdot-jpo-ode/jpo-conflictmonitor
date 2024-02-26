@@ -20,7 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.app_health.Ka
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 /**
- * Base class for Notification messages.
+ * Base class Notification messages.
  * 
  * <p>Notifications are informational messages that signal
  * an anomaly or error condition.
