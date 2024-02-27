@@ -60,7 +60,6 @@ public class KafkaConfiguration {
                     
                     // Get the name and config settings for the topic
                     String topicName = (String)topic.getOrDefault("name", null);
-                    System.out.println(topicName);
                     if (topicName == null) {
                         logger.error("CreateTopic {} has no topic name", topic);
                         break;
@@ -119,9 +118,9 @@ public class KafkaConfiguration {
             }
 
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Interruption Exception in createKafkaTopics. Unable to List existing Topics", e);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            logger.error("Execution Exception in createKafkaTopics. Unable to List existing Topics", e);
         }
 
 
