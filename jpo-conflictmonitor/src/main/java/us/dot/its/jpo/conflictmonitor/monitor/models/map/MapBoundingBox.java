@@ -1,12 +1,13 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Envelope;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.JTSConverter;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
@@ -75,6 +76,7 @@ public class MapBoundingBox {
         return envelope;
     }
 
+    @JsonIgnore
     public org.locationtech.jts.geom.Polygon boundingPolygon() {
         Envelope envelope = envelope();
         var minX = envelope.getMinX();

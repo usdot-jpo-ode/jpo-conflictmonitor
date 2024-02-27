@@ -93,7 +93,6 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
 
         ArrayList<LaneDirectionOfTravelEvent> laneEvents = new ArrayList<>();
 
-        int segmentNum = 1;
         for(LaneSegment segment : segmentBsmMap.keySet()){
             ArrayList<Integer> bsmIndecies = segmentBsmMap.get(segment);
 
@@ -130,7 +129,7 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
                 event.setRoadRegulatorID(lane.getRegion());
                 event.setIntersectionID(path.getIntersection().getIntersectionId());
                 event.setLaneID(lane.getId());
-                event.setLaneSegmentNumber(segmentNum);
+                event.setLaneSegmentNumber(segment.getSegmentID());
                 
 
                 event.setLaneSegmentInitialLongitude(startLongLat[0]);
@@ -150,7 +149,6 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
 
                 
                 laneEvents.add(event);
-                segmentNum +=1;
             }
         }
 

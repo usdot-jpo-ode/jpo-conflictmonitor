@@ -1,0 +1,2 @@
+GET http://localhost:8082/config/default/spat.validation.lowerBound
+Accept: application/json

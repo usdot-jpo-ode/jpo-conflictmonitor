@@ -122,6 +122,8 @@ git config core.longpaths true
 
 #### Step 1 - Download the Source Code
 
+Note: if you intend to run the entire ConflictVisualizer system, you should instead start with [step 1 of the ConflictVisualizer Installation Guide](https://github.com/usdot-jpo-ode/jpo-conflictvisualizer?tab=readme-ov-file#1-initialize-and-update-submodules) before returning to step 2 below.
+
 The jpo-geojsonconverter software system consists of the following modules hosted in separate Github repositories:
 
 |Name|Visibility|Description|
@@ -131,14 +133,6 @@ The jpo-geojsonconverter software system consists of the following modules hoste
 |[jpo-ode](https://github.com/usdot-jpo-ode/jpo-ode)|public|Contains the public classes and libraries of the jpo-ode used in the Conflict Monitor.|
 
 You may download the stable, default branch for ALL of these dependencies by using the following recursive git clone command:
-
-```bash
-git clone --recurse-submodules https://github.com/usdot-jpo-ode/jpo-ode.git
-```
-
-```bash
-git clone --recurse-submodules https://github.com/usdot-jpo-ode/jpo-geojsonconverter.git
-```
 
 ```bash
 git clone --recurse-submodules https://github.com/usdot-jpo-ode/jpo-conflictmonitor.git

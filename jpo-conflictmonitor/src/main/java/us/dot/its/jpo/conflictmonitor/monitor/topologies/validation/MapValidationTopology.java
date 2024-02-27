@@ -13,10 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -74,9 +76,9 @@ public class MapValidationTopology
 
         
         minDataStream = minDataStream.peek((key, value) -> {
-            var rsuId = key.getRsuId();
-            if (rsuId != null && parameters.getDebug(rsuId)) {
-                logger.info("MAP Min Data Event {}", key);
+            var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(key);
+            if (parameters.getDebug(intersectionKey)) {
+                logger.info("MAP Min Data Event for intersection {}", intersectionKey);
             }
         });
        
@@ -85,7 +87,7 @@ public class MapValidationTopology
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.MapMinimumDataEvent(), 
-                new RsuIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
+                new IntersectionIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
         );
 
         
@@ -115,8 +117,8 @@ public class MapValidationTopology
 
 
         countStream = countStream.peek((windowedKey, value) -> {
-            var rsuId = windowedKey.key().getRsuId();
-            if (rsuId != null && parameters.getDebug(rsuId)) {
+            var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(windowedKey.key());
+            if (parameters.getDebug(intersectionKey)) {
                 logger.info("Map Count {} {}", windowedKey, value);
             }
         });
@@ -126,8 +128,8 @@ public class MapValidationTopology
             .filter((windowedKey, value) -> {
                 if (value != null) {
                     long counts = value.longValue();
-                    String rsuId = windowedKey.key().getRsuId();
-                    return (counts < parameters.getLowerBound(rsuId) || counts > parameters.getUpperBound(rsuId));
+                    var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(windowedKey.key());
+                    return (counts < parameters.getLowerBound(intersectionKey) || counts > parameters.getUpperBound(intersectionKey));
                 }
                 return false;
             })
@@ -152,8 +154,8 @@ public class MapValidationTopology
 
         
         eventStream = eventStream.peek((key, event) -> {
-            var rsuId = key.getRsuId();
-            if (rsuId != null && parameters.getDebug(rsuId)) {
+            var intersectionKey = IntersectionRegion.fromRsuIntersectionKey(key);
+            if (parameters.getDebug(intersectionKey)) {
                 logger.info("MAP Broadcast Rate {}, {}", key, event);
             }
         });
@@ -163,7 +165,7 @@ public class MapValidationTopology
             Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
                 JsonSerdes.MapBroadcastRateEvent(), 
-                new RsuIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
+                new IntersectionIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
         );
         
         return builder.build();

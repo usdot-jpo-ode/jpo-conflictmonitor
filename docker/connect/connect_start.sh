@@ -1,5 +1,5 @@
 # bin/bash
-DOCKER_HOST_IP = $1
+DB_HOST_IP = $1
 
 echo "------------------------------------------"
 echo "Kafka connector creation started."
@@ -10,90 +10,88 @@ echo "------------------------------------------"
 
 # Record BSM JSON Data
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 # Record Map Data
 declare -A OdeMapJson=([name]="topic.OdeMapJson" [collection]="OdeMapJson"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A ProcessedMap=([name]="topic.ProcessedMap" [collection]="ProcessedMap"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeRawEncodedMAPJson=([name]="topic.OdeRawEncodedMAPJson" [collection]="OdeRawEncodedMAPJson"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 # Record Spat Data
 declare -A OdeRawEncodedSPATJson=([name]="topic.OdeRawEncodedSPATJson" [collection]="OdeRawEncodedSPATJson"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A ProcessedSpat=([name]="topic.ProcessedSpat" [collection]="ProcessedSpat"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
     
 # Record Events
 declare -A CmStopLinePassageEvent=([name]="topic.CmStopLinePassageEvent" [collection]="CmStopLinePassageEvent"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmStopLineStopEvent=([name]="topic.CmStopLineStopEvent" [collection]="CmStopLineStopEvent"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalStateConflictEvents=([name]="topic.CmSignalStateConflictEvents" [collection]="CmSignalStateConflictEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmIntersectionReferenceAlignmentEvents=([name]="topic.CmIntersectionReferenceAlignmentEvents" [collection]="CmIntersectionReferenceAlignmentEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalGroupAlignmentEvents=([name]="topic.CmSignalGroupAlignmentEvents" [collection]="CmSignalGroupAlignmentEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmConnectionOfTravelEvent=([name]="topic.CmConnectionOfTravelEvent" [collection]="CmConnectionOfTravelEvent"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmLaneDirectionOfTravelEvent=([name]="topic.CmLaneDirectionOfTravelEvent" [collection]="CmLaneDirectionOfTravelEvent"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
-declare -A CmSignalStateEvent=([name]="topic.CmSignalStateEvent" [collection]="CmSignalStateEvent"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSpatTimeChangeDetailsEvent=([name]="topic.CmSpatTimeChangeDetailsEvent" [collection]="CmSpatTimeChangeDetailsEvent"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSpatMinimumDataEvents=([name]="topic.CmSpatMinimumDataEvents" [collection]="CmSpatMinimumDataEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmMapBroadcastRateEvents=([name]="topic.CmMapBroadcastRateEvents" [collection]="CmMapBroadcastRateEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmMapMinimumDataEvents=([name]="topic.CmMapMinimumDataEvents" [collection]="CmMapMinimumDataEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
-    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="")
-# declare -A CmSignalStopEvent=([name]="topic.CmSignalStopEvent" [collection]="CmSignalStopEvent"
-#     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 
 # Record BSM Events
 declare -A CmBsmEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
-    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="")
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 
 # Record Assessments
 declare -A CmLaneDirectionOfTravelAssessment=([name]="topic.CmLaneDirectionOfTravelAssessment" [collection]="CmLaneDirectionOfTravelAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmConnectionOfTravelAssessment=([name]="topic.CmConnectionOfTravelAssessment" [collection]="CmConnectionOfTravelAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalStateEventAssessment=([name]="topic.CmSignalStateEventAssessment" [collection]="CmSignalStateEventAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmStopLineStopAssessment=([name]="topic.CmStopLineStopAssessment" [collection]="CmStopLineStopAssessment"
-    [convert_timestamp]=false [timefield]="assessmentGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="assessmentGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 
 
 # Record Notifications
 declare -A CmSpatTimeChangeDetailsNotification=([name]="topic.CmSpatTimeChangeDetailsNotification" [collection]="CmSpatTimeChangeDetailsNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmLaneDirectionOfTravelNotification=([name]="topic.CmLaneDirectionOfTravelNotification" [collection]="CmLaneDirectionOfTravelNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmConnectionOfTravelNotification=([name]="topic.CmConnectionOfTravelNotification" [collection]="CmConnectionOfTravelNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmAppHealthNotifications=([name]="topic.CmAppHealthNotifications" [collection]="CmAppHealthNotifications"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalStateConflictNotification=([name]="topic.CmSignalStateConflictNotification" [collection]="CmSignalStateConflictNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSignalGroupAlignmentNotification=([name]="topic.CmSignalGroupAlignmentNotification" [collection]="CmSignalGroupAlignmentNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=false [key]="")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
-    [convert_timestamp]=false [timefield]="notificationGeneratedAt" [use_key]=true [key]="key")
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+declare -A CmStoLinePassageNotification=([name]="topic.CmStopLinePassageNotification" [collection]="CmStopLinePassageNotification"
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 
 function createSink() {
     local -n topic=$1
@@ -106,18 +104,20 @@ function createSink() {
     local convert_timestamp=${topic[convert_timestamp]}
     local use_key=${topic[use_key]}
     local key=${topic[key]}
+    local add_timestamp=${topic[add_timestamp]}
 
     echo "name=$name"
     echo "collection=$collection"
     echo "timefield=$timefield"
     echo "convert_timestamp=$convert_timestamp"
+    echo "add_timestamp=$add_timestamp"
 
     local connectConfig=' {
         "group.id":"connector-consumer",
         "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
         "tasks.max":3,
         "topics":"'$name'",
-        "connection.uri":"mongodb://'$DOCKER_HOST_IP':27017",
+        "connection.uri":"mongodb://'$DB_HOST_IP':27017",
         "database":"ConflictMonitor",
         "collection":"'$collection'",
         "key.converter":"org.apache.kafka.connect.storage.StringConverter",
@@ -126,11 +126,16 @@ function createSink() {
         "value.converter.schemas.enable":false,
         "errors.tolerance": "all",
         "mongo.errors.tolerance": "all",
-        "errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
-        "errors.deadletterqueue.context.headers.enable": true,
-        "errors.log.enable": true,
+        "errors.deadletterqueue.topic.name": "",
+	"errors.log.enable": false,
         "errors.log.include.messages": false,
-        "errors.deadletterqueue.topic.replication.factor": 1'    
+	"errors.deadletterqueue.topic.replication.factor": 0' 
+
+	#"errors.deadletterqueue.context.headers.enable": true,
+        #"errors.log.enable": false,
+        #"errors.log.include.messages": false,
+        #"errors.deadletterqueue.topic.replication.factor": 1'    
+	#"errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
 
 
     if [ "$convert_timestamp" == true ]
@@ -140,6 +145,17 @@ function createSink() {
         "transforms.TimestampConverter.field": "'$timefield'",
         "transforms.TimestampConverter.type": "org.apache.kafka.connect.transforms.TimestampConverter$Value",
         "transforms.TimestampConverter.target.type": "Timestamp"'
+    fi
+
+    if [ "$add_timestamp" == true ]
+    then
+        local connectConfig=''$connectConfig',
+        "transforms": "AddTimestamp,AddedTimestampConverter",
+        "transforms.AddTimestamp.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+        "transforms.AddTimestamp.timestamp.field": "recordGeneratedAt",
+        "transforms.AddedTimestampConverter.field": "recordGeneratedAt",
+        "transforms.AddedTimestampConverter.type": "org.apache.kafka.connect.transforms.TimestampConverter$Value",
+        "transforms.AddedTimestampConverter.target.type": "Timestamp"'
     fi
 
     if [ "$use_key" == true ]

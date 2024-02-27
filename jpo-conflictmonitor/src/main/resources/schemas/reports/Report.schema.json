@@ -1,0 +1,54 @@
+{
+    "type": "object",
+    "properties": {
+        "intersectionID": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "reportGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "reportStartTime": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "reportStopTime": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "reportContents": {
+            "type": "string",
+            "format": "base64"
+        },
+        "reportName": {
+            "type": [
+                "string"
+            ]
+        }
+    },
+    "required": [
+        "intersectionID",
+        "roadRegulatorID",
+        "reportGeneratedAt",
+        "reportStartTime",
+        "reportStopTime",
+        "reportContents",
+        "reportName"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/reports/Report.schema.json"
+}

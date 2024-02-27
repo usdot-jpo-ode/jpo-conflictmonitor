@@ -6,16 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.EventAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ConnectionOfTravelAggregator {
     private ArrayList<ConnectionOfTravelEvent> events = new ArrayList<>();
     private long aggregatorCreationTime;
-    private long messageDurationDays;
+    // private long messageDurationDays;
 
     
 
@@ -26,23 +29,30 @@ public class ConnectionOfTravelAggregator {
     @JsonIgnore
     public ConnectionOfTravelAggregator add(ConnectionOfTravelEvent event){
         events.add(event);
+        return this;
+    }
 
+    @JsonIgnore
+    public ConnectionOfTravelAssessment getConnectionOfTravelAssessment(long lookBackPeriodDays){
+
+        // Prune Events
         List<ConnectionOfTravelEvent> removeEvents = new ArrayList<>();
+
+        long lastEventTime = ZonedDateTime.now().toInstant().toEpochMilli();
+        if(this.events.size() > 0){
+            lastEventTime = this.events.get(this.events.size() -1).getTimestamp();
+        }
         
         for(ConnectionOfTravelEvent previousEvents: this.events){
-            if(previousEvents.getTimestamp() + (messageDurationDays* 24 * 3600*1000) < event.getTimestamp()){
+            if(previousEvents.getTimestamp() + (lookBackPeriodDays *24* 3600*1000) < lastEventTime){
                 removeEvents.add(previousEvents);
             }else{
                 break;
             }
         }
-
         events.removeAll(removeEvents);
-        return this;
-    }
 
-    @JsonIgnore
-    public ConnectionOfTravelAssessment getConnectionOfTravelAssessment(){
+
         ConnectionOfTravelAssessment assessment = new ConnectionOfTravelAssessment();
         ArrayList<ConnectionOfTravelAssessmentGroup> assessmentGroups = new ArrayList<>();
         HashMap<String,ConnectionOfTravelAssessmentGroup> connectionGroupLookup = new HashMap<>(); // laneId, Segment Index
@@ -71,6 +81,16 @@ public class ConnectionOfTravelAggregator {
         return assessment;
     }
 
+    @JsonIgnore
+    public EventAssessment getEventAssessmentPair(long lookBackPeriodDays){
+        EventAssessment eventAssessment =  new EventAssessment();
+        eventAssessment.setAssessment(getConnectionOfTravelAssessment(lookBackPeriodDays));
+        if(this.events.size() >0){
+            eventAssessment.setEvent(this.events.get(this.events.size()-1));
+        }
+        return eventAssessment;
+    }
+
     public String getEventKey(ConnectionOfTravelEvent event){
         return event.getIngressLaneID() + "-" + event.getEgressLaneID();
     }
@@ -91,13 +111,13 @@ public class ConnectionOfTravelAggregator {
         this.aggregatorCreationTime = aggregatorCreationTime;
     }
 
-    public long getMessageDurationDays() {
-        return messageDurationDays;
-    }
+    // public long getMessageDurationDays() {
+    //     return messageDurationDays;
+    // }
 
-    public void setMessageDurationDays(long messageDurationDays) {
-        this.messageDurationDays = messageDurationDays;
-    }
+    // public void setMessageDurationDays(long messageDurationDays) {
+    //     this.messageDurationDays = messageDurationDays;
+    // }
 
     @Override
     public String toString() {

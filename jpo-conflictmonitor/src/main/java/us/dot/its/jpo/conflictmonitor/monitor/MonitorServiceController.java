@@ -44,12 +44,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.signal_state_event_assessment.SignalStateEventAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
@@ -66,9 +66,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConfigInitializer;
-import us.dot.its.jpo.conflictmonitor.monitor.mongo.ConnectSourceCreator;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.ConfigTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +76,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Controller
 @DependsOn("createKafkaTopics")
-@Profile("!test")
+@Profile("!test && !testConfig")
 public class MonitorServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
@@ -97,8 +96,7 @@ public class MonitorServiceController {
             final KafkaTemplate<String, String> kafkaTemplate,
             final ConfigTopology configTopology,
             final ConfigParameters configParameters,
-            final ConfigInitializer configWriter,
-            final ConnectSourceCreator connectSourceCreator,
+            final ConfigInitializer configInitializer,
             final MapIndex mapIndex) {
        
 
@@ -118,15 +116,18 @@ public class MonitorServiceController {
             configTopology.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, config, healthTopic));
             algoMap.put(config, configTopology);
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
+            configTopology.setKafkaTemplate(kafkaTemplate);
             configTopology.start();
             
-            
+
+
 
             final String repartition = "repartition";
             final RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
             final String repAlgo = conflictMonitorProps.getRepartitionAlgorithm();
             final RepartitionAlgorithm repartitionAlgo = repartitionAlgoFactory.getAlgorithm(repAlgo);
             final RepartitionParameters repartitionParams = conflictMonitorProps.getRepartitionAlgorithmParameters();
+            configTopology.registerConfigListeners(repartitionParams);
             if (repartitionAlgo instanceof StreamsTopology) {     
                 final var streamsAlgo = (StreamsTopology)repartitionAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(repartition));
@@ -144,6 +145,7 @@ public class MonitorServiceController {
             final String notAlgo = conflictMonitorProps.getNotificationAlgorithm();
             final NotificationAlgorithm notificationAlgo = notificationAlgoFactory.getAlgorithm(notAlgo);
             final NotificationParameters notificationParams = conflictMonitorProps.getNotificationAlgorithmParameters();
+            configTopology.registerConfigListeners(notificationParams);
             if (notificationAlgo instanceof StreamsTopology) {     
                 final var streamsAlgo = (StreamsTopology)notificationAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(notification));
@@ -185,6 +187,7 @@ public class MonitorServiceController {
             final String spatAlgo = conflictMonitorProps.getSpatValidationAlgorithm();
             final SpatValidationAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
             final SpatValidationParameters spatCountParams = conflictMonitorProps.getSpatValidationParameters();
+            configTopology.registerConfigListeners(spatCountParams);
             if (spatCountAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)spatCountAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatBroadcastRate));
@@ -205,6 +208,7 @@ public class MonitorServiceController {
             final String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
             final SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
             final SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
+            configTopology.registerConfigListeners(spatTimeChangeDetailsParams);
             if (spatTimeChangeDetailsAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)spatTimeChangeDetailsAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
@@ -228,6 +232,7 @@ public class MonitorServiceController {
             final String mapSpatAlgo = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
             final MapSpatMessageAssessmentAlgorithm mapSpatAlignmentAlgo = mapSpatAlgoFactory.getAlgorithm(mapSpatAlgo);
             final MapSpatMessageAssessmentParameters mapSpatAlignmentParams = conflictMonitorProps.getMapSpatMessageAssessmentParameters();
+            configTopology.registerConfigListeners(mapSpatAlignmentParams);
             if (mapSpatAlignmentAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)mapSpatAlignmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapSpatAlignment));
@@ -244,6 +249,7 @@ public class MonitorServiceController {
             //BSM Topology sends a message every time a vehicle drives through the intersection.
             final String bsmEvent = "bsmEvent";
             final BsmEventParameters bsmEventParams = conflictMonitorProps.getBsmEventParameters();
+            configTopology.registerConfigListeners(bsmEventParams);
             final String bsmEventAlgorithmName = bsmEventParams.getAlgorithm();
             final BsmEventAlgorithmFactory bsmEventAlgorithmFactory = conflictMonitorProps.getBsmEventAlgorithmFactory();
             final BsmEventAlgorithm bsmEventAlgorithm = bsmEventAlgorithmFactory.getAlgorithm(bsmEventAlgorithmName);
@@ -266,6 +272,7 @@ public class MonitorServiceController {
             // The message ingest topology tracks and stores incoming messages for further processing
             // It is a sub-topology of the IntersectionEvent Topology
             final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
+            configTopology.registerConfigListeners(messageIngestParams);
             final String messageIngestAlgorithmName = messageIngestParams.getAlgorithm();
             final MessageIngestAlgorithmFactory messageIngestAlgorithmFactory = conflictMonitorProps.getMessageIngestAlgorithmFactory();
             final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
@@ -277,25 +284,28 @@ public class MonitorServiceController {
             final String ldotAlgo = conflictMonitorProps.getLaneDirectionOfTravelAlgorithm();
             final LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm = ldotAlgoFactory.getAlgorithm(ldotAlgo);
             final LaneDirectionOfTravelParameters ldotParams = conflictMonitorProps.getLaneDirectionOfTravelParameters();
+            configTopology.registerConfigListeners(ldotParams);
             
             // Setup Connection of Travel Factory
             final ConnectionOfTravelAlgorithmFactory cotAlgoFactory = conflictMonitorProps.getConnectionOfTravelAlgorithmFactory();
             final String cotAlgo = conflictMonitorProps.getConnectionOfTravelAlgorithm();
             final ConnectionOfTravelAlgorithm connectionOfTravelAlgorithm = cotAlgoFactory.getAlgorithm(cotAlgo);
             final ConnectionOfTravelParameters cotParams = conflictMonitorProps.getConnectionOfTravelParameters();
+            configTopology.registerConfigListeners(cotParams);
             
             // Setup Signal State Vehicle Crosses Factory
             final StopLinePassageAlgorithmFactory ssvcAlgoFactory = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithmFactory();
             final String ssvcAlgo = conflictMonitorProps.getSignalStateVehicleCrossesAlgorithm();
             final StopLinePassageAlgorithm signalStateVehicleCrossesAlgorithm = ssvcAlgoFactory.getAlgorithm(ssvcAlgo);
             final StopLinePassageParameters ssvcParams = conflictMonitorProps.getSignalStateVehicleCrossesParameters();
+            configTopology.registerConfigListeners(ssvcParams);
             
             // Setup Signal State Vehicle Stops Factory
             final StopLineStopAlgorithmFactory ssvsAlgoFactory = conflictMonitorProps.getSignalStateVehicleStopsAlgorithmFactory();
             final String ssvsAlgo = conflictMonitorProps.getSignalStateVehicleStopsAlgorithm();
             final StopLineStopAlgorithm signalStateVehicleStopsAlgorithm = ssvsAlgoFactory.getAlgorithm(ssvsAlgo);
             final StopLineStopParameters ssvsParams = conflictMonitorProps.getSignalStateVehicleStopsParameters();
-            
+            configTopology.registerConfigListeners(ssvsParams);
 
             // The IntersectionEventTopology grabs snapshots of spat / map / bsm and processes data when a vehicle passes through
             final String intersectionEvent = "intersectionEvent";
@@ -327,10 +337,11 @@ public class MonitorServiceController {
 
             // Signal State Event Assessment Topology
             final String signalStateEventAssessment = "signalStateEventAssessment";
-            final SignalStateEventAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
+            final StopLinePassageAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
             final String signalStateEventAssessmentAlgorithm = conflictMonitorProps.getSignalStateEventAssessmentAlgorithm();
-            final SignalStateEventAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
-            final SignalStateEventAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
+            final StopLinePassageAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
+            final StopLinePassageAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
+            configTopology.registerConfigListeners(signalStateEventAssessmenAlgoParams);
             if (signalStateEventAssesmentAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)signalStateEventAssesmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(signalStateEventAssessment));
@@ -366,6 +377,7 @@ public class MonitorServiceController {
             final String laneDirectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getLaneDirectionOfTravelAssessmentAlgorithm();
             final LaneDirectionOfTravelAssessmentAlgorithm laneDirectionOfTravelAssesmentAlgo = ldotaAlgoFactory.getAlgorithm(laneDirectionOfTravelAssessmentAlgorithm);
             final LaneDirectionOfTravelAssessmentParameters laneDirectionOfTravelAssessmenAlgoParams = conflictMonitorProps.getLaneDirectionOfTravelAssessmentAlgorithmParameters();
+            configTopology.registerConfigListeners(laneDirectionOfTravelAssessmenAlgoParams);
             if (laneDirectionOfTravelAssesmentAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)laneDirectionOfTravelAssesmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(laneDirectionOfTravelAssessment));
@@ -385,6 +397,7 @@ public class MonitorServiceController {
             final String connectionOfTravelAssessmentAlgorithm = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithm();
             final ConnectionOfTravelAssessmentAlgorithm connectionofTravelAssessmentAlgo = cotaAlgoFactory.getAlgorithm(connectionOfTravelAssessmentAlgorithm);
             final ConnectionOfTravelAssessmentParameters connectionOfTravelAssessmentAlgoParams = conflictMonitorProps.getConnectionOfTravelAssessmentAlgorithmParameters();
+            configTopology.registerConfigListeners(connectionOfTravelAssessmentAlgoParams);
             if (connectionofTravelAssessmentAlgo instanceof StreamsTopology) {
                 final var streamsAlgo = (StreamsTopology)connectionofTravelAssessmentAlgo;
                 streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(connectionOfTravelAssessment));
@@ -395,22 +408,13 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.setParameters(connectionOfTravelAssessmentAlgoParams);
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
-            
-            
-            // Write initial configuration to MongoDB and create source connectors
-            try {
-                configWriter.createCollections();
-                connectSourceCreator.createDefaultConfigConnector();
-                configWriter.initializeDefaultConfigs();
-                connectSourceCreator.createIntersectionConfigConnector();
-                logger.info("Initialzed MongoDB configuration and source connectors.");
-            } catch (Exception ex) {
-                logger.error("Failed writing to MongoDB", ex);
-            }
-            
+
+
+
             // Restore properties
+            configInitializer.initializeDefaultConfigs();
             configTopology.initializePropertiesAsync();
-            logger.info("Started initializing properties from MongoDB");
+            logger.info("Started initializing configuration properties");
 
             
             logger.info("All services started!");

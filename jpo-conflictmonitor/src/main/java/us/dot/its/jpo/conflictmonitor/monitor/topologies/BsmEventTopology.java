@@ -14,12 +14,19 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEventIntersectionKey;
+
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
+import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventConstants.DEFAULT_BSM_EVENT_ALGORITHM;
 
@@ -27,6 +34,12 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEve
 public class BsmEventTopology
         extends BaseStreamsTopology<BsmEventParameters>
         implements BsmEventStreamsAlgorithm {
+
+
+    public final static String BSM_SOURCE = "BSM_Event_Source";
+    public final static String BSM_PROCESSOR = "BSM_Event_Processor";
+    public final static String BSM_SINK = "BSM_Event_Sink";
+    public final static String PARTITIONED_BSM_SINK = "Partitioned_BSM_Sink";
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventTopology.class);
     
@@ -36,16 +49,16 @@ public class BsmEventTopology
 
         Topology bsmEventBuilder = new Topology();
 
-        final String BSM_SOURCE = "BSM Event Source";
-        final String BSM_PROCESSOR = "BSM Event Processor";
-        final String BSM_SINK = "BSM Event Sink";
 
 
 
 
 
-        bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST, BSM_SOURCE, new BsmTimestampExtractor(),
-                JsonSerdes.BsmIntersectionKey().deserializer(), JsonSerdes.OdeBsm().deserializer(),
+        bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST,
+                BSM_SOURCE,
+                new BsmTimestampExtractor(),
+                new JsonDeserializer<>(BsmRsuIdKey.class),
+                new JsonDeserializer<>(OdeBsmData.class),
                 parameters.getInputTopic());
 
 
@@ -62,18 +75,28 @@ public class BsmEventTopology
                     },
                 BSM_SOURCE);
 
+        // Output BSMs repartitioned by intersection
+        bsmEventBuilder.addSink(
+                PARTITIONED_BSM_SINK,
+                parameters.getBsmIntersectionOutputTopic(),
+                new JsonSerializer<BsmIntersectionIdKey>(),
+                new JsonSerializer<OdeBsmData>(),
+                new IntersectionIdPartitioner<BsmIntersectionIdKey, OdeBsmData>(),
+                BSM_PROCESSOR);
+
+        // Output BSM Events
         bsmEventBuilder.addSink(
                 BSM_SINK,
                 parameters.getOutputTopic(),
-                JsonSerdes.BsmEventIntersectionKey().serializer(),
-                JsonSerdes.BsmEvent().serializer(),
-                new RsuIdPartitioner<BsmEventIntersectionKey, BsmEvent>(),
+                new JsonSerializer<BsmIntersectionIdKey>(),
+                new JsonSerializer<BsmEvent>(),
+                new IntersectionIdPartitioner<BsmIntersectionIdKey, BsmEvent>(),
                 BSM_PROCESSOR);
 
-        StoreBuilder<TimestampedKeyValueStore<BsmEventIntersectionKey, BsmEvent>> storeBuilder
+        StoreBuilder<TimestampedKeyValueStore<BsmIntersectionIdKey, BsmEvent>> storeBuilder
                 = Stores.timestampedKeyValueStoreBuilder(
                     Stores.persistentTimestampedKeyValueStore(parameters.getStateStoreName()),
-                    JsonSerdes.BsmEventIntersectionKey(),
+                    JsonSerdes.BsmIntersectionIdKey(),
                     JsonSerdes.BsmEvent()
                 );
 

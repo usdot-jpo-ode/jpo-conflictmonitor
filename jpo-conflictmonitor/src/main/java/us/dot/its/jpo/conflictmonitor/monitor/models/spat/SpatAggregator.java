@@ -48,13 +48,17 @@ public class SpatAggregator {
         Collections.sort(this.spats, spatComparator);
     }
 
+    /**
+     * @param timestamp
+     * @return The SPAT nearest the timestamp, or null if there are no SPATs
+     */
     public ProcessedSpat getSpatAtTime(long timestamp){
         ProcessedSpat lookupSpat = new ProcessedSpat();
         lookupSpat.setUtcTimeStamp(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
         int index = -1 * (Collections.binarySearch(this.spats, lookupSpat, spatComparator)+1);
 
         if(index <= 0){
-            return this.spats.get(0);
+            return null;
         }else if(index >= this.spats.size()){
             return this.spats.get(this.spats.size()-1);
         }else{

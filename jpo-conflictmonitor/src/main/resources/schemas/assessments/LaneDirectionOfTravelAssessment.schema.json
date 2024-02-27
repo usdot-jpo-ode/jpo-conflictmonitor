@@ -1,0 +1,124 @@
+{
+    "type": "object",
+    "properties": {
+        "timestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "laneDirectionOfTravelAssessmentGroup": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "laneID": {
+                        "type": [
+                            "integer"
+                        ]
+                    },
+                    "segmentID": {
+                        "type": [
+                            "integer"
+                        ]
+                    },
+                    "inToleranceEvents": {
+                        "type": [
+                            "integer"
+                        ]
+                    },
+                    "outOfToleranceEvents": {
+                        "type": [
+                            "integer"
+                        ]
+                    },
+                    "medianInToleranceHeading": {
+                        "type": [
+                            "number"
+                        ]
+                    },
+                    "medianInToleranceCenterlineDistance": {
+                        "type": [
+                            "number"
+                        ]
+                    },
+                    "medianHeading": {
+                        "type": [
+                            "number"
+                        ]
+                    },
+                    "medianCenterlineDistance": {
+                        "type": [
+                            "number"
+                        ]
+                    },
+                    "expectedHeading": {
+                        "type": [
+                            "number"
+                        ]
+                    },
+                    "tolerance": {
+                        "type": [
+                            "number"
+                        ]
+                    },
+                    "distanceFromCenterlineTolerance": {
+                        "type": [
+                            "number"
+                        ]
+                    }
+                },
+                "required": [
+                    "laneID",
+                    "segmentID",
+                    "inToleranceEvents",
+                    "outOfToleranceEvents",
+                    "medianInToleranceHeading",
+                    "medianInToleranceCenterlineDistance",
+                    "medianHeading",
+                    "medianCenterlineDistance",
+                    "expectedHeading",
+                    "tolerance",
+                    "distanceFromCenterlineTolerance"
+                ]
+            }
+        },
+        "assessmentGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "assessmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        }
+    },
+    "required": [
+        "timestamp",
+        "laneDirectionOfTravelAssessmentGroup",
+        "assessmentGeneratedAt",
+        "assessmentType",
+        "intersectionID",
+        "roadRegulatorID",
+        "source"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/assessments/LaneDirectionOfTravelAsessment.schema.json"
+}

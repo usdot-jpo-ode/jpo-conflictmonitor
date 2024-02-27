@@ -17,6 +17,11 @@ services:
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
       spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+    healthcheck:
+      test: ["CMD", "java", "-version"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
     logging:
       options:
         max-size: "10m"
@@ -37,6 +42,8 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data_container:/data/db
+      - ./docker/mongo/a_init_replicas.js:/docker-entrypoint-initdb.d/a_init_replicas.js
+      - ./docker/mongo/b_create_indexes.js:/docker-entrypoint-initdb.d/b_create_indexes.js
     healthcheck:
       test: | 
         test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
@@ -111,5 +118,6 @@ services:
       resources:
         limits:
           memory: 3G
+
 volumes:
   mongodb_data_container:

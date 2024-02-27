@@ -1,0 +1,65 @@
+{
+    "type": "object",
+    "properties": {
+        "timestamp": {
+            "type": [
+                "integer"
+            ]
+        },
+        "ingressLaneID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "egressLaneID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "connectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventGeneratedAt": {
+            "type": [
+                "integer"
+            ]
+        },
+        "eventType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "intersectionID": {
+            "type": [
+                "integer"
+            ]
+        },
+        "roadRegulatorID": {
+            "type": [
+                "integer"
+            ]
+        }
+    },
+    "required": [
+        "timestamp",
+        "ingressLaneID",
+        "egressLaneID",
+        "source",
+        "connectionID",
+        "eventGeneratedAt",
+        "eventType",
+        "intersectionID",
+        "roadRegulatorID"
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/usdot-jpo-ode/jpo-conflictmonitor/develop/jpo-conflictmonitor/src/main/resources/schemas/events/ConnectionOfTravelEvent.schema.json"
+}

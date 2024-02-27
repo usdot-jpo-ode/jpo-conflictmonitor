@@ -17,7 +17,7 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 @Setter
 @EqualsAndHashCode
 @Generated
-@JsonIgnoreProperties(value = { "_id", "_class" })
+@JsonIgnoreProperties(value = { "_id", "_class" }, ignoreUnknown = true)
 public abstract class Config<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
