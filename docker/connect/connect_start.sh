@@ -8,6 +8,9 @@ echo "------------------------------------------"
 
 
 
+
+
+
 # Record BSM JSON Data
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
@@ -29,8 +32,38 @@ declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A ProcessedSpat=([name]="topic.ProcessedSpat" [collection]="ProcessedSpat"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A OdeSpatRxJson=([name]="topic.OdeSpatRxJson" [collection]="OdeSpatRxJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
-    
+# Record Driver Alert Data
+declare -A OdeDriverAlertJson=([name]="topic.OdeDriverAlertJson" [collection]="OdeDriverAlertJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+
+# Record SRM Data
+declare -A OdeSrmJson=([name]="topic.OdeSrmJson" [collection]="OdeSrmJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A OdeRawEncodedSRMJson=([name]="topic.OdeRawEncodedSRMJson" [collection]="OdeRawEncodedSRMJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+
+# Record SSM Data
+declare -A OdeSsmJson=([name]="topic.OdeSsmJson" [collection]="OdeSsmJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A OdeRawEncodedSSMJson=([name]="topic.OdeRawEncodedSSMJson" [collection]="OdeRawEncodedSSMJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+
+
+# Record TIM JSON Data
+declare -A OdeTimJson=([name]="topic.OdeTimJson" [collection]="OdeTimJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A OdeTimBroadcastJson=([name]="topic.OdeTimBroadcastJson" [collection]="OdeTimBroadcastJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A OdeTIMCertExpirationTimeJson=([name]="topic.OdeTIMCertExpirationTimeJson" [collection]="OdeTIMCertExpirationTimeJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A OdeRawEncodedTIMJson=([name]="topic.OdeRawEncodedTIMJson" [collection]="OdeRawEncodedTIMJson"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+
+############################################################################################### 
+
 # Record Events
 declare -A CmStopLinePassageEvent=([name]="topic.CmStopLinePassageEvent" [collection]="CmStopLinePassageEvent"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
@@ -117,7 +150,7 @@ function createSink() {
         "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
         "tasks.max":3,
         "topics":"'$name'",
-        "connection.uri":"mongodb://'$DB_HOST_IP':27017",
+        "connection.uri":"mongodb://'$CM_MONGO_CONNECTOR_USERNAME':'$CM_MONGO_CONNECTOR_PASSWORD'@'$DB_HOST_IP':27017/database?authSource=ConflictMonitor",
         "database":"ConflictMonitor",
         "collection":"'$collection'",
         "key.converter":"org.apache.kafka.connect.storage.StringConverter",
@@ -127,15 +160,15 @@ function createSink() {
         "errors.tolerance": "all",
         "mongo.errors.tolerance": "all",
         "errors.deadletterqueue.topic.name": "",
-	"errors.log.enable": false,
+	    "errors.log.enable": false,
         "errors.log.include.messages": false,
-	"errors.deadletterqueue.topic.replication.factor": 0' 
+	    "errors.deadletterqueue.topic.replication.factor": 0' 
 
-	#"errors.deadletterqueue.context.headers.enable": true,
+	    #"errors.deadletterqueue.context.headers.enable": true,
         #"errors.log.enable": false,
         #"errors.log.include.messages": false,
         #"errors.deadletterqueue.topic.replication.factor": 1'    
-	#"errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
+	    #"errors.deadletterqueue.topic.name": "dlq.'$collection'.sink",
 
 
     if [ "$convert_timestamp" == true ]
@@ -184,7 +217,20 @@ createSink OdeRawEncodedMAPJson
 createSink OdeRawEncodedSPATJson
 createSink OdeSpatJson
 createSink ProcessedSpat
+createSink OdeSpatRxJson
 
+createSink OdeDriverAlertJson
+
+createSink OdeSrmJson
+createSink OdeRawEncodedSRMJson
+
+createSink OdeSsmJson
+createSink OdeRawEncodedSSMJson
+
+createSink OdeTimJson
+createSink OdeTimBroadcastJson
+createSink OdeTIMCertExpirationTimeJson
+createSink OdeRawEncodedTIMJson
 
 createSink CmStopLinePassageEvent
 createSink CmStopLineStopEvent
