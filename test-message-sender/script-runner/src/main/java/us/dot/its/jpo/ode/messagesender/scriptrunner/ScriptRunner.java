@@ -104,7 +104,7 @@ public class ScriptRunner {
     public static final String MINUTE_OF_YEAR = "\"@MINUTE_OF_YEAR@\"";
     public static final String MILLI_OF_MINUTE = "\"@MILLI_OF_MINUTE@\"";
     public static final String EPOCH_SECONDS = "\"@EPOCH_SECONDS@\"";
-    public static final Pattern OFFSET_SECONDS = Pattern.compile("\"@OFFSET_SECONDS_(?<offset>-?[0-9.]+)@\"");
+    public static final Pattern OFFSET_SECONDS = Pattern.compile("@OFFSET_SECONDS_(?<offset>-?[0-9.]+)@");
     public static final String TEMP_ID = "@TEMP_ID@";
     
 
@@ -124,15 +124,16 @@ public class ScriptRunner {
        
         double epochSecond = sendInstant.toEpochMilli() / 1000.0d;
 
-        // Fill in offset decimal seconds in timing
+        // Fill in offset seconds in timing
         var matcher = OFFSET_SECONDS.matcher(message);
         String replaced = matcher.replaceAll((matchResult) -> {
             String offsetStr = matcher.group("offset");
-            double offset = Double.parseDouble(offsetStr);
-
-            // Offset seconds and round to 3 decimals
-            double seconds = epochSecond + offset;
-            return String.format("%.3f", seconds);
+            double offsetSeconds = Double.parseDouble(offsetStr);
+            double timingSeconds = epochSecond + offsetSeconds;
+            long timingMillis = Math.round(1000 * timingSeconds);
+            Instant timingInstant = Instant.ofEpochMilli(timingMillis);
+            ZonedDateTime zdtTiming = timingInstant.atZone(ZoneOffset.UTC);
+            return zdtTiming.format(DateTimeFormatter.ISO_DATE_TIME);
         });
 
 

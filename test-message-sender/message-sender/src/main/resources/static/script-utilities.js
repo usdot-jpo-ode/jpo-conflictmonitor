@@ -98,13 +98,16 @@ class ScriptUtilities {
         } else if (processedSpat.odeReceivedAt != null) {
             timestampMillis = Date.parse(processedSpat.odeReceivedAt);
         }
+        //console.log("timestampMillis: " + timestampMillis);
         scriptSpat.odeReceivedAt = this.ISO_DATE_TIME;
         scriptSpat.utcTimeStamp = this.ISO_DATE_TIME;
         for (const state of scriptSpat.states) {
             for (const event of state.stateTimeSpeed) {
                 if (event.timing != null && event.timing.minEndTime != null) {
                     const minEndTimeMillis = Date.parse(event.timing.minEndTime);
+                    //console.log("minEndTimeMillis: " + minEndTimeMillis);
                     const minEndTimeOffsetSeconds = (minEndTimeMillis - timestampMillis) / 1000;
+                    //console.log("minEndTimeOffsetSeconds: " + minEndTimeOffsetSeconds);
                     event.timing.minEndTime = this.OFFSET_SECONDS.replace('#', minEndTimeOffsetSeconds.toString());
                 }
                 if (event.timing != null && event.timing.maxEndTime != null) {
