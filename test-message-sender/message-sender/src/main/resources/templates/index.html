@@ -53,11 +53,11 @@
                 <div id="uploads">
                     <hr />
                     <h3>Uploads</h3>
-                    <label for="ulBsms">BSMs</label><input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt" onchange="uploadBsms(this);" />
+                    <label for="ulBsms">BSMs</label><input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt,.json" onchange="uploadBsms(this);" />
                     <br/>
-                    <label for="ulSpats">SPATs</label><input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv" onchange="uploadSpats(this);" />
+                    <label for="ulSpats">SPATs</label><input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv,.json" onchange="uploadSpats(this);" />
                     <br/>
-                    <label for="btnProcessedSpatUpload">ProcessedSpats</label><input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv"
+                    <label for="btnProcessedSpatUpload">ProcessedSpats</label><input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv,.json"
                         onchange="uploadProcessedSpats(this);"/>
                     <br/>
 
@@ -1024,7 +1024,14 @@
 
     function extractProcessedSpatData(json) {
         const dtReceivedAtMillis = Date.parse(json.odeReceivedAt);
-        const millis = 1000 * json.utcTimeStamp;
+        let utcTimestampMillis = null;
+        if (json.utcTimestamp != null) {
+            const utcTimestamp = json.utcTimestamp;
+            utcTimestampMillis = Date.parse(utcTimestamp);
+        } else {
+            utcTimestampMillis = dtReceivedAtMillis;
+        }
+
         const msgCnt = json.revision;
         const states = json.states;
         const events = [];
@@ -1037,8 +1044,13 @@
             let maxEndTime;
             for (const event of eventList) {
                 eventState = event.eventState;
-                minEndTime = event.timing?.minEndTime;
-                maxEndTime = event.timing?.maxEndTime;
+                const timing = event["timing"];
+                if (timing != null) {
+                    if (timing.minEndTime != null) {
+                        minEndTime = Date.parse(timing.minEndTime);
+                    }
+                    maxEndTime = Date.parse(timing.maxEndTime);
+                }
             }
             events.push({
                 signalGroup: signalGroup,
@@ -1049,12 +1061,13 @@
         }
         const spat = {
             odeReceivedAt: dtReceivedAtMillis,
-            timestamp: millis,
+            timestamp: utcTimestampMillis,
             msgCnt: msgCnt,
             events: events,
             spatId: serializeSpatId(uniqueSpatId(events)),
             json: json
         }
+        //console.log(spat);
         return spat;
     }
 
@@ -1217,23 +1230,31 @@
     }
 
     function buildProcessedSpatFromTemplate(spatTemplate) {
+        //console.log("buildProcessedSpatFromTemplate:");
+        //console.log(spatTemplate);
         let spatCopy = JSON.parse(JSON.stringify(spatTemplate));
         const nowMillis = Date.now();
-        const utcTimeStampMillis = 1000 * spatTemplate.utcTimeStamp;
+        const utcTimeStampMillis = Date.parse(spatTemplate.utcTimeStamp);
         const offsetMillis = nowMillis - utcTimeStampMillis;
-        const offsetSeconds = offsetMillis / 1000.0;
+        //const offsetSeconds = offsetMillis / 1000.0;
         spatCopy.odeReceivedAt = new Date(nowMillis).toISOString();
-        spatCopy.utcTimeStamp = nowMillis / 1000.0;
+        spatCopy.utcTimeStamp = spatCopy.odeReceivedAt;
         for (const state of spatCopy.states) {
             for (const event of state.stateTimeSpeed) {
-                if (event.timing != null && event.timing.minEndTime != null) {
-                    event.timing.minEndTime += offsetSeconds;
+                if (event["timing"] != null && event["timing"].minEndTime != null) {
+                    const minEndTimeMillis = Date.parse(event["timing"].minEndTime);
+                    //console.log("minEndTimeMillis: " + minEndTimeMillis);
+                    //console.log("offsetMillis: " + offsetMillis);
+                    event["timing"].minEndTime = new Date(minEndTimeMillis + offsetMillis).toISOString();
                 }
-                if (event.timing != null && event.timing.maxEndTime != null) {
-                    event.timing.maxEndTime += offsetSeconds;
+                if (event["timing"] != null && event["timing"].maxEndTime != null) {
+                    const maxEndTimeMillis = Date.parse(event["timing"].maxEndTime);
+                    event["timing"].maxEndTime = new Date(maxEndTimeMillis + offsetMillis).toISOString();
                 }
             }
         }
+
+        //console.log(spatCopy);
         return spatCopy;
     }
 
