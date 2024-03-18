@@ -1,4 +1,6 @@
 jpo-conflictmonitor/target/**
+jpo-conflictmonitor/bin/**
 .env
 *.log
 .idea/
+
