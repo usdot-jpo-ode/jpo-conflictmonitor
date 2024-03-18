@@ -237,6 +237,7 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
     private void newEvent(OdeBsmData value, BsmRsuIdKey key, long timestamp, MapBoundingBox map) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, true);
         event.setWktMapBoundingBox(map.getBoundingPolygonWkt());
+        event.setIntersectionID(map.getIntersectionId());
         var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), map.getIntersectionId(), map.getRegion());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
