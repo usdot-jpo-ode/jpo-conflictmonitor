@@ -16,7 +16,6 @@ services:
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
-      spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
       kafka.topics.numPartitions: 3
     logging:
       options:
@@ -39,7 +38,6 @@ services:
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
-      spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
       kafka.topics.numPartitions: 3
     logging:
       options:
@@ -62,7 +60,6 @@ services:
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
-      spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
       kafka.topics.numPartitions: 3
     logging:
       options:
@@ -76,17 +73,43 @@ services:
     environment:
       - MONGO_REPLICA_SET_NAME=rs0
       - DB_HOST_IP=${DB_HOST_IP}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - CM_MONGO_CONNECTOR_USERNAME=${CM_MONGO_CONNECTOR_USERNAME}
+      - CM_MONGO_CONNECTOR_PASSWORD=${CM_MONGO_CONNECTOR_PASSWORD}
+      - CM_MONGO_API_USERNAME=${CM_MONGO_API_USERNAME}
+      - CM_MONGO_API_PASSWORD=${CM_MONGO_API_PASSWORD}
+      - CM_MONGO_USER_USERNAME=${CM_MONGO_USER_USERNAME}
+      - CM_MONGO_USER_PASSWORD=${CM_MONGO_USER_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data_container:/MongoDB_data/db
+      - mongodb_data_container:/data/db
+      - ./docker/mongo/keyfile.txt:/data/keyfile.txt
+      - ./docker/mongo/a_init_replicas.js:/docker-entrypoint-initdb.d/a_init_replicas.js
+      - ./docker/mongo/b_create_indexes.js:/docker-entrypoint-initdb.d/b_create_indexes.js
     healthcheck:
-      test: | 
-        test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
+      test: |
+        test $$(mongosh --username ${MONGO_INITDB_ROOT_USERNAME} --password ${MONGO_INITDB_ROOT_PASSWORD}  --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 10s
       start_period: 30s
-    command: ["--replSet", "rs0", "--bind_ip_all"]
+    entrypoint:
+      - bash
+      - -c
+      - |
+        chmod 400 /data/keyfile.txt
+        chown 999:999 /data/keyfile.txt
+        exec docker-entrypoint.sh $$@
 
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/data/keyfile.txt"]
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 3G
 
   connect:
     image: cp-kafka-connect:6.1.9
@@ -107,21 +130,30 @@ services:
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: compose-connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_CONFIG_STORAGE_TOPIC: CmConnectConfigs
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_STORAGE_CLEANUP_POLICY: compact
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_TOPIC: CmConnectOffsets
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_OFFSET_STORAGE_CLEANUP_POLICY: compact
+      CONNECT_STATUS_STORAGE_TOPIC: CmConnectStatus
+      CONNECT_STATUS_STORAGE_CLEANUP_POLICY: compact
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
-      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,com.mongodb.kafka=DEBUG"
+      CONNECT_LOG4J_ROOT_LOGLEVEL: "ERROR"
+      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=ERROR,org.reflections=ERROR,com.mongodb.kafka=ERROR"
       CONNECT_PLUGIN_PATH: /usr/share/confluent-hub-components
       CONNECT_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      CM_MONGO_CONNECTOR_USERNAME: ${CM_MONGO_CONNECTOR_USERNAME}
+      CM_MONGO_CONNECTOR_PASSWORD: ${CM_MONGO_CONNECTOR_PASSWORD}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
     command:
       - bash
       - -c
@@ -134,8 +166,12 @@ services:
         done
         sleep 10
         echo -e "\n--\n+> Creating Kafka Connect MongoDB sink"
-        bash /scripts/connect_start.sh "mongodb://${DOCKER_HOST_IP}:27017/?replicaSet=rs0"
+        bash /scripts/connect_start.sh "mongodb://${CM_MONGO_CONNECTOR_USERNAME}:${CM_MONGO_CONNECTOR_USERNAME}@${DOCKER_HOST_IP}:27017/?authMechanism=DEFAULT&authSource=ConflictMonitor&replicaSet=rs0"
         sleep infinity
+    deploy:
+      resources:
+        limits:
+          memory: 3G
 
 volumes:
   mongodb_data_container:

@@ -283,6 +283,10 @@ Install the IDE of your choice:
 
 * The standalone deployment has the services provided by `docker-compose-standalone.yml` and is intended to only deploy the conflict monitor service with auto-restarting conditions. This deployment requires an existing MongoDB database as well as configurations for kafka connectors for an existing kafka-connector service.
 
+### Release Deployment
+
+* The release deployment has the services provided by `release-compose.yml` including a MongoDB container, Monitor Container and Connector container. This deployment references pre-built dockerfiles available on dockerhub, and can provide a streamlined deployment process using the latest formal release.
+
 [Back to top](#toc)
 
 <!--
