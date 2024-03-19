@@ -20,7 +20,7 @@ appHealthNotificationTopic: topic.CmAppHealthNotifications
 
 # BSM
 kafkaTopicOdeBsmJson: topic.OdeBsmJson
-kafkaTopicCmBsmEvent: topic.CMBsmEvents
+kafkaTopicCmBsmEvent: topic.CmBsmEvents
 kafkaTopicBsmRepartition: topic.CmBsmJsonRepartition
 
 
@@ -367,7 +367,7 @@ intersection.reference.alignment.notification:
 bsm.event:
   algorithm: defaultBsmEventAlgorithm
   inputTopic: topic.CmBsmJsonRepartition
-  outputTopic: topic.CMBsmEvents
+  outputTopic: topic.CmBsmEvents
   bsmIntersectionOutputTopic: topic.CmBsmIntersection
   stateStoreName: bsm-event-state-store
   debug: false

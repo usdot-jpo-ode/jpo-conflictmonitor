@@ -91,7 +91,7 @@ declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 
 # Record BSM Events
-declare -A CmBsmEvents=([name]="topic.CMBsmEvents" [collection]="CMBsmEvents"
+declare -A CmBsmEvents=([name]="topic.CmBsmEvents" [collection]="CmBsmEvents"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 
@@ -246,7 +246,7 @@ createSink CmMapBroadcastRateEvents
 createSink CmMapMinimumDataEvents
 createSink CmSpatBroadcastRateEvents
 
-createSink CMBsmEvents
+createSink CmBsmEvents
 
 createSink CmLaneDirectionOfTravelAssessment
 createSink CmConnectionOfTravelAssessment
