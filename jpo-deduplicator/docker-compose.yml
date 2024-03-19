@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  deduplicator:
+    build: .
+    image: jpo-deduplicator:latest
+    restart: always
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
+      KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
+      spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
+    healthcheck:
+      test: ["CMD", "java", "-version"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 3G

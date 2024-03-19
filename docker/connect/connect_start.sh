@@ -18,9 +18,9 @@ declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 # Record Map Data
-declare -A OdeMapJson=([name]="topic.OdeMapJson" [collection]="OdeMapJson"
+declare -A OdeMapJson=([name]="topic.DeduplicatedOdeMapJson" [collection]="OdeMapJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
-declare -A ProcessedMap=([name]="topic.ProcessedMap" [collection]="ProcessedMap"
+declare -A ProcessedMap=([name]="topic.DeduplicatedProcessedMap" [collection]="ProcessedMap"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeRawEncodedMAPJson=([name]="topic.OdeRawEncodedMAPJson" [collection]="OdeRawEncodedMAPJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
@@ -53,7 +53,7 @@ declare -A OdeRawEncodedSSMJson=([name]="topic.OdeRawEncodedSSMJson" [collection
 
 
 # Record TIM JSON Data
-declare -A OdeTimJson=([name]="topic.OdeTimJson" [collection]="OdeTimJson"
+declare -A OdeTimJson=([name]="topic.DeduplicatedOdeTimJson" [collection]="OdeTimJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeTimBroadcastJson=([name]="topic.OdeTimBroadcastJson" [collection]="OdeTimBroadcastJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
@@ -123,7 +123,7 @@ declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotific
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
-declare -A CmStoLinePassageNotification=([name]="topic.CmStopLinePassageNotification" [collection]="CmStopLinePassageNotification"
+declare -A CmStopLinePassageNotification=([name]="topic.CmStopLinePassageNotification" [collection]="CmStopLinePassageNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 
 function createSink() {
@@ -261,6 +261,7 @@ createSink CmSignalStateConflictNotification
 createSink CmSignalGroupAlignmentNotification
 createSink CmNotification
 createSink CmStopLineStopNotification
+createSink CmStopLinePassageNotification
 
 
 echo "----------------------------------"

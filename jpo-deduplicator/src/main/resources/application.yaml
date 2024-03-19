@@ -1,0 +1,41 @@
+#General Properties
+#==================
+groupId: ^project.groupId^
+artifactId: ^project.artifactId^
+version: ^project.version^
+server.port: 8085
+
+# Kafka properties
+spring.kafka.bootstrap-servers: 172.250.250.181:9092
+logging.level.org.apache.kafka: INFO
+logging.level: INFO
+log4j.logger.kafka: OFF
+log4j.logger.org.apache.kafka: OFF
+
+
+
+# Custom kafka properties
+kafka.topics:
+  autoCreateTopics: true  # Override auto-create in test properties
+  numPartitions: 1
+  numReplicas: 1
+  createTopics:
+    - name: topic.ProcessedMap
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.DeduplicatedProcessedMap
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.OdeMapJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.DeduplicatedOdeMapJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.OdeTimJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.DeduplicatedOdeTimJson
+      cleanupPolicy: delete
+      retentionMs: 300000
+    
