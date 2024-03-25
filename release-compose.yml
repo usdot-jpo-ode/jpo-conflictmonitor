@@ -15,7 +15,6 @@ services:
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
       DB_HOST_IP: ${DB_HOST_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
-      spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
     healthcheck:
       test: ["CMD", "java", "-version"]
       interval: 10s
