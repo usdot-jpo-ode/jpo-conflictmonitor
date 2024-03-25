@@ -17,9 +17,9 @@ services:
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
     healthcheck:
       test: ["CMD", "java", "-version"]
-      interval: 10s
-      timeout: 10s
-      retries: 20
+      interval: 5s
+      timeout: 3s
+      retries: 12
     logging:
       options:
         max-size: "10m"
@@ -116,6 +116,11 @@ services:
       resources:
         limits:
           memory: 3G
+    healthcheck:
+      test: [ "CMD", "java", "-version" ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
 volumes:
   mongodb_data_container:
