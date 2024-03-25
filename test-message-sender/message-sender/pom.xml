@@ -11,7 +11,7 @@
 	<name>message-sender</name>
 	<description>Test ODE Message Sender</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>21</java.version>
 		<start-class>us.dot.its.jpo.ode.messagesender.TestMessageSenderApplication</start-class>
 	</properties>
 	<dependencies>
@@ -30,13 +30,6 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
-
-<!--		<dependency>-->
-<!--			<groupId>usdot.jpo.ode</groupId>-->
-<!--			<artifactId>script-runner</artifactId>-->
-<!--			<version>1.0-SNAPSHOT</version>-->
-<!--		</dependency>-->
-		
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -58,12 +51,34 @@
 			<artifactId>jpo-geojsonconverter</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
 			<classifier>jpo-geojsonconverter</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.ant</groupId>
+					<artifactId>ant</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.kafka</groupId>
+					<artifactId>kafka_2.11</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.testng</groupId>
+					<artifactId>testng</artifactId>
+				</exclusion>
+			</exclusions>
 		  </dependency>
 		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.12.0</version>
+			<version>3.14.0</version>
 		</dependency>
 		
 		

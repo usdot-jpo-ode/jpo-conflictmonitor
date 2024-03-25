@@ -1,9 +1,6 @@
 package us.dot.its.jpo.ode.messagesender;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.Scanner;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +10,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.web.bind.annotation.*;
-
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-//import us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptRunner;
-//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLog;
-//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogRunner;
-//import us.dot.its.jpo.ode.messagesender.scriptrunner.hex.HexLogItem;
-import us.dot.its.jpo.ode.model.OdeMapData;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import us.dot.its.jpo.geojsonconverter.converter.map.MapProcessedJsonConverter;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.DeserializedRawMap;
 import us.dot.its.jpo.geojsonconverter.validator.JsonValidatorResult;
+import us.dot.its.jpo.ode.model.OdeMapData;
+
+import java.util.Map;
 
 @RestController
 public class TestController {
@@ -72,10 +67,10 @@ public class TestController {
                 String key = headers.get(X_KAFKA_KEY);
                 logger.info("Found Kafka key in header: {}", key);
                 var result = template.send(topic, key, message);
-                sendResult = result.completable().join();
+                sendResult = result.join();
             } else {
                 var result = template.send(topic, message);
-                sendResult = result.completable().join();
+                sendResult = result.join();
             }
             String strResult = sendResult.toString();
             logger.info("Send Result: {}", sendResult);

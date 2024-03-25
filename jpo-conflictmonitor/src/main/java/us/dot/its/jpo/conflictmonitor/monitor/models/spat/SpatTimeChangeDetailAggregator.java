@@ -63,8 +63,13 @@ public class SpatTimeChangeDetailAggregator {
         }
         this.spatTimeChangeDetails.add(index, spatTimeChangeDetail);
 
-
         if(this.spatTimeChangeDetails.size() >= messageBufferSize){
+
+            // This logic allows for the buffer to scale down and delete more records if needed
+            while(this.spatTimeChangeDetails.size() >= messageBufferSize+1){
+                this.spatTimeChangeDetails.remove(0);
+            }
+
             SpatTimeChangeDetailPair outputPair = new SpatTimeChangeDetailPair(
                 this.spatTimeChangeDetails.get(0),
                 this.spatTimeChangeDetails.get(1)
@@ -84,10 +89,4 @@ public class SpatTimeChangeDetailAggregator {
         }
 
     }
-    
-
-
-
-
-
 }

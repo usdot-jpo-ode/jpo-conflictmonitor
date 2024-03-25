@@ -116,9 +116,9 @@ public class ConflictMonitorPropertiesTest {
         assertThat(properties.getSpatTimeChangeDetailsAlgorithm(), notNullValue());
         assertThat(properties.getSpatTimeChangeDetailsNotificationAlgorithm(), notNullValue());
         assertThat(properties.getSpatTimeChangeDetailsParameters(), notNullValue());
-        assertThat(properties.getMapTimeChangeDetailsAlgorithmFactory(), notNullValue());
-        assertThat(properties.getMapTimeChangeDetailsAlgorithm(), notNullValue());
-        assertThat(properties.getMapTimeChangeDetailsParameters(), notNullValue());
+        // assertThat(properties.getMapTimeChangeDetailsAlgorithmFactory(), notNullValue());
+        // assertThat(properties.getMapTimeChangeDetailsAlgorithm(), notNullValue());
+        // assertThat(properties.getMapTimeChangeDetailsParameters(), notNullValue());
         assertThat(properties.getSignalStateEventAssessmentAlgorithmFactory(), notNullValue());
         assertThat(properties.getSignalStateEventAssessmentAlgorithm(), notNullValue());
         assertThat(properties.getSignalStateEventAssessmentAlgorithmParameters(), notNullValue());

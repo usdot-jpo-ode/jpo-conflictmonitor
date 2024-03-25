@@ -62,6 +62,7 @@ public class SpatSequenceProcessor extends ContextualProcessor<String, Processed
         }
         String key = inputSpat.getOriginIp()+"_"+inputSpat.getRegion()+"_"+inputSpat.getIntersectionId();
         SpatTimeChangeDetailAggregator agg = stateStore.get(key);
+        agg.setMessageBufferSize(this.parameters.getJitterBufferSize());
         
         if (agg != null) {
             SpatTimeChangeDetailPair oldestPair = agg.add(SpatTimeChangeDetail.fromProcessedSpat(inputSpat));
