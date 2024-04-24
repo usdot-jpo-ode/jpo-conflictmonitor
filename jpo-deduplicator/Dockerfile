@@ -39,7 +39,7 @@ WORKDIR /home/jpo-deduplicator
 RUN mvn clean package -DskipTests
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-FROM eclipse-temurin:21-jre-alpine
+FROM amazoncorretto:21
 
 WORKDIR /home
 
