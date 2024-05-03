@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.MapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
 
 @Controller
@@ -45,21 +46,28 @@ public class DeduplicatorServiceController {
             ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
                 "topic.ProcessedMap",
                 "topic.DeduplicatedProcessedMap",
-                props.createStreamProperties("ProcessedMapdeduplicator")
+                props.createStreamProperties("ProcessedMapDeduplicator")
             );
             processedMapDeduplicatorTopology.start();
+
+            ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
+                "topic.ProcessedMapWKT",
+                "topic.DeduplicatedProcessedMapWKT",
+                props.createStreamProperties("ProcessedMapWKTdeduplicator")
+            );
+            processedMapWktDeduplicatorTopology.start();
 
             MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
                 "topic.OdeMapJson",
                 "topic.DeduplicatedOdeMapJson",
-                props.createStreamProperties("Mapdeduplicator")
+                props.createStreamProperties("MapDeduplicator")
             );
             mapDeduplicatorTopology.start();
 
             TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
                 "topic.OdeTimJson",
                 "topic.DeduplicatedOdeTimJson",
-                props.createStreamProperties("Timdeduplicator")
+                props.createStreamProperties("TimDeduplicator")
             );
             timDeduplicatorTopology.start();
 
