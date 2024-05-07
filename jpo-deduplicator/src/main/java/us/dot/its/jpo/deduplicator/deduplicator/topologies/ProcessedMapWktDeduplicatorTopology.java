@@ -59,8 +59,6 @@ public class ProcessedMapWktDeduplicatorTopology {
 
         KStream<String, ProcessedMap<String>> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapWKT()));
 
-        inputStream.print(Printed.toSysOut());
-
         KStream<String, ProcessedMap<String>> deduplicatedStream = inputStream
             .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapWKT()))
             .aggregate(() -> new ProcessedMapWktPair(new ProcessedMap<String>(), true),
