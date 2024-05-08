@@ -59,6 +59,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
@@ -146,6 +150,14 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private RepartitionAlgorithmFactory repartitionAlgorithmFactory;
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
+
+   private MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory;
+   private String mapRevisionCounterAlgorithm;
+   private MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters;
+
+   private SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory;
+   private String spatRevisionCounterAlgorithm;
+   private SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters;
 
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
@@ -491,6 +503,41 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    public void setRepartitionAlgorithmParameters(RepartitionParameters repartitionAlgorithmParameters) {
       this.repartitionAlgorithmParameters = repartitionAlgorithmParameters;
    }
+
+
+   @Autowired
+   public void setMapRevisionCounterAlgorithmFactory(MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory) {
+      this.mapRevisionCounterAlgorithmFactory = mapRevisionCounterAlgorithmFactory;
+   }
+
+   @Value("${map.revision.counter.algorithm}")
+   public void setMapRevisionCorrectionAlgorithm(String mapRevisionCounterAlgorithm) {
+      this.mapRevisionCounterAlgorithm = mapRevisionCounterAlgorithm;
+   }
+
+   @Autowired
+   public void setMapRevisionCounterAlgorithmParameters(MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters) {
+      this.mapRevisionCounterAlgorithmParameters = mapRevisionCounterAlgorithmParameters;
+   }
+
+
+
+   @Autowired
+   public void setSpatRevisionCounterAlgorithmFactory(SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory) {
+      this.spatRevisionCounterAlgorithmFactory = spatRevisionCounterAlgorithmFactory;
+   }
+
+   @Value("${spat.revision.counter.algorithm}")
+   public void setSpatRevisionCorrectionAlgorithm(String spatRevisionCounterAlgorithm) {
+      this.spatRevisionCounterAlgorithm = spatRevisionCounterAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatRevisionCounterAlgorithmParameters(SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters) {
+      this.spatRevisionCounterAlgorithmParameters = spatRevisionCounterAlgorithmParameters;
+   }
+
+
 
    public NotificationAlgorithmFactory getNotificationAlgorithmFactory() {
       return notificationAlgorithmFactory;
