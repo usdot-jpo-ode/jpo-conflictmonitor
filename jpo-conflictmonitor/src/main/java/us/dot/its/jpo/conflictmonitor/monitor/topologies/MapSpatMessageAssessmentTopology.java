@@ -31,6 +31,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateCo
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeatureCollection;
@@ -58,7 +59,7 @@ public class MapSpatMessageAssessmentTopology
         implements MapSpatMessageAssessmentStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MapSpatMessageAssessmentTopology.class);
-    private ObjectMapper mapper = DateJsonMapper.getInstance();
+
 
 
     @Override
@@ -84,14 +85,15 @@ public class MapSpatMessageAssessmentTopology
 
     private boolean doStatesConflict(J2735MovementPhaseState a, J2735MovementPhaseState b) {
         return a.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)
-                && !b.equals(J2735MovementPhaseState.STOP_AND_REMAIN) ||
+                        && !b.equals(J2735MovementPhaseState.STOP_AND_REMAIN)
+                ||
                 a.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                         && !b.equals(J2735MovementPhaseState.STOP_AND_REMAIN)
                 ||
                 b.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)
                         && !a.equals(J2735MovementPhaseState.STOP_AND_REMAIN)
                 ||
-                b.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)
+                b.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                         && !a.equals(J2735MovementPhaseState.STOP_AND_REMAIN);
     }
 
@@ -109,30 +111,43 @@ public class MapSpatMessageAssessmentTopology
         StreamsBuilder builder = new StreamsBuilder();
 
         // SPaT Input Stream
-        KStream<String, ProcessedSpat> processedSpatStream = builder.stream(
+        KStream<RsuIntersectionKey, ProcessedSpat> processedSpatStream = builder.stream(
                 parameters.getSpatInputTopicName(),
                 Consumed.with(
-                        Serdes.String(),
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-        // .withTimestampExtractor(new SpatTimestampExtractor())
         );
 
-        // Map Input Stream
-        KTable<String, ProcessedMap<LineString>> mapKTable = builder.table(parameters.getMapInputTopicName(),
+        // Map table keyed by RsuIntersectionKey
+        KTable<RsuIntersectionKey, ProcessedMap<LineString>> mapKTable = builder.table(parameters.getMapInputTopicName(),
                 Materialized.with(
-                        Serdes.String(),
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
-        // Join Input BSM Stream with Stream of Spat Messages
-        KStream<String, SpatMap> spatJoinedMap = processedSpatStream.leftJoin(mapKTable, (spat, map) -> {
-            return new SpatMap(spat, map);
-        },
-                Joined.<String, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined").withKeySerde(Serdes.String())
+
+
+
+        // For intersection reference alignment, re-key to RSU-only key to test if intersection ID and region match between
+        // MAP and SPaTs from the same RSU
+        KTable<String, ProcessedMap<LineString>> mapKTableRsuKey =
+            mapKTable.toStream().selectKey((key, value) -> key.getRsuId()).toTable(
+                Materialized.with(Serdes.String(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
+        );
+
+        KStream<String, SpatMap> rsuJoinStream =
+            processedSpatStream
+                .selectKey((key, value) -> key.getRsuId())
+                .join(mapKTableRsuKey, (spat, map) -> new SpatMap(spat, map),
+                    Joined.<String, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined-rsu")
+                        .withKeySerde(Serdes.String())
                         .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-                        .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
+                        .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()))
+                .peek((key, value) -> {
+                    logger.info("Spat Map joined on RSU: {}: {}", key, value);
+                });
 
         // Intersection Reference Alignment Check
-        KStream<String, IntersectionReferenceAlignmentEvent> intersectionReferenceAlignmentEventStream = spatJoinedMap
+        KStream<String, IntersectionReferenceAlignmentEvent> intersectionReferenceAlignmentEventStream = rsuJoinStream
                 .flatMap(
                         (key, value) -> {
                             ArrayList<KeyValue<String, IntersectionReferenceAlignmentEvent>> events = new ArrayList<>();
@@ -144,7 +159,7 @@ public class MapSpatMessageAssessmentTopology
                             RegulatorIntersectionId spatId = new RegulatorIntersectionId();
 
                             if(value.getMap() != null && value.getMap().getProperties() != null){
-                                ProcessedMap map = value.getMap();
+                                ProcessedMap<?> map = value.getMap();
                                 mapId.setIntersectionId(map.getProperties().getIntersectionId());
                                 mapId.setRoadRegulatorId(map.getProperties().getRegion());
 
@@ -181,10 +196,12 @@ public class MapSpatMessageAssessmentTopology
                             Set<RegulatorIntersectionId> mapIdSet = new HashSet<>();
                             mapIdSet.add(mapId);
                             event.setMapRegulatorIntersectionIds(mapIdSet);
+                            logger.info("mapIdSet: {}", mapIdSet);
 
                             Set<RegulatorIntersectionId> spatIdSet = new HashSet<>();
                             spatIdSet.add(spatId);
                             event.setSpatRegulatorIntersectionIds(spatIdSet);
+                            logger.info("spatIdSet: {}", spatIdSet);
 
                             if (!event.getSpatRegulatorIntersectionIds().equals(event.getMapRegulatorIntersectionIds())) {
                                 events.add(new KeyValue<>(key, event));
@@ -229,13 +246,25 @@ public class MapSpatMessageAssessmentTopology
                 Produced.with(Serdes.String(),
                         JsonSerdes.IntersectionReferenceAlignmentNotification()));
 
+        // Join Spats with MAP KTable, RsuIntersectionKey for the Signal Group Alignment check which presume
+        // that the Spat and Map are from the same intersection
+        KStream<RsuIntersectionKey, SpatMap> spatJoinedMap = processedSpatStream
+                .join(mapKTable, (spat, map) -> new SpatMap(spat, map),
+                        Joined.<RsuIntersectionKey, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined")
+                                .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
+                                .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
+                                .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()))
+                .peek((key, value) -> {
+                    logger.info("Intersection Key join: SpatMap: {}: {}", key, value);
+                });
+
         // Signal Group Alignment Event Check
         KStream<String, SignalGroupAlignmentEvent> signalGroupAlignmentEventStream = spatJoinedMap.flatMap(
                 (key, value) -> {
                     ArrayList<KeyValue<String, SignalGroupAlignmentEvent>> events = new ArrayList<>();
                     SignalGroupAlignmentEvent event = new SignalGroupAlignmentEvent();
 
-                    event.setSource(key);
+                    event.setSource(key.toString());
                     event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(value.getSpat()));
                     
                     if(value.getSpat().getIntersectionId()!= null){
@@ -265,8 +294,8 @@ public class MapSpatMessageAssessmentTopology
                     if (!mapSignalGroups.equals(spatSignalGroups)) {
                         event.setMapSignalGroupIds(mapSignalGroups);
                         event.setSpatSignalGroupIds(spatSignalGroups);
-                        event.setSource(key);
-                        events.add(new KeyValue<>(key, event));
+                        event.setSource(key.toString());
+                        events.add(new KeyValue<>(key.toString(), event));
                     }
 
                     return events;
@@ -372,7 +401,7 @@ public class MapSpatMessageAssessmentTopology
                                     event.setSecondConflictingSignalGroup(secondConnection.getSignalGroup());
                                     event.setFirstConflictingSignalState(firstState);
                                     event.setSecondConflictingSignalState(secondState);
-                                    event.setSource(key);
+                                    event.setSource(key.toString());
 
                                     if (firstState.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                                             || firstState.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)) {
@@ -381,7 +410,7 @@ public class MapSpatMessageAssessmentTopology
                                         event.setConflictType(firstState);
                                     }
 
-                                    events.add(new KeyValue<String, SignalStateConflictEvent>(key, event));
+                                    events.add(new KeyValue<String, SignalStateConflictEvent>(key.toString(), event));
 
                                 }
                             }

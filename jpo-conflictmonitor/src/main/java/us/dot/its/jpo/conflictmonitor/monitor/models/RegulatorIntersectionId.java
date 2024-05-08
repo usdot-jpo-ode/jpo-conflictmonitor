@@ -2,9 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.models;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @EqualsAndHashCode()
+@ToString
 public class RegulatorIntersectionId {
     Integer roadRegulatorId;
     Integer intersectionId;
