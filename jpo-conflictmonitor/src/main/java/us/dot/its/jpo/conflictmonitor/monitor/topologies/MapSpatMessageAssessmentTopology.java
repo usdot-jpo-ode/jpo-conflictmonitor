@@ -102,6 +102,7 @@ public class MapSpatMessageAssessmentTopology
         Map<String, AllowedConcurrentPermissive> allowMap = new HashMap<>();
 
         List<AllowedConcurrentPermissive> list = new ArrayList<>();
+        // TODO: Populate list from config
 
         for(AllowedConcurrentPermissive elem : list){
             String hash = hashLaneConnection(elem.getIntersectionID(), elem.getFirstIngressLane(), elem.getSecondIngressLane(), elem.getFirstEgressLane(), elem.getSecondEgressLane());
@@ -141,10 +142,7 @@ public class MapSpatMessageAssessmentTopology
                     Joined.<String, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined-rsu")
                         .withKeySerde(Serdes.String())
                         .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-                        .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()))
-                .peek((key, value) -> {
-                    logger.info("Spat Map joined on RSU: {}: {}", key, value);
-                });
+                        .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
         // Intersection Reference Alignment Check
         KStream<String, IntersectionReferenceAlignmentEvent> intersectionReferenceAlignmentEventStream = rsuJoinStream
@@ -196,12 +194,10 @@ public class MapSpatMessageAssessmentTopology
                             Set<RegulatorIntersectionId> mapIdSet = new HashSet<>();
                             mapIdSet.add(mapId);
                             event.setMapRegulatorIntersectionIds(mapIdSet);
-                            logger.info("mapIdSet: {}", mapIdSet);
 
                             Set<RegulatorIntersectionId> spatIdSet = new HashSet<>();
                             spatIdSet.add(spatId);
                             event.setSpatRegulatorIntersectionIds(spatIdSet);
-                            logger.info("spatIdSet: {}", spatIdSet);
 
                             if (!event.getSpatRegulatorIntersectionIds().equals(event.getMapRegulatorIntersectionIds())) {
                                 events.add(new KeyValue<>(key, event));
@@ -253,10 +249,7 @@ public class MapSpatMessageAssessmentTopology
                         Joined.<RsuIntersectionKey, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined")
                                 .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                                 .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-                                .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()))
-                .peek((key, value) -> {
-                    logger.info("Intersection Key join: SpatMap: {}: {}", key, value);
-                });
+                                .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
         // Signal Group Alignment Event Check
         KStream<String, SignalGroupAlignmentEvent> signalGroupAlignmentEventStream = spatJoinedMap.flatMap(
