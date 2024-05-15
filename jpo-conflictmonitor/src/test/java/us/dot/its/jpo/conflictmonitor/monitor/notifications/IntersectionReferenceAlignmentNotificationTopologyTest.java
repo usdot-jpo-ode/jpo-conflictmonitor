@@ -74,11 +74,11 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
                 Serdes.String().deserializer(), 
                 JsonSerdes.IntersectionReferenceAlignmentNotification().deserializer());
 
-
-            final var mapKey = new RsuIntersectionKey("127.0.0.1", 12109);
+            final String rsuIp = "10.11.81.12";
+            final var mapKey = new RsuIntersectionKey(rsuIp, 12109);
             inputMapTopic.pipeInput(mapKey, processedMap);
 
-            final var spatKey = new RsuIntersectionKey("127.0.0.1", 12108);
+            final var spatKey = new RsuIntersectionKey(rsuIp, 12108);
             inputSpatTopic.pipeInput(spatKey, processedSpat);
 
 
@@ -93,7 +93,7 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
             
             KeyValue<String, IntersectionReferenceAlignmentNotification> notificationKeyValue = notificationResults.get(0);
 
-            assertEquals("127.0.0.1", notificationKeyValue.key);
+            assertEquals(rsuIp, notificationKeyValue.key);
 
             IntersectionReferenceAlignmentNotification notification = notificationKeyValue.value;
 
@@ -105,7 +105,7 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
 
             IntersectionReferenceAlignmentEvent event = notification.getEvent();
 
-            assertEquals("127.0.0.1", event.getSource());
+            assertEquals(rsuIp, event.getSource());
 
             assertEquals(1, event.getMapRegulatorIntersectionIds().size());
             assertEquals(1, event.getSpatRegulatorIntersectionIds().size());

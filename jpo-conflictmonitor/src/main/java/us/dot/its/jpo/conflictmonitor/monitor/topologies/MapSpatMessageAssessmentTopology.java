@@ -275,7 +275,7 @@ public class MapSpatMessageAssessmentTopology
                     if (!mapSignalGroups.equals(spatSignalGroups)) {
                         event.setMapSignalGroupIds(mapSignalGroups);
                         event.setSpatSignalGroupIds(spatSignalGroups);
-                        event.setSource(key.toString());
+                        event.setSource(key.getRsuId());
                         events.add(new KeyValue<>(key.toString(), event));
                     }
 
