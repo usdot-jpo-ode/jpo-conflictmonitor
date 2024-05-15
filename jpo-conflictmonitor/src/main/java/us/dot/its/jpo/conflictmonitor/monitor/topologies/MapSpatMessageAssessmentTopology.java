@@ -280,7 +280,10 @@ public class MapSpatMessageAssessmentTopology
                     if(value.getMap() != null){
                         for(Object objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
                             ConnectingLanesFeature feature = (ConnectingLanesFeature)objectFeature;
-                            mapSignalGroups.add(((ConnectingLanesProperties)feature.getProperties()).getSignalGroupId());
+                            Integer signalGroupId = ((ConnectingLanesProperties)feature.getProperties()).getSignalGroupId();
+                            if (signalGroupId != null) {
+                                mapSignalGroups.add(signalGroupId);
+                            }
                         }
                     }
                     
