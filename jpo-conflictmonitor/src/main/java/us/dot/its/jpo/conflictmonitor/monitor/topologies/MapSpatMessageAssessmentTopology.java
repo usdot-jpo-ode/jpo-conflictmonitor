@@ -29,7 +29,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
@@ -58,8 +57,8 @@ public class MapSpatMessageAssessmentTopology
         for (MovementState state : spat.getStates()) {
             if (state.getSignalGroup() == signalGroup) {
                 List<MovementEvent> movementEvents = state.getStateTimeSpeed();
-                if (movementEvents.size() > 0) {
-                    return movementEvents.get(0).getEventState();
+                if (!movementEvents.isEmpty()) {
+                    return movementEvents.getFirst().getEventState();
                 }
             }
         }
@@ -86,15 +85,14 @@ public class MapSpatMessageAssessmentTopology
 
     public Topology buildTopology() {
 
+        // TODO: Populate concurrent permissive allowed from intersection-level config
         Map<String, AllowedConcurrentPermissive> allowMap = new HashMap<>();
-
         List<AllowedConcurrentPermissive> list = new ArrayList<>();
-        // TODO: Populate list from config
-
         for(AllowedConcurrentPermissive elem : list){
             String hash = hashLaneConnection(elem.getIntersectionID(), elem.getFirstIngressLane(), elem.getSecondIngressLane(), elem.getFirstEgressLane(), elem.getSecondEgressLane());
             allowMap.put(hash, elem);
         }
+
 
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -203,7 +201,7 @@ public class MapSpatMessageAssessmentTopology
                         (key, value) -> {
                             List<KeyValue<String, IntersectionReferenceAlignmentNotification>> result = new ArrayList<KeyValue<String, IntersectionReferenceAlignmentNotification>>();
 
-                            IntersectionReferenceAlignmentNotification notification = new IntersectionReferenceAlignmentNotification();
+                            var notification = new IntersectionReferenceAlignmentNotification();
                             notification.setEvent(value);
                             notification.setNotificationText(
                                     "Intersection Reference Alignment Notification, generated because corresponding intersection reference alignment event was generated.");
@@ -253,6 +251,9 @@ public class MapSpatMessageAssessmentTopology
 
                     if(value.getSpat().getRegion() != null){
                         event.setRoadRegulatorID(value.getSpat().getRegion());
+                    } else {
+                        // Missing region = -1 instead of 0
+                        event.setRoadRegulatorID(-1);
                     }
 
                     Set<Integer> mapSignalGroups = new HashSet<>();
@@ -263,9 +264,8 @@ public class MapSpatMessageAssessmentTopology
                     }
 
                     if(value.getMap() != null){
-                        for(Object objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
-                            ConnectingLanesFeature feature = (ConnectingLanesFeature)objectFeature;
-                            Integer signalGroupId = ((ConnectingLanesProperties)feature.getProperties()).getSignalGroupId();
+                        for(ConnectingLanesFeature<?> objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
+                            Integer signalGroupId = objectFeature.getProperties().getSignalGroupId();
                             if (signalGroupId != null) {
                                 mapSignalGroups.add(signalGroupId);
                             }
@@ -325,7 +325,7 @@ public class MapSpatMessageAssessmentTopology
 
                     ArrayList<KeyValue<String, SignalStateConflictEvent>> events = new ArrayList<>();
 
-                    ProcessedMap map = value.getMap();
+                    ProcessedMap<LineString> map = value.getMap();
                     ProcessedSpat spat = value.getSpat();
 
                     if (map == null || spat == null) {
