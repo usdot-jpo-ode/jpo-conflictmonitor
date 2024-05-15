@@ -10,16 +10,12 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.AllowedConcurrentPermissive;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
-import us.dot.its.jpo.conflictmonitor.monitor.models.AllowConcurrentPermissiveList;
-import us.dot.its.jpo.conflictmonitor.monitor.models.AllowedConcurrentPermissive;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
@@ -30,26 +26,17 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAl
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesProperties;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
 
@@ -275,8 +262,6 @@ public class MapSpatMessageAssessmentTopology
                         spatSignalGroups.add(state.getSignalGroup());
                     }
 
-                    // ConnectingLanesFeatureCollection mapFeatures = value.getMap().getConnectingLanesFeatureCollection();
-                    // value.getMap().getConnectingLanesFeatureCollection().get
                     if(value.getMap() != null){
                         for(Object objectFeature: value.getMap().getConnectingLanesFeatureCollection().getFeatures()){
                             ConnectingLanesFeature feature = (ConnectingLanesFeature)objectFeature;
@@ -333,11 +318,8 @@ public class MapSpatMessageAssessmentTopology
                 Produced.with(Serdes.String(),
                         JsonSerdes.SignalGroupAlignmentNotification()));
 
-        // if(parameters.isDebug()){
-        //     signalGroupNotificationTable.toStream().print(Printed.toSysOut());
-        // }
 
-        // Signal Group Alignment Event Check
+        // Signal State Conflict Event Check
         KStream<String, SignalStateConflictEvent> signalStateConflictEventStream = spatJoinedMap.flatMap(
                 (key, value) -> {
 
@@ -354,14 +336,7 @@ public class MapSpatMessageAssessmentTopology
                     ArrayList<LaneConnection> connections = intersection.getLaneConnections();
 
 
-                    
-                    // AllowConcurrentPermissiveList list = mapper.convertValue(parameters.getConcurrentPermissiveList(), AllowConcurrentPermissiveList.class);
 
-
-                    
-
-                    // AllowConcurrentPermissiveList list = mapper.convertValue(listParams, AllowConcurrentPermissiveList.class);
-                    
                     
                     for (int i = 0; i < connections.size(); i++) {
                         LaneConnection firstConnection = connections.get(i);
