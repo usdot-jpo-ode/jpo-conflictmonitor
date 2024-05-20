@@ -13,6 +13,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionR
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapSpatMessageAssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -56,15 +58,15 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
             
-            TestInputTopic<String, String> inputMapTopic = driver.createInputTopic(
-                kafkaTopicMapInputTopicName, 
-                Serdes.String().serializer(), 
-                Serdes.String().serializer());
+            TestInputTopic<RsuIntersectionKey, String> inputMapTopic = driver.createInputTopic(
+                kafkaTopicMapInputTopicName,
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
+                    Serdes.String().serializer());
 
-            TestInputTopic<String, String> inputSpatTopic = driver.createInputTopic(
-                kafkaTopicSpatInputTopicName, 
-                Serdes.String().serializer(), 
-                Serdes.String().serializer());
+            TestInputTopic<RsuIntersectionKey, String> inputSpatTopic = driver.createInputTopic(
+                kafkaTopicSpatInputTopicName,
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
+                    Serdes.String().serializer());
 
 
             TestOutputTopic<String, IntersectionReferenceAlignmentNotification> outputNotificationTopic = driver.createOutputTopic(
@@ -72,10 +74,12 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
                 Serdes.String().deserializer(), 
                 JsonSerdes.IntersectionReferenceAlignmentNotification().deserializer());
 
+            final String rsuIp = "10.11.81.12";
+            final var mapKey = new RsuIntersectionKey(rsuIp, 12109);
+            inputMapTopic.pipeInput(mapKey, processedMap);
 
-            
-            inputMapTopic.pipeInput("12109", processedMap);
-            inputSpatTopic.pipeInput("12108", processedSpat);
+            final var spatKey = new RsuIntersectionKey(rsuIp, 12108);
+            inputSpatTopic.pipeInput(spatKey, processedSpat);
 
 
             
@@ -89,7 +93,7 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
             
             KeyValue<String, IntersectionReferenceAlignmentNotification> notificationKeyValue = notificationResults.get(0);
 
-            assertEquals("12108", notificationKeyValue.key);
+            assertEquals(rsuIp, notificationKeyValue.key);
 
             IntersectionReferenceAlignmentNotification notification = notificationKeyValue.value;
 
@@ -101,7 +105,7 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
 
             IntersectionReferenceAlignmentEvent event = notification.getEvent();
 
-            assertEquals("12108", event.getSource());
+            assertEquals(rsuIp, event.getSource());
 
             assertEquals(1, event.getMapRegulatorIntersectionIds().size());
             assertEquals(1, event.getSpatRegulatorIntersectionIds().size());
