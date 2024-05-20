@@ -47,7 +47,7 @@ public class MapValidationTopology
         return logger;
     }
 
-    public static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
+    private static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
 
 
     public Topology buildTopology() {
@@ -103,8 +103,21 @@ public class MapValidationTopology
 
 
 
-        // Save the timestamp of the latest for each key in a state store to be queried by the zero-check task
-        processedMapStream.process(() -> new MapZeroRateChecker(parameters), LATEST_TIMESTAMP_STORE);
+        // Save the timestamp of the latest message for each key in a state store to be queried by the zero-check task
+        processedMapStream.process(() ->
+                        new MapZeroRateChecker(
+                            parameters.getRollingPeriodSeconds(),
+                            parameters.getOutputIntervalSeconds(),
+                            parameters.getInputTopicName(),
+                            LATEST_TIMESTAMP_STORE
+                ), LATEST_TIMESTAMP_STORE)
+                // Emit zero-rate events to the topic
+                .to(parameters.getBroadcastRateTopicName(),
+                        Produced.with(
+                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                                JsonSerdes.MapBroadcastRateEvent(),
+                                new IntersectionIdPartitioner<RsuIntersectionKey, MapBroadcastRateEvent>())
+                );
 
 
         // Perform count for Broadcast Rate analysis
