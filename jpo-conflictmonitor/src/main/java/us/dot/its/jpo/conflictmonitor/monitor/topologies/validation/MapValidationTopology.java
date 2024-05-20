@@ -7,6 +7,9 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
+import org.apache.kafka.streams.processor.api.FixedKeyProcessor;
+import org.apache.kafka.streams.processor.api.FixedKeyProcessorSupplier;
+import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -45,11 +47,19 @@ public class MapValidationTopology
         return logger;
     }
 
-
+    public static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
 
 
     public Topology buildTopology() {
         var builder = new StreamsBuilder();
+
+        // Create state store for zero count
+        var zeroCountStoreBuilder =
+                Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(LATEST_TIMESTAMP_STORE),
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        Serdes.Long());
+
+        builder.addStateStore(zeroCountStoreBuilder);
 
         KStream<RsuIntersectionKey, ProcessedMap<LineString>> processedMapStream = builder
             .stream(parameters.getInputTopicName(), 
@@ -90,30 +100,35 @@ public class MapValidationTopology
                 new IntersectionIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
         );
 
-        
+
+
+
+        // Save the timestamp of the latest for each key in a state store to be queried by the zero-check task
+        processedMapStream.process(() -> new MapZeroRateChecker(parameters), LATEST_TIMESTAMP_STORE);
+
 
         // Perform count for Broadcast Rate analysis
         KStream<Windowed<RsuIntersectionKey>, Long> countStream = 
             processedMapStream
-            .mapValues((value) -> 1) // Map the value to the constant int 1 (key remains the same)
-            .groupByKey(
-                Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
-            )
-            .windowedBy(
-                // Hopping window
-                TimeWindows
-                    .ofSizeAndGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()), Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
-                    .advanceBy(Duration.ofSeconds(parameters.getOutputIntervalSeconds()))
-            )
-            .count(
-                Materialized.<RsuIntersectionKey, Long, WindowStore<Bytes, byte[]>>as("map-counts")
-                    .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
-                    .withValueSerde(Serdes.Long())
-            )
-            .suppress(
-                 Suppressed.untilWindowCloses(BufferConfig.unbounded())
-            )
-            .toStream();
+                .mapValues((value) -> 1) // Map the value to the constant int 1 (key remains the same)
+                .groupByKey(
+                    Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), Serdes.Integer())
+                )
+                .windowedBy(
+                    // Hopping window
+                    TimeWindows
+                        .ofSizeAndGrace(Duration.ofSeconds(parameters.getRollingPeriodSeconds()), Duration.ofMillis(parameters.getGracePeriodMilliseconds()))
+                        .advanceBy(Duration.ofSeconds(parameters.getOutputIntervalSeconds()))
+                )
+                .count(
+                    Materialized.<RsuIntersectionKey, Long, WindowStore<Bytes, byte[]>>as("map-counts")
+                        .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
+                        .withValueSerde(Serdes.Long())
+                )
+                .suppress(
+                     Suppressed.untilWindowCloses(BufferConfig.unbounded())
+                )
+                .toStream();
 
 
         countStream = countStream.peek((windowedKey, value) -> {
@@ -138,7 +153,7 @@ public class MapValidationTopology
                 MapBroadcastRateEvent event = new MapBroadcastRateEvent();
                 event.setSource(windowedKey.key().toString());
                 event.setIntersectionID(windowedKey.key().getIntersectionId());
-                event.setRoadRegulatorID(-1);
+                event.setRoadRegulatorID(windowedKey.key().getRegion());
                 event.setTopicName(parameters.getInputTopicName());
                 ProcessingTimePeriod timePeriod = new ProcessingTimePeriod();
                 

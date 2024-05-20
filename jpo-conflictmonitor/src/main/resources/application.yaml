@@ -247,6 +247,7 @@ map.validation:
   debug: false
 
 
+
 # BSM Repartition
 repartition:
   algorithm: defaultRepartitionAlgorithm

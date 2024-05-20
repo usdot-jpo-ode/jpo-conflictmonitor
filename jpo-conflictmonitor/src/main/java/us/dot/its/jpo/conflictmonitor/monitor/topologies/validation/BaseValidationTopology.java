@@ -18,7 +18,7 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
 
 /**
- * Common code for {@link MapValidationTopology} and {@link SpatAssessmentsTopoloby}
+ * Common code for {@link MapValidationTopology} and {@link SpatValidationTopology}
  */
 public abstract class BaseValidationTopology<TParams>
     extends BaseStreamsTopology<TParams> {
