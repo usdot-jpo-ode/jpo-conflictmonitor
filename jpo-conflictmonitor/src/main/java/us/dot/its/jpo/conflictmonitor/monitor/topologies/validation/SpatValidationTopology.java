@@ -7,6 +7,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
+import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +44,20 @@ public class SpatValidationTopology
         return logger;
     }
 
+    private static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
+
 
     @Override
     public Topology buildTopology() {
         var builder = new StreamsBuilder();
+
+        // Create state store for zero count
+        var zeroCountStoreBuilder =
+                Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(LATEST_TIMESTAMP_STORE),
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        Serdes.Long());
+
+        builder.addStateStore(zeroCountStoreBuilder);
 
         KStream<RsuIntersectionKey, ProcessedSpat> processedSpatStream = builder
             .stream(parameters.getInputTopicName(), 
@@ -79,6 +90,21 @@ public class SpatValidationTopology
                     JsonSerdes.SpatMinimumDataEvent(),
                     new IntersectionIdPartitioner<RsuIntersectionKey, SpatMinimumDataEvent>())
             );
+
+        // Save the timestamp of the latest message for each key in a state store to be queried by the zero-check task
+        processedSpatStream.process(() ->
+                new SpatZeroRateChecker(
+                        parameters.getRollingPeriodSeconds(),
+                        parameters.getOutputIntervalSeconds(),
+                        parameters.getInputTopicName(),
+                        LATEST_TIMESTAMP_STORE
+                ), LATEST_TIMESTAMP_STORE)
+                .to(parameters.getBroadcastRateTopicName(),
+                        Produced.with(
+                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                                JsonSerdes.SpatBroadcastRateEvent(),
+                                new IntersectionIdPartitioner<RsuIntersectionKey, SpatBroadcastRateEvent>()
+                        ));
         
         // Perform count for Broadcast Rate analysis
         KStream<Windowed<RsuIntersectionKey>, Long> countStream = 
