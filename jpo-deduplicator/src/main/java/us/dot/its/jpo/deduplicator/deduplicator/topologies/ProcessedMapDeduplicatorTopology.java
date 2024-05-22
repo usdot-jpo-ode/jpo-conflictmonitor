@@ -19,11 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Objects;
 
 public class ProcessedMapDeduplicatorTopology {
 
@@ -70,8 +72,8 @@ public class ProcessedMapDeduplicatorTopology {
                     return new ProcessedMapPair(newValue, true );
                 }
 
-                Instant newValueTime = newValue.getProperties().getTimeStamp().toInstant();
-                Instant oldValueTime = aggregate.getMessage().getProperties().getTimeStamp().toInstant();
+                Instant newValueTime = newValue.getProperties().getOdeReceivedAt().toInstant();
+                Instant oldValueTime = aggregate.getMessage().getProperties().getOdeReceivedAt().toInstant();
                 
                 if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
                     return new ProcessedMapPair(newValue, true );
@@ -82,10 +84,12 @@ public class ProcessedMapDeduplicatorTopology {
                     newValue.getProperties().setTimeStamp(aggregate.getMessage().getProperties().getTimeStamp());
                     newValue.getProperties().setOdeReceivedAt(aggregate.getMessage().getProperties().getOdeReceivedAt());
 
-                    int oldHash = aggregate.getMessage().getProperties().hashCode();
-                    int newhash = newValue.getProperties().hashCode();
+                    // int oldHash = aggregate.getMessage().getProperties().hashCode();
+                    // int newhash = newValue.getProperties().hashCode();
+                    int oldHash = Objects.hash(aggregate.getMessage().toString());
+                    int newHash = Objects.hash(newValue.toString());
 
-                    if(oldHash != newhash){
+                    if(oldHash != newHash){
                         newValue.getProperties().setTimeStamp(newValueTimestamp);
                         newValue.getProperties().setOdeReceivedAt(newValueOdeReceivedAt);
                         return new ProcessedMapPair(newValue, true);
