@@ -65,7 +65,7 @@ const collections = [
     
     // GeoJson Converter Data
     {name: "ProcessedMap", ttlField: "recordGeneratedAt", timeField: "properties.timeStamp", intersectionField: "properties.intersectionId"},
-    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "odeReceivedAt", intersectionField: "intersectionId"},
+    {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "utcTimeStamp", intersectionField: "intersectionId"},
     
     // Conflict Monitor Events
     { name: "CmStopLineStopEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
