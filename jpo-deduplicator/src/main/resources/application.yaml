@@ -26,6 +26,12 @@ kafka.topics:
     - name: topic.DeduplicatedProcessedMap
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.ProcessedMapWKT
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.DeduplicatedProcessedMapWKT
+      cleanupPolicy: delete
+      retentionMs: 300000
     - name: topic.OdeMapJson
       cleanupPolicy: delete
       retentionMs: 300000
@@ -38,4 +44,5 @@ kafka.topics:
     - name: topic.DeduplicatedOdeTimJson
       cleanupPolicy: delete
       retentionMs: 300000
+    
     
