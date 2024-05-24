@@ -9,5 +9,5 @@ CM_DATABASE_COMPACTION_TRIGGER_PERCENT=${CM_DATABASE_COMPACTION_TRIGGER_PERCENT}
 MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
 MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
 
-* * * * * root mongosh /docker-entrypoint-initdb.d/manage_volume.js > /var/log/cron.log 2>&1
+0 * * * * root mongosh /docker-entrypoint-initdb.d/manage_volume.js > /var/log/cron.log 2>&1
 # An empty line is required at the end of this file for a valid cron file.
