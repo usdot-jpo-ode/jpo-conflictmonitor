@@ -1,0 +1,241 @@
+
+// Mongo Data Managment Script
+
+// Features
+// Automatically Logs Collection Sizes 
+// Automatically Updates Data Retention Periods to prevent overflow
+// Performs Emergency Record Deletion when Collections get to large
+
+// Database to Perform operation on.
+const CM_DATABASE_NAME = process.env.CM_DATABASE_NAME || "ConflictMonitor";
+
+// The name of the collection to store the data as.
+const CM_DATABASE_STORAGE_COLLECTION_NAME = process.env.CM_DATABASE_STORAGE_COLLECTION_NAME || "MongoStorage";
+
+// Total Size of the database disk in GB. This script will work to ensure all data fits within this store.
+const CM_DATABASE_SIZE_GB = process.env.CM_DATABASE_SIZE_GB || 10;
+
+// Specified as a percent of total database size. This is the storage target the database will try to hit. 
+const CM_DATABASE_SIZE_TARGET_PERCENT = process.env.CM_DATABASE_SIZE_TARGET_PERCENT || 0.8;
+
+// Specified as a percent of total database size.
+const CM_DATABASE_DELETE_THRESHOLD_PERCENT = process.env.CM_DATABASE_DELETE_THRESHOLD_PERCENT || 0.9;
+
+// The maximum amount of time data should be retained. Measured in Seconds.
+const CM_DATABASE_MAX_TTL_RETENTION_SECONDS = process.env.CM_DATABASE_MAX_TTL_RETENTION_SECONDS || 5184000; // 60 Days
+
+// The minimum amount of time data should be retained. Measured in Seconds. This only effects TTL's set on the data. It will not prevent the database from manual data deletion.
+const CM_DATABASE_MIN_TTL_RETENTION_SECONDS = process.env.CM_DATABASE_MIN_TTL_RETENTION_SECONDS || 604800; // 7 Days
+
+// When the free space of a collection exceeds this percent of the collections total volume, automatic compaction should occur
+const CM_DATABASE_COMPACTION_TRIGGER_PERCENT = process.env.CM_DATABASE_COMPACTION_TRIGGER_PERCENT || 0.5;
+
+
+const CM_MONGO_ROOT_USERNAME = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
+const CM_MONGO_ROOT_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD || "root";
+
+const MS_PER_HOUR = 60 * 60 * 1000;
+const DB_TARGET_SIZE_BYTES = CM_DATABASE_SIZE_GB * CM_DATABASE_SIZE_TARGET_PERCENT * 1024 * 1024 * 1024;
+const DB_DELETE_SIZE_BYETS = CM_DATABASE_SIZE_GB * CM_DATABASE_DELETE_THRESHOLD_PERCENT * 1024 * 1024 * 1024;
+
+
+print("Managing Mongo Data Volumes");
+
+db = db.getSiblingDB("admin");
+db.auth(CM_MONGO_ROOT_USERNAME, CM_MONGO_ROOT_PASSWORD);
+db = db.getSiblingDB("ConflictMonitor");
+
+class CollectionStats{
+	constructor(name, allocatedSpace, freeSpace, indexSpace){
+		this.name = name;
+		this.allocatedSpace = allocatedSpace;
+		this.freeSpace = freeSpace;
+		this.indexSize = indexSpace;
+	}
+
+	getTotalSize(){
+		return this.allocatedSpace + this.freeSpace + this.indexSize;
+	}
+}
+
+
+class StorageRecord{
+	constructor(collectionStats){
+		this.collectionStats = collectionStats;
+		this.recordGeneratedAt = ISODate();
+	}
+
+	getTotalSize(){
+
+		let total =0;
+		for(let i=0; i < this.collectionStats.length; i++){
+			total += this.collectionStats[i].getTotalSize();
+		}
+		return total;
+	}
+}
+
+function ema_deltas(records){
+	const a = 0.5;
+	let average_delta = 0;
+
+	for(let i=0; i< records.length-1; i++){
+		const delta = records[i+1] - records[i];
+		average_delta += Math.pow(a, records.length -i -1) * delta;
+	}
+
+	return average_delta;
+	
+}
+
+function updateTTL(){
+	const ttl = getLatestTTL();
+	if(ttl == 0){
+		// Do not update TTL's
+		return;
+	}
+
+	
+	const newestRecords = db.getCollection(CM_DATABASE_STORAGE_COLLECTION_NAME).find().sort({"recordGeneratedAt":1}).limit(10);
+	
+	// Capture Latest Sizes
+	let sizes = [];
+	for(let i =0; i < newestRecords.length; i++){
+		sizes.push(newestRecords[i].getTotalSize());
+	}
+
+	// Overshoot Prevention
+	const growth = ema_deltas(sizes);
+	const oldestSpat = db.getCollection("ProcessedSpat").find().sort({"recordGeneratedAt":1}).limit(1);
+
+	let new_tll = ttl;
+	let possible_ttl = ttl;
+
+	// Check if collection is still growing to capacity, or if it in steady state
+	if(oldestSpat.recordGeneratedAt > ISODate() - ttl + MS_PER_HOUR && growth > 0){
+		possible_ttl = DB_TARGET_SIZE_BYTES / growth;
+	}else{
+		possible_ttl = 3600 * ((DB_TARGET_SIZE_BYTES - sizes[0])/1024/1024/1024) + ttl; // Shift the TTL by roughly 1 hour for every GB of data over or under
+	}
+
+
+	// Clamp TTL and assign to new TTL;
+	if(possible_ttl > CM_DATABASE_MAX_TTL_RETENTION_SECONDS){
+		new_tll = CM_DATABASE_MAX_TTL_RETENTION_SECONDS;
+	}else if(possible_ttl < CM_DATABASE_MIN_TTL_RETENTION_SECONDS){
+		new_tll = CM_DATABASE_MIN_TTL_RETENTION_SECONDS;
+	}else{
+		new_tll = possible_ttl;
+	}
+
+
+	
+	print("Calculated New TTL for MongoDB: " + new_tll);
+
+	applyNewTTL(new_tll);
+}
+
+function getLatestTTL(){
+	const indexes = db.getCollection("ProcessedSpat").getIndexes();
+	for (let i=0; i < indexes.length; i++){
+		if(indexes[i].hasOwnProperty("expireAfterSeconds")){
+			return indexes[i]["expireAfterSeconds"];
+		}
+	}
+	return 0;
+}
+
+function getTTLKey(collection){
+	const indexes = db.getCollection(collection).getIndexes();
+	for (let i=0; i < indexes.length; i++){
+		if(indexes[i].hasOwnProperty("expireAfterSeconds")){
+			print("has prop", );
+			return [indexes[i]["key"], indexes[i]["expireAfterSeconds"]];
+		}
+	}
+	return [null, null];
+}
+
+function applyNewTTL(ttl){
+	var collections = db.getCollectionNames();
+	for(let i=0; i< collections.length; i++){
+		const collection = collections[i];
+		let [key, oldTTL] = getTTLKey(collection);
+		if(oldTTL != ttl && key != null){
+			print("Updating TTL For Collection: " + collection);
+			print(key, oldTTL);
+			db.runCommand({
+				"collMod": collection,
+				"index": {
+					keyPattern: key,
+					expireAfterSeconds: ttl
+			}});
+		}
+	}
+}
+
+
+function addNewStorageRecord(){
+	var collections = db.getCollectionNames();
+	let totalAllocatedStorage = 0;
+	let totalFreeSpace = 0;
+
+	let records = [];
+
+	for (var i = 0; i < collections.length; i++) {
+		let stats = db.getCollection(collections[i]).stats();
+		let colStats = db.runCommand({"collstats": collections[i]});
+		let blockManager = colStats["wiredTiger"]["block-manager"];
+
+		let freeSpace = Number(blockManager["file bytes available for reuse"]);
+		let allocatedStorage = Number(blockManager["file size in bytes"]);
+		let indexSize = Number(stats.totalIndexSize);
+
+		records.push(new CollectionStats(collections[i], allocatedStorage, freeSpace, indexSize));
+
+		totalAllocatedStorage += allocatedStorage + indexSize;
+		totalFreeSpace += freeSpace;
+
+		print(collections[i], allocatedStorage / 1024 / 1024 / 1024, freeSpace/ 1024 / 1024 / 1024);
+	}
+
+	const storageRecord = new StorageRecord(records);
+	db.getCollection(CM_DATABASE_STORAGE_COLLECTION_NAME).insertOne(storageRecord);
+}
+
+function compactCollections(){
+	print("Checking Collection Compaction");
+
+	var collections = db.getCollectionNames();
+
+	let activeCompactions = [];
+	db.currentOp({ "active": true, "secs_running": { "$gt": 0 } }).inprog.forEach(op => {
+		if (op.msg && op.msg.includes("compact")) {
+			print("Found Active Compactions");
+			activeCompactions.push(op.command.compact);
+		}
+	});
+
+	for (var i = 0; i < collections.length; i++) {
+		let stats = db.getCollection(collections[i]).stats();
+		let colStats = db.runCommand({"collstats": collections[i]});
+		let blockManager = colStats["wiredTiger"]["block-manager"];
+
+		let freeSpace = Number(blockManager["file bytes available for reuse"]);
+		let allocatedStorage = Number(blockManager["file size in bytes"]);
+		let indexSize = Number(stats.totalIndexSize);
+
+		// If free space makes up a significant proportion of allocated storage
+		if(freeSpace > allocatedStorage * CM_DATABASE_COMPACTION_TRIGGER_PERCENT && allocatedStorage > (1024 * 1024 * 1024)){
+			if(!activeCompactions.includes(collections[i])){
+				print("Compacting Collection", collections[i]);
+				db.runCommand({compact: collections[i], force:true});
+			}
+		}
+	}
+}
+
+
+updateTTL();
+addNewStorageRecord();
+compactCollections();
