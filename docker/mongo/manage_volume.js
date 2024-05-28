@@ -35,8 +35,9 @@ const CM_MONGO_ROOT_USERNAME = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
 const CM_MONGO_ROOT_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD || "root";
 
 const MS_PER_HOUR = 60 * 60 * 1000;
-const DB_TARGET_SIZE_BYTES = CM_DATABASE_SIZE_GB * CM_DATABASE_SIZE_TARGET_PERCENT * 1024 * 1024 * 1024;
-const DB_DELETE_SIZE_BYETS = CM_DATABASE_SIZE_GB * CM_DATABASE_DELETE_THRESHOLD_PERCENT * 1024 * 1024 * 1024;
+const BYTE_TO_GB = 1024 * 1024 * 1024;
+const DB_TARGET_SIZE_BYTES = CM_DATABASE_SIZE_GB * CM_DATABASE_SIZE_TARGET_PERCENT * BYTE_TO_GB;
+const DB_DELETE_SIZE_BYETS = CM_DATABASE_SIZE_GB * CM_DATABASE_DELETE_THRESHOLD_PERCENT * BYTE_TO_GB;
 
 
 print("Managing Mongo Data Volumes");
@@ -56,9 +57,13 @@ class CollectionStats{
 
 
 class StorageRecord{
-	constructor(collectionStats){
+	constructor(collectionStats, totalAllocatedStorage, totalFreeSpace, totalIndexSize){
 		this.collectionStats = collectionStats;
 		this.recordGeneratedAt = ISODate();
+		this.totalAllocatedStorage = totalAllocatedStorage;
+		this.totalFreeSpace = totalFreeSpace;
+		this.totalIndexSize = totalIndexSize;
+		this.totalSize = totalAllocatedStorage + totalFreeSpace + totalIndexSize;
 	}
 }
 
@@ -103,36 +108,32 @@ function updateTTL(){
 	const growth = ema_deltas(sizes);
 	const oldestSpat = db.getCollection("ProcessedSpat").find().sort({"recordGeneratedAt":1}).limit(1);
 
-	let new_tll = ttl;
+	let new_ttl = ttl;
 	let possible_ttl = ttl;
 
 	// Check if collection is still growing to capacity, or if it in steady state
 	if(oldestSpat.recordGeneratedAt > ISODate() - ttl + MS_PER_HOUR && growth > 0){
 		possible_ttl = DB_TARGET_SIZE_BYTES / growth;
 	}else{
-		possible_ttl = 3600 * ((DB_TARGET_SIZE_BYTES - sizes[0])/1024/1024/1024) + ttl; // Shift the TTL by roughly 1 hour for every GB of data over or under
+		possible_ttl = 3600 * ((DB_TARGET_SIZE_BYTES - sizes[0])/BYTE_TO_GB) + ttl; // Shift the TTL by roughly 1 hour for every GB of data over or under
 	}
 
 	// Clamp TTL and assign to new TTL;
 
 	if(!isNaN(possible_ttl) && possible_ttl != 0){
 		if(possible_ttl > CM_DATABASE_MAX_TTL_RETENTION_SECONDS){
-			new_tll = CM_DATABASE_MAX_TTL_RETENTION_SECONDS;
+			new_ttl = CM_DATABASE_MAX_TTL_RETENTION_SECONDS;
 		}else if(possible_ttl < CM_DATABASE_MIN_TTL_RETENTION_SECONDS){
-			new_tll = CM_DATABASE_MIN_TTL_RETENTION_SECONDS;
+			new_ttl = CM_DATABASE_MIN_TTL_RETENTION_SECONDS;
 		}else{
-			new_tll = Math.round(possible_ttl);
+			new_ttl = Math.round(possible_ttl);
 		}
-		print("Calculated New TTL for MongoDB: " + new_tll);
-		applyNewTTL(new_tll);
+		new_ttl = Number(new_ttl);
+		print("Calculated New TTL for MongoDB: " + new_ttl);
+		applyNewTTL(new_ttl);
 	}else{
 		print("Not Updating TTL New TTL is NaN");
 	}
-	
-
-
-
-	
 }
 
 function getLatestTTL(){
@@ -177,6 +178,7 @@ function addNewStorageRecord(){
 	var collections = db.getCollectionNames();
 	let totalAllocatedStorage = 0;
 	let totalFreeSpace = 0;
+	let totalIndexSize = 0;
 
 	let records = [];
 
@@ -191,13 +193,14 @@ function addNewStorageRecord(){
 
 		records.push(new CollectionStats(collections[i], allocatedStorage, freeSpace, indexSize));
 
-		totalAllocatedStorage += allocatedStorage + indexSize;
+		totalAllocatedStorage += allocatedStorage
 		totalFreeSpace += freeSpace;
+		totalIndexSize += indexSize;
 
-		print(collections[i], allocatedStorage / 1024 / 1024 / 1024, freeSpace/ 1024 / 1024 / 1024);
+		print(collections[i], allocatedStorage / BYTE_TO_GB, freeSpace/ BYTE_TO_GB, indexSize / BYTE_TO_GB);
 	}
 
-	const storageRecord = new StorageRecord(records);
+	const storageRecord = new StorageRecord(records, totalAllocatedStorage, totalFreeSpace, totalIndexSize);
 	db.getCollection(CM_DATABASE_STORAGE_COLLECTION_NAME).insertOne(storageRecord);
 }
 
@@ -222,10 +225,12 @@ function compactCollections(){
 		let allocatedStorage = Number(blockManager["file size in bytes"]);
 
 		// If free space makes up a significant proportion of allocated storage
-		if(freeSpace > allocatedStorage * CM_DATABASE_COMPACTION_TRIGGER_PERCENT && allocatedStorage > (1024 * 1024 * 1024)){
+		if(freeSpace > allocatedStorage * CM_DATABASE_COMPACTION_TRIGGER_PERCENT && allocatedStorage > (1 * BYTE_TO_GB)){
 			if(!activeCompactions.includes(collections[i])){
 				print("Compacting Collection", collections[i]);
 				db.runCommand({compact: collections[i], force:true});
+			}else{
+				print("Skipping Compaction, Collection Compaction is already scheduled");
 			}
 		}
 	}
