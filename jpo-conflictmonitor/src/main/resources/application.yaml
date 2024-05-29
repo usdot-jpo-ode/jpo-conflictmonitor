@@ -224,6 +224,24 @@ map.spat.message.assessment:
   intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
+  concurrentPermissiveList:
+    - intersectionID: 100001
+      roadRegulatorID: 100
+      first:
+        ingressLaneID: 1
+        egressLaneID: 2
+      second:
+        ingressLaneID: 3
+        egressLaneID: 4
+    - intersectionID: 100002
+      roadRegulatorID: 200
+      first:
+        ingressLaneID: 10
+        egressLaneID: 20
+      second:
+        ingressLaneID: 30
+        egressLaneID: 40
+
 
 # MAP Time Change Details
 map.time.change.details:

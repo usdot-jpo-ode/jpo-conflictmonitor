@@ -5,8 +5,16 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
+import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanes;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
+
+import java.util.List;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUtil.getIntersectionValue;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 
 @Data
@@ -63,12 +71,26 @@ public class MapSpatMessageAssessmentParameters {
     String signalStateConflictNotificationTopicName;
 
 
-    @ConfigData(key = "map.spat.message.assessment.allowConcurrentPermissive", 
-        description = "Allowed Concurrent Permissive Intersections",
-        updateType = DEFAULT)
-    String concurrentPermissiveList;
+    @ConfigData(key = "map.spat.message.assessment.concurrentPermissiveList",
+        description = "List of pairs of lane connections that are allowed concurrently permissive for an intersection. " +
+                "The default list is empty",
+        updateType = INTERSECTION)
+    volatile List<ConnectedLanesPair> concurrentPermissiveList;
+
+    public List<ConnectedLanesPair> getDefaultConcurrentPermissiveList() {
+        return List.of();
+    }
 
 
+    //
+    // Maps for parameters that can be customized at the intersection level
+    //
+    final ConfigMap<List<ConnectedLanesPair>> concurrentPermissiveMap = new ConfigMap<>();
 
-    
+    //
+    // Intersection-specific properties
+    //
+    public List<ConnectedLanesPair> getConcurrentPermissiveList(IntersectionRegion intersectionKey) {
+        return getIntersectionValue(intersectionKey, concurrentPermissiveMap, getDefaultConcurrentPermissiveList());
+    }
 }

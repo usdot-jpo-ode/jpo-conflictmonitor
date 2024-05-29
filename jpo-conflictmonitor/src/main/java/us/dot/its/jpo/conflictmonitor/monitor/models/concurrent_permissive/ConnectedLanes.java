@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ConnectedLanes {
-    int ingressLaneId;
-    int egressLaneId;
+    int ingressLaneID;
+    int egressLaneID;
 }

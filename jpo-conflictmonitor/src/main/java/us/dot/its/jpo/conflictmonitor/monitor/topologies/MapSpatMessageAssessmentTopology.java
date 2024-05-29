@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
@@ -86,15 +87,12 @@ public class MapSpatMessageAssessmentTopology
 
     public Topology buildTopology() {
 
-        // TODO: Populate concurrent permissive allowed from intersection-level config
+        // Populate concurrent permissive allowed from intersection-level config
+        ConfigMap<List<ConnectedLanesPair>> concurrentPermissiveConfigMap = parameters.getConcurrentPermissiveMap();
         final Set<ConnectedLanesPair> allowConcurrentPermissiveSet = new HashSet<>();
-        List<AllowedConcurrentPermissive> list = new ArrayList<>();
-        for(AllowedConcurrentPermissive elem : list){
-            if (elem.isAllowConcurrent()) {
-                allowConcurrentPermissiveSet.add(elem.getConnectedLanesPair());
-            }
+        for (List<ConnectedLanesPair> list : concurrentPermissiveConfigMap.values()) {
+            allowConcurrentPermissiveSet.addAll(list);
         }
-
 
         StreamsBuilder builder = new StreamsBuilder();
 
