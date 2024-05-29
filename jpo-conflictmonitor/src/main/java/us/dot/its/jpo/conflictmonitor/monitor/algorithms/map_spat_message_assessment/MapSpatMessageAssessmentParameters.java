@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 import lombok.Generated;
-import us.dot.its.jpo.conflictmonitor.monitor.models.AllowConcurrentPermissiveList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;

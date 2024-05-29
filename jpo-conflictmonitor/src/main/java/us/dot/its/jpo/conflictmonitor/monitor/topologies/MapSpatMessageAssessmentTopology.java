@@ -13,11 +13,12 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.AllowedConcurrentPermissive;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.AllowedConcurrentPermissive;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
@@ -65,9 +66,9 @@ public class MapSpatMessageAssessmentTopology
         return null;
     }
 
-    private String hashLaneConnection(Integer intersectionID, int ingressOne, int ingressTwo, int egressOne, int egressTwo){
-        return intersectionID + "_" + ingressOne + "_" + ingressTwo + "_" + egressOne + "_" + egressTwo; 
-    }
+//    private String hashLaneConnection(Integer intersectionID, int ingressOne, int ingressTwo, int egressOne, int egressTwo){
+//        return intersectionID + "_" + ingressOne + "_" + ingressTwo + "_" + egressOne + "_" + egressTwo;
+//    }
 
     private boolean doStatesConflict(J2735MovementPhaseState a, J2735MovementPhaseState b) {
         return a.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)
@@ -86,11 +87,12 @@ public class MapSpatMessageAssessmentTopology
     public Topology buildTopology() {
 
         // TODO: Populate concurrent permissive allowed from intersection-level config
-        Map<String, AllowedConcurrentPermissive> allowMap = new HashMap<>();
+        final Set<ConnectedLanesPair> allowConcurrentPermissiveSet = new HashSet<>();
         List<AllowedConcurrentPermissive> list = new ArrayList<>();
         for(AllowedConcurrentPermissive elem : list){
-            String hash = hashLaneConnection(elem.getIntersectionID(), elem.getFirstIngressLane(), elem.getSecondIngressLane(), elem.getFirstEgressLane(), elem.getSecondEgressLane());
-            allowMap.put(hash, elem);
+            if (elem.isAllowConcurrent()) {
+                allowConcurrentPermissiveSet.add(elem.getConnectedLanesPair());
+            }
         }
 
 
@@ -343,11 +345,14 @@ public class MapSpatMessageAssessmentTopology
                         for (int j = i + 1; j < connections.size(); j++) {
                             LaneConnection secondConnection = connections.get(j);
 
-                            String compareHash = hashLaneConnection(intersection.getIntersectionId(), firstConnection.getIngressLane().getId(), secondConnection.getIngressLane().getId(), firstConnection.getEgressLane().getId(), secondConnection.getEgressLane().getId());
+                            ConnectedLanesPair theseConnectedLanes = new ConnectedLanesPair(
+                                    intersection.getIntersectionId(), intersection.getRoadRegulatorId(),
+                                    firstConnection.getIngressLane().getId(), firstConnection.getEgressLane().getId(),
+                                    secondConnection.getIngressLane().getId(), secondConnection.getEgressLane().getId());
                             
                             
                             // Skip if this connection is defined in the allowable map.
-                            if(allowMap.containsKey(compareHash)){
+                            if(allowConcurrentPermissiveSet.contains(theseConnectedLanes)){
                                 continue;
                             }
                             
