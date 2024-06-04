@@ -63,7 +63,7 @@ kafka.topics:
     - name: topic.CmSpatMinimumDataEvents
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CMBsmEvents
+    - name: topic.CmBsmEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmConnectionOfTravelEvent
