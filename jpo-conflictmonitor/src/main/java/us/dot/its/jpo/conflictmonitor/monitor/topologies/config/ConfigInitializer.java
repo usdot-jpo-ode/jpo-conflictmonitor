@@ -11,6 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
@@ -80,28 +81,37 @@ public class ConfigInitializer {
 
         if (Integer.class.equals(type) || "int".equals(type.getName())) {
             var config = new DefaultIntConfig();
-            config.setValue((Integer)propValue);
+            config.setValue((Integer) propValue);
             setConfigProps(config, updatable, Integer.class);
             return config;
         } else if (String.class.equals(type)) {
             var config = new DefaultStringConfig();
-            config.setValue((String)propValue);
+            config.setValue((String) propValue);
             setConfigProps(config, updatable, String.class);
             return config;
         } else if (Boolean.class.equals(type) || "boolean".equals(type.getName())) {
             var config = new DefaultBooleanConfig();
-            config.setValue((Boolean)propValue);
+            config.setValue((Boolean) propValue);
             setConfigProps(config, updatable, Boolean.class);
             return config;
         } else if (Double.class.equals(type) || "double".equals(type.getName())) {
             var config = new DefaultDoubleConfig();
-            config.setValue((Double)propValue);
+            config.setValue((Double) propValue);
             setConfigProps(config, updatable, Double.class);
             return config;
         } else if (Long.class.equals(type) || "long".equals(type.getName())) {
             var config = new DefaultLongConfig();
-            config.setValue((Long)propValue);
+            config.setValue((Long) propValue);
             setConfigProps(config, updatable, Long.class);
+            return config;
+        } else if (ConnectedLanesPairList.class.equals(type)) {
+            var config = new DefaultConfig<ConnectedLanesPairList>();
+            if (propValue != null) {
+                config.setValue((ConnectedLanesPairList) propValue);
+            } else {
+                config.setValue(new ConnectedLanesPairList());
+            }
+            setConfigProps(config, updatable, ConnectedLanesPairList.class);
             return config;
         } else {
             var config = new DefaultIntConfig();

@@ -8,6 +8,7 @@ import lombok.Generated;
 import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanes;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
@@ -72,25 +73,25 @@ public class MapSpatMessageAssessmentParameters {
 
 
     @ConfigData(key = "map.spat.message.assessment.concurrentPermissiveList",
-        description = "List of pairs of lane connections that are allowed concurrently permissive for an intersection. " +
-                "The default list is empty",
+        description = "List of pairs of lane connections that are allowed concurrently permissive for an intersection.",
         updateType = INTERSECTION)
-    volatile List<ConnectedLanesPair> concurrentPermissiveList;
+    volatile ConnectedLanesPairList concurrentPermissiveList;
 
-    public List<ConnectedLanesPair> getDefaultConcurrentPermissiveList() {
-        return List.of();
+    public ConnectedLanesPairList getDefaultConcurrentPermissiveList() {
+        return new ConnectedLanesPairList();
     }
 
 
     //
     // Maps for parameters that can be customized at the intersection level
     //
-    final ConfigMap<List<ConnectedLanesPair>> concurrentPermissiveMap = new ConfigMap<>();
+    final ConfigMap<ConnectedLanesPairList> concurrentPermissiveMap = new ConfigMap<>();
 
     //
     // Intersection-specific properties
     //
-    public List<ConnectedLanesPair> getConcurrentPermissiveList(IntersectionRegion intersectionKey) {
-        return getIntersectionValue(intersectionKey, concurrentPermissiveMap, getDefaultConcurrentPermissiveList());
+    public ConnectedLanesPairList getConcurrentPermissiveList(IntersectionRegion intersectionKey) {
+        var defaultList = concurrentPermissiveList != null ? concurrentPermissiveList : getDefaultConcurrentPermissiveList();
+        return getIntersectionValue(intersectionKey, concurrentPermissiveMap, defaultList);
     }
 }

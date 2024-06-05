@@ -68,6 +68,8 @@ public class ConflictMonitorPropertiesTest {
         assertThat(props.getMinimumDataTopicName(), equalTo("topic.CmSpatMinimumDataEvents"));
     }
 
+
+
     @Test
     public void testKafkaAdminInjected() {
         assertThat(kafkaAdmin, notNullValue()); 
@@ -173,6 +175,15 @@ public class ConflictMonitorPropertiesTest {
     public void testGetProperty_DefaultString() {
         assertThat(properties.getProperty("artifactId", "default"), allOf(notNullValue(), not(equalTo("default"))));
     }
-   
+
+    @Test
+    public void testConcurrentPermissiveDefaults() {
+        var props = properties.getMapSpatMessageAssessmentParameters();
+        var concurrentPermissive = props.getConcurrentPermissiveList();
+        logger.info("ConcurrentPermissive: {}", concurrentPermissive);
+        assertThat(concurrentPermissive, notNullValue());
+        assertThat(concurrentPermissive, hasSize(greaterThan(0)));
+
+    }
     
 }

@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.AllowedConcurrentPermissive;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
@@ -88,9 +88,9 @@ public class MapSpatMessageAssessmentTopology
     public Topology buildTopology() {
 
         // Populate concurrent permissive allowed from intersection-level config
-        ConfigMap<List<ConnectedLanesPair>> concurrentPermissiveConfigMap = parameters.getConcurrentPermissiveMap();
+        ConfigMap<ConnectedLanesPairList> concurrentPermissiveConfigMap = parameters.getConcurrentPermissiveMap();
         final Set<ConnectedLanesPair> allowConcurrentPermissiveSet = new HashSet<>();
-        for (List<ConnectedLanesPair> list : concurrentPermissiveConfigMap.values()) {
+        for (ConnectedLanesPairList list : concurrentPermissiveConfigMap.values()) {
             allowConcurrentPermissiveSet.addAll(list);
         }
 
