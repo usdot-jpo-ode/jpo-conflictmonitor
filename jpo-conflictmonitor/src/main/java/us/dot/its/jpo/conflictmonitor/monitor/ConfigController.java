@@ -13,6 +13,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
@@ -204,7 +206,13 @@ public class ConfigController {
             if (intersectionId != config.getIntersectionID()) {
                 errMsg.format("IntersectionID in path does not match body property %s != %s%n", intersectionId, config.getIntersectionID());
             }
-            if (errMsg.toString().length() > 0) {
+
+            // Validate Concurrent Permissive
+            if (config.getValue() instanceof ConnectedLanesPairList connectedLanesPairs) {
+                validateConcurrentPermissive(connectedLanesPairs, intersectionId, region, useRegion, errMsg);
+            }
+
+            if (!errMsg.toString().isEmpty()) {
                 var msg = errMsg.toString();
                 logger.error(msg);
                 updateResult.setResult(ConfigUpdateResult.Result.ERROR);
@@ -225,6 +233,34 @@ public class ConfigController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(updateResult);
         }
 
+    }
+
+
+    private <T> void validateConcurrentPermissive(ConnectedLanesPairList connectedLanesPairs, int intersectionId, int region, boolean useRegion, Formatter errMsg) {
+        // Check that each ConnectedLanesPair in the list has matching intersection ID and region, or
+        // set them from the path if missing.
+        for (ConnectedLanesPair connectedLanesPair : connectedLanesPairs) {
+            Integer lanesIntersectionID = connectedLanesPair.getIntersectionID();
+            Integer lanesRegion = connectedLanesPair.getRoadRegulatorID();
+
+            if (lanesIntersectionID == null) {
+                connectedLanesPair.setIntersectionID(intersectionId);
+            } else if (lanesIntersectionID.intValue() != intersectionId) {
+                errMsg.format("IntersectionID in path, %s, does not match one of the items", intersectionId, connectedLanesPair);
+            }
+
+            if (useRegion) {
+                if (lanesRegion == null) {
+                    connectedLanesPair.setRoadRegulatorID(region);
+                } else if (lanesRegion.intValue() != region) {
+                    errMsg.format("Region in path, %s,  does not match road regulator ID in one of the items: %s", region, connectedLanesPair);
+                }
+            } else {
+                if (lanesRegion != null && lanesRegion.intValue() != -1) {
+                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is set to a value other than -1 in a ConnectedLanesPair: %s", connectedLanesPair);
+                }
+            }
+        }
     }
 
     private ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfigHelper(
