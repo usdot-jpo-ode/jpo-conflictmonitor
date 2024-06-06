@@ -23,6 +23,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKe
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
+import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Map;
 import java.util.Optional;
@@ -133,7 +134,7 @@ public class ConfigController {
     public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveDefaultConfig(
             @PathVariable(name = "key") String key,
             @RequestBody DefaultConfig<T> config) {
-        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
+        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<>();
         try {
 
 
@@ -195,8 +196,8 @@ public class ConfigController {
     private <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfigHelper(
             int region, int intersectionId, String key, IntersectionConfig<T> config, boolean useRegion) {
 
-        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
-        try (var errMsg = new Formatter();) {
+        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<>();
+        try (var errMsg = new Formatter()) {
 
             // Validate path keys
             if (!key.equals(config.getKey())) {
@@ -216,8 +217,12 @@ public class ConfigController {
             }
 
             // Validate Concurrent Permissive
-            if (config.getValue() instanceof ConnectedLanesPairList connectedLanesPairs) {
+            logger.info("Type = {}", config.getType());
+            if (ConnectedLanesPairList.class.getName().equals(config.getType())) {
+                ConnectedLanesPairList connectedLanesPairs = new ConnectedLanesPairList((ArrayList)config.getValue());
                 validateConcurrentPermissive(connectedLanesPairs, intersectionId, region, useRegion, errMsg);
+                config.setValue((T)connectedLanesPairs);
+                logger.info("Updated config: {}", config);
             }
 
             if (!errMsg.toString().isEmpty()) {
@@ -254,18 +259,18 @@ public class ConfigController {
             if (lanesIntersectionID == null) {
                 connectedLanesPair.setIntersectionID(intersectionId);
             } else if (lanesIntersectionID != intersectionId) {
-                errMsg.format("IntersectionID in path, %s, does not match one of the items: %s", intersectionId, connectedLanesPair);
+                errMsg.format("IntersectionID in path, %s, does not match one of the items: %s%n", intersectionId, connectedLanesPair);
             }
 
             if (useRegion) {
                 if (lanesRegion == null) {
                     connectedLanesPair.setRoadRegulatorID(region);
                 } else if (lanesRegion != region) {
-                    errMsg.format("Region in path, %s,  does not match road regulator ID in one of the items: %s", region, connectedLanesPair);
+                    errMsg.format("Region in path, %s,  does not match road regulator ID in one of the items: %s%n", region, connectedLanesPair);
                 }
             } else {
                 if (lanesRegion != null && lanesRegion != -1) {
-                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is set to a value other than -1 in a ConnectedLanesPair: %s", connectedLanesPair);
+                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is set to a value other than null or -1 in an item: %s%n", connectedLanesPair);
                 }
             }
         }

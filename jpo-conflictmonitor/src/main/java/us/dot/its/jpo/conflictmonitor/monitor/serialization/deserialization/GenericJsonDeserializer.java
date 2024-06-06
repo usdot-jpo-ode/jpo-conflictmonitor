@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+/**
+ * Generic type deserializer for Kafka
+ * @param <T>
+ */
 public class GenericJsonDeserializer<T> implements Deserializer<T> {
 
     private static Logger logger = LoggerFactory.getLogger(GenericJsonDeserializer.class);
