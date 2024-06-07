@@ -8,9 +8,8 @@ import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
-import us.dot.its.jpo.deduplicator.deduplicator.models.ProcessedMapPair;
+import us.dot.its.jpo.deduplicator.deduplicator.models.ProcessedMapWktPair;
 import us.dot.its.jpo.deduplicator.deduplicator.serialization.PairSerdes;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
 
@@ -19,15 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Objects;
 
-public class ProcessedMapDeduplicatorTopology {
+public class ProcessedMapWktDeduplicatorTopology {
 
     private static final Logger logger = LoggerFactory.getLogger(MapDeduplicatorTopology.class);
 
@@ -38,7 +35,7 @@ public class ProcessedMapDeduplicatorTopology {
     Properties streamsProperties;
     ObjectMapper objectMapper;
 
-    public ProcessedMapDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
+    public ProcessedMapWktDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
         this.inputTopic = inputTopic;
         this.outputTopic = outputTopic;
         this.streamsProperties = streamsProperties;
@@ -60,23 +57,23 @@ public class ProcessedMapDeduplicatorTopology {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        KStream<String, ProcessedMap<String>> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapWKT()));
 
-        KStream<String, ProcessedMap<LineString>> deduplicatedStream = inputStream
-            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()))
-            .aggregate(() -> new ProcessedMapPair(new ProcessedMap<LineString>(), true),
+        KStream<String, ProcessedMap<String>> deduplicatedStream = inputStream
+            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapWKT()))
+            .aggregate(() -> new ProcessedMapWktPair(new ProcessedMap<String>(), true),
             (key, newValue, aggregate)->{
 
                 // Handle the first message where the aggregate map isn't good.
                 if(aggregate.getMessage().getProperties() == null){
-                    return new ProcessedMapPair(newValue, true );
+                    return new ProcessedMapWktPair(newValue, true );
                 }
 
-                Instant newValueTime = newValue.getProperties().getOdeReceivedAt().toInstant();
-                Instant oldValueTime = aggregate.getMessage().getProperties().getOdeReceivedAt().toInstant();
+                Instant newValueTime = newValue.getProperties().getTimeStamp().toInstant();
+                Instant oldValueTime = aggregate.getMessage().getProperties().getTimeStamp().toInstant();
                 
                 if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
-                    return new ProcessedMapPair(newValue, true );
+                    return new ProcessedMapWktPair(newValue, true );
                 }else{
                     ZonedDateTime newValueTimestamp = newValue.getProperties().getTimeStamp();
                     ZonedDateTime newValueOdeReceivedAt = newValue.getProperties().getOdeReceivedAt();
@@ -84,23 +81,21 @@ public class ProcessedMapDeduplicatorTopology {
                     newValue.getProperties().setTimeStamp(aggregate.getMessage().getProperties().getTimeStamp());
                     newValue.getProperties().setOdeReceivedAt(aggregate.getMessage().getProperties().getOdeReceivedAt());
 
-                    // int oldHash = aggregate.getMessage().getProperties().hashCode();
-                    // int newhash = newValue.getProperties().hashCode();
-                    int oldHash = Objects.hash(aggregate.getMessage().toString());
-                    int newHash = Objects.hash(newValue.toString());
+                    int oldHash = aggregate.getMessage().getProperties().hashCode();
+                    int newhash = newValue.getProperties().hashCode();
 
-                    if(oldHash != newHash){
+                    if(oldHash != newhash){
                         newValue.getProperties().setTimeStamp(newValueTimestamp);
                         newValue.getProperties().setOdeReceivedAt(newValueOdeReceivedAt);
-                        return new ProcessedMapPair(newValue, true);
+                        return new ProcessedMapWktPair(newValue, true);
                     }else{
-                        return new ProcessedMapPair(aggregate.getMessage(), false);
+                        return new ProcessedMapWktPair(aggregate.getMessage(), false);
                     }
                 }
-            }, Materialized.with(Serdes.String(), PairSerdes.ProcessedMapPair()))
+            }, Materialized.with(Serdes.String(), PairSerdes.ProcessedMapWktPair()))
             .toStream()
             .flatMap((key, value) ->{
-                ArrayList<KeyValue<String, ProcessedMap<LineString>>> outputList = new ArrayList<>();
+                ArrayList<KeyValue<String, ProcessedMap<String>>> outputList = new ArrayList<>();
                 if(value != null && value.isShouldSend()){
                     outputList.add(new KeyValue<>(key, value.getMessage()));   
                 }
@@ -108,7 +103,7 @@ public class ProcessedMapDeduplicatorTopology {
             });
 
         
-        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.ProcessedMapWKT()));
 
         return builder.build();
 

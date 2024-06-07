@@ -11,7 +11,7 @@
     </parent>
     <groupId>usdot.jpo.ode</groupId>
     <artifactId>jpo-deduplicator</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
     <name>jpo-deduplicator</name>
     <url>http://maven.apache.org</url>
@@ -111,15 +111,15 @@
         <dependency>
             <groupId>usdot.jpo.ode</groupId>
             <artifactId>jpo-geojsonconverter</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>1.3.0-SNAPSHOT</version>
             <classifier>jpo-geojsonconverter</classifier>
         </dependency>
         <dependency>
-			<groupId>usdot.jpo.ode</groupId>
-			<artifactId>jpo-conflictmonitor</artifactId>
-			<version>1.2.0-SNAPSHOT</version>
-			<classifier>jpo-conflictmonitor</classifier>
-		</dependency>
+	    <groupId>usdot.jpo.ode</groupId>
+	    <artifactId>jpo-conflictmonitor</artifactId>
+	    <version>1.3.0-SNAPSHOT</version>
+	    <classifier>jpo-conflictmonitor</classifier>
+    	</dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -164,12 +164,6 @@
         <artifactId>commons-math3</artifactId>
         <version>3.6.1</version>
     </dependency> -->
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.14.2</version>
-        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>

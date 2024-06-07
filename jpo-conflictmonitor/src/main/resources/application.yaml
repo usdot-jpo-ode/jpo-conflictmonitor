@@ -63,7 +63,7 @@ kafka.topics:
     - name: topic.CmSpatMinimumDataEvents
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CMBsmEvents
+    - name: topic.CmBsmEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmConnectionOfTravelEvent
@@ -251,6 +251,7 @@ map.validation:
   lowerBound: 9
   upperBound: 11
   debug: false
+
 
 
 # BSM Repartition
