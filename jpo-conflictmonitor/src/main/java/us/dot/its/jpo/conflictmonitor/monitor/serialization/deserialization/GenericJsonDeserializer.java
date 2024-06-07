@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 /**
- * Generic type deserializer for Kafka
- * @param <T>
+ * Generic JSON deserializer for Kafka, deserializes from byte[] data.
  */
 public class GenericJsonDeserializer<T> implements Deserializer<T> {
 
@@ -22,7 +21,7 @@ public class GenericJsonDeserializer<T> implements Deserializer<T> {
 
     protected final ObjectMapper mapper = DateJsonMapper.getInstance();
 
-    private Class<?> genericClass;
+    final Class<?> genericClass;
 
     public GenericJsonDeserializer(Class<?> genericClass) {
         this.genericClass = genericClass;

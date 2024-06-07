@@ -9,20 +9,21 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import java.io.IOException;
 
 /**
- * Generic JSON deserializer for REST controllers
+ * Generic JSON deserializer for REST controllers, deserializes from string.
  */
 @Slf4j
-public class GenericJsonControllerDeserializer<T> extends JsonDeserializer<T> {
+public class GenericJsonStringDeserializer<T> extends JsonDeserializer<T> {
 
     protected final ObjectMapper mapper = DateJsonMapper.getInstance();
 
     final Class<?> genericClass;
 
-    public GenericJsonControllerDeserializer(Class<?> genericClass) {
+    public GenericJsonStringDeserializer(Class<?> genericClass) {
         this.genericClass = genericClass;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
 
 
@@ -36,7 +37,7 @@ public class GenericJsonControllerDeserializer<T> extends JsonDeserializer<T> {
                 throw new IOException(e);
             }
             JavaType javaType = mapper.getTypeFactory().constructParametricType(genericClass, nestedClass);
-            return (T)mapper.readValue(jsonParser, javaType);
+            return (T)mapper.treeToValue(node, javaType);
         }
         return null;
 

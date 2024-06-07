@@ -10,7 +10,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonControllerDeserializer;
+import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonStringDeserializer;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         JavaTimeModule module = new JavaTimeModule();
-        module.addDeserializer(IntersectionConfig.class, new GenericJsonControllerDeserializer<IntersectionConfig<?>>(IntersectionConfig.class));
+        module.addDeserializer(IntersectionConfig.class, new GenericJsonStringDeserializer<IntersectionConfig<?>>(IntersectionConfig.class));
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(module);
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
