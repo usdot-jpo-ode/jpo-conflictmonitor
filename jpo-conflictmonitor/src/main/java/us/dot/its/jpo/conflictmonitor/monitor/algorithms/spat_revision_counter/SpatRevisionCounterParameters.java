@@ -12,21 +12,21 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 @Data
 @Generated
 @Component
-@ConfigurationProperties(prefix = "SpatRevisionCounter")
+@ConfigurationProperties(prefix = "spat.revision.counter")
 @ConfigDataClass
 public class SpatRevisionCounterParameters {
     
-    @ConfigData(key = "spatRevisionCounter.debug", 
+    @ConfigData(key = "spat.revision.counter.debug", 
         description = "Whether to log diagnostic information for debugging",
         updateType = DEFAULT)
     boolean debug;
 
-    @ConfigData(key = "spatRevisionCounter.spatInputTopicName", 
+    @ConfigData(key = "spat.revision.counter.spatInputTopicName", 
         description = "The name of the topic to read SPATs from", 
         updateType = READ_ONLY)
     String spatInputTopicName;
 
-    @ConfigData(key = "spatRevisionCounter.spatRevisionEventOutputTopicName", 
+    @ConfigData(key = "spat.revision.counter.spatRevisionEventOutputTopicName", 
         description = "The name of the topic to write SPAT revision counter events to", 
         updateType = READ_ONLY)
     String spatRevisionEventOutputTopicName;
