@@ -23,6 +23,7 @@ public class BsmEvent {
     private String wktPath;
     private String wktMapBoundingBox;
     private boolean inMapBoundingBox;
+    private Integer intersectionID;
 
     /**
      * Timestamp to use with wall clock punctuator

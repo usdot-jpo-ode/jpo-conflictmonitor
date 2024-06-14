@@ -168,7 +168,9 @@ docker-compose ps
 
 **Notes:**
 - Docker builds may fail if you are on a corporate network due to DNS resolution errors.
-- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.**
+- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.
+- The MongoDB keyfile should be randomized for each deployment. To Create a new keyfile run the following `openssl rand -base64 756 > ./docker/mongo/keyfile.txt`
+**
 
 Navigate to the root directory of the jpo-conflictmonitor project and run the following command:
 
@@ -280,6 +282,10 @@ Install the IDE of your choice:
 ### Standalone Deployment
 
 * The standalone deployment has the services provided by `docker-compose-standalone.yml` and is intended to only deploy the conflict monitor service with auto-restarting conditions. This deployment requires an existing MongoDB database as well as configurations for kafka connectors for an existing kafka-connector service.
+
+### Release Deployment
+
+* The release deployment has the services provided by `release-compose.yml` including a MongoDB container, Monitor Container and Connector container. This deployment references pre-built dockerfiles available on dockerhub, and can provide a streamlined deployment process using the latest formal release.
 
 [Back to top](#toc)
 

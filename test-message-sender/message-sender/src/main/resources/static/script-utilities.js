@@ -89,20 +89,31 @@ class ScriptUtilities {
     // ProcessedSpat;[RSU ID];[Intersection ID],[relative timestamp],[ProcessedSpat message]
     //
     buildScriptFromProcessedSpat(processedSpat, key) {
+        console.log(processedSpat);
         const scriptSpat = JSON.parse(JSON.stringify(processedSpat));
         const time = this.relativeTimestamp(scriptSpat.odeReceivedAt);
+        let timestampMillis;
+        if (processedSpat.utcTimeStamp != null) {
+            timestampMillis = Date.parse(processedSpat.utcTimeStamp);
+        } else if (processedSpat.odeReceivedAt != null) {
+            timestampMillis = Date.parse(processedSpat.odeReceivedAt);
+        }
+        //console.log("timestampMillis: " + timestampMillis);
         scriptSpat.odeReceivedAt = this.ISO_DATE_TIME;
-        const timestampSeconds = processedSpat.utcTimeStamp;
-        scriptSpat.utcTimeStamp = this.EPOCH_SECONDS;
+        scriptSpat.utcTimeStamp = this.ISO_DATE_TIME;
         for (const state of scriptSpat.states) {
             for (const event of state.stateTimeSpeed) {
-                if (event.timing?.minEndTime != null) {
-                    const minOffsetSeconds = event.timing.minEndTime - timestampSeconds;
-                    event.timing.minEndTime = this.OFFSET_SECONDS.replace('#', minOffsetSeconds.toString());
+                if (event.timing != null && event.timing.minEndTime != null) {
+                    const minEndTimeMillis = Date.parse(event.timing.minEndTime);
+                    //console.log("minEndTimeMillis: " + minEndTimeMillis);
+                    const minEndTimeOffsetSeconds = (minEndTimeMillis - timestampMillis) / 1000;
+                    //console.log("minEndTimeOffsetSeconds: " + minEndTimeOffsetSeconds);
+                    event.timing.minEndTime = this.OFFSET_SECONDS.replace('#', minEndTimeOffsetSeconds.toString());
                 }
-                if (event.timing?.maxEndTime != null) {
-                    const maxOffsetSeconds = event.timing.maxEndTime - timestampSeconds;
-                    event.timing.maxEndTime = this.OFFSET_SECONDS.replace('#', maxOffsetSeconds.toString());
+                if (event.timing != null && event.timing.maxEndTime != null) {
+                    const maxEndTimeMillis = Date.parse(event.timing.maxEndTime);
+                    const maxEndTimeOffsetSeconds = (maxEndTimeMillis - timestampMillis) / 1000;
+                    event.timing.maxEndTime = this.OFFSET_SECONDS.replace('#', maxEndTimeOffsetSeconds.toString());
                 }
             }
         }

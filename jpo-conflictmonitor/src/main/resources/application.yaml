@@ -6,7 +6,7 @@ version: ^project.version^
 server.port: 8082
 
 # Kafka properties
-spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:localhost}:9092
 
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
@@ -20,7 +20,7 @@ appHealthNotificationTopic: topic.CmAppHealthNotifications
 
 # BSM
 kafkaTopicOdeBsmJson: topic.OdeBsmJson
-kafkaTopicCmBsmEvent: topic.CMBsmEvents
+kafkaTopicCmBsmEvent: topic.CmBsmEvents
 kafkaTopicBsmRepartition: topic.CmBsmJsonRepartition
 
 
@@ -63,7 +63,7 @@ kafka.topics:
     - name: topic.CmSpatMinimumDataEvents
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CMBsmEvents
+    - name: topic.CmBsmEvents
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmConnectionOfTravelEvent
@@ -247,6 +247,7 @@ map.validation:
   debug: false
 
 
+
 # BSM Repartition
 repartition:
   algorithm: defaultRepartitionAlgorithm
@@ -367,7 +368,7 @@ intersection.reference.alignment.notification:
 bsm.event:
   algorithm: defaultBsmEventAlgorithm
   inputTopic: topic.CmBsmJsonRepartition
-  outputTopic: topic.CMBsmEvents
+  outputTopic: topic.CmBsmEvents
   bsmIntersectionOutputTopic: topic.CmBsmIntersection
   stateStoreName: bsm-event-state-store
   debug: false
