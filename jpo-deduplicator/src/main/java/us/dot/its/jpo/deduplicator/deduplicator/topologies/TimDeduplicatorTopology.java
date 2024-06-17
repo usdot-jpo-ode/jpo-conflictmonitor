@@ -79,7 +79,7 @@ public class TimDeduplicatorTopology {
 
         KStream<String, JsonNode> timRekeyedStream = inputStream.selectKey((key, value)->{
             try{
-                String packetID = value.get("payload")
+                JsonNode travellerInformation = value.get("payload")
                     .get("data")
                     .get("AdvisorySituationData")
                     .get("asdmDetails")
@@ -89,10 +89,14 @@ public class TimDeduplicatorTopology {
                     .get("unsecuredData")
                     .get("MessageFrame")
                     .get("value")
-                    .get("TravelerInformation")
-                    .get("packetID")
-                    .asText();
-                return packetID;
+                    .get("TravelerInformation");
+
+                    String packetId = travellerInformation.get("packetID").asText();
+                    String msgCnt = travellerInformation.get("msgCnt").asText();
+
+
+                String newKey = packetId + "_" + msgCnt;
+                return newKey;
             }catch(Exception e){
                 return "";
             }

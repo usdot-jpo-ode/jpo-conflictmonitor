@@ -54,6 +54,21 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private static final Logger logger = LoggerFactory.getLogger(DeduplicatorProperties.class);
 
 
+   private String kafkaTopicProcessedMap;
+   private String kafkaTopicDeduplicatedProcessedMap;
+
+   //Processed Map WKT Topic
+   private String kafkaTopicProcessedMapWKT;
+   private String kafkaTopicDeduplicatedProcessedMapWKT;
+
+   //Ode Map Json Topic
+   private String kafkaTopicOdeMapJson;
+   private String kafkaTopicDeduplicatedOdeMapJson;
+
+   //Ode Tim Json Topics
+   private String kafkaTopicOdeTimJson;
+   private String kafkaTopicDeduplicatedOdeTimJson;
+
    // Confluent Properties
    private boolean confluentCloudEnabled = false;
    private String confluentKey = null;
@@ -254,6 +269,46 @@ public class DeduplicatorProperties implements EnvironmentAware  {
 		return confluentCloudEnabled;
 	}
 
+
+   @Value("${kafkaTopicProcessedMap}")
+   public void setKafkaTopicProcessedMap(String kafkaTopicProcessedMap) {
+      this.kafkaTopicProcessedMap = kafkaTopicProcessedMap;
+   }
+
+   @Value("${kafkaTopicDeduplicatedProcessedMap}")
+   public void setKafkaTopicDeduplicatedProcessedMap(String kafkaTopicDeduplicatedProcessedMap) {
+      this.kafkaTopicDeduplicatedProcessedMap = kafkaTopicDeduplicatedProcessedMap;
+   }
+
+   @Value("${kafkaTopicProcessedMapWKT}")
+   public void setKafkaTopicProcessedMapWKT(String kafkaTopicProcessedMapWKT) {
+      this.kafkaTopicProcessedMapWKT = kafkaTopicProcessedMapWKT;
+   }
+
+   @Value("${kafkaTopicDeduplicatedProcessedMapWKT}")
+   public void setKafkaTopicDeduplicatedProcessedMapWKT(String kafkaTopicDeduplicatedProcessedMapWKT) {
+      this.kafkaTopicDeduplicatedProcessedMapWKT = kafkaTopicDeduplicatedProcessedMapWKT;
+   }
+
+   @Value("${kafkaTopicOdeMapJson}")
+   public void setKafkaTopicOdeMapJson(String kafkaTopicOdeMapJson) {
+      this.kafkaTopicOdeMapJson = kafkaTopicOdeMapJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedOdeMapJson}")
+   public void setKafkaTopicDeduplicatedOdeMapJson(String kafkaTopicDeduplicatedOdeMapJson) {
+      this.kafkaTopicDeduplicatedOdeMapJson = kafkaTopicDeduplicatedOdeMapJson;
+   }
+
+   @Value("${kafkaTopicOdeTimJson}")
+   public void setKafkaTopicOdeTimJson(String kafkaTopicOdeTimJson) {
+      this.kafkaTopicOdeTimJson = kafkaTopicOdeTimJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedOdeTimJson}")
+   public void setKafkaTopicDeduplicatedOdeTimJson(String kafkaTopicDeduplicatedOdeTimJson) {
+      this.kafkaTopicDeduplicatedOdeTimJson = kafkaTopicDeduplicatedOdeTimJson;
+   }
 
    @Value("${spring.kafka.bootstrap-servers}")
    public void setKafkaBrokers(String kafkaBrokers) {
