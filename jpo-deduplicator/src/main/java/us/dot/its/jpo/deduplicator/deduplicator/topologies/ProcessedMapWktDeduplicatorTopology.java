@@ -51,6 +51,7 @@ public class ProcessedMapWktDeduplicatorTopology {
         streams = new KafkaStreams(topology, streamsProperties);
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
         if (stateListener != null) streams.setStateListener(stateListener);
+        logger.info("Starting Processed Map WKT Deduplicator Topology");
         streams.start();
     }
 
