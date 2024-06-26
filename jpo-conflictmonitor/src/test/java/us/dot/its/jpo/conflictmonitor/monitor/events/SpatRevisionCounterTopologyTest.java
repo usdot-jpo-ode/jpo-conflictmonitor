@@ -68,6 +68,7 @@ public class SpatRevisionCounterTopologyTest {
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat2); // the same spat, with revision incremented
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat3); // a changed spat, with revision incremented
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat4); // a changed spat, without revision incremented
+            inputProcessedSpatData.pipeInput(key, inputProcessedSpat4); // spat 4 again
 
             List<KeyValue<String, SpatRevisionCounterEvent>> spatRevisionCounterEvents = outputRevisionCounterEvents.readKeyValuesToList();
 
@@ -77,10 +78,16 @@ public class SpatRevisionCounterTopologyTest {
             ProcessedSpat spat3 = objectMapper.readValue(inputProcessedSpat3, typeReference);
             ProcessedSpat spat4 = objectMapper.readValue(inputProcessedSpat4, typeReference);
 
-            assertEquals(spat3.getOdeReceivedAt(), spatRevisionCounterEvents.get(1).value.getPreviousSpat().getOdeReceivedAt());
-            assertEquals(spat4.getOdeReceivedAt(), spatRevisionCounterEvents.get(1).value.getNewSpat().getOdeReceivedAt());
-            assertNotEquals(spatRevisionCounterEvents.get(1).value.getPreviousSpat().getRevision(),
-                            spatRevisionCounterEvents.get(1).value.getNewSpat().getRevision());
+            assertEquals(spat3.getOdeReceivedAt(), spatRevisionCounterEvents.get(0).value.getPreviousSpat().getOdeReceivedAt());
+            assertEquals(spat4.getOdeReceivedAt(), spatRevisionCounterEvents.get(0).value.getNewSpat().getOdeReceivedAt());
+            assertEquals(spatRevisionCounterEvents.get(0).value.getPreviousSpat().getRevision(),
+            spatRevisionCounterEvents.get(0).value.getNewSpat().getRevision());
+
+            int hashSpat3 = spat3.hashCode();
+            int hashSpat4 = spat4.hashCode();    
+            assertNotEquals(hashSpat3, hashSpat4);
+        
+
            
         } catch (JsonMappingException e) {
             e.printStackTrace();

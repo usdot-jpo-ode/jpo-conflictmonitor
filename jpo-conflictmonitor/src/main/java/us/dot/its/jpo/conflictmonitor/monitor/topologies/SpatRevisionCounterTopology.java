@@ -62,51 +62,48 @@ public class SpatRevisionCounterTopology {
         .aggregate(() -> new SpatRevisionCounterEvent(),
         (key, newValue, aggregate) -> {
 
-                if (aggregate.getPreviousSpat() == null){
-                    aggregate.setPreviousSpat(newValue);
-                    return null;
+            aggregate.setMessage(null);
+            if (aggregate.getNewSpat() == null){
+                aggregate.setNewSpat(newValue);
+                return aggregate;
+            }
+
+            //update the aggregate
+            aggregate.setPreviousSpat(aggregate.getNewSpat());
+            aggregate.setNewSpat(newValue);
+
+            aggregate.getNewSpat().setUtcTimeStamp(aggregate.getPreviousSpat().getUtcTimeStamp());
+            aggregate.getNewSpat().setOdeReceivedAt(aggregate.getPreviousSpat().getOdeReceivedAt());
+
+            int oldHash = aggregate.getPreviousSpat().hashCode();
+            int newHash = aggregate.getNewSpat().hashCode();
+
+            if (oldHash != newHash){  //Contents of spat message have changed
+                aggregate.getNewSpat().setUtcTimeStamp(newValue.getUtcTimeStamp());
+                aggregate.getNewSpat().setOdeReceivedAt(newValue.getOdeReceivedAt());
+                if (aggregate.getNewSpat().getRevision() == aggregate.getPreviousSpat().getRevision()) { //Revision has not changed
+                    aggregate.setMessage("Spat message changed without revision increment.");
+                    
+                    return aggregate;
                 }
-
-                ZonedDateTime newValueTimestamp = newValue.getUtcTimeStamp();
-                String newValueOdeReceivedAt = newValue.getOdeReceivedAt();
-
-                newValue.setUtcTimeStamp(aggregate.getPreviousSpat().getUtcTimeStamp());
-                newValue.setOdeReceivedAt(aggregate.getPreviousSpat().getOdeReceivedAt());
-
-                int oldHash = aggregate.getPreviousSpat().hashCode();
-                int newHash = newValue.hashCode();
-
-                if (oldHash != newHash){  //Contents of spat message have changed
-                    newValue.setUtcTimeStamp(newValueTimestamp);
-                    newValue.setOdeReceivedAt(newValueOdeReceivedAt);
-                    if (newValue.getRevision() == aggregate.getPreviousSpat().getRevision()) { //Revision has not changed
-                        SpatRevisionCounterEvent newEvent = new SpatRevisionCounterEvent();
-                        newEvent.setPreviousSpat(aggregate.getPreviousSpat());
-                        newEvent.setNewSpat(newValue);
-                        newEvent.setMessage("Spat message changed without revision increment.");
-                        
-                        aggregate.setPreviousSpat(newValue);
-                        return newEvent;
-                    }
-                    else { //Revision has changed
-                        aggregate.setPreviousSpat(newValue);
-
-                        return null;
-                    }
+                else { //Revision has changed
+                    return aggregate;
                 }
-                else { //Spat messages are the same
-                    return null;
-                }
+            }
+            else { //Spat messages are the same
+                return aggregate;
 
-            }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatRevisionCounterEvent()))
-            .toStream()
-            .flatMap((key, value) ->{
-                ArrayList<KeyValue<String, SpatRevisionCounterEvent>> outputList = new ArrayList<>();
-                if (value != null){
-                    outputList.add(new KeyValue<>(key, value));   
-                }
-                return outputList;
-            });
+            }
+
+        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatRevisionCounterEvent()))
+        .toStream()
+        .flatMap((key, value) ->{
+            ArrayList<KeyValue<String, SpatRevisionCounterEvent>> outputList = new ArrayList<>();
+            if (value.getMessage() != null){
+                outputList.add(new KeyValue<>(key, value));   
+            }
+            return outputList;
+        });
         eventStream.to(outputTopic, Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatRevisionCounterEvent()));
 
         return builder.build();

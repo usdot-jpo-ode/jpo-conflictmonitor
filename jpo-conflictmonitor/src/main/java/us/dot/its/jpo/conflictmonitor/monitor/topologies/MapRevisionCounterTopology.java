@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Properties;
 
 public class MapRevisionCounterTopology {
@@ -63,51 +63,47 @@ public class MapRevisionCounterTopology {
         .aggregate(() -> new MapRevisionCounterEvent(),
         (key, newValue, aggregate) -> {
 
-                if (aggregate.getPreviousMap() == null){
-                    aggregate.setPreviousMap(newValue);
-                    return null;
+            aggregate.setMessage(null);
+            if (aggregate.getNewMap() == null){
+                aggregate.setNewMap(newValue);
+                return aggregate;
+            }
+
+            //update the aggregate
+            aggregate.setPreviousMap(aggregate.getNewMap());
+            aggregate.setNewMap(newValue);
+
+            aggregate.getNewMap().getProperties().setTimeStamp(aggregate.getPreviousMap().getProperties().getTimeStamp());
+            aggregate.getNewMap().getProperties().setOdeReceivedAt(aggregate.getPreviousMap().getProperties().getOdeReceivedAt());
+
+            int oldHash = Objects.hash(aggregate.getPreviousMap().toString());
+            int newHash = Objects.hash(aggregate.getNewMap().toString());
+
+            if (oldHash != newHash){  //Contents of map message have changed
+                aggregate.getNewMap().getProperties().setTimeStamp(newValue.getProperties().getTimeStamp());
+                aggregate.getNewMap().getProperties().setOdeReceivedAt(newValue.getProperties().getOdeReceivedAt());
+                if (aggregate.getNewMap().getProperties().getRevision() == aggregate.getPreviousMap().getProperties().getRevision()) { //Revision has not changed
+                    aggregate.setMessage("Map message changed without revision increment.");
+                    return aggregate;
                 }
-
-                ZonedDateTime newValueTimestamp = newValue.getProperties().getTimeStamp();
-                ZonedDateTime newValueOdeReceivedAt = newValue.getProperties().getOdeReceivedAt();
-
-                newValue.getProperties().setTimeStamp(aggregate.getPreviousMap().getProperties().getTimeStamp());
-                newValue.getProperties().setOdeReceivedAt(aggregate.getPreviousMap().getProperties().getOdeReceivedAt());
-
-                int oldHash = aggregate.getPreviousMap().getProperties().hashCode();
-                int newHash = newValue.getProperties().hashCode();
-
-                if (oldHash != newHash){  //Contents of Map message have changed
-                    newValue.getProperties().setTimeStamp(newValueTimestamp);
-                    newValue.getProperties().setOdeReceivedAt(newValueOdeReceivedAt);
-                    if (newValue.getProperties().getRevision() == aggregate.getPreviousMap().getProperties().getRevision()) { //Revision has not changed
-                        MapRevisionCounterEvent newEvent = new MapRevisionCounterEvent();
-                        newEvent.setPreviousMap(aggregate.getPreviousMap());
-                        newEvent.setNewMap(newValue);
-                        newEvent.setMessage("Map message changed without revision increment.");
-                        
-                        aggregate.setPreviousMap(newValue);
-                        return newEvent;
-                    }
-                    else { //Revision has changed
-                        aggregate.setPreviousMap(newValue);
-
-                        return null;
-                    }
+                else { //Revision has changed
+                    return aggregate;
                 }
-                else { //Map messages are the same
-                    return null;
-                }
+            }
+            else { //Map messages are the same
+                return aggregate;
 
-            }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()))
-            .toStream()
-            .flatMap((key, value) ->{
-                ArrayList<KeyValue<String, MapRevisionCounterEvent>> outputList = new ArrayList<>();
-                if (value != null){
-                    outputList.add(new KeyValue<>(key, value));   
-                }
-                return outputList;
-            });
+            }
+
+        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()))
+        .toStream()
+        .flatMap((key, value) ->{
+            ArrayList<KeyValue<String, MapRevisionCounterEvent>> outputList = new ArrayList<>();
+            if (value.getMessage() != null){
+                outputList.add(new KeyValue<>(key, value));   
+            }
+            return outputList;
+        });
         eventStream.to(outputTopic, Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()));
 
         return builder.build();
