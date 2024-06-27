@@ -83,5 +83,14 @@ public class EventParameters {
         updateType = READ_ONLY)
     String connectionOfTravelEventTopicName;
 
+    @ConfigData(key = "event.spatRevisionCounterEventTopicName", 
+        description = "The name of the topic to read spat revision counter events from", 
+        updateType = READ_ONLY)
+    String spatRevisionCounterEventTopicName;
+
+    @ConfigData(key = "event.mapRevisionCounterEventTopicName", 
+        description = "The name of the topic to read map revision counter events from", 
+        updateType = READ_ONLY)
+    String mapRevisionCounterEventTopicName;
     
 }
