@@ -6,11 +6,30 @@ version: ^project.version^
 server.port: 8085
 
 # Kafka properties
-spring.kafka.bootstrap-servers: 172.250.250.181:9092
+spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:localhost}:9092
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
 log4j.logger.kafka: OFF
 log4j.logger.org.apache.kafka: OFF
+
+
+
+# Processed Map Topic
+kafkaTopicProcessedMap: topic.ProcessedMap
+kafkaTopicDeduplicatedProcessedMap: topic.DeduplicatedProcessedMap
+
+# Processed Map WKT Topic
+kafkaTopicProcessedMapWKT: topic.ProcessedMapWKT
+kafkaTopicDeduplicatedProcessedMapWKT: topic.DeduplicatedProcessedMapWKT
+
+# Ode Map Json Topic
+kafkaTopicOdeMapJson: topic.OdeMapJson
+kafkaTopicDeduplicatedOdeMapJson: topic.DeduplicatedOdeMapJson
+
+# Ode Tim Json Topics
+kafkaTopicOdeTimJson: topic.OdeTimJson
+kafkaTopicDeduplicatedOdeTimJson: topic.DeduplicatedOdeTimJson
+
 
 
 
@@ -20,28 +39,28 @@ kafka.topics:
   numPartitions: 1
   numReplicas: 1
   createTopics:
-    - name: topic.ProcessedMap
+    - name: ${kafkaTopicProcessedMap}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedProcessedMap
+    - name: ${kafkaTopicDeduplicatedProcessedMap}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.ProcessedMapWKT
+    - name: ${kafkaTopicProcessedMapWKT}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedProcessedMapWKT
+    - name: ${kafkaTopicDeduplicatedProcessedMapWKT}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.OdeMapJson
+    - name: ${kafkaTopicOdeMapJson}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedOdeMapJson
+    - name: ${kafkaTopicDeduplicatedOdeMapJson}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.OdeTimJson
+    - name: ${kafkaTopicOdeTimJson}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedOdeTimJson
+    - name: ${kafkaTopicDeduplicatedOdeTimJson}
       cleanupPolicy: delete
       retentionMs: 300000
     

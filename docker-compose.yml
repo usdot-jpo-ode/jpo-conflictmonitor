@@ -77,7 +77,7 @@ services:
     volumes:
       - mongodb_data_container:/data/db
       - ./docker/mongo/manage-volume-cron:/docker-entrypoint-initdb.d/manage-volume-cron
-      - ./docker/mongo/keyfile.txt:/data/keyfile.txt
+      - ./docker/mongo/keyfile.txt:/data/keyfile-import.txt
       - ./docker/mongo/a_init_replicas.js:/docker-entrypoint-initdb.d/a_init_replicas.js
       - ./docker/mongo/b_create_indexes.js:/docker-entrypoint-initdb.d/b_create_indexes.js
       - ./docker/mongo/manage_volume.js:/docker-entrypoint-initdb.d/manage_volume.js
@@ -98,6 +98,7 @@ services:
         dos2unix /etc/cron.d/manage-volume-cron
         chmod 644 /etc/cron.d/manage-volume-cron
         systemctl restart cron
+        cp /data/keyfile-import.txt /data/keyfile.txt
         chmod 400 /data/keyfile.txt
         chown 999:999 /data/keyfile.txt
         
