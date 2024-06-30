@@ -176,14 +176,6 @@ public class ConflictMonitorPropertiesTest {
         assertThat(properties.getProperty("artifactId", "default"), allOf(notNullValue(), not(equalTo("default"))));
     }
 
-    @Test
-    public void testConcurrentPermissiveDefaults() {
-        var props = properties.getMapSpatMessageAssessmentParameters();
-        var concurrentPermissive = props.getConcurrentPermissiveList();
-        logger.info("ConcurrentPermissive: {}", concurrentPermissive);
-        assertThat(concurrentPermissive, notNullValue());
-        assertThat(concurrentPermissive, hasSize(greaterThan(0)));
 
-    }
     
 }

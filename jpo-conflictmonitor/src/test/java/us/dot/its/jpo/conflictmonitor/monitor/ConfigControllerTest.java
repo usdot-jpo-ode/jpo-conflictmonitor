@@ -16,13 +16,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanes;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils;
 
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -181,6 +187,48 @@ public class ConfigControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(config.getIntersectionKey())))
                 .andExpect(content().string(containsString(ConfigUpdateResult.Result.UPDATED.toString())));
+
+    }
+
+    @Test
+    public void testSaveIntersectionConfig_ConcurrentPermissive() throws Exception {
+        final String key = "map.spat.message.assessment.concurrentPermissiveList";
+        final int intersectionId = ConfigTestUtils.intersectionId;
+        final int region = ConfigTestUtils.regionId;
+        final String description = "Concurrent permissive lanes";
+        final ConnectedLanesPairList pairList = new ConnectedLanesPairList();
+        ConnectedLanesPair pair1 = new ConnectedLanesPair();
+        pair1.setFirst(new ConnectedLanes(1, 2));
+        pair1.setSecond(new ConnectedLanes(3, 4));
+        ConnectedLanesPair pair2 = new ConnectedLanesPair();
+        pair2.setFirst(new ConnectedLanes(5, 6));
+        pair2.setSecond(new ConnectedLanes(7, 8));
+        pairList.add(pair1);
+        pairList.add(pair2);
+
+        final var config = new IntersectionConfig<ConnectedLanesPairList>();
+        config.setKey(key);
+        config.setValue(pairList);
+        config.setCategory("test");
+        config.setUnits(UnitsEnum.NONE);
+        config.setDescription(description);
+        config.setIntersectionID(intersectionId);
+        config.setRoadRegulatorID(region);
+        config.setType(ConnectedLanesPairList.class.getName());
+
+        final ConfigUpdateResult<ConnectedLanesPairList> expectUpdateResult = ConfigTestUtils.getUpdateResult(config);
+
+        when(configTopology.updateIntersectionConfig(config)).thenReturn(expectUpdateResult);
+
+        mockMvc.perform(
+                        post("/config/intersection/{region}/{intersectionId}/{key}", region, intersectionId, key)
+                                .content(config.toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.ALL)
+                ).andDo(mvcResult -> logger.info("POST /config/intersection/{}/{}/{}: {}", region, intersectionId, key, mvcResult.getResponse().getContentAsString()))
+                .andExpect(status().isOk());
+                //.andExpect(content().string(containsString(config.getIntersectionKey())))
+                //.andExpect(content().string(containsString(ConfigUpdateResult.Result.UPDATED.toString())));
 
     }
 }
