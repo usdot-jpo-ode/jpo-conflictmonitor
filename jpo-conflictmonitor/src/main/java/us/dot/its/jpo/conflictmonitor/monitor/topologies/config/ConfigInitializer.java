@@ -1,6 +1,9 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.reflect.Invokable;
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
@@ -17,6 +20,7 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
 @Component
@@ -78,29 +82,28 @@ public class ConfigInitializer {
     }
 
     private DefaultConfig<?> createConfig(Class<?> type, Object propValue, ConfigData updatable) {
-
         if (Integer.class.equals(type) || "int".equals(type.getName())) {
-            var config = new DefaultIntConfig();
+            var config = new DefaultConfig<Integer>();
             config.setValue((Integer) propValue);
             setConfigProps(config, updatable, Integer.class);
             return config;
         } else if (String.class.equals(type)) {
-            var config = new DefaultStringConfig();
+            var config = new DefaultConfig<String>();
             config.setValue((String) propValue);
             setConfigProps(config, updatable, String.class);
             return config;
         } else if (Boolean.class.equals(type) || "boolean".equals(type.getName())) {
-            var config = new DefaultBooleanConfig();
+            var config = new DefaultConfig<Boolean>();
             config.setValue((Boolean) propValue);
             setConfigProps(config, updatable, Boolean.class);
             return config;
         } else if (Double.class.equals(type) || "double".equals(type.getName())) {
-            var config = new DefaultDoubleConfig();
+            var config = new DefaultConfig<Double>();
             config.setValue((Double) propValue);
             setConfigProps(config, updatable, Double.class);
             return config;
         } else if (Long.class.equals(type) || "long".equals(type.getName())) {
-            var config = new DefaultLongConfig();
+            var config = new DefaultConfig<Long>();
             config.setValue((Long) propValue);
             setConfigProps(config, updatable, Long.class);
             return config;
@@ -114,7 +117,7 @@ public class ConfigInitializer {
             setConfigProps(config, updatable, ConnectedLanesPairList.class);
             return config;
         } else {
-            var config = new DefaultIntConfig();
+            var config = new DefaultConfig<Integer>();
             config.setValue((Integer)propValue);
             setConfigProps(config, updatable, Integer.class);
             return config;

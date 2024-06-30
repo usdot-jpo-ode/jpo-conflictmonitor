@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * An unordered pair of connected lanes in the same intersection.
- * Equals and HashCode are defined so the order of 'first' and 'second' set of connected lanes doesn't matter.
+ * Equals and HashCode are defined so the order of the 'first' and 'second' set of connected lanes doesn't matter.
  */
 @Getter
 @Setter
