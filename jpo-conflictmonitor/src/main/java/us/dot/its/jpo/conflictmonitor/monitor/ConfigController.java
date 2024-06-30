@@ -234,6 +234,7 @@ public class ConfigController {
             }
 
             updateResult = configAlgorithm.updateIntersectionConfig(config);
+            logger.info("Update Result ==> {}", updateResult);
             return ResponseEntity.ok(updateResult);
 
         } catch (ConfigException ce) {

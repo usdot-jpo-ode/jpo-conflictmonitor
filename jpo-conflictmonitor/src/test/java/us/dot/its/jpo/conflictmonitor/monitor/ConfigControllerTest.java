@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResu
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanes;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.Config;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
@@ -217,8 +218,9 @@ public class ConfigControllerTest {
         config.setType(ConnectedLanesPairList.class.getName());
 
         final ConfigUpdateResult<ConnectedLanesPairList> expectUpdateResult = ConfigTestUtils.getUpdateResult(config);
+        logger.info("Expect update result: {}", expectUpdateResult);
 
-        when(configTopology.updateIntersectionConfig(config)).thenReturn(expectUpdateResult);
+        when(configTopology.updateIntersectionConfig(any())).thenReturn((ConfigUpdateResult)expectUpdateResult);
 
         mockMvc.perform(
                         post("/config/intersection/{region}/{intersectionId}/{key}", region, intersectionId, key)
@@ -226,9 +228,9 @@ public class ConfigControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.ALL)
                 ).andDo(mvcResult -> logger.info("POST /config/intersection/{}/{}/{}: {}", region, intersectionId, key, mvcResult.getResponse().getContentAsString()))
-                .andExpect(status().isOk());
-                //.andExpect(content().string(containsString(config.getIntersectionKey())))
-                //.andExpect(content().string(containsString(ConfigUpdateResult.Result.UPDATED.toString())));
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(config.getIntersectionKey())))
+                .andExpect(content().string(containsString(ConfigUpdateResult.Result.UPDATED.toString())));
 
     }
 }
