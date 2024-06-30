@@ -54,7 +54,8 @@ public class TimDeduplicatorTopology {
         streams = new KafkaStreams(topology, streamsProperties);
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
         if (stateListener != null) streams.setStateListener(stateListener);
-        logger.info("Starting Map Deduplicator Topology");
+        logger.info("Starting Tim Deduplicator Topology");
+        streams.start();
     }
 
     public JsonNode genJsonNode(){
@@ -79,7 +80,7 @@ public class TimDeduplicatorTopology {
 
         KStream<String, JsonNode> timRekeyedStream = inputStream.selectKey((key, value)->{
             try{
-                String packetID = value.get("payload")
+                JsonNode travellerInformation = value.get("payload")
                     .get("data")
                     .get("AdvisorySituationData")
                     .get("asdmDetails")
@@ -89,20 +90,27 @@ public class TimDeduplicatorTopology {
                     .get("unsecuredData")
                     .get("MessageFrame")
                     .get("value")
-                    .get("TravelerInformation")
-                    .get("packetID")
-                    .asText();
-                return packetID;
+                    .get("TravelerInformation");
+
+                    String packetId = travellerInformation.get("packetID").asText();
+                    String msgCnt = travellerInformation.get("msgCnt").asText();
+
+
+                String newKey = packetId + "_" + msgCnt;
+                return newKey;
             }catch(Exception e){
                 return "";
             }
         });
+
+        
 
         KStream<String, JsonNode> deduplicatedStream = timRekeyedStream
             .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.JSON()))
             .aggregate(
                     ()-> new JsonPair(genJsonNode(), true),
                     (aggKey, newValue, aggregate) ->{
+
                         if(aggregate.getMessage().get("metadata") == null){
                             return new JsonPair(newValue, true);
                         }
@@ -134,13 +142,13 @@ public class TimDeduplicatorTopology {
     }
 
     public void stop() {
-        logger.info("Stopping Map deduplicator Socket Broadcast Topology.");
+        logger.info("Stopping Tim deduplicator Socket Broadcast Topology.");
         if (streams != null) {
             streams.close();
             streams.cleanUp();
             streams = null;
         }
-        logger.info("Stopped Map deduplicator Socket Broadcast Topology.");
+        logger.info("Stopped Tim deduplicator Socket Broadcast Topology.");
     }
 
     StateListener stateListener;

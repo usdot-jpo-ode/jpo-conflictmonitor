@@ -54,6 +54,7 @@ public class ProcessedMapDeduplicatorTopology {
         streams = new KafkaStreams(topology, streamsProperties);
         if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
         if (stateListener != null) streams.setStateListener(stateListener);
+        logger.info("Starting Processed Map Deduplicator Topology");
         streams.start();
     }
 

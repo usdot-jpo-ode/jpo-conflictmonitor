@@ -18,7 +18,13 @@ https://hub.docker.com/_/mongo/
 
 */
 
+const CM_MONGO_ROOT_USERNAME = process.env.MONGO_INITDB_ROOT_USERNAME;
+const CM_MONGO_ROOT_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD;
 
+
+db = db.getSiblingDB("admin");
+db.auth(CM_MONGO_ROOT_USERNAME, CM_MONGO_ROOT_PASSWORD);
+db = db.getSiblingDB("ConflictMonitor");
 
 console.log("Initializing Replicas");
 try{
@@ -29,5 +35,6 @@ try{
         rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok 
     }catch(err){
         console.log("Unable to Initialize DB");
+        console.log(err);
     }
 }

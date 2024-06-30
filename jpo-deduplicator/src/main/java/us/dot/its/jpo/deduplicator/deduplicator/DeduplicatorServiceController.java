@@ -44,29 +44,29 @@ public class DeduplicatorServiceController {
         try {
 
             ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
-                "topic.ProcessedMap",
-                "topic.DeduplicatedProcessedMap",
+                props.getKafkaTopicProcessedMap(),
+                props.getKafkaTopicDeduplicatedProcessedMap(),
                 props.createStreamProperties("ProcessedMapDeduplicator")
             );
             processedMapDeduplicatorTopology.start();
 
             ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
-                "topic.ProcessedMapWKT",
-                "topic.DeduplicatedProcessedMapWKT",
+                props.getKafkaTopicProcessedMapWKT(),
+                props.getKafkaTopicDeduplicatedProcessedMapWKT(),
                 props.createStreamProperties("ProcessedMapWKTdeduplicator")
             );
             processedMapWktDeduplicatorTopology.start();
 
             MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
-                "topic.OdeMapJson",
-                "topic.DeduplicatedOdeMapJson",
+                props.getKafkaTopicOdeMapJson(),
+                props.getKafkaTopicDeduplicatedOdeMapJson(),
                 props.createStreamProperties("MapDeduplicator")
             );
             mapDeduplicatorTopology.start();
 
             TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
-                "topic.OdeTimJson",
-                "topic.DeduplicatedOdeTimJson",
+                props.getKafkaTopicOdeTimJson(),
+                props.getKafkaTopicDeduplicatedOdeTimJson(),
                 props.createStreamProperties("TimDeduplicator")
             );
             timDeduplicatorTopology.start();
