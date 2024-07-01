@@ -95,7 +95,7 @@ public class MapSpatMessageAssessmentTopology
     public Topology buildTopology() {
 
         // Populate concurrent permissive allowed from intersection-level config
-        ConfigMap<ConnectedLanesPairList> concurrentPermissiveConfigMap = parameters.getConcurrentPermissiveMap();
+        ConfigMap<ConnectedLanesPairList> concurrentPermissiveConfigMap = parameters.getConcurrentPermissiveListMap();
         final Set<ConnectedLanesPair> allowConcurrentPermissiveSet = new HashSet<>();
         for (ConnectedLanesPairList list : concurrentPermissiveConfigMap.values()) {
             allowConcurrentPermissiveSet.addAll(list);

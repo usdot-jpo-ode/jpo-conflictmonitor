@@ -77,21 +77,16 @@ public class MapSpatMessageAssessmentParameters {
         updateType = INTERSECTION)
     volatile ConnectedLanesPairList concurrentPermissiveList;
 
-    public ConnectedLanesPairList getDefaultConcurrentPermissiveList() {
-        return new ConnectedLanesPairList();
-    }
-
-
     //
     // Maps for parameters that can be customized at the intersection level
     //
-    final ConfigMap<ConnectedLanesPairList> concurrentPermissiveMap = new ConfigMap<>();
+    final ConfigMap<ConnectedLanesPairList> concurrentPermissiveListMap = new ConfigMap<>();
 
     //
     // Intersection-specific properties
     //
     public ConnectedLanesPairList getConcurrentPermissiveList(IntersectionRegion intersectionKey) {
-        var defaultList = concurrentPermissiveList != null ? concurrentPermissiveList : getDefaultConcurrentPermissiveList();
-        return getIntersectionValue(intersectionKey, concurrentPermissiveMap, defaultList);
+        var defaultList = concurrentPermissiveList != null ? concurrentPermissiveList : new ConnectedLanesPairList();
+        return getIntersectionValue(intersectionKey, concurrentPermissiveListMap, defaultList);
     }
 }
