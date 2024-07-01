@@ -15,6 +15,7 @@ import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.MonitorServiceController;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.BsmDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.MapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
@@ -43,33 +44,47 @@ public class DeduplicatorServiceController {
 
         try {
 
-            ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
-                props.getKafkaTopicProcessedMap(),
-                props.getKafkaTopicDeduplicatedProcessedMap(),
-                props.createStreamProperties("ProcessedMapDeduplicator")
-            );
-            processedMapDeduplicatorTopology.start();
+            if(props.isEnableProcessedMapDeduplication()){
+                ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
+                    props.getKafkaTopicProcessedMap(),
+                    props.getKafkaTopicDeduplicatedProcessedMap(),
+                    props.createStreamProperties("ProcessedMapDeduplicator")
+                );
+                processedMapDeduplicatorTopology.start();
+            }
+            
+            if(props.isEnableProcessedMapWktDeduplication()){
+                ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
+                    props.getKafkaTopicProcessedMapWKT(),
+                    props.getKafkaTopicDeduplicatedProcessedMapWKT(),
+                    props.createStreamProperties("ProcessedMapWKTdeduplicator")
+                );
+                processedMapWktDeduplicatorTopology.start();
+            }
+            
+            if(props.isEnableProcessedMapDeduplication()){
+                MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
+                    props.getKafkaTopicOdeMapJson(),
+                    props.getKafkaTopicDeduplicatedOdeMapJson(),
+                    props.createStreamProperties("MapDeduplicator")
+                );
+                mapDeduplicatorTopology.start();
+            }
+            
+            if(props.isEnableOdeTimDeduplication()){
+                TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
+                    props.getKafkaTopicOdeTimJson(),
+                    props.getKafkaTopicDeduplicatedOdeTimJson(),
+                    props.createStreamProperties("TimDeduplicator")
+                );
+                timDeduplicatorTopology.start();
+            }
 
-            ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
-                props.getKafkaTopicProcessedMapWKT(),
-                props.getKafkaTopicDeduplicatedProcessedMapWKT(),
-                props.createStreamProperties("ProcessedMapWKTdeduplicator")
-            );
-            processedMapWktDeduplicatorTopology.start();
-
-            MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
-                props.getKafkaTopicOdeMapJson(),
-                props.getKafkaTopicDeduplicatedOdeMapJson(),
-                props.createStreamProperties("MapDeduplicator")
-            );
-            mapDeduplicatorTopology.start();
-
-            TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
-                props.getKafkaTopicOdeTimJson(),
-                props.getKafkaTopicDeduplicatedOdeTimJson(),
-                props.createStreamProperties("TimDeduplicator")
-            );
-            timDeduplicatorTopology.start();
+            if(props.isEnableOdeBsmDeduplication()){
+                BsmDeduplicatorTopology bsmDeduplicatorTopology = new BsmDeduplicatorTopology(props);
+                bsmDeduplicatorTopology.start();
+            }
+            
 
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);
