@@ -30,16 +30,19 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.IntersectionConf
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.Config;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigException;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfigMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
 
 import static org.apache.kafka.common.serialization.Serdes.String;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
