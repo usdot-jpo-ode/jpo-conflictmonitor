@@ -8,16 +8,11 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessmentGroup;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLinePassageNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.StopLinePassageAssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.StopLineStopAssessmentTopology;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

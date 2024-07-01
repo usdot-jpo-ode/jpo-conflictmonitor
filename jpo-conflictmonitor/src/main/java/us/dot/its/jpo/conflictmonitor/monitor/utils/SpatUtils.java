@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
@@ -99,6 +98,8 @@ public class SpatUtils {
         long redMillis = 0;
         long yellowMillis = 0;
         long greenMillis = 0;
+        long darkMillis = 0;
+
         List<SpatTiming> spatTimingList = getSpatTiming(spats, signalGroupId);
         for (SpatTiming spatTiming : spatTimingList) {
         switch (spatTiming.getState()) {
@@ -113,11 +114,13 @@ public class SpatUtils {
                 case PROTECTED_MOVEMENT_ALLOWED:
                     greenMillis += spatTiming.getDuration();
                     break;
+                case DARK:
+                    darkMillis += spatTiming.getDuration();
                 default:
                     break;
             }
         }
-        return new SpatStatistics(redMillis/1000.0, yellowMillis/1000.0, greenMillis/1000.0);
+        return new SpatStatistics(redMillis/1000.0, yellowMillis/1000.0, greenMillis/1000.0, darkMillis/1000.0);
     }
 
     @Getter
@@ -156,5 +159,15 @@ public class SpatUtils {
          * vehicle was stopped.
          */
         private double timeStoppedDuringGreen;
+
+
+        /**
+         * The amount of time (seconds) the event state was ‘dark’ while the
+         * vehicle was stopped.
+         */
+        private double timeStoppedDuringDark;
+
+
+
     }
 }
