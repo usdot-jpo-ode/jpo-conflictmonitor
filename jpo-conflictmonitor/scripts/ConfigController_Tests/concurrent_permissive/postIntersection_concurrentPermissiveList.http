@@ -1,0 +1,35 @@
+POST http://localhost:8082/config/intersection/10/101010/map.spat.message.assessment.concurrentPermissiveList
+Content-Type: application/json
+
+{
+  "key": "map.spat.message.assessment.concurrentPermissiveList",
+  "category": "",
+  "roadRegulatorID": 10,
+  "intersectionID": 101010,
+  "value": [
+    {
+      "first": {
+        "ingressLaneID": 1,
+        "egressLaneID": 2
+      },
+      "second": {
+        "ingressLaneID": 3,
+        "egressLaneID": 4
+      }
+    },
+    {
+      "first": {
+        "ingressLaneID": 9,
+        "egressLaneID": 10
+      },
+      "second": {
+        "ingressLaneID": 11,
+        "egressLaneID": 12
+      }
+    }
+  ],
+  "type": "us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList",
+  "units": "NONE",
+  "description": "List of pairs of lane connections that are allowed concurrently permissive for an intersection.",
+  "updateType": "INTERSECTION"
+}

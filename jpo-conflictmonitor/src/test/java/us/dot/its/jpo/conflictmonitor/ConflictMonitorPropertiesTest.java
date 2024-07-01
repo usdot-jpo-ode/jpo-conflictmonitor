@@ -68,6 +68,8 @@ public class ConflictMonitorPropertiesTest {
         assertThat(props.getMinimumDataTopicName(), equalTo("topic.CmSpatMinimumDataEvents"));
     }
 
+
+
     @Test
     public void testKafkaAdminInjected() {
         assertThat(kafkaAdmin, notNullValue()); 
@@ -173,6 +175,7 @@ public class ConflictMonitorPropertiesTest {
     public void testGetProperty_DefaultString() {
         assertThat(properties.getProperty("artifactId", "default"), allOf(notNullValue(), not(equalTo("default"))));
     }
-   
+
+
     
 }
