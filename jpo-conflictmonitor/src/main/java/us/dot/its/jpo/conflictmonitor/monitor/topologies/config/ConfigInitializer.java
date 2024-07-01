@@ -1,26 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.reflect.Invokable;
-import com.google.common.reflect.TypeParameter;
-import com.google.common.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
-import java.lang.reflect.Constructor;
+
 import java.lang.reflect.Field;
 
 @Component
