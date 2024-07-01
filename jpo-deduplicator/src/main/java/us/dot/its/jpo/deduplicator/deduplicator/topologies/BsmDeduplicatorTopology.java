@@ -92,7 +92,6 @@ public class BsmDeduplicatorTopology {
             (key, newValue, aggregate)->{
                 
                 if(aggregate.getMessage().getMetadata() == null){
-                    System.out.println("First Message Forwarding");
                     return new OdeBsmPair(newValue, true);
                 }
 
@@ -101,16 +100,15 @@ public class BsmDeduplicatorTopology {
 
                 // If the messages are more than a certain time apart, forward the new message on
                 if(newValueTime.minus(Duration.ofMillis(props.getOdeBsmMaximumTimeDelta())).isAfter(oldValueTime)){
-                    System.out.println("Time is Different Forwarding");
                     return new OdeBsmPair(newValue, true );   
                 }
 
                 J2735BsmCoreData oldCore = ((J2735Bsm)aggregate.getMessage().getPayload().getData()).getCoreData();
                 J2735BsmCoreData newCore = ((J2735Bsm)newValue.getPayload().getData()).getCoreData();
 
+
                 // If the Vehicle is moving, forward the message on
                 if(newCore.getSpeed().doubleValue() > props.getOdeBsmAlwaysIncludeAtSpeed()){
-                    System.out.println("Vehicle is Moving, Forwarding");
                     return new OdeBsmPair(newValue, true);    
                 }
 
@@ -119,16 +117,14 @@ public class BsmDeduplicatorTopology {
                     newCore.getPosition().getLatitude().doubleValue(),
                     newCore.getPosition().getLongitude().doubleValue(),
                     oldCore.getPosition().getLatitude().doubleValue(),
-                    oldCore.getPosition().getLatitude().doubleValue()
+                    oldCore.getPosition().getLongitude().doubleValue()
                 );
 
                 // If the position delta between the messages is suitable large, forward the message on
                 if(distance > props.getOdeBsmMaximumPositionDelta()){
-                    System.out.println("Position has Changed Forwarding");
                     return new OdeBsmPair(newValue, true);
                 }
 
-                System.out.println("Not Forwarding");
                 return new OdeBsmPair(aggregate.getMessage(), false);
                 
             }, Materialized.with(Serdes.String(), PairSerdes.OdeBsmPair()))
@@ -168,14 +164,8 @@ public class BsmDeduplicatorTopology {
     }
 
     public double calculateGeodeticDistance(double lat1, double lon1, double lat2, double lon2) {
-        
-        // Set the starting point
-        calculator.setStartingGeographicPoint(lon2, lat2);
-
-        // Set the destination point
+        calculator.setStartingGeographicPoint(lon1, lat1);
         calculator.setDestinationGeographicPoint(lon2, lat2);
-
-        // Get the geodetic distance in meters
         return calculator.getOrthodromicDistance();
     }
 }
