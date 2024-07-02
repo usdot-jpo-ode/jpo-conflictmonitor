@@ -13,10 +13,19 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
+import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigException;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfigMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,7 +56,7 @@ public class ConfigController {
                 var prefix = optionalPrefix.get();
                 var filteredMap = configMap.entrySet().stream()
                         .filter(entry -> entry.getKey().startsWith(prefix))
-                        .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 return ResponseEntity.ok(new DefaultConfigMap(filteredMap));
             } else {
                 return ResponseEntity.ok(new DefaultConfigMap(configMap));
@@ -121,10 +130,11 @@ public class ConfigController {
     }
 
     @PostMapping(value = "default/{key}")
+    @SuppressWarnings("unchecked")
     public @ResponseBody <T> ResponseEntity<ConfigUpdateResult<T>> saveDefaultConfig(
             @PathVariable(name = "key") String key,
             @RequestBody DefaultConfig<T> config) {
-        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
+        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<>();
         try {
 
 
@@ -172,21 +182,22 @@ public class ConfigController {
             @PathVariable(name = "region") int region,
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
-        return deleteIntersectionConfigHelper(region, intersectionId, key, true);
+        return deleteIntersectionConfigHelper(region, intersectionId, key);
     }
 
     @DeleteMapping(value = "intersection/{intersectionId}/{key}")
     public @ResponseBody ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfig(
             @PathVariable(name = "intersectionId") int intersectionId,
             @PathVariable(name = "key") String key) {
-        return deleteIntersectionConfigHelper(-1, intersectionId, key, false);
+        return deleteIntersectionConfigHelper(-1, intersectionId, key);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> ResponseEntity<ConfigUpdateResult<T>> saveIntersectionConfigHelper(
             int region, int intersectionId, String key, IntersectionConfig<T> config, boolean useRegion) {
 
-        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<T>();
-        try (var errMsg = new Formatter();) {
+        ConfigUpdateResult<T> updateResult = new ConfigUpdateResult<>();
+        try (var errMsg = new Formatter()) {
 
             // Validate path keys
             if (!key.equals(config.getKey())) {
@@ -204,7 +215,17 @@ public class ConfigController {
             if (intersectionId != config.getIntersectionID()) {
                 errMsg.format("IntersectionID in path does not match body property %s != %s%n", intersectionId, config.getIntersectionID());
             }
-            if (errMsg.toString().length() > 0) {
+
+            // Validate Concurrent Permissive
+            logger.info("Type = {}", config.getType());
+            if (ConnectedLanesPairList.class.getName().equals(config.getType())) {
+                ConnectedLanesPairList connectedLanesPairs = new ConnectedLanesPairList((ArrayList)config.getValue());
+                validateConcurrentPermissive(connectedLanesPairs, intersectionId, region, useRegion, errMsg);
+                config.setValue((T)connectedLanesPairs);
+                logger.info("Updated config: {}", config);
+            }
+
+            if (!errMsg.toString().isEmpty()) {
                 var msg = errMsg.toString();
                 logger.error(msg);
                 updateResult.setResult(ConfigUpdateResult.Result.ERROR);
@@ -213,6 +234,7 @@ public class ConfigController {
             }
 
             updateResult = configAlgorithm.updateIntersectionConfig(config);
+            logger.info("Update Result ==> {}", updateResult);
             return ResponseEntity.ok(updateResult);
 
         } catch (ConfigException ce) {
@@ -227,8 +249,37 @@ public class ConfigController {
 
     }
 
+
+    private void validateConcurrentPermissive(ConnectedLanesPairList connectedLanesPairs, int intersectionId, int region, boolean useRegion, Formatter errMsg) {
+        // Check that each ConnectedLanesPair in the list has matching intersection ID and region, or
+        // set them from the path if missing.
+        for (ConnectedLanesPair connectedLanesPair : connectedLanesPairs) {
+            Integer lanesIntersectionID = connectedLanesPair.getIntersectionID();
+            Integer lanesRegion = connectedLanesPair.getRoadRegulatorID();
+
+            if (lanesIntersectionID == null) {
+                connectedLanesPair.setIntersectionID(intersectionId);
+            } else if (lanesIntersectionID != intersectionId) {
+                errMsg.format("IntersectionID in path, %s, does not match one of the items: %s%n", intersectionId, connectedLanesPair);
+            }
+
+            if (useRegion) {
+                if (lanesRegion == null) {
+                    connectedLanesPair.setRoadRegulatorID(region);
+                } else if (lanesRegion != region) {
+                    errMsg.format("Region in path, %s,  does not match road regulator ID in one of the items: %s%n", region, connectedLanesPair);
+                }
+            } else {
+                if (lanesRegion != null && lanesRegion != -1) {
+                    errMsg.format("Region is not specified in URL path, but RoadRegulatorID is set to a value other than null or -1 in an item: %s%n", connectedLanesPair);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     private ResponseEntity<ConfigUpdateResult<Void>> deleteIntersectionConfigHelper(
-            int region, int intersectionId, String key, boolean useRegion) {
+            int region, int intersectionId, String key) {
 
        var updateResult = new ConfigUpdateResult<Void>();
         try {

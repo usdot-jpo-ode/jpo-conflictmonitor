@@ -2,19 +2,20 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.data.annotation.Id;
-
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 
+
+@Setter
+@Getter
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IntersectionConfig<T> extends Config<T>{
 
-    @Getter @Setter private int roadRegulatorID;
-    @Getter @Setter private int intersectionID;
+    private int roadRegulatorID;
+    private int intersectionID;
 
     public IntersectionConfig(){
         super();

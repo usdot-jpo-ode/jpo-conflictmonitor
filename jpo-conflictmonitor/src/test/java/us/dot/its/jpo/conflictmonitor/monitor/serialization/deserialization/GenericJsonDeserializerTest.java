@@ -1,48 +1,33 @@
 package us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType;
 
-@RunWith(Parameterized.class)
-public class GenericJsonDeserializerTest {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
-    String configString;
-    Object expectedValue;
-    String expectedType;
+@Slf4j
+@RunWith(Parameterized.class)
+public class GenericJsonDeserializerTest extends BaseGenericJsonDeserializerTest {
+
+
 
     public GenericJsonDeserializerTest(String configString, Object expectedValue, String expectedType) {
-        this.configString = configString;
-        this.expectedValue = expectedValue;
-        this.expectedType = expectedType;
+        super(configString, expectedValue, expectedType);
     }
 
-    @Parameters
-    public static Collection<Object[]> getParams() {
-        var params = new ArrayList<Object[]>();
-        params.add(new Object[] { getConfig(10, "java.lang.Integer"), 10, "java.lang.Integer" });
-        params.add(new Object[] { getConfig(10.5, "java.lang.Double"), 10.5, "java.lang.Double" });
-        params.add(new Object[] { getConfig("\"test\"", "java.lang.String"), "test", "java.lang.String" });
-        params.add(new Object[] { getConfig(true, "java.lang.Boolean"), true, "java.lang.Boolean" });
-        params.add(new Object[] { getConfig(Long.MAX_VALUE, "java.lang.Long"), Long.MAX_VALUE, "java.lang.Long" });
-        return params;
-    }
 
     // Test for method: public T deserialize(String topic, byte[] data)
     @Test
+    @Override
     public void testDeserialize() {
+        log.info("testDeserialize: {}", configString);
         try (GenericJsonDeserializer<DefaultConfig<?>> deserializer = new GenericJsonDeserializer<>(DefaultConfig.class)) {
             DefaultConfig<?> config = deserializer.deserialize("test", configString.getBytes());
             assertThat(config, notNullValue());
@@ -56,23 +41,5 @@ public class GenericJsonDeserializerTest {
         }
     }
 
-    
 
-    final static String configTemplate = "{ " + //
-                "  \"key\": \"key\", " + //
-                "  \"category\": \"category\", " + //
-                "  \"value\": %s, " + //
-                "  \"type\": \"%s\", " + //
-                "  \"units\": \"SECONDS\", " + //
-                "  \"description\": \"description\", " + //
-                "  \"updateType\": \"INTERSECTION\" " + //
-                "}";
-
-    
-    static String getConfig(Object value, String type) {
-        return String.format(configTemplate, value, type);
-    }
-
-    
-    
 }
