@@ -30,6 +30,7 @@ public class StopLineStopEvent extends Event{
     private double timeStoppedDuringRed;
     private double timeStoppedDuringYellow;
     private double timeStoppedDuringGreen;
+    private double timeStoppedDuringDark;
 
     public StopLineStopEvent(){
         super("StopLineStop");

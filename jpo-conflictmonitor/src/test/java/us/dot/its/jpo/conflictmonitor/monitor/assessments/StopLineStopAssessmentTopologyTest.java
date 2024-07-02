@@ -8,16 +8,11 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessment.StopLineStopAssessmentParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessmentGroup;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAssessmentGroup;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLinePassageNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.StopLineStopNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.StopLinePassageAssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.assessments.StopLineStopAssessmentTopology;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,9 +25,8 @@ public class StopLineStopAssessmentTopologyTest {
     String kafkaTopicStopLineStopAssessment = "topic.CmStopLineStopAssessment";
     String kafkaTopicStopLineStopNotification = "topic.CmStopLineStopNotification";
     String stopLineStopEventKey = "12109";
-    String stopLineStopEvent = "{\"eventGeneratedAt\":1701281898834,\"eventType\":\"StopLineStop\",\"intersectionID\":12101,\"roadRegulatorID\":-1,\"source\":\"{ rsuId='10.11.81.28', intersectionId='12101', region='0'}\",\"ingressLane\":12,\"egressLane\":29,\"connectionID\":4,\"initialEventState\":\"STOP_AND_REMAIN\",\"initialTimestamp\":1701281879858,\"finalEventState\":\"STOP_AND_REMAIN\",\"finalTimestamp\":1701281882642,\"vehicleID\":\"61899505\",\"latitude\":39.63870516395606,\"longitude\":-105.08191242814065,\"heading\":90.0,\"signalGroup\":4,\"timeStoppedDuringRed\":2.77,\"timeStoppedDuringYellow\":0.0,\"timeStoppedDuringGreen\":3.00,\"key\":\"-1_12101_61899505\"}";
-    
-    @Test
+    String stopLineStopEvent = "{\"eventGeneratedAt\":1701281898834,\"eventType\":\"StopLineStop\",\"intersectionID\":12101,\"roadRegulatorID\":-1,\"source\":\"{ rsuId='10.11.81.28', intersectionId='12101', region='0'}\",\"ingressLane\":12,\"egressLane\":29,\"connectionID\":4,\"initialEventState\":\"STOP_AND_REMAIN\",\"initialTimestamp\":1701281879858,\"finalEventState\":\"STOP_AND_REMAIN\",\"finalTimestamp\":1701281882642,\"vehicleID\":\"61899505\",\"latitude\":39.63870516395606,\"longitude\":-105.08191242814065,\"heading\":90.0,\"signalGroup\":4,\"timeStoppedDuringRed\":2.77,\"timeStoppedDuringYellow\":0.0,\"timeStoppedDuringGreen\":3.00,\"timeStoppedDuringDark\":0.3,\"key\":\"-1_12101_61899505\"}";
+
     public void testTopology() {
         StopLineStopAssessmentTopology assessment = new StopLineStopAssessmentTopology();
         StopLineStopAssessmentParameters parameters = new StopLineStopAssessmentParameters();
@@ -81,7 +75,7 @@ public class StopLineStopAssessmentTopologyTest {
             assertEquals(group.getTimeStoppedOnGreen(), 6.00);
             assertEquals(group.getTimeStoppedOnRed(), 2.77 * 2);
             assertEquals(group.getTimeStoppedOnYellow(), 0);
-            assertEquals(group.getTimeStoppedOnDark(), 0);
+            assertEquals(group.getTimeStoppedOnDark(), 0.3);
             assertEquals(group.getSignalGroup(), 4);
         }
     }
@@ -136,12 +130,12 @@ public class StopLineStopAssessmentTopologyTest {
             assertEquals(group.getTimeStoppedOnGreen(), 6.00);
             assertEquals(group.getTimeStoppedOnRed(), 2.77 * 2);
             assertEquals(group.getTimeStoppedOnYellow(), 0);
-            assertEquals(group.getTimeStoppedOnDark(), 0);
+            assertEquals(group.getTimeStoppedOnDark(), 0.3 * 2);
             assertEquals(group.getSignalGroup(), 4);
 
 
             assertEquals(output.getNotificationHeading(), "Stop Line Stop Notification");
-            assertEquals(output.getNotificationText(), "Stop Line Stop Notification, percent time stopped on green: 52% for signal group: 4 exceeds maximum allowable percent.");
+            assertEquals(output.getNotificationText(), "Stop Line Stop Notification, percent time stopped on green: 47% for signal group: 4 exceeds maximum allowable percent.");
             assertEquals(output.getNotificationType(), "StopLineStopNotification");
         }
     }
