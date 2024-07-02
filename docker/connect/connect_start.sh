@@ -14,7 +14,7 @@ echo "------------------------------------------"
 # Record BSM JSON Data
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
-declare -A OdeBsmJson=([name]="topic.DeduplicatedOdeBsmJson" [collection]="OdeBsmJson"
+declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 # Record Map Data
