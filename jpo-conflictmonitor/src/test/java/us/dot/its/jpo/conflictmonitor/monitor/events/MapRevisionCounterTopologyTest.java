@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapRevisionCounterTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -27,7 +29,7 @@ import java.util.List;
 public class MapRevisionCounterTopologyTest {
 
     String inputTopic = "topic.ProcessedMap";
-    String outputTopic = "topic.CmMapRevisionCounterEvent";
+    String outputTopic = "topic.CmMapRevisionCounterEvents";
 
 
     TypeReference<ProcessedMap<LineString>> typeReference = new TypeReference<>(){};
@@ -47,7 +49,12 @@ public class MapRevisionCounterTopologyTest {
     @Test
     public void testTopology() {
 
-        MapRevisionCounterTopology mapRevisionCounterTopology = new MapRevisionCounterTopology(inputTopic, outputTopic, null);
+        MapRevisionCounterTopology mapRevisionCounterTopology = new MapRevisionCounterTopology();
+        MapRevisionCounterParameters parameters = new MapRevisionCounterParameters();
+        parameters.setMapInputTopicName(inputTopic);
+        parameters.setMapRevisionEventOutputTopicName(outputTopic);
+        
+        mapRevisionCounterTopology.setParameters(parameters);
 
         Topology topology = mapRevisionCounterTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());

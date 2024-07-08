@@ -396,17 +396,17 @@ message.ingest:
 
 # MAP Revision Counter
 map.revision.counter:
-  algorithm: mapRevisionCounterAlgorithm
+  algorithm: defaultMapRevisionCounterAlgorithm
   debug: false
   mapInputTopicName: topic.ProcessedMap
-  revisionEventOutputTopicName: topic.CmMapRevisionCounterEvents
+  mapRevisionEventOutputTopicName: topic.CmMapRevisionCounterEvents
 
 # SPAT Revision Counter
 spat.revision.counter:
-  algorithm: spatRevisionCounterAlgorithm
+  algorithm: defaultSpatRevisionCounterAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
-  revisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
+  spatRevisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
 
 # Config parameters
 config:

@@ -1,62 +1,51 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
-
-import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterConstants.DEFAULT_MAP_REVISION_COUNTER_ALGORITHM;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Properties;
 
-public class MapRevisionCounterTopology {
+@Component(DEFAULT_MAP_REVISION_COUNTER_ALGORITHM)
+public class MapRevisionCounterTopology
+        extends BaseStreamsTopology<MapRevisionCounterParameters>
+        implements MapRevisionCounterStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MapRevisionCounterTopology.class);
 
-    Topology topology;
-    KafkaStreams streams;
-    String inputTopic;
-    String outputTopic;
-    Properties streamsProperties;
-    ObjectMapper objectMapper;
 
-    public MapRevisionCounterTopology(String inputTopic, String outputTopic, Properties streamsProperties){
-        this.inputTopic = inputTopic;
-        this.outputTopic = outputTopic;
-        this.streamsProperties = streamsProperties;
-        this.objectMapper = new ObjectMapper();
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 
-    
-    public void start() {
-        if (streams != null && streams.state().isRunningOrRebalancing()) {
-            throw new IllegalStateException("Start called while streams is already running.");
-        }
-        Topology topology = buildTopology();
-        streams = new KafkaStreams(topology, streamsProperties);
-        if (exceptionHandler != null) streams.setUncaughtExceptionHandler(exceptionHandler);
-        if (stateListener != null) streams.setStateListener(stateListener);
-        streams.start();
-    }
-
+    @Override
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(parameters.getMapInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
 
         KStream<String, MapRevisionCounterEvent> eventStream = inputStream
         .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()))
@@ -104,29 +93,11 @@ public class MapRevisionCounterTopology {
             }
             return outputList;
         });
-        eventStream.to(outputTopic, Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()));
+        eventStream.to(parameters.getMapRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()));
 
         return builder.build();
-    }
 
-    public void stop() {
-        logger.info("Stopping Map Revision Counter Socket Broadcast Topology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped Map Revision Counter Socket Broadcast Topology.");
-    }
 
-    StateListener stateListener;
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    StreamsUncaughtExceptionHandler exceptionHandler;
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
     }
 
 

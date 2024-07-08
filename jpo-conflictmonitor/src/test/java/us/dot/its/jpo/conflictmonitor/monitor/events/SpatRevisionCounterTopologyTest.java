@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.SpatRevisionCounterTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
@@ -26,7 +27,7 @@ import java.util.List;
 public class SpatRevisionCounterTopologyTest {
 
     String inputTopic = "topic.ProcessedSpat";
-    String outputTopic = "topic.CmSpatRevisionCounterEvent";
+    String outputTopic = "topic.CmSpatRevisionCounterEvents";
 
 
     TypeReference<ProcessedSpat> typeReference = new TypeReference<>(){};
@@ -46,7 +47,12 @@ public class SpatRevisionCounterTopologyTest {
     @Test
     public void testTopology() {
 
-        SpatRevisionCounterTopology spatRevisionCounterTopology = new SpatRevisionCounterTopology(inputTopic, outputTopic, null);
+        SpatRevisionCounterTopology spatRevisionCounterTopology = new SpatRevisionCounterTopology();
+        SpatRevisionCounterParameters parameters = new SpatRevisionCounterParameters();
+        parameters.setSpatInputTopicName(inputTopic);
+        parameters.setSpatRevisionEventOutputTopicName(outputTopic);
+        
+        spatRevisionCounterTopology.setParameters(parameters);
 
         Topology topology = spatRevisionCounterTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());
