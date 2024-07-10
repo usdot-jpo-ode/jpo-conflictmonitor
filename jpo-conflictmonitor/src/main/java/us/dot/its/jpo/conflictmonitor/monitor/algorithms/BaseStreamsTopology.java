@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
@@ -12,23 +14,27 @@ public abstract class BaseStreamsTopology<TParams> {
 
     protected abstract Logger getLogger();
 
+    @Getter
+    @Setter
     protected TParams parameters;
+
+    @Getter
+    @Setter
     protected Properties streamsProperties;
+
+    @Getter
     protected Topology topology;
+
+    /**
+     * -- SETTER --
+     *  Method for testing
+     */
+    @Setter
+    @Getter
     protected KafkaStreams streams;
+
     protected KafkaStreams.StateListener stateListener;
     protected StreamsUncaughtExceptionHandler exceptionHandler;
-
-
-
-    public void setParameters(TParams parameters) {
-        this.parameters = parameters;
-    }
-
-
-    public TParams getParameters() {
-        return parameters;
-    }
 
 
     public void start() {
@@ -75,35 +81,6 @@ public abstract class BaseStreamsTopology<TParams> {
         }
         getLogger().info("Stopped {}.", this.getClass().getSimpleName());
     }
-
-
-    public void setStreamsProperties(Properties streamsProperties) {
-        this.streamsProperties = streamsProperties;
-    }
-
-
-    public Properties getStreamsProperties() {
-        return streamsProperties;
-    }
-
-
-    public KafkaStreams getStreams() {
-        return streams;
-    }
-
-    /**
-     * Method for testing
-     * @param streams {@link KafkaStreams}
-     */
-    public void setStreams(KafkaStreams streams) {
-        this.streams = streams;
-    }
-
-
-    public Topology getTopology() {
-        return topology;
-    }
-
 
 
     public void registerStateListener(KafkaStreams.StateListener stateListener) {

@@ -1,7 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.Topology;
 import org.slf4j.Logger;
 
 /**
@@ -10,20 +11,13 @@ import org.slf4j.Logger;
  *
  * @param <TParams>
  */
+@Getter
+@Setter
 public abstract class BaseStreamsBuilder<TParams> {
 
     protected abstract Logger getLogger();
 
     protected TParams parameters;
-
-    public void setParameters(TParams parameters) {
-        this.parameters = parameters;
-    }
-
-    public TParams getParameters() {
-        return parameters;
-    }
-
 
     public abstract StreamsBuilder buildTopology(StreamsBuilder builder);
 
