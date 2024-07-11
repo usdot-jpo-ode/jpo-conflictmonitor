@@ -10,6 +10,10 @@ import org.slf4j.Logger;
 
 import java.util.Properties;
 
+/**
+ * Base class for a standalone streams topology
+ * @param <TParams> Type of parameters
+ */
 public abstract class BaseStreamsTopology<TParams> {
 
     protected abstract Logger getLogger();
