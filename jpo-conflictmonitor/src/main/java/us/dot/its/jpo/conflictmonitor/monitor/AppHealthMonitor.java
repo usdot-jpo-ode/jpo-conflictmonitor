@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.State;
@@ -196,16 +196,18 @@ public class AppHealthMonitor {
     }
 
     @GetMapping(value = "/topologies")
-    public @ResponseBody ResponseEntity<TreeMap<String, String>> listTopologies() {
+    public @ResponseBody ResponseEntity<TreeMap<String, TopologyInfoLinks>> listTopologies() {
         var topoMap = getTopologies();
         String baseUrl = baseUrl();
-        var result = new TreeMap<String, String>();
+        var result = new TreeMap<String, TopologyInfoLinks>();
         for (Map.Entry<String, Topology> entry : topoMap.entrySet()) {
             String name = entry.getKey();
-            Topology topology = entry.getValue();
-            String url = String.format("%s/health/topologies/detail/%s", baseUrl, name);
-            result.put(name, url);
+            String detailUrl = String.format("%s/health/topologies/detail/%s", baseUrl, name);
+            String simpleGraphUrl = String.format("%s/health/topologies/simple/%s", baseUrl, name);
+            result.put(name, new TopologyInfoLinks(detailUrl, simpleGraphUrl));
         }
+        String allUrl = String.format("%s/health/topologies/simple/all", baseUrl);
+        result.put("all", new TopologyInfoLinks("n/a", allUrl));
         return getResponse(result);
     }
 
@@ -222,14 +224,23 @@ public class AppHealthMonitor {
     }
 
     @GetMapping(value = "/topologies/simple/{name}")
+    @Produces(MediaType.TEXT_PLAIN_VALUE)
     public @ResponseBody ResponseEntity<String> topologySimpleGraph(@PathVariable String name) {
+        TopologyGraph graph;
         var topoMap = getTopologies();
-        if (!topoMap.containsKey(name)) {
-            throw new RuntimeException("The topology map doesn't contain an object named " + name);
+        if ("all".equals(name)) {
+            graph = new TopologyGraph(topoMap);
+        } else {
+            if (!topoMap.containsKey(name)) {
+                throw new RuntimeException("The topology map doesn't contain an object named " + name);
+            }
+            Topology topology = topoMap.get(name);
+            graph = new TopologyGraph(name, topology);
         }
-        Topology topology = topoMap.get(name);
-        TopologyGraph graph = new TopologyGraph(name, topology);
-        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(graph.exportDOT());
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .header("Content-Disposition", String.format("inline; filename=\"%s.dot\"", name))
+                .body(graph.exportDOT());
     }
 
 
@@ -412,15 +423,15 @@ public class AppHealthMonitor {
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(message);
     }
 
-    @ExceptionHandler
-    private ResponseEntity<String> getErrorJson(Exception ex) {
-        var errMap = Map.of("error", ex.getMessage());
+    @ExceptionHandler(Exception.class)
+    private ResponseEntity<String> getErrorJson(HttpServletRequest request, Exception ex) {
         try {
+            var errMap = Map.of("error", ex.getMessage());
             String errJson = mapper.writeValueAsString(errMap);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errJson);
-        } catch (JsonProcessingException e) { 
-            logger.error("Error converting to JSON", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"error\" }");
+        } catch (Exception e) {
+            logger.error("Exception in exception handler", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"unknown error\" }");
         }
         
     }
@@ -449,5 +460,6 @@ public class AppHealthMonitor {
     public class IntersectionBsm extends TreeMap<String, TreeMap<String, TreeMap<String, OdeBsmData>>> {}
 
 
+    public record TopologyInfoLinks(String detailsUrl, String simpleGraphUrl) {}
 
 }
