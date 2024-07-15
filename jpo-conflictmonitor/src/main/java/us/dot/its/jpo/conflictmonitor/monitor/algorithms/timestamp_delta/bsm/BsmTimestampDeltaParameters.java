@@ -14,7 +14,8 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 @Component
 @ConfigurationProperties(prefix = "bsm.timestamp.delta")
 @ConfigDataClass
-public class BsmTimestampDeltaParameters {
+public class
+BsmTimestampDeltaParameters {
 
     @ConfigData(key = "bsm.timestamp.delta.inputTopicName",
         description = "Input Kafka topic",
