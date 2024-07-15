@@ -9,7 +9,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 
 /**
- * Configuration defining {@link FactoryBeans}s for locating Broadcast Rate algorithms.
+ * Configuration defining {@link FactoryBean}s for locating Broadcast Rate algorithms.
  */
 @Configuration
 public class ValidationAlgorithms {
