@@ -93,4 +93,9 @@ public class EventParameters {
         updateType = READ_ONLY)
     String mapRevisionCounterEventTopicName;
     
+    @ConfigData(key = "event.bsmRevisionCounterEventTopicName", 
+        description = "The name of the topic to read bsm revision counter events from", 
+        updateType = READ_ONLY)
+    String bsmRevisionCounterEventTopicName;
+
 }

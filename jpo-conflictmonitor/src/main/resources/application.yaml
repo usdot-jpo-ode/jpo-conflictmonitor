@@ -168,6 +168,10 @@ kafka.topics:
     - name: topic.CmSpatRevisionCounterEvents
       cleanupPolicy: compact
       retentionMs: 300000
+    - name: topic.CmBsmRevisionCounterEvents
+      cleanupPolicy: compact
+      retentionMs: 300000
+
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -407,6 +411,13 @@ spat.revision.counter:
   debug: false
   spatInputTopicName: topic.ProcessedSpat
   spatRevisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
+
+# BSM Revision Counter
+bsm.revision.counter:
+  algorithm: defaultBsmRevisionCounterAlgorithm
+  debug: false
+  bsmInputTopicName: topic.CmBsmJsonRepartition
+  bsmRevisionEventOutputTopicName: topic.CmBsmRevisionCounterEvents
 
 # Config parameters
 config:

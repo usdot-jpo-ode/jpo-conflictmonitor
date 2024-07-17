@@ -37,7 +37,7 @@ public class EventTopologyTest {
     String connectionOfTravelEventTopicName = "topic.CmConnectionOfTravelEvent";
     String spatRevisionCounterEventTopicName = "topic.CmSpatRevisionCounterEvents";
     String mapRevisionCounterEventTopicName = "topic.CmMapRevisionCounterEvents";
-
+    String bsmRevisionCounterEventTopicName = "topic.CmBsmRevisionCounterEvents";
 
     @Test
     public void testTopology() {
@@ -58,6 +58,7 @@ public class EventTopologyTest {
         parameters.setConnectionOfTravelEventTopicName(connectionOfTravelEventTopicName);
         parameters.setSpatRevisionCounterEventTopicName(spatRevisionCounterEventTopicName);
         parameters.setMapRevisionCounterEventTopicName(mapRevisionCounterEventTopicName);
+        parameters.setBsmRevisionCounterEventTopicName(bsmRevisionCounterEventTopicName);
         
 
 
@@ -79,6 +80,7 @@ public class EventTopologyTest {
         ConnectionOfTravelEvent cotEvent = new ConnectionOfTravelEvent();
         SpatRevisionCounterEvent srcEvent = new SpatRevisionCounterEvent();
         MapRevisionCounterEvent mrcEvent = new MapRevisionCounterEvent();
+        BsmRevisionCounterEvent brcEvent = new BsmRevisionCounterEvent();
         
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -173,7 +175,14 @@ public class EventTopologyTest {
                 JsonSerdes.MapRevisionCounterEvent().serializer());
 
             inputMapRevisionCounterEvent.pipeInput("12109", mrcEvent);
-  
+
+            TestInputTopic<String, BsmRevisionCounterEvent> inputBsmRevisionCounterEvent = driver.createInputTopic(
+                bsmRevisionCounterEventTopicName, 
+                Serdes.String().serializer(), 
+                JsonSerdes.BsmRevisionCounterEvent().serializer());
+
+            inputBsmRevisionCounterEvent.pipeInput("12109", brcEvent);
+
             TestOutputTopic<String, Event> outputEventTopic = driver.createOutputTopic(
                 eventOutputTopicName, 
                 Serdes.String().deserializer(), 
@@ -184,7 +193,7 @@ public class EventTopologyTest {
 
             
             
-            assertEquals(13, eventResults.size());
+            assertEquals(14, eventResults.size());
  
             for(KeyValue<String, Event> eventKeyValue: eventResults){
                 assertEquals("12109", eventKeyValue.key);
@@ -230,6 +239,9 @@ public class EventTopologyTest {
                 }
                 else if(type.equals("MapRevisionCounter")){
                     assertEquals((MapRevisionCounterEvent) event, mrcEvent);
+                }
+                else if(type.equals("BsmRevisionCounter")){
+                    assertEquals((BsmRevisionCounterEvent) event, brcEvent);
                 }
                 else{
                     // Throw an error

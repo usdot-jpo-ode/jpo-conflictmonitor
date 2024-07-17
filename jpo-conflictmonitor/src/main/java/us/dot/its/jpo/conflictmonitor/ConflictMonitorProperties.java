@@ -63,6 +63,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.Ma
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
@@ -158,6 +160,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory;
    private String spatRevisionCounterAlgorithm;
    private SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters;
+
+   private BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
+   private String bsmRevisionCounterAlgorithm;
+   private BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters;
 
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
@@ -537,6 +543,21 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatRevisionCounterAlgorithmParameters = spatRevisionCounterAlgorithmParameters;
    }
 
+
+   @Autowired
+   public void setBsmRevisionCounterAlgorithmFactory(BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory) {
+      this.bsmRevisionCounterAlgorithmFactory = bsmRevisionCounterAlgorithmFactory;
+   }
+
+   @Value("${bsm.revision.counter.algorithm}")
+   public void setBsmRevisionCorrectionAlgorithm(String bsmRevisionCounterAlgorithm) {
+      this.bsmRevisionCounterAlgorithm = bsmRevisionCounterAlgorithm;
+   }
+
+   @Autowired
+   public void setBsmRevisionCounterAlgorithmParameters(BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters) {
+      this.bsmRevisionCounterAlgorithmParameters = bsmRevisionCounterAlgorithmParameters;
+   }
 
 
    public NotificationAlgorithmFactory getNotificationAlgorithmFactory() {

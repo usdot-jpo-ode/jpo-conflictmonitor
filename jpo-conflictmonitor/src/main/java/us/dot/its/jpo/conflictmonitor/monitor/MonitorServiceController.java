@@ -65,6 +65,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.Ma
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
@@ -451,6 +454,24 @@ public class MonitorServiceController {
             spatRevisionCounterAlgo.setParameters(spatRevisionCounterParams);
             Runtime.getRuntime().addShutdownHook(new Thread(spatRevisionCounterAlgo::stop));
             spatRevisionCounterAlgo.start();
+            
+            //Bsm Revision Counter Topology
+            final String bsmRevisionCounter = "bsmRevisionCounter";
+            final BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgoFactory = conflictMonitorProps.getBsmRevisionCounterAlgorithmFactory();
+            final String bsmRevisionCounterAlgorithm = conflictMonitorProps.getBsmRevisionCounterAlgorithm();
+            final BsmRevisionCounterAlgorithm bsmRevisionCounterAlgo = bsmRevisionCounterAlgoFactory.getAlgorithm(bsmRevisionCounterAlgorithm);
+            final BsmRevisionCounterParameters bsmRevisionCounterParams = conflictMonitorProps.getBsmRevisionCounterAlgorithmParameters();
+            configTopology.registerConfigListeners(bsmRevisionCounterParams);
+            if (bsmRevisionCounterAlgo instanceof StreamsTopology) {     
+                final var streamsAlgo = (StreamsTopology)bsmRevisionCounterAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmRevisionCounter));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmRevisionCounter, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmRevisionCounter, healthTopic));
+                algoMap.put(bsmRevisionCounter, streamsAlgo);
+            }
+            bsmRevisionCounterAlgo.setParameters(bsmRevisionCounterParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(bsmRevisionCounterAlgo::stop));
+            bsmRevisionCounterAlgo.start();
 
             // Restore properties
             configInitializer.initializeDefaultConfigs();

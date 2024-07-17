@@ -53,6 +53,7 @@ public class EventTopology
             .merge(builder.stream(parameters.getMapBroadcastRateTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
             .merge(builder.stream(parameters.getSpatBroadcastRateTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))   
             .merge(builder.stream(parameters.getSpatRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))    
+            .merge(builder.stream(parameters.getBsmRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))    
             .merge(builder.stream(parameters.getMapRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())));    
 
         allEvents.to(parameters.getEventOutputTopicName(), Produced.with(Serdes.String(), JsonSerdes.Event()));

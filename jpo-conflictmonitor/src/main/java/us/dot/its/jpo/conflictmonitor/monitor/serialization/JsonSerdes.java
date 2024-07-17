@@ -36,6 +36,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
@@ -153,6 +154,13 @@ public class JsonSerdes {
             new JsonSerializer<SpatRevisionCounterEvent>(),
             new JsonDeserializer<>(SpatRevisionCounterEvent.class));
     }
+
+    public static Serde<BsmRevisionCounterEvent> BsmRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmRevisionCounterEvent>(),
+            new JsonDeserializer<>(BsmRevisionCounterEvent.class));
+    }
+
 
     public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
         return Serdes.serdeFrom(

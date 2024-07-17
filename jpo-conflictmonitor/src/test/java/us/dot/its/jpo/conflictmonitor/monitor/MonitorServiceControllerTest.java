@@ -68,6 +68,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.Ma
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
@@ -167,6 +170,10 @@ public class MonitorServiceControllerTest {
     @Mock MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory;
     @Mock MapRevisionCounterAlgorithm mapRevisionCounterAlgorithm;
     MapRevisionCounterParameters mapRevisionCounterParameters = new MapRevisionCounterParameters();
+
+    @Mock BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
+    @Mock BsmRevisionCounterAlgorithm bsmRevisionCounterAlgorithm;
+    BsmRevisionCounterParameters bsmRevisionCounterParameters = new BsmRevisionCounterParameters();
 
     MapIndex mapIndex = new MapIndex();
     
