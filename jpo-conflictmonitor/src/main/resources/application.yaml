@@ -398,13 +398,6 @@ config:
   mergedTopicName: topic.CmMergedConfigTable
   intersectionTableName: topic.CmIntersectionConfigTable
 
-# BSM Timestamp Delta parameters
-bsm.timestamp.delta:
-  inputTopicName: topic.CmBsmJsonRepartition
-  outputTopicName: topic.CmTimestampDeltaEvent
-  maxDeltaMilliseconds: 50
-  debug: false
-
 # MAP Timestamp Delta parameters
 map.timestamp.delta:
   inputTopicName: topic.ProcessedMap

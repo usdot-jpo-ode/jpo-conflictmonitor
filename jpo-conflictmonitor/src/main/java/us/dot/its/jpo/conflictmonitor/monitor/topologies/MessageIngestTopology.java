@@ -47,9 +47,10 @@ public class MessageIngestTopology
         implements MessageIngestStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
-    //private int count = 0;
-    
-    public StreamsBuilder buildTopology(StreamsBuilder builder) {
+
+
+    @Override
+    public void buildTopology(StreamsBuilder builder) {
 
 
         
@@ -199,10 +200,6 @@ public class MessageIngestTopology
         );
 
 
-
-
-
-        return builder;
     }
 
 
@@ -232,7 +229,6 @@ public class MessageIngestTopology
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }
-
 
 
 

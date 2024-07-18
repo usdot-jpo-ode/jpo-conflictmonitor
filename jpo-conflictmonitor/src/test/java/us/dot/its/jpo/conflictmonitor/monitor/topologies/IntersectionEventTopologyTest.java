@@ -84,7 +84,7 @@ public class IntersectionEventTopologyTest {
     public void testIntersectionEventTopology() {
 
         // Return builder inputs unchanged for embedded topologies
-        when(messageIngestAlgorithm.buildTopology(any())).thenAnswer(i -> i.getArguments()[0]);
+        //when(messageIngestAlgorithm.buildTopology(any())).thenAnswer(i -> i.getArguments()[0]);
 
         final var startBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId.getBsmId());
         final var endBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId.getBsmId());

@@ -33,6 +33,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.TimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
@@ -347,6 +348,13 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
                 new JsonSerializer<MapBoundingBox>(),
                 new JsonDeserializer<>(MapBoundingBox.class)
+        );
+    }
+
+    public static Serde<TimestampDeltaEvent> TimestampDeltaEvent() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<TimestampDeltaEvent>(),
+                new JsonDeserializer<>(TimestampDeltaEvent.class)
         );
     }
 }

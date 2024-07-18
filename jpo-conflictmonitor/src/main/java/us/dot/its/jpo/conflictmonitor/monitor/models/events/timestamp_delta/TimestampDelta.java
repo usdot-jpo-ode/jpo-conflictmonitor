@@ -34,6 +34,10 @@ public class TimestampDelta {
         return odeIngestTimestampMilliseconds - messageTimestampMilliseconds;
     }
 
+    public boolean emitEvent() {
+        return Math.abs(actualDeltaMilliseconds()) > maxDeltaMilliseconds;
+    }
+
     @Override
     public String toString() {
         try {
