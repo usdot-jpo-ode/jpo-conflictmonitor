@@ -6,5 +6,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 public interface SpatTimestampDeltaStreamsAlgorithm
         extends SpatTimestampDeltaAlgorithm {
-    KStream<RsuIntersectionKey, ProcessedSpat> buildTopology(KStream<RsuIntersectionKey, ProcessedSpat> inputStream);
+
+    void buildTopology(KStream<RsuIntersectionKey, ProcessedSpat> inputStream);
+
 }

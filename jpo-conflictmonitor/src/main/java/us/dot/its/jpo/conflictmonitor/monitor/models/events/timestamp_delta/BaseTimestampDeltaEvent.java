@@ -10,16 +10,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @Generated
-public class TimestampDeltaEvent extends Event {
+public abstract class BaseTimestampDeltaEvent extends Event {
 
-    public TimestampDeltaEvent() {
+    public BaseTimestampDeltaEvent(String inputType) {
         super("TimestampDeltaEvent");
+        this.inputType = inputType;
     }
 
-    /**
-     * The name of the input topic
-     */
-    String topicName;
+    final String inputType;
 
     /**
      * The source RSU device ID
@@ -30,6 +28,7 @@ public class TimestampDeltaEvent extends Event {
      * The timestamp difference
      */
     TimestampDelta delta;
+
 
 
 }

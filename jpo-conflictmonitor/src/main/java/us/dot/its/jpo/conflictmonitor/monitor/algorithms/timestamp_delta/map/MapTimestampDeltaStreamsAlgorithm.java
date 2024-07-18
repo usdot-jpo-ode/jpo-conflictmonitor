@@ -7,5 +7,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 public interface MapTimestampDeltaStreamsAlgorithm
         extends MapTimestampDeltaAlgorithm {
+
     void buildTopology(KStream<RsuIntersectionKey, ProcessedMap<LineString>> inputStream);
+
 }

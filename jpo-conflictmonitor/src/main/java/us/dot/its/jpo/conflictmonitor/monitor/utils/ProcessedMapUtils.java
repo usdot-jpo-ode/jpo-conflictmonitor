@@ -13,6 +13,10 @@ import java.time.ZonedDateTime;
 public class ProcessedMapUtils {
 
     public static <T> long getTimestamp(ProcessedMap<T> processedMap) {
+        if (processedMap == null) {
+            log.error("ProcessedMap is null");
+            return 0L;
+        }
         MapSharedProperties properties = processedMap.getProperties();
         if (properties == null) {
             log.error("ProcessedMap.properties are null");
@@ -27,6 +31,10 @@ public class ProcessedMapUtils {
     }
 
     public static <T> long getOdeReceivedAt(ProcessedMap<T> processedMap) {
+        if (processedMap == null) {
+            log.error("ProcessedMap is null");
+            return 0L;
+        }
         MapSharedProperties properties = processedMap.getProperties();
         if (properties == null) {
             log.error("ProcessedMap.properties are null");
