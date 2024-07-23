@@ -80,20 +80,30 @@ public class TimDeduplicatorTopology {
 
         KStream<String, JsonNode> timRekeyedStream = inputStream.selectKey((key, value)->{
             try{
+                // JsonNode travellerInformation = value.get("payload")
+                //     .get("data")
+                //     .get("AdvisorySituationData")
+                //     .get("asdmDetails")
+                //     .get("advisoryMessage")
+                //     .get("Ieee1609Dot2Data")
+                //     .get("content")
+                //     .get("unsecuredData")
+                //     .get("MessageFrame")
+                //     .get("value")
+                //     .get("TravelerInformation");
+
+                //     String packetId = travellerInformation.get("packetID").asText();
+                //     String msgCnt = travellerInformation.get("msgCnt").asText();
+
                 JsonNode travellerInformation = value.get("payload")
                     .get("data")
-                    .get("AdvisorySituationData")
-                    .get("asdmDetails")
-                    .get("advisoryMessage")
-                    .get("Ieee1609Dot2Data")
-                    .get("content")
-                    .get("unsecuredData")
                     .get("MessageFrame")
                     .get("value")
                     .get("TravelerInformation");
+               
+                String packetId = travellerInformation.get("packetID").asText();
+                String msgCnt = travellerInformation.get("msgCnt").asText();
 
-                    String packetId = travellerInformation.get("packetID").asText();
-                    String msgCnt = travellerInformation.get("msgCnt").asText();
 
 
                 String newKey = packetId + "_" + msgCnt;
@@ -111,7 +121,13 @@ public class TimDeduplicatorTopology {
                     ()-> new JsonPair(genJsonNode(), true),
                     (aggKey, newValue, aggregate) ->{
 
+                        // Filter out results that cannot be properly key tested
+                        if(aggKey.equals("")){
+                            return new JsonPair(newValue, false);
+                        }
+
                         if(aggregate.getMessage().get("metadata") == null){
+                            // System.out.println("Forwarding TIM Message Key:" + aggKey + "Value: " + newValue);
                             return new JsonPair(newValue, true);
                         }
 
@@ -119,6 +135,7 @@ public class TimDeduplicatorTopology {
                         Instant newValueTime = getInstantFromJsonTim(newValue);
 
                         if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
+                            // System.out.println("Forwarding TIM Message Key:" + aggKey + "Value: " + newValue);
                             return new JsonPair(newValue, true );
                         }else{
                             return new JsonPair(aggregate.getMessage(), false);
@@ -130,7 +147,8 @@ public class TimDeduplicatorTopology {
             .flatMap((key, value) ->{
                 ArrayList<KeyValue<String, JsonNode>> outputList = new ArrayList<>();
                 if(value != null && value.isShouldSend()){
-                    outputList.add(new KeyValue<>(key, value.getMessage()));   
+                    outputList.add(new KeyValue<>(key, value.getMessage()));
+                    
                 }
                 return outputList;
             });
