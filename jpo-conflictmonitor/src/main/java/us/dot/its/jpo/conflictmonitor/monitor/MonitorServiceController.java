@@ -61,6 +61,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessme
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
@@ -158,46 +163,48 @@ public class MonitorServiceController {
             notificationAlgo.start();
            
 
-            // Map Broadcast Rate Topology
-            // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            final String mapBroadcastRate = "mapBroadcastRate";
+            // Map Validation Topology
+            final String mapValidation = "mapValidation";
             final MapValidationAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapValidationAlgorithmFactory();
             final String mapAlgo = conflictMonitorProps.getMapValidationAlgorithm();
-            final MapValidationAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
-            final MapValidationParameters mapCountParams = conflictMonitorProps.getMapValidationParameters();
-            configTopology.registerConfigListeners(mapCountParams);
-            logger.info("Map params {}", mapCountParams);
-            if (mapCountAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)mapCountAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapBroadcastRate));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapBroadcastRate, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapBroadcastRate, healthTopic));
-                algoMap.put(mapBroadcastRate, streamsAlgo);
+            final MapValidationAlgorithm mapValidationAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
+            final MapValidationParameters mapValidationParams = conflictMonitorProps.getMapValidationParameters();
+            configTopology.registerConfigListeners(mapValidationParams);
+            logger.info("Map params {}", mapValidationParams);
+            if (mapValidationAlgo instanceof StreamsTopology streamsAlgo) {
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapValidation));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapValidation, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapValidation, healthTopic));
+                algoMap.put(mapValidation, streamsAlgo);
             }
-            mapCountAlgo.setParameters(mapCountParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
-            mapCountAlgo.start();
+            mapValidationAlgo.setParameters(mapValidationParams);
+            // Plugin timestamp delta algorithm
+            final MapTimestampDeltaAlgorithm mapTimestampAlgo = getMapTimestampDeltaAlgorithm(conflictMonitorProps);
+            mapValidationAlgo.setTimestampDeltaAlgorithm(mapTimestampAlgo);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapValidationAlgo::stop));
+            mapValidationAlgo.start();
            
 
             
-            // Spat Broadcast Rate Topology
-            // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
-            final String spatBroadcastRate = "spatBroadcastRate";
+            // Spat Validation Topology
+            final String spatValidation = "spatValidation";
             final SpatValidationStreamsAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatValidationAlgorithmFactory();
             final String spatAlgo = conflictMonitorProps.getSpatValidationAlgorithm();
-            final SpatValidationAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
-            final SpatValidationParameters spatCountParams = conflictMonitorProps.getSpatValidationParameters();
-            configTopology.registerConfigListeners(spatCountParams);
-            if (spatCountAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)spatCountAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatBroadcastRate));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatBroadcastRate, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatBroadcastRate, healthTopic));
-                algoMap.put(spatBroadcastRate, streamsAlgo);
+            final SpatValidationAlgorithm spatValidationAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
+            final SpatValidationParameters spatValidationParams = conflictMonitorProps.getSpatValidationParameters();
+            configTopology.registerConfigListeners(spatValidationParams);
+            if (spatValidationAlgo instanceof StreamsTopology streamsAlgo) {
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatValidation));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatValidation, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatValidation, healthTopic));
+                algoMap.put(spatValidation, streamsAlgo);
             }
-            spatCountAlgo.setParameters(spatCountParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
-            spatCountAlgo.start();
+            spatValidationAlgo.setParameters(spatValidationParams);
+            // Plugin timestamp delta algorithm
+            final SpatTimestampDeltaAlgorithm spatTimestampAlgo = getSpatTimestampDeltaAlgorithm(conflictMonitorProps);
+            spatValidationAlgo.setTimestampDeltaAlgorithm(spatTimestampAlgo);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatValidationAlgo::stop));
+            spatValidationAlgo.start();
             
 
 
@@ -422,5 +429,25 @@ public class MonitorServiceController {
         }
     }
 
-    
+
+
+    private static MapTimestampDeltaAlgorithm getMapTimestampDeltaAlgorithm(ConflictMonitorProperties props) {
+        final var factory = props.getMapTimestampDeltaAlgorithmFactory();
+        final String algorithmName = props.getMapTimestampDeltaAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = props.getMapTimestampDeltaParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private static SpatTimestampDeltaAlgorithm getSpatTimestampDeltaAlgorithm(ConflictMonitorProperties props) {
+        final var factory = props.getSpatTimestampDeltaAlgorithmFactory();
+        final String algorithmName = props.getSpatTimestampDeltaAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = props.getSpatTimestampDeltaParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+
 }

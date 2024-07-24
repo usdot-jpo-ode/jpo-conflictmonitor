@@ -17,6 +17,11 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.RE
 @ConfigDataClass
 public class MapTimestampDeltaParameters {
 
+    @ConfigData(key = "map.timestamp.delta.algorithm",
+            description = "The algorithm to use",
+            updateType = READ_ONLY)
+    volatile String algorithm;
+
     @ConfigData(key = "map.timestamp.delta.inputTopicName",
             description = "Input Kafka topic",
             updateType = READ_ONLY)

@@ -7,13 +7,13 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig;
-import org.apache.kafka.streams.processor.api.FixedKeyProcessor;
-import org.apache.kafka.streams.processor.api.FixedKeyProcessorSupplier;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
@@ -49,8 +49,34 @@ public class MapValidationTopology
 
     private static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
 
+    MapTimestampDeltaStreamsAlgorithm timestampDeltaAlgorithm;
+
+    @Override
+    public MapTimestampDeltaAlgorithm getTimestampDeltaAlgorithm() {
+        return timestampDeltaAlgorithm;
+    }
+
+    @Override
+    public void setTimestampDeltaAlgorithm(MapTimestampDeltaAlgorithm timestampDeltaAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (timestampDeltaAlgorithm instanceof MapTimestampDeltaStreamsAlgorithm timestampDeltaStreamsAlgorithm) {
+            this.timestampDeltaAlgorithm = timestampDeltaStreamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("algorithm is not an instance of MapTimestampDeltaStreamsAlgorithm");
+        }
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+
+        if (timestampDeltaAlgorithm == null) {
+            throw new IllegalStateException("MapTimestampDeltaAlgorithm is not set.");
+        }
+    }
 
     public Topology buildTopology() {
+
         var builder = new StreamsBuilder();
 
         // Create state store for zero count
@@ -68,6 +94,9 @@ public class MapValidationTopology
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson())
                         .withTimestampExtractor(new TimestampExtractorForBroadcastRate())
             );
+
+        // timestamp delta plugin after reading processed MAPs
+        timestampDeltaAlgorithm.buildTopology(processedMapStream);
 
         // Extract validation info for Minimum Data events
         KStream<RsuIntersectionKey, MapMinimumDataEvent> minDataStream = processedMapStream
@@ -200,5 +229,5 @@ public class MapValidationTopology
     }
 
 
-    
+
 }

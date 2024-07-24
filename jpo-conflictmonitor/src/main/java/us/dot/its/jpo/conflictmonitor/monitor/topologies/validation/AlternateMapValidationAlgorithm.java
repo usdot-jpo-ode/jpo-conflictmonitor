@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.timestamp_delta.AlternateMapTimestampDeltaAlgorithm;
 
 /**
  * Test algorithm just writes random numbers to the log
@@ -38,6 +40,9 @@ public class AlternateMapValidationAlgorithm implements MapValidationAlgorithm {
         // Don't run if not debugging
         if (!parameters.isDebug()) return;
 
+        // Plugin algorithm
+        timestampDeltaAlgorithm.doNothing();
+
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
 
@@ -63,5 +68,23 @@ public class AlternateMapValidationAlgorithm implements MapValidationAlgorithm {
         }
         
     }
-    
+
+
+    AlternateMapTimestampDeltaAlgorithm timestampDeltaAlgorithm;
+
+
+    @Override
+    public MapTimestampDeltaAlgorithm getTimestampDeltaAlgorithm() {
+        return timestampDeltaAlgorithm;
+    }
+
+    @Override
+    public void setTimestampDeltaAlgorithm(MapTimestampDeltaAlgorithm timestampDeltaAlgorithm) {
+        // Enforce a specific algorithm implementation
+        if (timestampDeltaAlgorithm instanceof AlternateMapTimestampDeltaAlgorithm altAlgorithm) {
+            this.timestampDeltaAlgorithm = altAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Algorithm is not an instance of AlternateMapTimestampDeltaAlgorithm");
+        }
+    }
 }
