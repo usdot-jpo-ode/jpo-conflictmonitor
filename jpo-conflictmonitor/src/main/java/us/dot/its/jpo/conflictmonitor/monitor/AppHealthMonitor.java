@@ -23,11 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaAdmin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -44,7 +40,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfigMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopology;
@@ -96,25 +93,23 @@ public class AppHealthMonitor {
     }
 
     @GetMapping
-    public @ResponseBody ResponseEntity<String> summary() {
-        try {
-            var linkMap = new TreeMap<String, String>();
-            addLinks(linkMap,
-                    "config/default"
-                    ,"config/intersection",
-                    "topics",
-                    "properties",
-                    "streams",
-                    "connectors",
-                    "spatial-indexes",
-                    "spat-window-store",
-                    "bsm-window-store",
-                    "map-store"
-                );
-            return getJsonResponse(linkMap);
-        } catch (Exception ex) {
-            return getErrorJson(ex);
-        }
+    public @ResponseBody ResponseEntity<Object> summary() {
+
+        var linkMap = new TreeMap<String, String>();
+        addLinks(linkMap,
+                "config/default"
+                ,"config/intersection",
+                "topics",
+                "properties",
+                "streams",
+                "connectors",
+                "spatial-indexes",
+                "spat-window-store",
+                "bsm-window-store",
+                "map-store"
+            );
+        return getResponse(linkMap);
+
     }
 
     private void addLinks(Map<String, String> map, String... paths) {
@@ -125,21 +120,15 @@ public class AppHealthMonitor {
     }
 
     @GetMapping(value = "/config/default")
-    public @ResponseBody ResponseEntity<String> listDefaultConfig() {
-        try {
-            return getJsonResponse(configTopology.mapDefaultConfigs());
-        } catch (Exception ex) {
-            return getErrorJson(ex);
-        }
+    public @ResponseBody ResponseEntity<DefaultConfigMap> listDefaultConfig() {
+
+        return getResponse(configTopology.mapDefaultConfigs());
+
     }
 
     @GetMapping(value = "/config/intersection")
-    public @ResponseBody ResponseEntity<String> listIntersectionConfig() {
-        try {
-            return getJsonResponse(configTopology.mapIntersectionConfigs());
-        } catch (Exception ex) {
-            return getErrorJson(ex);
-        }
+    public @ResponseBody ResponseEntity<IntersectionConfigMap> listIntersectionConfig() {
+        return getResponse(configTopology.mapIntersectionConfigs());
     }
     
 
@@ -147,47 +136,42 @@ public class AppHealthMonitor {
      * @return JSON map of kafka topics created by this app that currently exist
      */
     @GetMapping(value = "/topics")
-    public @ResponseBody ResponseEntity<String> listTopics() {
-        try {
-            var existingTopics = new TreeMap<String, String>();
-            
-            var topicNames = kafkaConfiguration.getCreateTopics().stream()
-                .filter(topic -> topic.keySet().contains("name"))
-                .map(topic -> (String)topic.get("name"))
-                .collect(Collectors.toUnmodifiableList());
+    public @ResponseBody ResponseEntity<TreeMap<String, String>> listTopics() {
 
-            var topicDescMap = kafkaAdmin.describeTopics(topicNames.toArray(new String[0]));
+        var existingTopics = new TreeMap<String, String>();
 
-            for (var entry : topicDescMap.entrySet()) {      
-                existingTopics.put(entry.getKey(), entry.getValue().toString());
-            }
+        var topicNames = kafkaConfiguration.getCreateTopics().stream()
+            .filter(topic -> topic.keySet().contains("name"))
+            .map(topic -> (String)topic.get("name"))
+            .collect(Collectors.toUnmodifiableList());
 
-            return getJsonResponse(existingTopics);
-        } catch (Exception ex) {
-            return getErrorJson(ex);
+        var topicDescMap = kafkaAdmin.describeTopics(topicNames.toArray(new String[0]));
+
+        for (var entry : topicDescMap.entrySet()) {
+            existingTopics.put(entry.getKey(), entry.getValue().toString());
         }
+
+        return getResponse(existingTopics);
+
     }
 
     @GetMapping(value = "/properties")
-    public @ResponseBody ResponseEntity<String> listProperties() {
-        try {
-            var propMap = new TreeMap<String, Object>();
-            
-            for (var params : parameterObjects()) {
-               propMap.put(params.getClass().getSimpleName(), params);
-            } 
-            
-            return getJsonResponse(propMap);
-        } catch (Exception ex) {
-            logger.error("Error listing properties", ex);
-            return getErrorJson(ex);
+    public @ResponseBody ResponseEntity<TreeMap<String, Object>> listProperties() {
+
+        var propMap = new TreeMap<String, Object>();
+
+        for (var params : parameterObjects()) {
+           propMap.put(params.getClass().getSimpleName(), params);
         }
+
+        return getResponse(propMap);
+
     }
 
 
 
     @GetMapping(value = "/streams")
-    public @ResponseBody ResponseEntity<String> listStreams() {
+    public @ResponseBody ResponseEntity<StreamsInfoMap> listStreams() {
         var streamsMap = getKafkaStreamsMap();
         String baseUrl = baseUrl();
         var result = new StreamsInfoMap();
@@ -205,20 +189,20 @@ public class AppHealthMonitor {
             streamsInfo.setState(state != null ? state : null);
             
         }
-        return getJsonResponse(result);     
+        return getResponse(result);
     }
 
     @GetMapping(value = "/streams/{name}")
-    public @ResponseBody ResponseEntity<String> namedStreams(@PathVariable String name) {
+    public @ResponseBody ResponseEntity<MetricsGroupMap> namedStreams(@PathVariable String name) {
 
         Map<String, KafkaStreams> streamsMap = getKafkaStreamsMap();
         if (streamsMap == null)
-            return getOKResponse("The streams map is null.");
+            throw new RuntimeException("The streams map is null.");
         if (!streamsMap.containsKey(name))
-            return getOKResponse("The streams map doesn't contain an object named " + name);
+            throw new RuntimeException("The streams map doesn't contain an object named " + name);
         KafkaStreams streams = streamsMap.get(name);
         if (streams == null)
-            return getOKResponse("The KafkaStreams object is null");
+            throw new RuntimeException("The KafkaStreams object is null");
 
         
         var metrics = streams.metrics();
@@ -237,7 +221,7 @@ public class AppHealthMonitor {
             var metricValue = metric.metricValue();
             group.put(metricName.name(), metricValue); 
         }
-        return getJsonResponse(result);
+        return getResponse(result);
        
     }
 
@@ -251,18 +235,18 @@ public class AppHealthMonitor {
     }
 
     @GetMapping(value = "/spatial-indexes")
-    public @ResponseBody ResponseEntity<String> spatial() {
+    public @ResponseBody ResponseEntity<List> spatial() {
         if (mapIndex == null) {
-            return getOKResponse("The map index is null");
+            throw new RuntimeException("The map index is null");
         }
 
         Quadtree quadtree = mapIndex.getQuadtree();
         var allItems = quadtree.queryAll();
-        return getJsonResponse(allItems);
+        return getResponse(allItems);
     }
 
     @GetMapping(value = "/map-store")
-    public @ResponseBody ResponseEntity<String> mapStore() {
+    public @ResponseBody ResponseEntity<TreeMap<String, ProcessedMap<LineString>>> mapStore() {
         var mapStore = intersectionEventTopology.getMapStore();
         var mapMap = new TreeMap<String, ProcessedMap<LineString>>();
         try (var mapIterator = mapStore.all()) {
@@ -273,11 +257,11 @@ public class AppHealthMonitor {
                 mapMap.put(key.toString(), map);
             }
         }
-        return getJsonResponse(mapMap);
+        return getResponse(mapMap);
     }
 
     @GetMapping(value = "/spat-window-store")
-    public @ResponseBody ResponseEntity<String> spatWindowStore() {
+    public @ResponseBody ResponseEntity<IntersectionSpatMap> spatWindowStore() {
         var spatWindowStore = intersectionEventTopology.getSpatWindowStore();
         var intersectionMap = new IntersectionSpatMap();
         var formatter = DateTimeFormatter.ISO_DATE_TIME;
@@ -308,11 +292,11 @@ public class AppHealthMonitor {
                spatList.put(theKey.toString(), value);
            }
        }
-       return getJsonResponse(intersectionMap);
+       return getResponse(intersectionMap);
     }
 
    @GetMapping(value = "/bsm-window-store")
-   public @ResponseBody ResponseEntity<String> bsmWindowStore() {
+   public @ResponseBody ResponseEntity<IntersectionBsm> bsmWindowStore() {
         var bsmWindowStore = intersectionEventTopology.getBsmWindowStore();
         var intersectionMap = new IntersectionBsm();
         var formatter = DateTimeFormatter.ISO_DATE_TIME;
@@ -344,7 +328,7 @@ public class AppHealthMonitor {
                 bsmList.put(theKey.toString(), value);
             }
         }
-        return getJsonResponse(intersectionMap);
+        return getResponse(intersectionMap);
    }
 
     private Map<String, KafkaStreams> getKafkaStreamsMap() {
@@ -366,21 +350,15 @@ public class AppHealthMonitor {
         return streamsMap;
     }
 
-    private ResponseEntity<String> getOKResponse(String message) {
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN).body(message);
+
+
+
+
+    private <T> ResponseEntity<T> getResponse(T message) {
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(message);
     }
 
-    private ResponseEntity<String> getJsonResponse(Object message) {
-        String json;
-        try {
-            json = mapper.writeValueAsString(message);
-        } catch (JsonProcessingException jpe) {
-            logger.error("Error converting to JSON", jpe);
-           return getErrorJson(jpe);
-        }
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(json);
-    }
-
+    @ExceptionHandler
     private ResponseEntity<String> getErrorJson(Exception ex) {
         var errMap = Map.of("error", ex.getMessage());
         try {

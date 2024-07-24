@@ -235,6 +235,7 @@ map.spat.message.assessment:
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
 
+
 # MAP Time Change Details
 map.time.change.details:
   algorithm: defaultMapTimeChangeDetailsAlgorithm

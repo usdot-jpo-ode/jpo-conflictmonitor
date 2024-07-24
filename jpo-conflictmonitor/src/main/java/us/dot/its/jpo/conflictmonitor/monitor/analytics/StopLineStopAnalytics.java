@@ -151,10 +151,12 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             event.setTimeStoppedDuringRed(spatStatistics.getTimeStoppedDuringRed());
             event.setTimeStoppedDuringYellow(spatStatistics.getTimeStoppedDuringYellow());
             event.setTimeStoppedDuringGreen(spatStatistics.getTimeStoppedDuringGreen());
+            event.setTimeStoppedDuringDark(spatStatistics.getTimeStoppedDuringDark());
         }else{
             event.setTimeStoppedDuringRed(-1);
             event.setTimeStoppedDuringYellow(-1);
             event.setTimeStoppedDuringGreen(-1);
+            event.setTimeStoppedDuringDark(-1);
             event.setSignalGroup(-1);
             event.setInitialEventState(null);
             event.setFinalEventState(null);

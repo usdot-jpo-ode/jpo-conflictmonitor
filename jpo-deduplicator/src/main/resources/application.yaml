@@ -14,21 +14,33 @@ log4j.logger.org.apache.kafka: OFF
 
 
 
-# Processed Map Topic
+# Processed Map Configuration
 kafkaTopicProcessedMap: topic.ProcessedMap
 kafkaTopicDeduplicatedProcessedMap: topic.DeduplicatedProcessedMap
+enableProcessedMapDeduplication: true
 
-# Processed Map WKT Topic
+# Processed Map WKT Configuration
 kafkaTopicProcessedMapWKT: topic.ProcessedMapWKT
 kafkaTopicDeduplicatedProcessedMapWKT: topic.DeduplicatedProcessedMapWKT
+enableProcessedMapWktDeduplication: true
 
-# Ode Map Json Topic
+# Ode Map Json Configuration
 kafkaTopicOdeMapJson: topic.OdeMapJson
 kafkaTopicDeduplicatedOdeMapJson: topic.DeduplicatedOdeMapJson
+enableOdeMapDeduplication: true
 
-# Ode Tim Json Topics
+# Ode Tim Json Configuration
 kafkaTopicOdeTimJson: topic.OdeTimJson
 kafkaTopicDeduplicatedOdeTimJson: topic.DeduplicatedOdeTimJson
+enableOdeTimDeduplication: true
+
+# Ode Bsm Json Configuration
+kafkaTopicOdeBsmJson: topic.OdeBsmJson
+kafkaTopicDeduplicatedOdeBsmJson: topic.DeduplicatedOdeBsmJson
+enableOdeBsmDeduplication: true
+odeBsmMaximumTimeDelta: 10000 # Milliseconds
+odeBsmMaximumPositionDelta: 1 # Meter
+odeBsmAlwaysIncludeAtSpeed: 1 # Meter / Second
 
 
 
