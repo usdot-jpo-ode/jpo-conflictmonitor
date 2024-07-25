@@ -162,6 +162,9 @@ kafka.topics:
     - name: topic.CmStopLinePassageNotification
       cleanupPolicy: compact
       retentionMs: 300000
+    - name: topic.CmTimestampDeltaEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
