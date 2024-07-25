@@ -13,13 +13,13 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.Sp
 @Configuration
 public class TimestampDeltaAlgorithms {
 
-    @Bean FactoryBean<?> spatServiceLocatorFactoryBean() {
+    @Bean FactoryBean<?> spatTimestampDeltaServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SpatTimestampDeltaAlgorithmFactory.class);
         return factoryBean;
     }
 
-    @Bean FactoryBean<?> mapServiceLocatorFactoryBean() {
+    @Bean FactoryBean<?> mapTimestampDeltaServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(MapTimestampDeltaAlgorithmFactory.class);
         return factoryBean;

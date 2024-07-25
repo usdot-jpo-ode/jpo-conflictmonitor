@@ -245,7 +245,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    public void setSpatTimestampDeltaParameters(SpatTimestampDeltaParameters spatTimestampDeltaParameters) {
       this.spatTimestampDeltaParameters = spatTimestampDeltaParameters;
-      this.mapTimestampDeltaAlgorithm = spatTimestampDeltaParameters.getAlgorithm();
+      this.spatTimestampDeltaAlgorithm = spatTimestampDeltaParameters.getAlgorithm();
    }
 
    @Autowired
