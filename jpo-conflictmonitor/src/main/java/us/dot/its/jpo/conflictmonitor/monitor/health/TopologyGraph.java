@@ -34,6 +34,7 @@ public class TopologyGraph {
         g = new DefaultDirectedGraph<>(DefaultEdge.class);
         links = new LinkList();
         graphTopology(name, topology);
+        removeUnlinkedGlobalSubtopologies();
         for (Link link : links) {
             g.addEdge(link.from, link.to);
         }
@@ -51,16 +52,7 @@ public class TopologyGraph {
                 graphTopology(name, topology);
             }
 
-            // Remove global subtopology nodes that aren't linked to anything (no global stores or processors)
-            ImmutableSet<Vertex> vertices = ImmutableSet.copyOf(g.vertexSet());
-            for (final Vertex v : vertices) {
-                if (v.isGlobal) {
-                    boolean hasAnyLinks = links.stream().anyMatch(link -> link.from.equals(v) || link.to.equals(v));
-                    if (!hasAnyLinks) {
-                        g.removeVertex(v);
-                    }
-                }
-            }
+            removeUnlinkedGlobalSubtopologies();
 
             // Add edges to the graph
             for (Link link : links) {
@@ -72,12 +64,25 @@ public class TopologyGraph {
         }
     }
 
+    private void removeUnlinkedGlobalSubtopologies() {
+        // Remove global subtopology nodes that aren't linked to anything (no global stores or processors)
+        ImmutableSet<Vertex> vertices = ImmutableSet.copyOf(g.vertexSet());
+        for (final Vertex v : vertices) {
+            if (v.isGlobal) {
+                boolean hasAnyLinks = links.stream().anyMatch(link -> link.from.equals(v) || link.to.equals(v));
+                if (!hasAnyLinks) {
+                    g.removeVertex(v);
+                }
+            }
+        }
+    }
+
 
     void graphTopology(final String name, final Topology topology) {
         final Vertex topologyVertex = vertexTopology(name);
         g.addVertex(topologyVertex);
         TopologyDescription description = topology.describe();
-        description.globalStores().forEach(globalStore -> graphGlobalStore(topologyVertex, globalStore));
+        description.globalStores().forEach(globalStore -> graphGlobalStore(name, topologyVertex, globalStore));
         description.subtopologies().forEach(subtopology -> graphSubtopology(name, subtopology));
     }
 
@@ -109,33 +114,33 @@ public class TopologyGraph {
     }
 
 
-    void graphGlobalStore(final Vertex topologyVertex, final TopologyDescription.GlobalStore globalStore) {
+    void graphGlobalStore(final String topologyName, final Vertex topologyVertex, final TopologyDescription.GlobalStore globalStore) {
         //g.addVertex(label(globalStore));
         graphTopics(topologyVertex, globalStore.source());
-        graphProcessor(topologyVertex, globalStore.processor());
+        graphProcessor(topologyName, topologyVertex, globalStore.processor());
     }
 
     void graphSubtopology(final String topologyName, final TopologyDescription.Subtopology subtopology) {
         g.addVertex(vertexSubtopology(topologyName, subtopology));
         subtopology.nodes().forEach(node -> {
-            graphNode(vertexSubtopology(topologyName, subtopology), node);
+            graphNode(topologyName, vertexSubtopology(topologyName, subtopology), node);
         });
     }
 
-    void graphNode(final Vertex topologyVertex, final TopologyDescription.Node node) {
+    void graphNode(final String topologyName, final Vertex topologyVertex, final TopologyDescription.Node node) {
         if (node instanceof TopologyDescription.Source source) {
             graphTopics(topologyVertex, source);
         } else if (node instanceof TopologyDescription.Sink sink) {
             graphTopics(topologyVertex, sink);
         } else if (node instanceof TopologyDescription.Processor processor) {
-            graphProcessor(topologyVertex, processor);
+            graphProcessor(topologyName, topologyVertex, processor);
         }
     }
 
 
-    void graphProcessor(final Vertex topologyVertex, final TopologyDescription.Processor processor) {
+    void graphProcessor(final String topologyName, final Vertex topologyVertex, final TopologyDescription.Processor processor) {
         processor.stores().forEach(store -> {
-            Vertex storeVertex = vertexStore(store);
+            Vertex storeVertex = vertexStore(topologyName, store);
             g.addVertex(storeVertex);
             // Add links in both directions since processors can read and write stores
             links.add(topologyVertex, storeVertex);
@@ -200,8 +205,10 @@ public class TopologyGraph {
                 true);
     }
 
-    Vertex vertexStore(final String store) {
-        return new Vertex(normalizeId(store), STORE, store);
+    Vertex vertexStore(final String topologyName, final String store) {
+        // Prefix topology name to store id to make sure it is unique for multiple topologies
+        String uniqueStoreId = topologyName + "-" + store;
+        return new Vertex(normalizeId(uniqueStoreId), STORE, store);
     }
 
     Vertex vertexTopic(final String topic) {
