@@ -6,7 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,8 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
+
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -59,25 +63,11 @@ public class SpatValidationTopologyTest {
 
     @Test
     public void testMapValidationTopology() {
-        var parameters = getParameters();
-        var streamsConfig = new Properties();
-        streamsConfig.setProperty(
-            StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, 
-            TimestampExtractorForBroadcastRate.class.getName());
 
-        var spatValidationTopology = new SpatValidationTopology();
-        spatValidationTopology.setParameters(parameters);
-        var timestampTopology = new SpatTimestampDeltaTopology();
-        var timestampParameters = getTimestampParameters();
-        timestampTopology.setParameters(timestampParameters);
-        spatValidationTopology.setTimestampDeltaAlgorithm(timestampTopology);
-        Topology topology = spatValidationTopology.buildTopology();
-
-        
+        var streamsConfig = createStreamsConfig();
+        Topology topology = createTopology();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
-
-            
 
             var inputTopic = driver.createInputTopic(inputTopicName,
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(), 
@@ -137,6 +127,65 @@ public class SpatValidationTopologyTest {
         
     }
 
+    @Test
+    public void testSpatTimestampDeltaSubtopology() {
+        Properties streamsConfig = createStreamsConfig();
+        Topology topology = createTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
+
+            var inputTopic = driver.createInputTopic(inputTopicName,
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().serializer());
+
+            var timestampDeltaEventTopic = driver.createOutputTopic(timestampOutputTopicName,
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(),
+                    JsonSerdes.SpatTimestampDeltaEvent().deserializer());
+
+            final RsuIntersectionKey key = new RsuIntersectionKey(rsuId, intersectionId, region);
+
+            final Instant start1 = startTime;
+            final Instant start1_plus10 = start1.plusMillis(10L);
+            final Instant start2 = start1.plusSeconds(2L);
+            final Instant start2_plus500 = start2.plusMillis(500L);
+            final Instant start3 = start2.plusSeconds(2L);
+            final Instant start3_minus20 = start3.minusMillis(20L);
+            final Instant start4 = start3.plusSeconds(2L);
+            final Instant start4_minus600 = start4.minusMillis(600L);
+
+            inputTopic.pipeInput(key, createSpatWithTimestampOffset(start1, start1_plus10), start1);
+            inputTopic.pipeInput(key, createSpatWithTimestampOffset(start2, start2_plus500), start2);
+            inputTopic.pipeInput(key, createSpatWithTimestampOffset(start3, start3_minus20), start3);
+            inputTopic.pipeInput(key, createSpatWithTimestampOffset(start4, start4_minus600), start4);
+
+            var timestampEventList = timestampDeltaEventTopic.readKeyValuesToList();
+            assertThat("2 of 4 inputs should have produced timestamp delta events", timestampEventList, hasSize(2));
+
+            Set<Long> expectDeltas = Set.of(500L, 600L);
+            Set<Long> actualDeltas = timestampEventList.stream().map(entry -> Math.abs(entry.value.getDelta().getDeltaMilliseconds())).collect(toSet());
+            assertThat(String.format("Only the 500ms and 600ms offsets should have produced events.  Actual deltas: %s", actualDeltas), Sets.symmetricDifference(expectDeltas, actualDeltas), hasSize(0));
+        }
+    }
+
+    private Topology createTopology() {
+        var parameters = getParameters();
+        var spatValidationTopology = new SpatValidationTopology();
+        spatValidationTopology.setParameters(parameters);
+        var timestampTopology = new SpatTimestampDeltaTopology();
+        var timestampParameters = getTimestampParameters();
+        timestampTopology.setParameters(timestampParameters);
+        spatValidationTopology.setTimestampDeltaAlgorithm(timestampTopology);
+        return spatValidationTopology.buildTopology();
+    }
+
+    private Properties createStreamsConfig() {
+        var streamsConfig = new Properties();
+        streamsConfig.setProperty(
+                StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
+                TimestampExtractorForBroadcastRate.class.getName());
+        return streamsConfig;
+    }
+
     private SpatTimestampDeltaParameters getTimestampParameters() {
         var parameters = new SpatTimestampDeltaParameters();
         parameters.setDebug(debug);
@@ -170,6 +219,14 @@ public class SpatValidationTopologyTest {
         msg.setMessage(validationMsg);
         valMsgList.add(msg);
         spat.setValidationMessages(valMsgList);
+        return spat;
+    }
+
+    private ProcessedSpat createSpatWithTimestampOffset(Instant odeReceivedAt, Instant timestamp) {
+        var spat = new ProcessedSpat();
+        spat.setOdeReceivedAt(odeReceivedAt.atZone(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME));
+        spat.setUtcTimeStamp(timestamp.atZone(ZoneOffset.UTC));
+        spat.setCti4501Conformant(true);
         return spat;
     }
 

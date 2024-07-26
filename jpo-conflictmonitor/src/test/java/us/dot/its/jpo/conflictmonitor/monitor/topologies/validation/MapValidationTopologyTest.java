@@ -2,8 +2,10 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.validation;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import com.google.common.collect.Sets;
 import org.apache.kafka.streams.StreamsConfig;
@@ -27,8 +29,11 @@ import org.junit.Test;
 
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 
 public class MapValidationTopologyTest {
