@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @Generated
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class BaseTimestampDeltaEvent extends Event {
 
     public BaseTimestampDeltaEvent(String inputType) {

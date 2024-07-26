@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +11,17 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 @EqualsAndHashCode
 @Generated
 @Slf4j
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TimestampDelta {
 
     /**
      * The configured max delta (absolute value)
      */
     int maxDeltaMilliseconds;
+
+    public void setMaxDeltaMilliseconds(int maxDeltaMilliseconds) {
+        this.maxDeltaMilliseconds = Math.abs(maxDeltaMilliseconds);
+    }
 
     /**
      * The ODE ingest timestamp
@@ -30,12 +36,12 @@ public class TimestampDelta {
     /**
      * The actual timestamp delta
      */
-    public long actualDeltaMilliseconds() {
+    public long getDeltaMilliseconds() {
         return odeIngestTimestampMilliseconds - messageTimestampMilliseconds;
     }
 
     public boolean emitEvent() {
-        return Math.abs(actualDeltaMilliseconds()) > maxDeltaMilliseconds;
+        return Math.abs(getDeltaMilliseconds()) > maxDeltaMilliseconds;
     }
 
     @Override
