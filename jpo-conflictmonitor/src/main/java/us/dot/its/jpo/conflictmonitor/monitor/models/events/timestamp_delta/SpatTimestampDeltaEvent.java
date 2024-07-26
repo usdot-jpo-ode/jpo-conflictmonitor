@@ -5,6 +5,6 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 public class SpatTimestampDeltaEvent
     extends BaseTimestampDeltaEvent {
     public SpatTimestampDeltaEvent() {
-        super(ProcessedSpat.class.getName());
+        super("SpatTimestampDelta", ProcessedSpat.class.getName());
     }
 }

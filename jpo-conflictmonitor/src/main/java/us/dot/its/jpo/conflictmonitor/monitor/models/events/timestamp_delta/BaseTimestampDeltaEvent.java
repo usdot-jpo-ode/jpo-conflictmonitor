@@ -14,8 +14,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class BaseTimestampDeltaEvent extends Event {
 
-    public BaseTimestampDeltaEvent(String inputType) {
-        super("TimestampDeltaEvent");
+    public BaseTimestampDeltaEvent(String eventType, String inputType) {
+        super(eventType);
         this.inputType = inputType;
     }
 

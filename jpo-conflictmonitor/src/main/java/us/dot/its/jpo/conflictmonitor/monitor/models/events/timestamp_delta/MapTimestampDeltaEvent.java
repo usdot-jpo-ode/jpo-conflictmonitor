@@ -6,7 +6,7 @@ public class MapTimestampDeltaEvent
     extends BaseTimestampDeltaEvent {
 
     public MapTimestampDeltaEvent() {
-        super(ProcessedMap.class.getTypeName());
+        super("MapTimestampDelta", ProcessedMap.class.getTypeName());
     }
 
 }
