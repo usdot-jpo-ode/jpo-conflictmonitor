@@ -404,7 +404,6 @@ config:
 # MAP Timestamp Delta parameters
 map.timestamp.delta:
   algorithm: defaultMapTimestampDeltaAlgorithm
-  inputTopicName: topic.ProcessedMap
   outputTopicName: topic.CmTimestampDeltaEvent
   maxDeltaMilliseconds: 50
   debug: false
@@ -412,7 +411,6 @@ map.timestamp.delta:
 # SPaT Timestamp Delta parameters
 spat.timestamp.delta:
   algorithm: defaultSpatTimestampDeltaAlgorithm
-  inputTopicName: topic.ProcessedSpat
   outputTopicName: topic.CmTimestampDeltaEvent
   maxDeltaMilliseconds: 50
   debug: false

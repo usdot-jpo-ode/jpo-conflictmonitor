@@ -22,11 +22,6 @@ public class MapTimestampDeltaParameters {
             updateType = READ_ONLY)
     volatile String algorithm;
 
-    @ConfigData(key = "map.timestamp.delta.inputTopicName",
-            description = "Input Kafka topic",
-            updateType = READ_ONLY)
-    volatile String inputTopicName;
-
     @ConfigData(key = "map.timestamp.delta.outputTopicName",
             description = "Output Kafka topic",
             updateType = READ_ONLY)

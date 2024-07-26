@@ -10,8 +10,10 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.timestamp_delta.SpatTimestampDeltaTopology;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
@@ -31,6 +33,8 @@ public class SpatValidationTopologyTest {
     final String inputTopicName = "topic.ProcessedSpat";
     final String broadcastRateTopicName = "topic.CmSpatBroadcastRateEvents";
     final String minimumDataTopicName = "topic.CmSpatMinimumDataEvents";
+    final int maxDeltaMilliseconds = 50;
+    final String timestampOutputTopicName = "topic.CmTimestampDeltaEvent";
     
     // Use a tumbling window for test (rolling period = output interval)
     // just to make it easier to design the test.
@@ -63,6 +67,10 @@ public class SpatValidationTopologyTest {
 
         var spatValidationTopology = new SpatValidationTopology();
         spatValidationTopology.setParameters(parameters);
+        var timestampTopology = new SpatTimestampDeltaTopology();
+        var timestampParameters = getTimestampParameters();
+        timestampTopology.setParameters(timestampParameters);
+        spatValidationTopology.setTimestampDeltaAlgorithm(timestampTopology);
         Topology topology = spatValidationTopology.buildTopology();
 
         
@@ -127,6 +135,14 @@ public class SpatValidationTopologyTest {
            
         }
         
+    }
+
+    private SpatTimestampDeltaParameters getTimestampParameters() {
+        var parameters = new SpatTimestampDeltaParameters();
+        parameters.setDebug(debug);
+        parameters.setMaxDeltaMilliseconds(maxDeltaMilliseconds);
+        parameters.setOutputTopicName(timestampOutputTopicName);
+        return parameters;
     }
 
     private SpatValidationParameters getParameters() {

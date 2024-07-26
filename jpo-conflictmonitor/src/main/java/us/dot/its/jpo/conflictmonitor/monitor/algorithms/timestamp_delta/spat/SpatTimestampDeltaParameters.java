@@ -22,11 +22,6 @@ public class SpatTimestampDeltaParameters {
             updateType = READ_ONLY)
     volatile String algorithm;
 
-    @ConfigData(key = "spat.timestamp.delta.inputTopicName",
-            description = "Input Kafka topic",
-            updateType = READ_ONLY)
-    volatile String inputTopicName;
-
     @ConfigData(key = "spat.timestamp.delta.outputTopicName",
             description = "Output Kafka topic",
             updateType = READ_ONLY)

@@ -11,8 +11,10 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.timestamp_delta.MapTimestampDeltaTopology;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
@@ -33,6 +35,8 @@ public class MapValidationTopologyTest {
     final String inputTopicName = "topic.ProcessedMap";
     final String broadcastRateTopicName = "topic.CmMapBroadcastRateEvents";
     final String minimumDataTopicName = "topic.CmMapMinimumDataEvents";
+    final int maxDeltaMilliseconds = 50;
+    final String timestampOutputTopicName = "topic.CmTimestampDeltaEvent";
     
     // Use a tumbling window for test (rolling period = output interval)
     // just to make it easier to design the test.
@@ -67,6 +71,10 @@ public class MapValidationTopologyTest {
 
         var mapValidationTopology = new MapValidationTopology();
         mapValidationTopology.setParameters(parameters);
+        var timestampTopology = new MapTimestampDeltaTopology();
+        var timestampParameters = getTimestampParameters();
+        timestampTopology.setParameters(timestampParameters);
+        mapValidationTopology.setTimestampDeltaAlgorithm(timestampTopology);
         Topology topology = mapValidationTopology.buildTopology();
 
         
@@ -131,6 +139,14 @@ public class MapValidationTopologyTest {
            
         }
         
+    }
+
+    private MapTimestampDeltaParameters getTimestampParameters() {
+        var parameters = new MapTimestampDeltaParameters();
+        parameters.setDebug(debug);
+        parameters.setMaxDeltaMilliseconds(maxDeltaMilliseconds);
+        parameters.setOutputTopicName(timestampOutputTopicName);
+        return parameters;
     }
 
     private MapValidationParameters getParameters() {
