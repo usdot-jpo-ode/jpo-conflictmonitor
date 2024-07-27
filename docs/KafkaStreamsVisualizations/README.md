@@ -8,9 +8,9 @@ with the Conflict Monitor running in Docker.
 
 ## Topology Overviews
 
-The `topologies/simple` endpoints produce GraphViz `dot` files that represent the input and output topics of topologyes, connections between topologies, and associated state stores.
+The `topologies/simple` endpoints produce GraphViz `dot` files that represent the input and output topics of topologies, connections between topologies, and associated state stores.
 
-To visualize the current state of all Kafka Streams download the all.dot file from:
+To visualize the current state of all Kafka Streams download the `all.dot` file from:
 
 http://localhost:8082/health/topologies/simple/all
 
@@ -42,6 +42,9 @@ dot -Tpng all.dot > all.png
 ![SPaT Validation Topology Overview](./spatValidation.svg)
 
 #### All Topologies Overview
+
+Open the image in a separate tab to zoom in
+
 ![All Topologies Overview](./all.svg)
 
 
@@ -51,9 +54,7 @@ To view detailed internals for one topology select one of the `topologies/detail
 
 http://localhost:8082/health/topologies/detail/mapValidation
 
-Save the response to a text file.  This file is the result of calling the Topology.describe() method in it's native text format.
-
-This format can be visualized using the Kafka Streams Topology Visualizer here:
+Save the response to a text file.  This file is the result of calling the Topology.describe() method.  This format can be visualized using the online Kafka Streams Topology Visualizer here:
 
 https://zz85.github.io/kafka-streams-viz/
 
