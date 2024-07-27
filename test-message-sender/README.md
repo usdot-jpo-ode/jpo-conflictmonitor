@@ -98,12 +98,13 @@ message-type,relative-timestamp,json-template
 
 `relative-timestamp` is the number of milliseconds relative to the start time.
 
-`json-template` is a OdeSpatJson, OdeMapJson, or OdeBsmJson object on a single line, with the following placeholders:
+`json-template` is a OdeSpatJson, OdeMapJson, or OdeBsmJson, ProcessedMap or ProcessedSpat object on a single line, with the following placeholders:
 
 * `@ISO_DATE_TIME@` - Date/Time string.
 * `@TEMP_ID@` - Temporary ID for BSMs, a string of 8 hex digits.
 * `"@MINUTE_OF_YEAR@"` - Numeric minute of the year.
 * `"@MILLI_OF_MINUTE@"` - Numeric millisecond of the minute.
+* `@ISO_DATE_TIME_OFFSET_MILLIS_{offset}` - Date/Time string offset by a number of milliseconds
 
 
 The script runner converts the timestamps to times relative to the script start time, inserts them into the JSON templates, and schedules the messages to be sent to the appropriate topics in real time.  It generates a random BSM Temporary ID for each script run.
