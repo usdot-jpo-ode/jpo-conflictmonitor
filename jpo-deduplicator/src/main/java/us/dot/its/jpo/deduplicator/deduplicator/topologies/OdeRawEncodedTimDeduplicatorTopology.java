@@ -1,4 +1,3 @@
-
 package us.dot.its.jpo.deduplicator.deduplicator.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
@@ -24,11 +23,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Properties;
 
-public class TimDeduplicatorTopology {
+public class OdeRawEncodedTimDeduplicatorTopology {
 
-    private static final Logger logger = LoggerFactory.getLogger(TimDeduplicatorTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(OdeRawEncodedTimDeduplicatorTopology.class);
 
     Topology topology;
     KafkaStreams streams;
@@ -38,7 +38,7 @@ public class TimDeduplicatorTopology {
     ObjectMapper objectMapper;
     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
-    public TimDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
+    public OdeRawEncodedTimDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
         this.inputTopic = inputTopic;
         this.outputTopic = outputTopic;
         this.streamsProperties = streamsProperties;
@@ -81,20 +81,15 @@ public class TimDeduplicatorTopology {
         KStream<String, JsonNode> timRekeyedStream = inputStream.selectKey((key, value)->{
             try{
 
-                
-                JsonNode travellerInformation = value.get("payload")
+                String messageBytes = value.get("payload")
                     .get("data")
-                    .get("MessageFrame")
-                    .get("value")
-                    .get("TravelerInformation");
-               
+                    .get("bytes").asText();
+
+                int hash = Objects.hash(messageBytes);
+
                 String rsuIP = value.get("metadata").get("originIp").asText();
-                String packetId = travellerInformation.get("packetID").asText();
-                String msgCnt = travellerInformation.get("msgCnt").asText();
 
-
-
-                String newKey = rsuIP + "_" + packetId + "_" + msgCnt;
+                String newKey = rsuIP + "_" + hash;
                 return newKey;
             }catch(Exception e){
                 return "";
@@ -109,12 +104,16 @@ public class TimDeduplicatorTopology {
                     ()-> new JsonPair(genJsonNode(), true),
                     (aggKey, newValue, aggregate) ->{
 
+                        System.out.println(aggKey);
+
                         // Filter out results that cannot be properly key tested
                         if(aggKey.equals("")){
+                            System.out.println("Invalid Key");
                             return new JsonPair(newValue, false);
                         }
 
                         if(aggregate.getMessage().get("metadata") == null){
+                            System.out.println("Metadata");
                             return new JsonPair(newValue, true);
                         }
 
@@ -122,8 +121,10 @@ public class TimDeduplicatorTopology {
                         Instant newValueTime = getInstantFromJsonTim(newValue);
 
                         if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
+                            System.out.println("Time Forwarding");
                             return new JsonPair(newValue, true );
                         }else{
+                            System.out.println("Not Forwarding");
                             return new JsonPair(aggregate.getMessage(), false);
                         }
                     },
@@ -134,7 +135,6 @@ public class TimDeduplicatorTopology {
                 ArrayList<KeyValue<String, JsonNode>> outputList = new ArrayList<>();
                 if(value != null && value.isShouldSend()){
                     outputList.add(new KeyValue<>(key, value.getMessage()));
-                    
                 }
                 return outputList;
             });
@@ -146,13 +146,13 @@ public class TimDeduplicatorTopology {
     }
 
     public void stop() {
-        logger.info("Stopping Tim deduplicator Socket Broadcast Topology.");
+        logger.info("Stopping OdeRawEncodedTim Deduplicator Socket Broadcast Topology.");
         if (streams != null) {
             streams.close();
             streams.cleanUp();
             streams = null;
         }
-        logger.info("Stopped Tim deduplicator Socket Broadcast Topology.");
+        logger.info("Stopped OdeRawEncodedTim Deduplicator Socket Broadcast Topology.");
     }
 
     StateListener stateListener;

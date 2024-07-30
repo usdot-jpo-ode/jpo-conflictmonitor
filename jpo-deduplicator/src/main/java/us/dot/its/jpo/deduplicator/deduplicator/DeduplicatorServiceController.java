@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.BsmDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.MapDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.OdeRawEncodedTimDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
@@ -78,6 +79,15 @@ public class DeduplicatorServiceController {
                     props.createStreamProperties("TimDeduplicator")
                 );
                 timDeduplicatorTopology.start();
+            }
+
+            if(props.isEnableOdeRawEncodedTimDeduplication()){
+                OdeRawEncodedTimDeduplicatorTopology odeRawEncodedTimDeduplicatorTopology = new OdeRawEncodedTimDeduplicatorTopology(
+                    props.getKafkaTopicOdeRawEncodedTimJson(),
+                    props.getKafkaTopicDeduplicatedOdeRawEncodedTimJson(),
+                    props.createStreamProperties("OdeRawEncodedTimDeduplicator")
+                );
+                odeRawEncodedTimDeduplicatorTopology.start();
             }
 
             if(props.isEnableOdeBsmDeduplication()){
