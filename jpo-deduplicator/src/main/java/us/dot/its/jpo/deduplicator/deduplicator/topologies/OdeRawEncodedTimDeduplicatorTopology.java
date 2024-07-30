@@ -104,27 +104,23 @@ public class OdeRawEncodedTimDeduplicatorTopology {
                     ()-> new JsonPair(genJsonNode(), true),
                     (aggKey, newValue, aggregate) ->{
 
-                        System.out.println(aggKey);
-
+                        
                         // Filter out results that cannot be properly key tested
                         if(aggKey.equals("")){
-                            System.out.println("Invalid Key");
                             return new JsonPair(newValue, false);
                         }
 
                         if(aggregate.getMessage().get("metadata") == null){
-                            System.out.println("Metadata");
                             return new JsonPair(newValue, true);
                         }
 
                         Instant oldValueTime = getInstantFromJsonTim(aggregate.getMessage());
                         Instant newValueTime = getInstantFromJsonTim(newValue);
 
+
                         if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
-                            System.out.println("Time Forwarding");
                             return new JsonPair(newValue, true );
                         }else{
-                            System.out.println("Not Forwarding");
                             return new JsonPair(aggregate.getMessage(), false);
                         }
                     },

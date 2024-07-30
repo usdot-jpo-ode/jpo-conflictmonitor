@@ -36,7 +36,7 @@ enableOdeTimDeduplication: true
 
 # Ode Raw Encoded Tim Json Configuration
 kafkaTopicOdeRawEncodedTimJson: topic.OdeRawEncodedTIMJson
-kafkaTopicDeduplicatedRawEncodedOdeTimJson: topic.DeduplicatedOdeRawEncodedTIMJson
+kafkaTopicDeduplicatedOdeRawEncodedTimJson: topic.DeduplicatedOdeRawEncodedTIMJson
 enableOdeRawEncodedTimDeduplication: true
 
 # Ode Bsm Json Configuration
