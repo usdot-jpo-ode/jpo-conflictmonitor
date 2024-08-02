@@ -6,12 +6,16 @@ import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
+
 public class OdeTimJsonProcessor extends DeduplicationProcessor<JsonNode>{
 
     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
-    public OdeTimJsonProcessor(String storeName){
-        this.storeName = storeName;
+    DeduplicatorProperties props;
+    public OdeTimJsonProcessor(DeduplicatorProperties props){
+        this.props = props;
+        this.storeName = props.getKafkaStateStoreOdeTimJsonName();
     }
 
 

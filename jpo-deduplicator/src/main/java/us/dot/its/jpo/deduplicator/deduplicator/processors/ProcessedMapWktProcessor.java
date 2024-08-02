@@ -3,10 +3,7 @@ package us.dot.its.jpo.deduplicator.deduplicator.processors;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Objects;
-
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
-import us.dot.its.jpo.deduplicator.deduplicator.models.ProcessedMapWktPair;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 public class ProcessedMapWktProcessor extends DeduplicationProcessor<ProcessedMap<String>>{

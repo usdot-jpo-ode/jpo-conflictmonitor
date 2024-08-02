@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
+import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeTimJsonProcessorSupplier;
 
 
@@ -29,18 +30,13 @@ public class TimDeduplicatorTopology {
 
     Topology topology;
     KafkaStreams streams;
-    String inputTopic;
-    String outputTopic;
-    String stateStoreName;
     Properties streamsProperties;
     ObjectMapper objectMapper;
     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+    DeduplicatorProperties props;
 
-    public TimDeduplicatorTopology(String inputTopic, String outputTopic, String stateStoreName,
-            Properties streamsProperties) {
-        this.inputTopic = inputTopic;
-        this.outputTopic = outputTopic;
-        this.stateStoreName = stateStoreName;
+    public TimDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties) {
+        this.props = props;
         this.streamsProperties = streamsProperties;
         this.objectMapper = new ObjectMapper();
     }
@@ -68,10 +64,10 @@ public class TimDeduplicatorTopology {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<Void, JsonNode> inputStream = builder.stream(inputTopic,
+        KStream<Void, JsonNode> inputStream = builder.stream(props.getKafkaStateStoreOdeTimJsonName(),
                 Consumed.with(Serdes.Void(), JsonSerdes.JSON()));
 
-        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(stateStoreName),
+        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreOdeTimJsonName()),
                 Serdes.String(), JsonSerdes.JSON()));
 
         
@@ -96,9 +92,9 @@ public class TimDeduplicatorTopology {
             }
         });
 
-        KStream<String, JsonNode> deduplicatedStream = timRekeyedStream.process(new OdeTimJsonProcessorSupplier(stateStoreName), stateStoreName);
+        KStream<String, JsonNode> deduplicatedStream = timRekeyedStream.process(new OdeTimJsonProcessorSupplier(props), props.getKafkaStateStoreOdeTimJsonName());
 
-        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.JSON()));
+        deduplicatedStream.to(props.getKafkaTopicDeduplicatedOdeTimJson(), Produced.with(Serdes.String(), JsonSerdes.JSON()));
 
         return builder.build();
 
