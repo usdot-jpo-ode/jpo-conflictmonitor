@@ -43,7 +43,6 @@ public class OdeBsmJsonProcessor extends DeduplicationProcessor<OdeBsmData>{
         Instant oldValueTime = getMessageTime(lastMessage);
 
         // If the messages are more than a certain time apart, forward the new message on
-        System.out.println(newValueTime + " " + oldValueTime);
         if(newValueTime.minus(Duration.ofMillis(props.getOdeBsmMaximumTimeDelta())).isAfter(oldValueTime)){
             return false;  
         }

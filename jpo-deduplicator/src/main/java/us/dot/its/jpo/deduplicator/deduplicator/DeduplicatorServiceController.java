@@ -74,13 +74,6 @@ public class DeduplicatorServiceController {
             }
             
             if(props.isEnableOdeTimDeduplication()){
-                // TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
-                //     props.getKafkaTopicOdeTimJson(),
-                //     props.getKafkaTopicDeduplicatedOdeTimJson(),
-                //     props.createStreamProperties("TimDeduplicator")
-                // );
-                // timDeduplicatorTopology.start();
-
                 TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
                     props.getKafkaTopicOdeTimJson(),
                     props.getKafkaTopicDeduplicatedOdeTimJson(),
@@ -92,8 +85,7 @@ public class DeduplicatorServiceController {
 
             if(props.isEnableOdeRawEncodedTimDeduplication()){
                 OdeRawEncodedTimDeduplicatorTopology odeRawEncodedTimDeduplicatorTopology = new OdeRawEncodedTimDeduplicatorTopology(
-                    props.getKafkaTopicOdeRawEncodedTimJson(),
-                    props.getKafkaTopicDeduplicatedOdeRawEncodedTimJson(),
+                    props,
                     props.createStreamProperties("OdeRawEncodedTimDeduplicator")
                 );
                 odeRawEncodedTimDeduplicatorTopology.start();

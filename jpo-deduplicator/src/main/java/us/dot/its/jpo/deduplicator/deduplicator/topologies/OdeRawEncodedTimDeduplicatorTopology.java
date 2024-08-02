@@ -5,26 +5,25 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
-import us.dot.its.jpo.deduplicator.deduplicator.models.JsonPair;
-import us.dot.its.jpo.deduplicator.deduplicator.serialization.PairSerdes;
+import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.serialization.JsonSerdes;
 
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Properties;
+
+import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeRawEncodedTimProcessorSupplier;
 
 public class OdeRawEncodedTimDeduplicatorTopology {
 
@@ -36,13 +35,13 @@ public class OdeRawEncodedTimDeduplicatorTopology {
     String outputTopic;
     Properties streamsProperties;
     ObjectMapper objectMapper;
+    DeduplicatorProperties props;
     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
 
-    public OdeRawEncodedTimDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
-        this.inputTopic = inputTopic;
-        this.outputTopic = outputTopic;
+    public OdeRawEncodedTimDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
         this.streamsProperties = streamsProperties;
         this.objectMapper = new ObjectMapper();
+        this.props = props;
     }
 
     
@@ -76,7 +75,10 @@ public class OdeRawEncodedTimDeduplicatorTopology {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<Void, JsonNode> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.Void(), JsonSerdes.JSON()));
+        KStream<Void, JsonNode> inputStream = builder.stream(props.getKafkaTopicOdeRawEncodedTimJson(), Consumed.with(Serdes.Void(), JsonSerdes.JSON()));
+
+        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreOdeRawEncodedTimJsonName()),
+                Serdes.String(), JsonSerdes.JSON()));
 
         KStream<String, JsonNode> timRekeyedStream = inputStream.selectKey((key, value)->{
             try{
@@ -98,44 +100,9 @@ public class OdeRawEncodedTimDeduplicatorTopology {
 
         
 
-        KStream<String, JsonNode> deduplicatedStream = timRekeyedStream
-            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.JSON()))
-            .aggregate(
-                    ()-> new JsonPair(genJsonNode(), true),
-                    (aggKey, newValue, aggregate) ->{
+        KStream<String, JsonNode> deduplicatedStream = timRekeyedStream.process(new OdeRawEncodedTimProcessorSupplier(props), props.getKafkaStateStoreOdeRawEncodedTimJsonName());
 
-                        
-                        // Filter out results that cannot be properly key tested
-                        if(aggKey.equals("")){
-                            return new JsonPair(newValue, false);
-                        }
-
-                        if(aggregate.getMessage().get("metadata") == null){
-                            return new JsonPair(newValue, true);
-                        }
-
-                        Instant oldValueTime = getInstantFromJsonTim(aggregate.getMessage());
-                        Instant newValueTime = getInstantFromJsonTim(newValue);
-
-
-                        if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
-                            return new JsonPair(newValue, true );
-                        }else{
-                            return new JsonPair(aggregate.getMessage(), false);
-                        }
-                    },
-                    Materialized.with(Serdes.String(), PairSerdes.JsonPair())
-            )
-            .toStream()
-            .flatMap((key, value) ->{
-                ArrayList<KeyValue<String, JsonNode>> outputList = new ArrayList<>();
-                if(value != null && value.isShouldSend()){
-                    outputList.add(new KeyValue<>(key, value.getMessage()));
-                }
-                return outputList;
-            });
-
-        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.JSON()));
+        deduplicatedStream.to(props.getKafkaTopicDeduplicatedOdeRawEncodedTimJson(), Produced.with(Serdes.String(), JsonSerdes.JSON()));
 
         return builder.build();
 

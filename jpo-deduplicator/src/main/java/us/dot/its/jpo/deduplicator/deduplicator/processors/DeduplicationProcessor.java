@@ -9,6 +9,8 @@ import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
 
+import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
+
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.KeyValue;
 
