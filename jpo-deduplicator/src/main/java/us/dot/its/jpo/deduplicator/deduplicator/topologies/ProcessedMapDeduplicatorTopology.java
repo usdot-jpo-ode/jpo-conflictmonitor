@@ -5,27 +5,21 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
-import us.dot.its.jpo.deduplicator.deduplicator.models.ProcessedMapPair;
-import us.dot.its.jpo.deduplicator.deduplicator.serialization.PairSerdes;
+import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
+import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.ProcessedMapProcessorSupplier;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
-
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Objects;
 
 public class ProcessedMapDeduplicatorTopology {
 
@@ -33,14 +27,12 @@ public class ProcessedMapDeduplicatorTopology {
 
     Topology topology;
     KafkaStreams streams;
-    String inputTopic;
-    String outputTopic;
     Properties streamsProperties;
     ObjectMapper objectMapper;
+    DeduplicatorProperties props;
 
-    public ProcessedMapDeduplicatorTopology(String inputTopic, String outputTopic, Properties streamsProperties){
-        this.inputTopic = inputTopic;
-        this.outputTopic = outputTopic;
+    public ProcessedMapDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
+        this.props = props;
         this.streamsProperties = streamsProperties;
         this.objectMapper = new ObjectMapper();
     }
@@ -61,55 +53,14 @@ public class ProcessedMapDeduplicatorTopology {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(inputTopic, Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(props.getKafkaTopicProcessedMap(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
 
-        KStream<String, ProcessedMap<LineString>> deduplicatedStream = inputStream
-            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()))
-            .aggregate(() -> new ProcessedMapPair(new ProcessedMap<LineString>(), true),
-            (key, newValue, aggregate)->{
-
-                // Handle the first message where the aggregate map isn't good.
-                if(aggregate.getMessage().getProperties() == null){
-                    return new ProcessedMapPair(newValue, true );
-                }
-
-                Instant newValueTime = newValue.getProperties().getOdeReceivedAt().toInstant();
-                Instant oldValueTime = aggregate.getMessage().getProperties().getOdeReceivedAt().toInstant();
-                
-                if(newValueTime.minus(Duration.ofHours(1)).isAfter(oldValueTime)){
-                    return new ProcessedMapPair(newValue, true );
-                }else{
-                    ZonedDateTime newValueTimestamp = newValue.getProperties().getTimeStamp();
-                    ZonedDateTime newValueOdeReceivedAt = newValue.getProperties().getOdeReceivedAt();
-
-                    newValue.getProperties().setTimeStamp(aggregate.getMessage().getProperties().getTimeStamp());
-                    newValue.getProperties().setOdeReceivedAt(aggregate.getMessage().getProperties().getOdeReceivedAt());
-
-                    // int oldHash = aggregate.getMessage().getProperties().hashCode();
-                    // int newhash = newValue.getProperties().hashCode();
-                    int oldHash = Objects.hash(aggregate.getMessage().toString());
-                    int newHash = Objects.hash(newValue.toString());
-
-                    if(oldHash != newHash){
-                        newValue.getProperties().setTimeStamp(newValueTimestamp);
-                        newValue.getProperties().setOdeReceivedAt(newValueOdeReceivedAt);
-                        return new ProcessedMapPair(newValue, true);
-                    }else{
-                        return new ProcessedMapPair(aggregate.getMessage(), false);
-                    }
-                }
-            }, Materialized.with(Serdes.String(), PairSerdes.ProcessedMapPair()))
-            .toStream()
-            .flatMap((key, value) ->{
-                ArrayList<KeyValue<String, ProcessedMap<LineString>>> outputList = new ArrayList<>();
-                if(value != null && value.isShouldSend()){
-                    outputList.add(new KeyValue<>(key, value.getMessage()));   
-                }
-                return outputList;
-            });
-
+        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreProcessedMapName()),
+                Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
         
-        deduplicatedStream.to(outputTopic, Produced.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
+        KStream<String, ProcessedMap<LineString>> deduplicatedStream = inputStream.process(new ProcessedMapProcessorSupplier(props), props.getKafkaStateStoreProcessedMapName());
+        
+        deduplicatedStream.to(props.getKafkaTopicDeduplicatedProcessedMap(), Produced.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
 
         return builder.build();
 

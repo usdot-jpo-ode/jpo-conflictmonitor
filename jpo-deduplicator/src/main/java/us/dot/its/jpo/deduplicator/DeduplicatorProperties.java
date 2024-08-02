@@ -57,13 +57,13 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private String kafkaTopicProcessedMap;
    private String kafkaTopicDeduplicatedProcessedMap;
    private boolean enableProcessedMapDeduplication;
-   private String kafkaStateStoreProcessedMapJsonName = "ProcessedMapJson-store";
+   private String kafkaStateStoreProcessedMapName = "ProcessedMap-store";
 
    // Processed Map WKT Configuration
    private String kafkaTopicProcessedMapWKT;
    private String kafkaTopicDeduplicatedProcessedMapWKT;
    private boolean enableProcessedMapWktDeduplication;
-   private String kafkaStateStoreProcessedMapWKTJsonName = "ProcessedMapWKTJson-store";
+   private String kafkaStateStoreProcessedMapWKTName = "ProcessedMapWKT-store";
 
    // Ode Map Json Configuration
    private String kafkaTopicOdeMapJson;
