@@ -64,7 +64,7 @@ public class TimDeduplicatorTopology {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<Void, JsonNode> inputStream = builder.stream(props.getKafkaStateStoreOdeTimJsonName(),
+        KStream<Void, JsonNode> inputStream = builder.stream(props.getKafkaTopicOdeTimJson(),
                 Consumed.with(Serdes.Void(), JsonSerdes.JSON()));
 
         builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreOdeTimJsonName()),
