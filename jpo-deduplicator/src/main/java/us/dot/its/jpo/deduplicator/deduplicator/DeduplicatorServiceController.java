@@ -66,8 +66,7 @@ public class DeduplicatorServiceController {
             
             if(props.isEnableProcessedMapDeduplication()){
                 MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
-                    props.getKafkaTopicOdeMapJson(),
-                    props.getKafkaTopicDeduplicatedOdeMapJson(),
+                    props,
                     props.createStreamProperties("MapDeduplicator")
                 );
                 mapDeduplicatorTopology.start();
