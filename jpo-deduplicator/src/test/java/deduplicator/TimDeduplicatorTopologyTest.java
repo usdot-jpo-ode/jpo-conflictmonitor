@@ -40,7 +40,7 @@ public class TimDeduplicatorTopologyTest {
     @Test
     public void testTopology() {
 
-        TimDeduplicatorTopology TimDeduplicatorTopology = new TimDeduplicatorTopology(inputTopic, outputTopic, null);
+        TimDeduplicatorTopology TimDeduplicatorTopology = new TimDeduplicatorTopology(inputTopic, outputTopic, "OdeTimJson-store", null);
 
         Topology topology = TimDeduplicatorTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());

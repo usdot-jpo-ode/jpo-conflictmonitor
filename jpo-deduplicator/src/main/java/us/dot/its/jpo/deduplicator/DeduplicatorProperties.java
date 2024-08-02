@@ -57,16 +57,19 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private String kafkaTopicProcessedMap;
    private String kafkaTopicDeduplicatedProcessedMap;
    private boolean enableProcessedMapDeduplication;
+   private String kafkaStateStoreProcessedMapJsonName = "ProcessedMapJson-store";
 
    // Processed Map WKT Configuration
    private String kafkaTopicProcessedMapWKT;
    private String kafkaTopicDeduplicatedProcessedMapWKT;
    private boolean enableProcessedMapWktDeduplication;
+   private String kafkaStateStoreProcessedMapWKTJsonName = "ProcessedMapWKTJson-store";
 
    // Ode Map Json Configuration
    private String kafkaTopicOdeMapJson;
    private String kafkaTopicDeduplicatedOdeMapJson;
    private boolean enableOdeMapDeduplication;
+   private String kafkaStateStoreOdeMapJsonName = "OdeMapJson-store";
 
    // Ode Tim Json Configuration
    private String kafkaTopicOdeTimJson;
@@ -78,6 +81,7 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private String kafkaTopicOdeRawEncodedTimJson;
    private String kafkaTopicDeduplicatedOdeRawEncodedTimJson;
    private boolean enableOdeRawEncodedTimDeduplication;
+   private String kafkaStateStoreOdeRawEncodedTimJsonName = "OdeRawEncodedTimJson-store";
 
    //Ode BsmJson Configuration
    private String kafkaTopicOdeBsmJson;
@@ -86,6 +90,7 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private long odeBsmMaximumTimeDelta;
    private double odeBsmMaximumPositionDelta;
    private double odeBsmAlwaysIncludeAtSpeed;
+   private String kafkaStateStoreOdeBsmJsonName = "OdeBsmJson-store";
 
    // Confluent Properties
    private boolean confluentCloudEnabled = false;

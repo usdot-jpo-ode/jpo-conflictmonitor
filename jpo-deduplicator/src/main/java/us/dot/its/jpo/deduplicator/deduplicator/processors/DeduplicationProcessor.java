@@ -37,11 +37,13 @@ public abstract class DeduplicationProcessor<T> implements Processor<String, T, 
         if(lastRecord == null){
             store.put(record.key(), record.value());
             context.forward(record);
+            return;
         }
 
         if(!isDuplicate(lastRecord, record.value())){
             store.put(record.key(), record.value());
             context.forward(record);
+            return;
         }
     }
 
