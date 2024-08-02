@@ -7,6 +7,7 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
@@ -40,13 +42,18 @@ public class ProcessedMapWktDeduplicatorTopologyTest {
 
     String key = "{\"rsuId\":\"10.11.81.12\",\"intersectionId\":12109,\"region\":-1}";
 
-
+    @Autowired
+    DeduplicatorProperties props;
     
 
     @Test
     public void testTopology() {
 
-        ProcessedMapWktDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(inputTopic, outputTopic, null);
+        props = new DeduplicatorProperties();
+        props.setKafkaTopicProcessedMapWKT(inputTopic);
+        props.setKafkaTopicDeduplicatedProcessedMapWKT(outputTopic);
+
+        ProcessedMapWktDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(props, null);
 
         Topology topology = processedMapDeduplicatorTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());

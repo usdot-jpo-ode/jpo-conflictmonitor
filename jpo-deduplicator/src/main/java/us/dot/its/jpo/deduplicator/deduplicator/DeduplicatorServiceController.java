@@ -56,8 +56,7 @@ public class DeduplicatorServiceController {
             
             if(props.isEnableProcessedMapWktDeduplication()){
                 ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
-                    props.getKafkaTopicProcessedMapWKT(),
-                    props.getKafkaTopicDeduplicatedProcessedMapWKT(),
+                    props,
                     props.createStreamProperties("ProcessedMapWKTdeduplicator")
                 );
                 processedMapWktDeduplicatorTopology.start();
