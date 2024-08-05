@@ -233,11 +233,11 @@ public class DeduplicatorProperties implements EnvironmentAware  {
       streamProps.put(StreamsConfig.producerPrefix(ProducerConfig.ACKS_CONFIG), "all");
 
       // Reduce cache buffering per topology to 1MB
-      streamProps.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 1);
+      streamProps.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 1 * 1024 * 1024L);
 
       // Decrease default commit interval. Default for 'at least once' mode of 30000ms
       // is too slow.
-      streamProps.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1);
+      streamProps.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 100);
 
       // All the keys are Strings in this app
       streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
