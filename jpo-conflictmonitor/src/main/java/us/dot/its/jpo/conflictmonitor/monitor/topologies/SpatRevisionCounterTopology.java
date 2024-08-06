@@ -72,6 +72,8 @@ public class SpatRevisionCounterTopology
                 aggregate.getNewSpat().setUtcTimeStamp(newValue.getUtcTimeStamp());
                 aggregate.getNewSpat().setOdeReceivedAt(newValue.getOdeReceivedAt());
                 if (aggregate.getNewSpat().getRevision() == aggregate.getPreviousSpat().getRevision()) { //Revision has not changed
+                    aggregate.setIntersectionID(aggregate.getNewSpat().getIntersectionId());
+                    aggregate.setRoadRegulatorID(-1);
                     aggregate.setMessage("Spat message changed without revision increment.");
                     
                     return aggregate;

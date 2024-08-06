@@ -80,6 +80,7 @@ public class BsmRevisionCounterTopology
                 aggregate.getNewBsm().getMetadata().setOdeReceivedAt(newValue.getMetadata().getOdeReceivedAt());
                 if (previousBsmPayload.getCoreData().getMsgCnt() == newBsmPayload.getCoreData().getMsgCnt()) { //Revision has not changed
                     aggregate.setMessage("Bsm message changed without msgCount increment.");
+                    aggregate.setRoadRegulatorID(-1);
                     return aggregate;
                 }
                 else { //Revision has changed

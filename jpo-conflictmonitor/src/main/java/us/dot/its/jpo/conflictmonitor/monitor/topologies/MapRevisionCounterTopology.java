@@ -72,6 +72,8 @@ public class MapRevisionCounterTopology
                 aggregate.getNewMap().getProperties().setTimeStamp(newValue.getProperties().getTimeStamp());
                 aggregate.getNewMap().getProperties().setOdeReceivedAt(newValue.getProperties().getOdeReceivedAt());
                 if (aggregate.getNewMap().getProperties().getRevision() == aggregate.getPreviousMap().getProperties().getRevision()) { //Revision has not changed
+                    aggregate.setIntersectionID(aggregate.getNewMap().getProperties().getIntersectionId());
+                    aggregate.setRoadRegulatorID(-1);
                     aggregate.setMessage("Map message changed without revision increment.");
                     return aggregate;
                 }
