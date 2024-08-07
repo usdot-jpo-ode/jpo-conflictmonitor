@@ -33,6 +33,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
@@ -138,6 +141,25 @@ public class JsonSerdes {
             new JsonSerializer<TimeChangeDetailsEvent>(),
             new JsonDeserializer<>(TimeChangeDetailsEvent.class));
     }
+
+    public static Serde<MapRevisionCounterEvent> MapRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapRevisionCounterEvent>(),
+            new JsonDeserializer<>(MapRevisionCounterEvent.class));
+    }
+
+    public static Serde<SpatRevisionCounterEvent> SpatRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatRevisionCounterEvent>(),
+            new JsonDeserializer<>(SpatRevisionCounterEvent.class));
+    }
+
+    public static Serde<BsmRevisionCounterEvent> BsmRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmRevisionCounterEvent>(),
+            new JsonDeserializer<>(BsmRevisionCounterEvent.class));
+    }
+
 
     public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
         return Serdes.serdeFrom(

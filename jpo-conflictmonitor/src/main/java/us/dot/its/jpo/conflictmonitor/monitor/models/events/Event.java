@@ -37,6 +37,9 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = SpatMinimumDataEvent.class, name = "SpatMinimumData"),
         @JsonSubTypes.Type(value = MapBroadcastRateEvent.class, name = "MapBroadcastRate"),
         @JsonSubTypes.Type(value = SpatBroadcastRateEvent.class, name = "SpatBroadcastRate"),
+        @JsonSubTypes.Type(value = MapRevisionCounterEvent.class, name = "MapRevisionCounter"),
+        @JsonSubTypes.Type(value = SpatRevisionCounterEvent.class, name = "SpatRevisionCounter"),
+        @JsonSubTypes.Type(value = BsmRevisionCounterEvent.class, name = "BsmRevisionCounter"),
 })
 @Getter
 @Setter
