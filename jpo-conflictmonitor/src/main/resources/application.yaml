@@ -162,6 +162,16 @@ kafka.topics:
     - name: topic.CmStopLinePassageNotification
       cleanupPolicy: compact
       retentionMs: 300000
+    - name: topic.CmMapRevisionCounterEvents
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmSpatRevisionCounterEvents
+      cleanupPolicy: compact
+      retentionMs: 300000
+    - name: topic.CmBsmRevisionCounterEvents
+      cleanupPolicy: compact
+      retentionMs: 300000
+
     - name: topic.CmTimestampDeltaEvent
       cleanupPolicy: delete
       retentionMs: 300000
@@ -391,6 +401,27 @@ message.ingest:
   spatStoreName: SpatWindowStore
   mapStoreName: ProcessedMapWindowStore
   mapSpatialIndexStoreName: MapSpatialIndexStore
+
+# MAP Revision Counter
+map.revision.counter:
+  algorithm: defaultMapRevisionCounterAlgorithm
+  debug: false
+  mapInputTopicName: topic.ProcessedMap
+  mapRevisionEventOutputTopicName: topic.CmMapRevisionCounterEvents
+
+# SPAT Revision Counter
+spat.revision.counter:
+  algorithm: defaultSpatRevisionCounterAlgorithm
+  debug: false
+  spatInputTopicName: topic.ProcessedSpat
+  spatRevisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
+
+# BSM Revision Counter
+bsm.revision.counter:
+  algorithm: defaultBsmRevisionCounterAlgorithm
+  debug: false
+  bsmInputTopicName: topic.CmBsmJsonRepartition
+  bsmRevisionEventOutputTopicName: topic.CmBsmRevisionCounterEvents
 
 # Config parameters
 config:

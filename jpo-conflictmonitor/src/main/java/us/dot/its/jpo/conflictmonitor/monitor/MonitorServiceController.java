@@ -61,6 +61,15 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessme
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
@@ -416,6 +425,60 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
 
+
+            //Map Revision Counter Topology
+            final String mapRevisionCounter = "mapRevisionCounter";
+            final MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgoFactory = conflictMonitorProps.getMapRevisionCounterAlgorithmFactory();
+            final String mapRevisionCounterAlgorithm = conflictMonitorProps.getMapRevisionCounterAlgorithm();
+            final MapRevisionCounterAlgorithm mapRevisionCounterAlgo = mapRevisionCounterAlgoFactory.getAlgorithm(mapRevisionCounterAlgorithm);
+            final MapRevisionCounterParameters mapRevisionCounterParams = conflictMonitorProps.getMapRevisionCounterAlgorithmParameters();
+            configTopology.registerConfigListeners(mapRevisionCounterParams);
+            if (mapRevisionCounterAlgo instanceof StreamsTopology) {     
+                final var streamsAlgo = (StreamsTopology)mapRevisionCounterAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapRevisionCounter));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapRevisionCounter, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapRevisionCounter, healthTopic));
+                algoMap.put(mapRevisionCounter, streamsAlgo);
+            }
+            mapRevisionCounterAlgo.setParameters(mapRevisionCounterParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapRevisionCounterAlgo::stop));
+            mapRevisionCounterAlgo.start();
+
+            //Spat Revision Counter Topology
+            final String spatRevisionCounter = "spatRevisionCounter";
+            final SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgoFactory = conflictMonitorProps.getSpatRevisionCounterAlgorithmFactory();
+            final String spatRevisionCounterAlgorithm = conflictMonitorProps.getSpatRevisionCounterAlgorithm();
+            final SpatRevisionCounterAlgorithm spatRevisionCounterAlgo = spatRevisionCounterAlgoFactory.getAlgorithm(spatRevisionCounterAlgorithm);
+            final SpatRevisionCounterParameters spatRevisionCounterParams = conflictMonitorProps.getSpatRevisionCounterAlgorithmParameters();
+            configTopology.registerConfigListeners(spatRevisionCounterParams);
+            if (spatRevisionCounterAlgo instanceof StreamsTopology) {     
+                final var streamsAlgo = (StreamsTopology)spatRevisionCounterAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatRevisionCounter));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatRevisionCounter, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatRevisionCounter, healthTopic));
+                algoMap.put(spatRevisionCounter, streamsAlgo);
+            }
+            spatRevisionCounterAlgo.setParameters(spatRevisionCounterParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatRevisionCounterAlgo::stop));
+            spatRevisionCounterAlgo.start();
+            
+            //Bsm Revision Counter Topology
+            final String bsmRevisionCounter = "bsmRevisionCounter";
+            final BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgoFactory = conflictMonitorProps.getBsmRevisionCounterAlgorithmFactory();
+            final String bsmRevisionCounterAlgorithm = conflictMonitorProps.getBsmRevisionCounterAlgorithm();
+            final BsmRevisionCounterAlgorithm bsmRevisionCounterAlgo = bsmRevisionCounterAlgoFactory.getAlgorithm(bsmRevisionCounterAlgorithm);
+            final BsmRevisionCounterParameters bsmRevisionCounterParams = conflictMonitorProps.getBsmRevisionCounterAlgorithmParameters();
+            configTopology.registerConfigListeners(bsmRevisionCounterParams);
+            if (bsmRevisionCounterAlgo instanceof StreamsTopology) {     
+                final var streamsAlgo = (StreamsTopology)bsmRevisionCounterAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmRevisionCounter));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmRevisionCounter, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmRevisionCounter, healthTopic));
+                algoMap.put(bsmRevisionCounter, streamsAlgo);
+            }
+            bsmRevisionCounterAlgo.setParameters(bsmRevisionCounterParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(bsmRevisionCounterAlgo::stop));
+            bsmRevisionCounterAlgo.start();
 
             // Restore properties
             configInitializer.initializeDefaultConfigs();
