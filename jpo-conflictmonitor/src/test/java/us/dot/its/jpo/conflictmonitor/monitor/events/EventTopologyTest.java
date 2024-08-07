@@ -205,7 +205,7 @@ public class EventTopologyTest {
 
             
             
-            assertEquals(14, eventResults.size());
+            assertEquals(16, eventResults.size());
  
             for(KeyValue<String, Event> eventKeyValue: eventResults){
                 assertEquals("12109", eventKeyValue.key);
@@ -255,10 +255,10 @@ public class EventTopologyTest {
                 else if(type.equals("BsmRevisionCounter")){
                     assertEquals((BsmRevisionCounterEvent) event, brcEvent);
                 }
-                else if (type.equals("MapTimestampDeltaEvent")) {
+                else if (type.equals("MapTimestampDelta")) {
                     assertEquals(event, mapTimestampDeltaEvent);
                 }
-                else if (type.equals("SpatTimestampDeltaEvent")) {
+                else if (type.equals("SpatTimestampDelta")) {
                     assertEquals(event, spatTimestampDeltaEvent);
                 }
                 else{
