@@ -98,4 +98,10 @@ public class EventParameters {
         updateType = READ_ONLY)
     String bsmRevisionCounterEventTopicName;
 
+    @ConfigData(key = "event.timestampDeltaEventTopicName",
+        description = "The name of the topic to read MAP and SPaT Timestamp Delta events from",
+        updateType = READ_ONLY)
+    String timestampDeltaEventTopicName;
+
+
 }

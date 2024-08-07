@@ -303,8 +303,10 @@ event:
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
   connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
-
-
+  spatRevisionCounterEventTopicName: topic.CmSpatRevisionCounterEvents
+  mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
+  bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
+  timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
