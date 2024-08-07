@@ -46,6 +46,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
@@ -180,6 +182,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
    private NotificationParameters notificationAlgorithmParameters;
+
+   private EventAlgorithmFactory eventAlgorithmFactory;
+   private String eventAlgorithm;
+   private EventParameters eventParameters;
 
    // Confluent Properties
    private boolean confluentCloudEnabled = false;
@@ -625,6 +631,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    public void setNotificationAlgorithmParameters(NotificationParameters notificationAlgorithmParameters) {
       this.notificationAlgorithmParameters = notificationAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setEventParameters(EventParameters eventParameters) {
+      this.eventParameters = eventParameters;
+      this.eventAlgorithm = eventParameters.getAlgorithm();
+   }
+
+   @Autowired
+   public void setEventAlgorithmFactory(EventAlgorithmFactory factory) {
+      this.eventAlgorithmFactory = factory;
    }
 
    public Boolean getConfluentCloudStatus() {

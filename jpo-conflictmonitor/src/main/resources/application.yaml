@@ -290,6 +290,7 @@ assessment:
 
 event:
   algorithm: defaultEventAlgorithm
+  enabled: false
   debug: false
   eventOutputTopicName: topic.CmEvent
   signalStateEventTopicName: topic.CmStopLinePassageEvent

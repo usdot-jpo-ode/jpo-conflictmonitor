@@ -15,12 +15,22 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 @ConfigurationProperties(prefix = "event")
 @ConfigDataClass
 public class EventParameters {
+
+    @ConfigData(key = "event.algorithm",
+                description = "The algorithm to use",
+                updateType = READ_ONLY)
+    String algorithm;
     
     // Whether to log diagnostic information for debugging
     @ConfigData(key = "event.debug", 
         description = "Whether to log diagnostic information for debugging",
         updateType = DEFAULT)
     boolean debug;
+
+    @ConfigData(key = "event.enabled",
+        description = "Whether to run this topology to produce events to the combined topic.",
+        updateType = READ_ONLY)
+    boolean enabled;
 
     @ConfigData(key = "event.eventOutputTopicName", 
         description = "The name of the topic to output events to", 

@@ -25,6 +25,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
@@ -479,6 +482,23 @@ public class MonitorServiceController {
             bsmRevisionCounterAlgo.setParameters(bsmRevisionCounterParams);
             Runtime.getRuntime().addShutdownHook(new Thread(bsmRevisionCounterAlgo::stop));
             bsmRevisionCounterAlgo.start();
+
+            // Combined Event Topology
+            final String event = "event";
+            final EventAlgorithmFactory eventAlgorithmFactory = conflictMonitorProps.getEventAlgorithmFactory();
+            final String eventAlgorithmName = conflictMonitorProps.getEventAlgorithm();
+            final EventAlgorithm eventAlgorithm = eventAlgorithmFactory.getAlgorithm(eventAlgorithmName);
+            final EventParameters eventParams = conflictMonitorProps.getEventParameters();
+            configTopology.registerConfigListeners(eventParams);
+            if (eventAlgorithm instanceof StreamsTopology streamsAlgo) {
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(event));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, event, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, event, healthTopic));
+                algoMap.put(event, streamsAlgo);
+            }
+            eventAlgorithm.setParameters(eventParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(eventAlgorithm::stop));
+            eventAlgorithm.start();
 
             // Restore properties
             configInitializer.initializeDefaultConfigs();
