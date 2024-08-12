@@ -96,7 +96,7 @@ public class MapValidationTopology
             );
 
         // timestamp delta plugin after reading processed MAPs
-        timestampDeltaAlgorithm.buildTopology(processedMapStream);
+        timestampDeltaAlgorithm.buildTopology(builder, processedMapStream);
 
         // Extract validation info for Minimum Data events
         KStream<RsuIntersectionKey, MapMinimumDataEvent> minDataStream = processedMapStream
