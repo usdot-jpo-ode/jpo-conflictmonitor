@@ -17,6 +17,8 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.app_health.KafkaStreamsAnomalyNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.MapTimestampDeltaNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.SpatTimestampDeltaNotification;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 /**
@@ -38,6 +40,8 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
         @JsonSubTypes.Type(value = SignalStateConflictNotification.class, name = "SignalStateConflictNotification"),
         @JsonSubTypes.Type(value = TimeChangeDetailsNotification.class, name = "TimeChangeDetailsNotification"),
         @JsonSubTypes.Type(value = KafkaStreamsAnomalyNotification.class, name = "AppHealthNotification"),
+        @JsonSubTypes.Type(value = MapTimestampDeltaNotification.class, name = "MapTimestampDeltaNotification"),
+        @JsonSubTypes.Type(value = SpatTimestampDeltaNotification.class, name = "SpatTimestampDeltaNotification")
 })
 @Getter
 @Setter
