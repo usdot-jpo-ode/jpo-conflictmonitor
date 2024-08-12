@@ -33,7 +33,8 @@ public class MapTimestampDeltaTopology
     @Override
     public void buildTopology(KStream<RsuIntersectionKey, ProcessedMap<LineString>> inputStream) {
 
-        inputStream
+        KStream<RsuIntersectionKey, MapTimestampDeltaEvent> eventStream =
+            inputStream
                 // Ignore tombstones
                 .filter((rsuIntersectionKey, processedMap) -> processedMap != null)
 
@@ -63,12 +64,15 @@ public class MapTimestampDeltaTopology
                         log.info("Producing TimestampDeltaEvent: {}", event);
                     }
                     return event;
-                })
+                });
 
-                // Output events
-                .to(parameters.getOutputTopicName(), Produced.with(
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                        JsonSerdes.MapTimestampDeltaEvent(),
-                        new IntersectionIdPartitioner<>()));    // Don't change partitioning of output
+        // Output events
+        eventStream.to(parameters.getOutputTopicName(), Produced.with(
+                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                JsonSerdes.MapTimestampDeltaEvent(),
+                new IntersectionIdPartitioner<>()));    // Don't change partitioning of output
+
+//        // Collect events to issue hourly summary notifications
+//        eventStream.toTable();
     }
 }
