@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.3</version>
+    <version>3.3.2</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>usdot.jpo.ode</groupId>
@@ -111,12 +111,8 @@
       <artifactId>jpo-geojsonconverter</artifactId>
       <version>1.3.1-SNAPSHOT</version>
       <classifier>jpo-geojsonconverter</classifier>
-      <!-- Allow using new streams version than geojsonconverter -->
+      <!-- Allow using newer streams version than geojsonconverter -->
       <exclusions>
-        <exclusion>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka_2.13</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>org.apache.kafka</groupId>
           <artifactId>kafka-streams</artifactId>
@@ -125,32 +121,18 @@
           <groupId>org.apache.kafka</groupId>
           <artifactId>kafka-streams-test-utils</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka-clients</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-streams-test-utils</artifactId>
-      <version>3.8.0</version>
+      <version>3.7.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka_2.13</artifactId>
-      <version>3.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-streams</artifactId>
-      <version>3.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-clients</artifactId>
-      <version>3.8.0</version>
+      <version>3.7.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
