@@ -41,6 +41,16 @@ public class TimestampDelta {
     }
 
     public boolean emitEvent() {
+        // If OdeReceivedAt is earlier than message timestamp, always emit an event
+        // otherwise emit one if the lag delta exceeds the max
+        return isOdeIngestBeforeMessageTimestamp() || isDeltaGreaterThanMax();
+    }
+
+    public boolean isOdeIngestBeforeMessageTimestamp() {
+        return getDeltaMilliseconds() < 0;
+    }
+
+    public boolean isDeltaGreaterThanMax() {
         return Math.abs(getDeltaMilliseconds()) > maxDeltaMilliseconds;
     }
 
