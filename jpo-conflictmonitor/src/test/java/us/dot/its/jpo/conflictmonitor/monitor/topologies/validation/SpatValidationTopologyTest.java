@@ -162,7 +162,7 @@ public class SpatValidationTopologyTest {
             assertThat("2 of 4 inputs should have produced timestamp delta events", timestampEventList, hasSize(2));
 
             Set<Long> expectDeltas = Set.of(500L, 600L);
-            Set<Long> actualDeltas = timestampEventList.stream().map(entry -> Math.abs(entry.value.getDelta().getDeltaMilliseconds())).collect(toSet());
+            Set<Long> actualDeltas = timestampEventList.stream().map(entry -> Math.abs(entry.value.getDelta().getDeltaMillis())).collect(toSet());
             assertThat(String.format("Only the 500ms and 600ms offsets should have produced events.  Actual deltas: %s", actualDeltas), Sets.symmetricDifference(expectDeltas, actualDeltas), hasSize(0));
         }
     }

@@ -14,6 +14,7 @@ import org.apache.kafka.streams.query.QueryConfig;
 import org.apache.kafka.streams.query.QueryResult;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
+import org.apache.kafka.streams.state.VersionedRecord;
 import org.apache.kafka.streams.state.VersionedRecordIterator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.MapTimestampDeltaNotification;
@@ -64,6 +65,11 @@ public class MapTimestampDeltaNotificationProcessor
     }
 
     private void punctuate(long timestamp) {
+
+        int numberOfEvents = 0;
+        int minDeltaMillis = Integer.MIN_VALUE;
+        int maxDeltaMillis = Integer.MAX_VALUE;
+
         final Instant fromTime = Instant.now().minus(retentionTime);
         try (var iterator = keyStore.all()) {
             while (iterator.hasNext()) {
@@ -76,6 +82,13 @@ public class MapTimestampDeltaNotificationProcessor
 
                 QueryResult<VersionedRecordIterator<MapTimestampDeltaEvent>> result =
                     eventStore.query(versionedQuery, PositionBound.unbounded(), new QueryConfig(false));
+
+                VersionedRecordIterator<MapTimestampDeltaEvent> resultIterator = result.getResult();
+                while (resultIterator.hasNext()) {
+                    VersionedRecord<MapTimestampDeltaEvent> record = resultIterator.next();
+                    MapTimestampDeltaEvent event = record.value();
+
+                }
             }
         } catch (Exception ex) {
             log.error("Error in MapTimestampDeltaNotificationProcessor.punctuate", ex);

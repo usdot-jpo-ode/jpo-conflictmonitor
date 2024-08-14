@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
@@ -68,9 +67,9 @@ public class MapTimestampDeltaTopology
                 // Calculate timestamp delta
                 .mapValues((rsuIntersectionKey, processedMap) -> {
                     TimestampDelta delta = new TimestampDelta();
-                    delta.setMaxDeltaMilliseconds(parameters.getMaxDeltaMilliseconds());
-                    delta.setMessageTimestampMilliseconds(ProcessedMapUtils.getTimestamp(processedMap));
-                    delta.setOdeIngestTimestampMilliseconds(ProcessedMapUtils.getOdeReceivedAt(processedMap));
+                    delta.setMaxDeltaMillis(parameters.getMaxDeltaMilliseconds());
+                    delta.setMessageTimestampMillis(ProcessedMapUtils.getTimestamp(processedMap));
+                    delta.setOdeIngestTimestampMillis(ProcessedMapUtils.getOdeReceivedAt(processedMap));
                     if (parameters.isDebug()) {
                         log.debug("RSU: {}, TimestampDelta: {}", rsuIntersectionKey.getRsuId(), delta);
                     }

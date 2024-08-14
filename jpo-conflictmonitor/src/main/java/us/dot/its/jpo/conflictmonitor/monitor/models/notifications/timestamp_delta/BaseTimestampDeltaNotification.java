@@ -1,14 +1,9 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.BaseTimestampDeltaEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.TimestampDelta;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
-
-import java.util.List;
 
 /**
  * Base class for a timestamp delta notification
@@ -23,9 +18,24 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
 
     ProcessingTimePeriod timePeriod;
     int numberOfEvents;
-    TimestampDelta minDelta;
-    TimestampDelta maxDelta;
-    TimestampDelta meanDelta;
+
+    /**
+     * Minimum delta in milliseconds, signed.
+     * <p>If this is less than 0, indicates there were events with OdeReceivedAt earlier
+     * than the message timestamp.
+     */
+    long minDeltaMillis;
+
+    /**
+     * Maximum delta in milliseconds, signed.
+     */
+    long maxDeltaMillis;
+
+    /**
+     * The median magnitude of the delta in milliseconds.
+     */
+    long absMedianDeltaMillis;
+
 
     @Override
     public String getUniqueId() {
@@ -34,8 +44,8 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
                 this.getRoadRegulatorID(),
                 this.getIntersectionID(),
                 numberOfEvents,
-                minDelta != null ? minDelta.getDeltaMilliseconds(): 0L,
-                maxDelta != null ? maxDelta.getDeltaMilliseconds() : 0L,
-                meanDelta != null ? meanDelta.getDeltaMilliseconds() : 0L);
+                minDeltaMillis,
+                maxDeltaMillis,
+                absMedianDeltaMillis);
     }
 }

@@ -17,27 +17,34 @@ public class TimestampDelta {
     /**
      * The configured max delta (absolute value)
      */
-    int maxDeltaMilliseconds;
+    int maxDeltaMillis;
 
-    public void setMaxDeltaMilliseconds(int maxDeltaMilliseconds) {
-        this.maxDeltaMilliseconds = Math.abs(maxDeltaMilliseconds);
+    public void setMaxDeltaMillis(int maxDeltaMillis) {
+        this.maxDeltaMillis = Math.abs(maxDeltaMillis);
     }
 
     /**
      * The ODE ingest timestamp
      */
-    long odeIngestTimestampMilliseconds;
+    long odeIngestTimestampMillis;
 
     /**
      * The timestamp extracted from the message
      */
-    long messageTimestampMilliseconds;
+    long messageTimestampMillis;
 
     /**
-     * The actual timestamp delta
+     * @return The actual timestamp delta, signed
      */
-    public long getDeltaMilliseconds() {
-        return odeIngestTimestampMilliseconds - messageTimestampMilliseconds;
+    public long getDeltaMillis() {
+        return odeIngestTimestampMillis - messageTimestampMillis;
+    }
+
+    /**
+     * @return The magnitude of the delta, always positive.
+     */
+    public long getAbsDeltaMillis() {
+        return Math.abs(getDeltaMillis());
     }
 
     public boolean emitEvent() {
@@ -47,11 +54,11 @@ public class TimestampDelta {
     }
 
     public boolean isOdeIngestBeforeMessageTimestamp() {
-        return getDeltaMilliseconds() < 0;
+        return getDeltaMillis() < 0;
     }
 
     public boolean isDeltaGreaterThanMax() {
-        return Math.abs(getDeltaMilliseconds()) > maxDeltaMilliseconds;
+        return getAbsDeltaMillis() > maxDeltaMillis;
     }
 
     @Override

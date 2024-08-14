@@ -38,9 +38,9 @@ public class SpatTimestampDeltaTopology
                 // Calculate timestamp deltas
                 .mapValues((rsuIntersectionKey, processedSpat) -> {
                     TimestampDelta delta = new TimestampDelta();
-                    delta.setMaxDeltaMilliseconds(parameters.getMaxDeltaMilliseconds());
-                    delta.setMessageTimestampMilliseconds(SpatUtils.getTimestamp(processedSpat));
-                    delta.setOdeIngestTimestampMilliseconds(SpatUtils.getOdeReceivedAt(processedSpat));
+                    delta.setMaxDeltaMillis(parameters.getMaxDeltaMilliseconds());
+                    delta.setMessageTimestampMillis(SpatUtils.getTimestamp(processedSpat));
+                    delta.setOdeIngestTimestampMillis(SpatUtils.getOdeReceivedAt(processedSpat));
                     if (parameters.isDebug()) {
                         log.debug("RSU: {}, TimestampDelta: {}", rsuIntersectionKey.getRsuId(), delta);
                     }
