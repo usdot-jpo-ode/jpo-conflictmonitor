@@ -17,7 +17,7 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
     }
 
     ProcessingTimePeriod timePeriod;
-    int numberOfEvents;
+    long numberOfEvents;
 
     /**
      * Minimum delta in milliseconds, signed.
@@ -32,9 +32,9 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
     long maxDeltaMillis;
 
     /**
-     * The median magnitude of the delta in milliseconds.
+     * The mean magnitude of the delta in milliseconds.
      */
-    long absMedianDeltaMillis;
+    double absMeanDeltaMillis;
 
 
     @Override
@@ -46,6 +46,6 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
                 numberOfEvents,
                 minDeltaMillis,
                 maxDeltaMillis,
-                absMedianDeltaMillis);
+                absMeanDeltaMillis);
     }
 }
