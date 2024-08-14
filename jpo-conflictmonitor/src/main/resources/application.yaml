@@ -441,6 +441,10 @@ map.timestamp.delta:
   outputTopicName: topic.CmTimestampDeltaEvent
   maxDeltaMilliseconds: 50
   debug: false
+  keyStoreName: mapTimestampDeltaKeyStore
+  eventStoreName: mapTimestampDeltaEventStore
+  retentionTimeMinutes: 60
+  notificationTopicName: topic.CmTimestampDeltaNotification
 
 # SPaT Timestamp Delta parameters
 spat.timestamp.delta:
@@ -448,6 +452,9 @@ spat.timestamp.delta:
   outputTopicName: topic.CmTimestampDeltaEvent
   maxDeltaMilliseconds: 50
   debug: false
-
+  keyStoreName: spatTimestampDeltaKeyStore
+  eventStoreName: spatTimestampDeltaEventStore
+  retentionTimeMinutes: 60
+  notificationTopicName: topic.CmTimestampDeltaNotification
 
 

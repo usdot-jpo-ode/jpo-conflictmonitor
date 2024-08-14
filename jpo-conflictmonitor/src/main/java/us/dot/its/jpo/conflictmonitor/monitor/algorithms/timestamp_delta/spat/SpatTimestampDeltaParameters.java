@@ -37,4 +37,23 @@ public class SpatTimestampDeltaParameters {
             updateType = DEFAULT)
     volatile boolean debug;
 
+    @ConfigData(key = "spat.timestamp.delta.keyStoreName",
+            description = "Name of sate store for intersection keys with events",
+            updateType = READ_ONLY)
+    volatile String keyStoreName;
+
+    @ConfigData(key = "spat.timestamp.delta.eventStoreName",
+            description = "Name of versioned state store to aggregate events",
+            updateType = READ_ONLY)
+    volatile String eventStoreName;
+
+    @ConfigData(key = "spat.timestamp.delta.retentionTimeMinutes",
+            description = "Retention time of the event state store",
+            updateType = DEFAULT)
+    volatile int retentionTimeMinutes;
+
+    @ConfigData(key = "spat.timestamp.delta.notificationTopicName",
+            description = "Name of topic to send notifications to",
+            updateType = READ_ONLY)
+    volatile String notificationTopicName;
 }

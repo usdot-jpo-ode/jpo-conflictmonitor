@@ -39,13 +39,11 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
 
     @Override
     public String getUniqueId() {
-        return String.format("%s_%d_%d_%d_%d_%d_%d",
+        return String.format("%s_%d_%d_%d_%d",
                 this.getNotificationType(),
                 this.getRoadRegulatorID(),
                 this.getIntersectionID(),
-                numberOfEvents,
-                minDeltaMillis,
-                maxDeltaMillis,
-                absMeanDeltaMillis);
+                getTimePeriod() != null ? getTimePeriod().getBeginTimestamp() : 0,
+                getTimePeriod() != null ? getTimePeriod().getEndTimestamp() : 0);
     }
 }

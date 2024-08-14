@@ -36,4 +36,24 @@ public class MapTimestampDeltaParameters {
             description = "Whether to log diagnostic info",
             updateType = DEFAULT)
     volatile boolean debug;
+
+    @ConfigData(key = "map.timestamp.delta.keyStoreName",
+        description = "Name of sate store for intersection keys with events",
+        updateType = READ_ONLY)
+    volatile String keyStoreName;
+
+    @ConfigData(key = "map.timestamp.delta.eventStoreName",
+        description = "Name of versioned state store to aggregate events",
+        updateType = READ_ONLY)
+    volatile String eventStoreName;
+
+    @ConfigData(key = "map.timestamp.delta.retentionTimeMinutes",
+        description = "Retention time of the event state store",
+        updateType = DEFAULT)
+    volatile int retentionTimeMinutes;
+
+    @ConfigData(key = "map.timestamp.delta.notificationTopicName",
+        description = "Name of topic to send notifications to",
+        updateType = READ_ONLY)
+    volatile String notificationTopicName;
 }

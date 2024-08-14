@@ -50,7 +50,7 @@ public class SpatTimestampDeltaTopology
                 // Filter out small deltas
                 .filter((rsuIntersectionKey, timestampDelta) -> timestampDelta.emitEvent())
 
-                // Create even
+                // Create events
                 .mapValues((rsuIntersectionKey, timestampDelta) -> {
                     SpatTimestampDeltaEvent event = new SpatTimestampDeltaEvent();
                     event.setDelta(timestampDelta);

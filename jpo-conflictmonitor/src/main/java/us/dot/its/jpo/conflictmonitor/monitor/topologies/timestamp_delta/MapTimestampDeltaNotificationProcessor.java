@@ -23,6 +23,8 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class MapTimestampDeltaNotificationProcessor
@@ -30,6 +32,7 @@ public class MapTimestampDeltaNotificationProcessor
 
     final Duration retentionTime;
     final String eventStoreName;
+    final String keyStoreName;
 
     VersionedKeyValueStore<RsuIntersectionKey, MapTimestampDeltaEvent> eventStore;
 
@@ -38,9 +41,11 @@ public class MapTimestampDeltaNotificationProcessor
 
     Cancellable punctuatorCancellationToken;
 
-    public MapTimestampDeltaNotificationProcessor(final Duration retentionTime, final String eventStoreName) {
+    public MapTimestampDeltaNotificationProcessor(final Duration retentionTime, final String eventStoreName,
+                                                  final String keyStoreName) {
         this.retentionTime = retentionTime;
         this.eventStoreName = eventStoreName;
+        this.keyStoreName = keyStoreName;
     }
 
     @Override
@@ -48,6 +53,7 @@ public class MapTimestampDeltaNotificationProcessor
         try {
             super.init(context);
             eventStore = context.getStateStore(eventStoreName);
+            keyStore = context.getStateStore(keyStoreName);
             punctuatorCancellationToken = context.schedule(retentionTime, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
         } catch (Exception e) {
             log.error("Error initializing MapTimestampDeltaNotificationProcessor");
@@ -70,14 +76,21 @@ public class MapTimestampDeltaNotificationProcessor
         final Instant fromTime = toTime.minus(retentionTime);
 
         // Check every intersection for notifications
+        List<RsuIntersectionKey> keysToClean = new ArrayList<>();
         try (var iterator = keyStore.all()) {
             while (iterator.hasNext()) {
                 KeyValue<RsuIntersectionKey, Boolean> keyValue = iterator.next();
                 RsuIntersectionKey key = keyValue.key;
                 assessmentForIntersection(key, fromTime, toTime, timestamp);
-            }
+                keysToClean.add(key);
+             }
         } catch (Exception ex) {
             log.error("Error in MapTimestampDeltaNotificationProcessor.punctuate", ex);
+        }
+
+        // Clean up the store
+        for (RsuIntersectionKey key : keysToClean) {
+            keyStore.delete(key);
         }
     }
 
@@ -97,8 +110,15 @@ public class MapTimestampDeltaNotificationProcessor
         VersionedRecordIterator<MapTimestampDeltaEvent> resultIterator = result.getResult();
 
         while (resultIterator.hasNext()) {
-            ++numberOfEvents;
             VersionedRecord<MapTimestampDeltaEvent> record = resultIterator.next();
+            long recordTimestamp = record.timestamp();
+            Instant recordInstant = Instant.ofEpochMilli(recordTimestamp);
+            // Shouldn't happen but check timestamps, in case of stream-time vs clock time issue
+            if (recordInstant.isBefore(fromTime) || recordInstant.isAfter(toTime)) {
+                log.warn("Record instant {} is not between {} and {}, skipping it.", recordInstant, fromTime, toTime);
+                continue;
+            }
+            ++numberOfEvents;
             MapTimestampDeltaEvent event = record.value();
             TimestampDelta delta = event.getDelta();
             long deltaMillis = delta.getDeltaMillis();
@@ -112,18 +132,19 @@ public class MapTimestampDeltaNotificationProcessor
                     createNotification(key, fromTime, toTime, numberOfEvents, minDeltaMillis, maxDeltaMillis, absTotalDeltaMillis);
             context().forward(new Record<>(key, notification, timestamp));
         }
+
+
+
     }
 
     private MapTimestampDeltaNotification createNotification(final RsuIntersectionKey key, final Instant fromTime, final Instant toTime,
                                   final long numberOfEvents, final long minDeltaMillis, final long maxDeltaMillis,
                                   final long absTotalDeltaMillis) {
         final var notification = new MapTimestampDeltaNotification();
-
         final var timePeriod = new ProcessingTimePeriod();
         timePeriod.setBeginTimestamp(fromTime.toEpochMilli());
         timePeriod.setEndTimestamp(toTime.toEpochMilli());
         notification.setTimePeriod(timePeriod);
-
         notification.setIntersectionID(key.getIntersectionId());
         notification.setRoadRegulatorID(key.getRegion());
         notification.setNumberOfEvents(numberOfEvents);
@@ -131,18 +152,8 @@ public class MapTimestampDeltaNotificationProcessor
         notification.setMaxDeltaMillis(maxDeltaMillis);
         final double absMeanDeltaMillis = (double)absTotalDeltaMillis / (double)numberOfEvents;
         notification.setAbsMeanDeltaMillis(absMeanDeltaMillis);
-
-        notification.setNotificationHeading("MAP Timestamp Delta Notification");
-        final String text = String.format("""
-                There were differences between the ODE ingest time and message timestamp:
-                Time period from %s to %s
-                Number of events: %d
-                Min Δ: %d ms
-                Max Δ: %d ms
-                Mean Δ: %f.2 ms
-                """, fromTime, toTime, numberOfEvents, minDeltaMillis, maxDeltaMillis, absMeanDeltaMillis);
-        notification.setNotificationText(text);
-
+        notification.setNotificationHeading(String.format("MAP Timestamp Delta Notification"));
+        notification.setNotificationText("There were differences between the ODE ingest time and message timestamp.");
         notification.setKey(notification.getUniqueId());
         return notification;
     }

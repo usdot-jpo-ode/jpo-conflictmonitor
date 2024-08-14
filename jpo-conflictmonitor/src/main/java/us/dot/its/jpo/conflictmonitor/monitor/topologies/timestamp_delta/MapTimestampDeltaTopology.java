@@ -35,14 +35,19 @@ public class MapTimestampDeltaTopology
         return log;
     }
 
-    final String keyStoreName = "mapKeyStoreName";
-    final String eventStoreName = "mapTimestampDeltaEvents";
-    final Duration retentionTime = Duration.ofHours(1);
-    final String notificationTopicName = "notificationTopicName";
+
 
 
     @Override
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, ProcessedMap<LineString>> inputStream) {
+
+        final String keyStoreName = parameters.getKeyStoreName();
+        final String eventStoreName = parameters.getEventStoreName();
+        final Duration retentionTime = Duration.ofMinutes(parameters.getRetentionTimeMinutes());
+        final String outputTopicName = parameters.getOutputTopicName();
+        final String notificationTopicName = parameters.getNotificationTopicName();
+        final int maxDeltaMilliseconds = parameters.getMaxDeltaMilliseconds();
+        final boolean isDebug = parameters.isDebug();
 
         final var eventStoreBuilder =
                 Stores.versionedKeyValueStoreBuilder(
@@ -67,10 +72,10 @@ public class MapTimestampDeltaTopology
                 // Calculate timestamp delta
                 .mapValues((rsuIntersectionKey, processedMap) -> {
                     TimestampDelta delta = new TimestampDelta();
-                    delta.setMaxDeltaMillis(parameters.getMaxDeltaMilliseconds());
+                    delta.setMaxDeltaMillis(maxDeltaMilliseconds);
                     delta.setMessageTimestampMillis(ProcessedMapUtils.getTimestamp(processedMap));
                     delta.setOdeIngestTimestampMillis(ProcessedMapUtils.getOdeReceivedAt(processedMap));
-                    if (parameters.isDebug()) {
+                    if (isDebug) {
                         log.debug("RSU: {}, TimestampDelta: {}", rsuIntersectionKey.getRsuId(), delta);
                     }
                     return delta;
@@ -86,14 +91,14 @@ public class MapTimestampDeltaTopology
                     event.setSource(rsuIntersectionKey.getRsuId());
                     event.setIntersectionID(rsuIntersectionKey.getIntersectionId());
                     event.setRoadRegulatorID(rsuIntersectionKey.getRegion());
-                    if (parameters.isDebug()) {
+                    if (isDebug) {
                         log.info("Producing TimestampDeltaEvent: {}", event);
                     }
                     return event;
                 });
 
         // Output events
-        eventStream.to(parameters.getOutputTopicName(), Produced.with(
+        eventStream.to(outputTopicName, Produced.with(
                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                 JsonSerdes.MapTimestampDeltaEvent(),
                 new IntersectionIdPartitioner<>()));    // Don't change partitioning of output
@@ -102,7 +107,8 @@ public class MapTimestampDeltaTopology
 
         // Collect events to issue hourly summary notifications
         eventStream
-                .process(() -> new MapTimestampDeltaNotificationProcessor(retentionTime, eventStoreName), eventStoreName, keyStoreName)
+                .process(() -> new MapTimestampDeltaNotificationProcessor(retentionTime, eventStoreName, keyStoreName),
+                        eventStoreName, keyStoreName)
                 .to(notificationTopicName,
                         Produced.with(
                                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
