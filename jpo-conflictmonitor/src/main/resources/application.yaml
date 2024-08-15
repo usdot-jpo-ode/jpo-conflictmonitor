@@ -279,6 +279,7 @@ notification:
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
+  timestampDeltaNotificationTopicName: topic.CmTimestampDeltaNotification
 
 assessment:
   algorithm: defaultAssessmentAlgorithm
