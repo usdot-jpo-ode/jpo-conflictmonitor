@@ -93,7 +93,7 @@ public class SpatValidationTopology
                 );
 
         // timestamp delta plugin after reading processed SPATs
-        timestampDeltaAlgorithm.buildTopology(processedSpatStream);
+        timestampDeltaAlgorithm.buildTopology(builder, processedSpatStream);
 
         // Extract validation info for Minimum Data events
         processedSpatStream

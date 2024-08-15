@@ -1,7 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat;
 
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.ConfigurableAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.BaseTimestampDeltaAlgorithm;
 
 public interface SpatTimestampDeltaAlgorithm
-    extends ConfigurableAlgorithm<SpatTimestampDeltaParameters> {
+    extends BaseTimestampDeltaAlgorithm<SpatTimestampDeltaParameters> {
 }

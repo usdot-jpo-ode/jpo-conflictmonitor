@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.Generated;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.ITimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 
@@ -15,7 +16,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.RE
 @Component
 @ConfigurationProperties(prefix = "spat.timestamp.delta")
 @ConfigDataClass
-public class SpatTimestampDeltaParameters {
+public class SpatTimestampDeltaParameters implements ITimestampDeltaParameters {
 
     @ConfigData(key = "spat.timestamp.delta.algorithm",
             description = "The algorithm to use",
