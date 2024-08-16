@@ -96,7 +96,7 @@ public class OdeRawEncodedTimDeduplicatorTopology {
             }catch(Exception e){
                 return "";
             }
-        });
+        }).repartition(Repartitioned.with(Serdes.String(), JsonSerdes.JSON()));
 
         
 

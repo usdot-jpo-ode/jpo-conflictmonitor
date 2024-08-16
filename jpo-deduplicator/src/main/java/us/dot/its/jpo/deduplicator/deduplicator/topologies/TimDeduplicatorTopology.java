@@ -90,7 +90,7 @@ public class TimDeduplicatorTopology {
             } catch (Exception e) {
                 return "";
             }
-        });
+        }).repartition(Repartitioned.with(Serdes.String(), JsonSerdes.JSON()));
 
         KStream<String, JsonNode> deduplicatedStream = timRekeyedStream.process(new OdeTimJsonProcessorSupplier(props), props.getKafkaStateStoreOdeTimJsonName());
 

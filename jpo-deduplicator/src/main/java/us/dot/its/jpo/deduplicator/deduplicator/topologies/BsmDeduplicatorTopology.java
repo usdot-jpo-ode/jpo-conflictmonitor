@@ -85,7 +85,7 @@ public class BsmDeduplicatorTopology {
         KStream<String, OdeBsmData> bsmRekeyedStream = inputStream.selectKey((key, value)->{
                 J2735BsmCoreData core = ((J2735Bsm)value.getPayload().getData()).getCoreData();
                 return core.getId();
-        });
+        }).repartition(Repartitioned.with(Serdes.String(), JsonSerdes.OdeBsm()));
 
         KStream<String, OdeBsmData> deduplicatedStream = bsmRekeyedStream.process(new OdeBsmJsonProcessorSupplier(props.getKafkaStateStoreOdeBsmJsonName(), props), props.getKafkaStateStoreOdeBsmJsonName());
 

@@ -7,10 +7,14 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeMapJsonProcessorSupplier;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
+import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeMapData;
 import us.dot.its.jpo.ode.model.OdeMapMetadata;
 import us.dot.its.jpo.ode.model.OdeMapPayload;
@@ -89,7 +93,9 @@ public class MapDeduplicatorTopology {
                 newKey.setRsuId(((OdeMapMetadata)value.getMetadata()).getOriginIp());
                 newKey.setIntersectionReferenceID(intersectionId);
                 return newKey.toString();
-        });
+        }).repartition(Repartitioned.with(Serdes.String(), JsonSerdes.OdeMap()));
+
+        // KStream<String, OdeMapData> repartitionedStream = mapRekeyedStream.repartition();
 
         KStream<String, OdeMapData> deduplicatedStream = mapRekeyedStream.process(new OdeMapJsonProcessorSupplier(props), props.getKafkaStateStoreOdeMapJsonName());
         
