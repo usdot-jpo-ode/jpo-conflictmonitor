@@ -89,6 +89,9 @@ declare -A CmMapMinimumDataEvents=([name]="topic.CmMapMinimumDataEvents" [collec
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+declare -A CmTimestampDeltaEvent=([name]="topic.CmTimestampDeltaEvent" [collection]="CmTimestampDeltaEvent"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+
 
 # Record BSM Events
 declare -A CmBsmEvents=([name]="topic.CmBsmEvents" [collection]="CmBsmEvents"
@@ -124,6 +127,8 @@ declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotific
 declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmStopLinePassageNotification=([name]="topic.CmStopLinePassageNotification" [collection]="CmStopLinePassageNotification"
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+declare -A CmTimestampDeltaNotification=([name]="topic.CmTimestampDeltaNotification" [collection]="CmTimestampDeltaNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 
 function createSink() {
@@ -245,6 +250,7 @@ createSink CmSpatMinimumDataEvents
 createSink CmMapBroadcastRateEvents
 createSink CmMapMinimumDataEvents
 createSink CmSpatBroadcastRateEvents
+createSink CmTimestampDeltaEvent
 
 createSink CmBsmEvents
 
@@ -262,6 +268,7 @@ createSink CmSignalGroupAlignmentNotification
 createSink CmNotification
 createSink CmStopLineStopNotification
 createSink CmStopLinePassageNotification
+createSink CmTimestampDeltaNotification
 
 
 echo "----------------------------------"
