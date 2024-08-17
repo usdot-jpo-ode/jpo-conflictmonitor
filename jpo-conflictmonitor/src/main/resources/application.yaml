@@ -171,10 +171,11 @@ kafka.topics:
     - name: topic.CmBsmRevisionCounterEvents
       cleanupPolicy: compact
       retentionMs: 300000
-
     - name: topic.CmTimestampDeltaEvent
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmTimestampDeltaNotification
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification

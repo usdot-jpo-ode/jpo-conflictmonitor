@@ -13,6 +13,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.ITimest
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.BaseTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.TimestampDelta;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.BaseTimestampDeltaNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.timestamp_deltas.BaseTimestampDeltaNotificationProcessor;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import java.time.Duration;
@@ -28,6 +29,8 @@ public abstract class BaseTimestampDeltaTopology<TMessage, TParams extends ITime
     abstract protected TEvent constructEvent();
     abstract protected Serde<TEvent> eventSerde();
     abstract protected Serde<TNotification> notificationSerde();
+
+    // Construct an instance of the notification processor
     abstract protected BaseTimestampDeltaNotificationProcessor<TEvent, TNotification>
         constructProcessor(Duration retentionTime, String eventStoreName, String keyStoreName);
 
@@ -74,10 +77,10 @@ public abstract class BaseTimestampDeltaTopology<TMessage, TParams extends ITime
                             return delta;
                         })
 
-                        // Filter out small deltas
+                        // Filter out deltas that shouldn't emit events
                         .filter((rsuIntersectionKey, timestampDelta) -> timestampDelta.emitEvent())
 
-                        // Create Event
+                        // Create Events
                         .mapValues((rsuIntersectionKey, timestampDelta) -> {
                             TEvent event = constructEvent();
                             event.setDelta(timestampDelta);

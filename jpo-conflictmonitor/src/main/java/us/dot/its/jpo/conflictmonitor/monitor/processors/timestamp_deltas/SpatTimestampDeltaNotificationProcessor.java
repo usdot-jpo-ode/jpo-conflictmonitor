@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies.timestamp_delta;
+package us.dot.its.jpo.conflictmonitor.monitor.processors.timestamp_deltas;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
