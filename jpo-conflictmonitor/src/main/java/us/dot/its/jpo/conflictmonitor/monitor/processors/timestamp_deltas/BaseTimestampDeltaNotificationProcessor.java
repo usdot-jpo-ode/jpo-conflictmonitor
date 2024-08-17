@@ -1,5 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.processors.timestamp_deltas;
 
+import com.google.common.primitives.Doubles;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.Cancellable;
 import org.apache.kafka.streams.processor.PunctuationType;
@@ -105,7 +107,6 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
         long numberOfEvents = 0;
         long minDeltaMillis = Integer.MIN_VALUE;
         long maxDeltaMillis = Integer.MAX_VALUE;
-        long absTotalDeltaMillis = 0;
 
         var versionedQuery =
                 MultiVersionedKeyQuery.<RsuIntersectionKey, TEvent>withKey(key)
@@ -115,6 +116,7 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
                 eventStore.query(versionedQuery, PositionBound.unbounded(), new QueryConfig(false));
         VersionedRecordIterator<TEvent> resultIterator = result.getResult();
 
+        List<Double> deltaMillisList = new ArrayList<Double>();
         while (resultIterator.hasNext()) {
             VersionedRecord<TEvent> record = resultIterator.next();
             long recordTimestamp = record.timestamp();
@@ -128,24 +130,25 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
             TEvent event = record.value();
             TimestampDelta delta = event.getDelta();
             long deltaMillis = delta.getDeltaMillis();
+
             if (deltaMillis < minDeltaMillis) minDeltaMillis = deltaMillis;
             if (deltaMillis > maxDeltaMillis) maxDeltaMillis = deltaMillis;
-            absTotalDeltaMillis += delta.getAbsDeltaMillis();
+            deltaMillisList.add((double)delta.getAbsDeltaMillis());
         }
+        double[] deltaMillisArr = Doubles.toArray(deltaMillisList);
+        DescriptiveStatistics stats = new DescriptiveStatistics(deltaMillisArr);
+        double absMedianDelta = stats.getPercentile(50.0);
 
         if (numberOfEvents > 0) {
             TNotification notification =
-                    createNotification(key, fromTime, toTime, numberOfEvents, minDeltaMillis, maxDeltaMillis, absTotalDeltaMillis);
+                    createNotification(key, fromTime, toTime, numberOfEvents, minDeltaMillis, maxDeltaMillis, absMedianDelta);
             context().forward(new Record<>(key, notification, timestamp));
         }
-
-
-
     }
 
     private TNotification createNotification(final RsuIntersectionKey key, final Instant fromTime, final Instant toTime,
-                                                             final long numberOfEvents, final long minDeltaMillis, final long maxDeltaMillis,
-                                                             final long absTotalDeltaMillis) {
+                                     final long numberOfEvents, final long minDeltaMillis, final long maxDeltaMillis,
+                                     final double absMedianDelta) {
         final var notification = constructNotification();
         final var timePeriod = new ProcessingTimePeriod();
         timePeriod.setBeginTimestamp(fromTime.toEpochMilli());
@@ -156,8 +159,7 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
         notification.setNumberOfEvents(numberOfEvents);
         notification.setMinDeltaMillis(minDeltaMillis);
         notification.setMaxDeltaMillis(maxDeltaMillis);
-        final double absMeanDeltaMillis = (double)absTotalDeltaMillis / (double)numberOfEvents;
-        notification.setAbsMeanDeltaMillis(absMeanDeltaMillis);
+        notification.setAbsMedianDeltaMillis(absMedianDelta);
         notification.setNotificationHeading(getNotificationHeading());
         notification.setNotificationText(getNotificationText());
         notification.setKey(notification.getUniqueId());

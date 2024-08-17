@@ -32,9 +32,9 @@ public abstract class BaseTimestampDeltaNotification extends Notification {
     long maxDeltaMillis;
 
     /**
-     * The mean magnitude of the delta in milliseconds.
+     * The median magnitude of the delta in milliseconds.
      */
-    double absMeanDeltaMillis;
+    double absMedianDeltaMillis;
 
 
     @Override
