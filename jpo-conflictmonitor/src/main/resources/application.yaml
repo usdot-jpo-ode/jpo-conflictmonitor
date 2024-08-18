@@ -293,6 +293,7 @@ assessment:
 event:
   algorithm: defaultEventAlgorithm
   enabled: false
+#  enabled: true
   debug: false
   eventOutputTopicName: topic.CmEvent
   signalStateEventTopicName: topic.CmStopLinePassageEvent
@@ -445,8 +446,8 @@ map.timestamp.delta:
   debug: false
   keyStoreName: mapTimestampDeltaKeyStore
   eventStoreName: mapTimestampDeltaEventStore
-#  retentionTimeMinutes: 60
-  retentionTimeMinutes: 5
+  retentionTimeMinutes: 60
+#  retentionTimeMinutes: 5
   notificationTopicName: topic.CmTimestampDeltaNotification
 
 # SPaT Timestamp Delta parameters
@@ -457,8 +458,8 @@ spat.timestamp.delta:
   debug: false
   keyStoreName: spatTimestampDeltaKeyStore
   eventStoreName: spatTimestampDeltaEventStore
-#  retentionTimeMinutes: 60
-  retentionTimeMinutes: 5
+  retentionTimeMinutes: 60
+#  retentionTimeMinutes: 5
   notificationTopicName: topic.CmTimestampDeltaNotification
 
 
