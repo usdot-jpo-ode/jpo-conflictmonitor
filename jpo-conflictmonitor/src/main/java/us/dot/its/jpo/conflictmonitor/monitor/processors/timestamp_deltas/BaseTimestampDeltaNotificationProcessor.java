@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.processors.timestamp_deltas;
 
 import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.Cancellable;
 import org.apache.kafka.streams.processor.PunctuationType;
@@ -104,10 +105,6 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
 
     // Read stored events for one intersection, calculate statistics, and emit notifications
     private void assessmentForIntersection(RsuIntersectionKey key, Instant fromTime, Instant toTime, long timestamp) {
-        long numberOfEvents = 0;
-        long minDeltaMillis = Long.MAX_VALUE;
-        long maxDeltaMillis = Long.MIN_VALUE;
-
         var versionedQuery =
                 MultiVersionedKeyQuery.<RsuIntersectionKey, TEvent>withKey(key)
                         .fromTime(fromTime)
@@ -116,7 +113,8 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
                 eventStore.query(versionedQuery, PositionBound.unbounded(), new QueryConfig(false));
         VersionedRecordIterator<TEvent> resultIterator = result.getResult();
 
-        List<Double> deltaMillisList = new ArrayList<Double>();
+        SummaryStatistics stats = new SummaryStatistics();
+        DescriptiveStatistics absStats = new DescriptiveStatistics();
         while (resultIterator.hasNext()) {
             VersionedRecord<TEvent> record = resultIterator.next();
             long recordTimestamp = record.timestamp();
@@ -126,18 +124,16 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
                 getLogger().warn("Record instant {} is not between {} and {}, skipping it.", recordInstant, fromTime, toTime);
                 continue;
             }
-            ++numberOfEvents;
             TEvent event = record.value();
             TimestampDelta delta = event.getDelta();
-            long deltaMillis = delta.getDeltaMillis();
-
-            if (deltaMillis < minDeltaMillis) minDeltaMillis = deltaMillis;
-            if (deltaMillis > maxDeltaMillis) maxDeltaMillis = deltaMillis;
-            deltaMillisList.add((double)delta.getAbsDeltaMillis());
+            stats.addValue((double)delta.getDeltaMillis());
+            absStats.addValue((double)delta.getAbsDeltaMillis());
         }
-        double[] deltaMillisArr = Doubles.toArray(deltaMillisList);
-        DescriptiveStatistics stats = new DescriptiveStatistics(deltaMillisArr);
-        double absMedianDelta = stats.getPercentile(50.0);
+
+        long numberOfEvents = stats.getN();
+        long minDeltaMillis = (long)stats.getMin();
+        long maxDeltaMillis = (long)stats.getMax();
+        double absMedianDelta = absStats.getPercentile(50.0);
 
         if (numberOfEvents > 0) {
             TNotification notification =
