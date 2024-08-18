@@ -105,8 +105,8 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
     // Read stored events for one intersection, calculate statistics, and emit notifications
     private void assessmentForIntersection(RsuIntersectionKey key, Instant fromTime, Instant toTime, long timestamp) {
         long numberOfEvents = 0;
-        long minDeltaMillis = Integer.MIN_VALUE;
-        long maxDeltaMillis = Integer.MAX_VALUE;
+        long minDeltaMillis = Long.MAX_VALUE;
+        long maxDeltaMillis = Long.MIN_VALUE;
 
         var versionedQuery =
                 MultiVersionedKeyQuery.<RsuIntersectionKey, TEvent>withKey(key)
