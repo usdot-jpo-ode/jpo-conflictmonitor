@@ -67,6 +67,18 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -91,6 +103,36 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+<!--                <configuration>-->
+<!--                    <enableProcessChecker>all</enableProcessChecker>-->
+<!--                    <shutdown>exit</shutdown>-->
+<!--                    &lt;!&ndash; Prevent JDK 21 warnings related to Mockito during tests. &ndash;&gt;-->
+<!--                    &lt;!&ndash; See:  https://github.com/mockito/mockito/issues/3037 &ndash;&gt;-->
+<!--                    <argLine>-->
+<!--                        @{argLine}-->
+<!--                        -XX:+EnableDynamicAgentLoading-->
+<!--                    </argLine>-->
+<!--                </configuration>-->
+                <dependencies>
+                    <dependency>
+                        <!-- Force test to use junit4.7 -->
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>3.2.5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!-- Surefire report plugin. -->
+            <!-- To generate summary of test results use: mvn surefire-report:report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.2.5</version>
             </plugin>
         </plugins>
     </build>

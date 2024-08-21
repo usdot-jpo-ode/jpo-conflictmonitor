@@ -28,6 +28,15 @@ public class EventTopology
 
     private static final Logger logger = LoggerFactory.getLogger(EventTopology.class);
 
+    @Override
+    public void start() {
+        // Don't start the topology if it is disabled by configuration setting
+        if (parameters.isEnabled()) {
+            super.start();
+        } else {
+            logger.warn("Not starting the EventTopology because EventParameters.enabled = false");
+        }
+    }
 
 
     @Override
@@ -54,9 +63,11 @@ public class EventTopology
             .merge(builder.stream(parameters.getSpatBroadcastRateTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))   
             .merge(builder.stream(parameters.getSpatRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))    
             .merge(builder.stream(parameters.getBsmRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))    
-            .merge(builder.stream(parameters.getMapRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())));    
+            .merge(builder.stream(parameters.getMapRevisionCounterEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
+            .merge(builder.stream(parameters.getTimestampDeltaEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())));
 
         allEvents.to(parameters.getEventOutputTopicName(), Produced.with(Serdes.String(), JsonSerdes.Event()));
+
         if(parameters.isDebug()){
             allEvents.print(Printed.toSysOut());
         }

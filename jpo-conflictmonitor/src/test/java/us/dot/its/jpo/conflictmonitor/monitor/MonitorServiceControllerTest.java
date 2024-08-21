@@ -56,6 +56,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessme
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationStreamsAlgorithm;
@@ -104,9 +110,17 @@ public class MonitorServiceControllerTest {
     @Mock MapValidationStreamsAlgorithm mapValidationAlgorithm;
     MapValidationParameters mapValidationParameters = new MapValidationParameters();
 
+    @Mock MapTimestampDeltaAlgorithmFactory mapTimestampDeltaAlgorithmFactory;
+    @Mock MapTimestampDeltaStreamsAlgorithm mapTimestampDeltaStreamsAlgorithm;
+    MapTimestampDeltaParameters mapTimestampDeltaParameters = new MapTimestampDeltaParameters();
+
     @Mock SpatValidationStreamsAlgorithmFactory spatValidationStreamsAlgorithmFactory;
     @Mock SpatValidationStreamsAlgorithm spatValidationAlgorithm;
     SpatValidationParameters spatValidationParameters = new SpatValidationParameters();
+
+    @Mock SpatTimestampDeltaAlgorithmFactory spatTimestampDeltaAlgorithmFactory;
+    @Mock SpatTimestampDeltaStreamsAlgorithm spatTimestampDeltaStreamsAlgorithm;
+    SpatTimestampDeltaParameters spatTimestampDeltaParameters = new SpatTimestampDeltaParameters();
 
     @Mock SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
     @Mock SpatTimeChangeDetailsStreamsAlgorithm spatTimeChangeDetailsAlgorithm;
@@ -197,10 +211,20 @@ public class MonitorServiceControllerTest {
         when(mapValidationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapValidationAlgorithm);
         when(conflictMonitorProperties.getMapValidationParameters()).thenReturn(mapValidationParameters);
 
+        when(conflictMonitorProperties.getMapTimestampDeltaAlgorithmFactory()).thenReturn(mapTimestampDeltaAlgorithmFactory);
+        when(conflictMonitorProperties.getMapTimestampDeltaAlgorithm()).thenReturn(defaultAlgo);
+        when(mapTimestampDeltaAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapTimestampDeltaStreamsAlgorithm);
+        when(conflictMonitorProperties.getMapTimestampDeltaParameters()).thenReturn(mapTimestampDeltaParameters);
+
         when(conflictMonitorProperties.getSpatValidationAlgorithmFactory()).thenReturn(spatValidationStreamsAlgorithmFactory);
         when(conflictMonitorProperties.getSpatValidationAlgorithm()).thenReturn(defaultAlgo);
         when(spatValidationStreamsAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatValidationAlgorithm);
         when(conflictMonitorProperties.getSpatValidationParameters()).thenReturn(spatValidationParameters);
+
+        when(conflictMonitorProperties.getSpatTimestampDeltaAlgorithmFactory()).thenReturn(spatTimestampDeltaAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatTimestampDeltaAlgorithm()).thenReturn(defaultAlgo);
+        when(spatTimestampDeltaAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTimestampDeltaStreamsAlgorithm);
+        when(conflictMonitorProperties.getSpatTimestampDeltaParameters()).thenReturn(spatTimestampDeltaParameters);
 
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithmFactory()).thenReturn(spatTimeChangeDetailsAlgorithmFactory);
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithm()).thenReturn(defaultAlgo);

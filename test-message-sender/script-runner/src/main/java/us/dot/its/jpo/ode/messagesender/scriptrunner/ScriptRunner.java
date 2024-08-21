@@ -20,6 +20,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
+import static us.dot.its.jpo.ode.messagesender.scriptrunner.ScriptTemplate.fillTemplate;
+
 @Component
 public class ScriptRunner {
 
@@ -100,54 +102,8 @@ public class ScriptRunner {
         logger.info("Scheduled {} job at {}", messageType, sendTime);
     }
 
-    public static final String ISO_DATE_TIME = "@ISO_DATE_TIME@";
-    public static final String MINUTE_OF_YEAR = "\"@MINUTE_OF_YEAR@\"";
-    public static final String MILLI_OF_MINUTE = "\"@MILLI_OF_MINUTE@\"";
-    public static final String EPOCH_SECONDS = "\"@EPOCH_SECONDS@\"";
-    public static final Pattern OFFSET_SECONDS = Pattern.compile("@OFFSET_SECONDS_(?<offset>-?[0-9.]+)@");
-    public static final String TEMP_ID = "@TEMP_ID@";
-    
 
 
-    private static String fillTemplate(Instant sendInstant, String message, String tempId) {
-        ZonedDateTime zdt = sendInstant.atZone(ZoneOffset.UTC);
-        String isoDateTime = zdt.format(DateTimeFormatter.ISO_DATE_TIME);
-
-        ZonedDateTime zdtYear = ZonedDateTime.of(zdt.getYear(), 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-        Duration moyDuration = Duration.between(zdtYear, zdt);
-        long minuteOfYear = moyDuration.toMinutes();
-
-        ZonedDateTime zdtMinute = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), 
-            zdt.getDayOfMonth(), zdt.getHour(), zdt.getMinute(), 0, 0, ZoneOffset.UTC);
-        Duration minDuration = Duration.between(zdtMinute, zdt);
-        long milliOfMinute = minDuration.toMillis();
-       
-        double epochSecond = sendInstant.toEpochMilli() / 1000.0d;
-
-        // Fill in offset seconds in timing
-        var matcher = OFFSET_SECONDS.matcher(message);
-        String replaced = matcher.replaceAll((matchResult) -> {
-            String offsetStr = matcher.group("offset");
-            double offsetSeconds = Double.parseDouble(offsetStr);
-            double timingSeconds = epochSecond + offsetSeconds;
-            long timingMillis = Math.round(1000 * timingSeconds);
-            Instant timingInstant = Instant.ofEpochMilli(timingMillis);
-            ZonedDateTime zdtTiming = timingInstant.atZone(ZoneOffset.UTC);
-            return zdtTiming.format(DateTimeFormatter.ISO_DATE_TIME);
-        });
-
-
-
-        return replaced
-            .replace(ISO_DATE_TIME, isoDateTime)
-            .replace(MINUTE_OF_YEAR, Long.toString(minuteOfYear))
-            .replace(MILLI_OF_MINUTE, Long.toString(milliOfMinute))
-            .replace(EPOCH_SECONDS, Double.toString(epochSecond))
-            .replace(TEMP_ID, tempId);
-
-
-
-    }
-
-    
 }
+
+

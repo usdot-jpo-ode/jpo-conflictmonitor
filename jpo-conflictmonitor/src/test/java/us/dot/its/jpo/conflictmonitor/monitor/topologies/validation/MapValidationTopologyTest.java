@@ -5,14 +5,23 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.timestamp_delta.MapTimestampDeltaTopology;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
@@ -23,8 +32,13 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import org.junit.Test;
 
 
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 
 public class MapValidationTopologyTest {
@@ -33,6 +47,12 @@ public class MapValidationTopologyTest {
     final String inputTopicName = "topic.ProcessedMap";
     final String broadcastRateTopicName = "topic.CmMapBroadcastRateEvents";
     final String minimumDataTopicName = "topic.CmMapMinimumDataEvents";
+    final int maxDeltaMilliseconds = 50;
+    final String timestampOutputTopicName = "topic.CmTimestampDeltaEvent";
+    final String keyStoreName = "mapTimestampDeltaKeyStore";
+    final String eventStoreName = "mapTimestampDeltaEventStore";
+    final int retentionTimeMinutes = 60;
+    final String notificationTopicName = "topic.CmTimestampDeltaNotification";
     
     // Use a tumbling window for test (rolling period = output interval)
     // just to make it easier to design the test.
@@ -59,36 +79,26 @@ public class MapValidationTopologyTest {
     
     @Test
     public void testMapValidationTopology() {
-        var parameters = getParameters();
-        var streamsConfig = new Properties();
-        streamsConfig.setProperty(
-            StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, 
-            TimestampExtractorForBroadcastRate.class.getName());
 
-        var mapValidationTopology = new MapValidationTopology();
-        mapValidationTopology.setParameters(parameters);
-        Topology topology = mapValidationTopology.buildTopology();
+        Properties streamsConfig = createStreamsConfig();
+        Topology topology = createTopology();
 
-        
-
-        try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
-
-            
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig);
+             Serde<RsuIntersectionKey> rsuIntersectionKeySerde
+                     = us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey();
+             Serde<ProcessedMap<LineString>> processedMapSerde
+                     = us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson();
+             Serde<MapBroadcastRateEvent> mapBroadcastRateEventSerde = JsonSerdes.MapBroadcastRateEvent();
+             Serde<MapMinimumDataEvent> mapMinumumDataEventSerde = JsonSerdes.MapMinimumDataEvent()) {
 
             var inputTopic = driver.createInputTopic(inputTopicName,
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(), 
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson().serializer()
-            );
+                    rsuIntersectionKeySerde.serializer(), processedMapSerde.serializer());
 
             var broadcastRateTopic = driver.createOutputTopic(broadcastRateTopicName,
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(), 
-                JsonSerdes.MapBroadcastRateEvent().deserializer()
-            );
+                    rsuIntersectionKeySerde.deserializer(), mapBroadcastRateEventSerde.deserializer());
 
             var minimumDataTopic = driver.createOutputTopic(minimumDataTopicName,
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(), 
-                JsonSerdes.MapMinimumDataEvent().deserializer()
-            );
+                    rsuIntersectionKeySerde.deserializer(), mapMinumumDataEventSerde.deserializer());
 
             final RsuIntersectionKey key = new RsuIntersectionKey(rsuId, intersectionId, region);
 
@@ -133,6 +143,86 @@ public class MapValidationTopologyTest {
         
     }
 
+    @Test
+    public void testMapTimestampDeltaSubtopology() {
+        Properties streamsConfig = createStreamsConfig();
+        Topology topology = createTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig);
+             Serde<RsuIntersectionKey> rsuIntersectionKeySerde
+                     = us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey();
+             Serde<ProcessedMap<LineString>> processedMapSerde
+                     = us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson();
+             Serde<MapTimestampDeltaEvent> mapTimestampDeltaEventSerde = JsonSerdes.MapTimestampDeltaEvent()) {
+
+            var inputTopic = driver.createInputTopic(inputTopicName,
+                    rsuIntersectionKeySerde.serializer(), processedMapSerde.serializer());
+
+            var timestampDeltaEventTopic = driver.createOutputTopic(timestampOutputTopicName,
+                    rsuIntersectionKeySerde.deserializer(), mapTimestampDeltaEventSerde.deserializer());
+
+            final RsuIntersectionKey key = new RsuIntersectionKey(rsuId, intersectionId, region);
+
+            final Instant start1 = startTime;
+            final Instant start1_plus10 = start1.plusMillis(10L);
+            final Instant start2 = start1.plusSeconds(2L);
+            final Instant start2_plus500 = start2.plusMillis(500L);
+            final Instant start3 = start2.plusSeconds(2L);
+            final Instant start3_minus20 = start3.minusMillis(20L);
+            final Instant start4 = start3.plusSeconds(2L);
+            final Instant start4_minus600 = start4.minusMillis(600L);
+
+            inputTopic.pipeInput(key, createMapWithTimestampOffset(start1, start1_plus10), start1);
+            inputTopic.pipeInput(key, createMapWithTimestampOffset(start2, start2_plus500), start2);
+            inputTopic.pipeInput(key, createMapWithTimestampOffset(start3, start3_minus20), start3);
+            inputTopic.pipeInput(key, createMapWithTimestampOffset(start4, start4_minus600), start4);
+
+            final Set<Long> expectDeltas = ImmutableSet.of(500L, -20L, -600L);
+            final int numberOfEventsExpected = expectDeltas.size();
+
+            var timestampEventList = timestampDeltaEventTopic.readKeyValuesToList();
+            assertThat(String.format("%s of 4 inputs should have produced timestamp delta events", numberOfEventsExpected),
+                    timestampEventList, hasSize(numberOfEventsExpected));
+
+
+            Set<Long> actualDeltas = timestampEventList.stream().map(entry -> entry.value.getDelta().getDeltaMillis()).collect(toSet());
+            assertThat(String.format("Expect deltas %s.  Actual deltas: %s", expectDeltas, actualDeltas),
+                    Sets.symmetricDifference(expectDeltas, actualDeltas), hasSize(0));
+        }
+    }
+
+
+    private Topology createTopology() {
+        var parameters = getParameters();
+        var mapValidationTopology = new MapValidationTopology();
+        mapValidationTopology.setParameters(parameters);
+        var timestampTopology = new MapTimestampDeltaTopology();
+        var timestampParameters = getTimestampParameters();
+        timestampTopology.setParameters(timestampParameters);
+        mapValidationTopology.setTimestampDeltaAlgorithm(timestampTopology);
+        return mapValidationTopology.buildTopology();
+    }
+
+    private Properties createStreamsConfig() {
+        var streamsConfig = new Properties();
+        streamsConfig.setProperty(
+                StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
+                TimestampExtractorForBroadcastRate.class.getName());
+        return streamsConfig;
+    }
+
+    private MapTimestampDeltaParameters getTimestampParameters() {
+        var parameters = new MapTimestampDeltaParameters();
+        parameters.setDebug(debug);
+        parameters.setMaxDeltaMilliseconds(maxDeltaMilliseconds);
+        parameters.setOutputTopicName(timestampOutputTopicName);
+        parameters.setKeyStoreName(keyStoreName);
+        parameters.setEventStoreName(eventStoreName);
+        parameters.setRetentionTimeMinutes(retentionTimeMinutes);
+        parameters.setNotificationTopicName(notificationTopicName);
+        return parameters;
+    }
+
     private MapValidationParameters getParameters() {
         var parameters = new MapValidationParameters();
         parameters.setInputTopicName(inputTopicName);
@@ -160,6 +250,17 @@ public class MapValidationTopologyTest {
         msg.setMessage(validationMsg);
         valMsgList.add(msg);
         props.setValidationMessages(valMsgList);
+        return map;
+    }
+
+    //  odeReceivedAt and timestamp separately
+    private ProcessedMap<LineString> createMapWithTimestampOffset(Instant timestamp, Instant odeReceivedAt) {
+        var map = new ProcessedMap<LineString>();
+        var props = new MapSharedProperties();
+        map.setProperties(props);
+        props.setOdeReceivedAt(odeReceivedAt.atZone(ZoneOffset.UTC));
+        props.setTimeStamp(timestamp.atZone(ZoneOffset.UTC));
+        props.setCti4501Conformant(true);
         return map;
     }
 

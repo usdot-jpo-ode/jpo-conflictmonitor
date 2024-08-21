@@ -171,7 +171,11 @@ kafka.topics:
     - name: topic.CmBsmRevisionCounterEvents
       cleanupPolicy: compact
       retentionMs: 300000
-
+    - name: topic.CmTimestampDeltaEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmTimestampDeltaNotification
+      cleanupPolicy: compact
     # - name: topic.CmSpatBroadcastRateNotification
     #   cleanupPolicy: compact
     # - name: topic.CmMapBroadcastRateNotification
@@ -276,6 +280,7 @@ notification:
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
+  timestampDeltaNotificationTopicName: topic.CmTimestampDeltaNotification
 
 assessment:
   algorithm: defaultAssessmentAlgorithm
@@ -287,6 +292,8 @@ assessment:
 
 event:
   algorithm: defaultEventAlgorithm
+  enabled: false
+#  enabled: true
   debug: false
   eventOutputTopicName: topic.CmEvent
   signalStateEventTopicName: topic.CmStopLinePassageEvent
@@ -300,8 +307,10 @@ event:
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
   connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
-
-
+  spatRevisionCounterEventTopicName: topic.CmSpatRevisionCounterEvents
+  mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
+  bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
+  timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
@@ -429,5 +438,28 @@ config:
   mergedTopicName: topic.CmMergedConfigTable
   intersectionTableName: topic.CmIntersectionConfigTable
 
+# MAP Timestamp Delta parameters
+map.timestamp.delta:
+  algorithm: defaultMapTimestampDeltaAlgorithm
+  outputTopicName: topic.CmTimestampDeltaEvent
+  maxDeltaMilliseconds: 50
+  debug: false
+  keyStoreName: mapTimestampDeltaKeyStore
+  eventStoreName: mapTimestampDeltaEventStore
+  retentionTimeMinutes: 60
+#  retentionTimeMinutes: 5
+  notificationTopicName: topic.CmTimestampDeltaNotification
+
+# SPaT Timestamp Delta parameters
+spat.timestamp.delta:
+  algorithm: defaultSpatTimestampDeltaAlgorithm
+  outputTopicName: topic.CmTimestampDeltaEvent
+  maxDeltaMilliseconds: 50
+  debug: false
+  keyStoreName: spatTimestampDeltaKeyStore
+  eventStoreName: spatTimestampDeltaEventStore
+  retentionTimeMinutes: 60
+#  retentionTimeMinutes: 5
+  notificationTopicName: topic.CmTimestampDeltaNotification
 
 

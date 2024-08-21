@@ -15,6 +15,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.MapTimestampDeltaNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.SpatTimestampDeltaNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.NotificationTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
@@ -31,6 +33,7 @@ public class NotificationTopologyTest {
     String signalStateConflictTopicName = "topic.CmSignalStateConflictNotification";
     String spatTimeChangeDetailsTopicName = "topic.CmSpatTimeChangeDetailsNotification";
     String notificationTopicName = "topic.CmNotification";
+    String timestampDeltaNotificationTopicName = "topic.CmTimestampDeltaNotification";
 
 
     @Test
@@ -46,6 +49,7 @@ public class NotificationTopologyTest {
         parameters.setSpatTimeChangeDetailsNotificationTopicName(spatTimeChangeDetailsTopicName);
         parameters.setNotificationOutputTopicName(notificationTopicName);
         parameters.setDebug(false);
+        parameters.setTimestampDeltaNotificationTopicName(timestampDeltaNotificationTopicName);
         
 
 
@@ -59,6 +63,8 @@ public class NotificationTopologyTest {
         SignalGroupAlignmentNotification sgaNotification = new SignalGroupAlignmentNotification();
         SignalStateConflictNotification sscNotification = new SignalStateConflictNotification();
         TimeChangeDetailsNotification tcdNotification = new TimeChangeDetailsNotification();
+        MapTimestampDeltaNotification mapTimestampDeltaNotification = new MapTimestampDeltaNotification();
+        SpatTimestampDeltaNotification spatTimestampDeltaNotification = new SpatTimestampDeltaNotification();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
@@ -105,6 +111,13 @@ public class NotificationTopologyTest {
 
             inputTimeChangeDetails.pipeInput("12109", tcdNotification);
 
+            TestInputTopic<String, Notification> inputTimestampDeltaNotification = driver.createInputTopic(
+                    timestampDeltaNotificationTopicName,
+                    Serdes.String().serializer(),
+                    JsonSerdes.Notification().serializer()
+            );
+            inputTimestampDeltaNotification.pipeInput("12109", mapTimestampDeltaNotification);
+            inputTimestampDeltaNotification.pipeInput("12109", spatTimestampDeltaNotification);
             
 
             TestOutputTopic<String, Notification> outputNotificationTopic = driver.createOutputTopic(
@@ -117,7 +130,7 @@ public class NotificationTopologyTest {
 
             
             
-            assertEquals(6, notificationResults.size());
+            assertEquals(8, notificationResults.size());
  
             for(KeyValue<String, Notification> notificationKeyValue: notificationResults){
                 assertEquals("12109", notificationKeyValue.key);
@@ -140,6 +153,11 @@ public class NotificationTopologyTest {
                 }
                 else if(type.equals("TimeChangeDetailsNotification")){
                     assertEquals((TimeChangeDetailsNotification) notification, tcdNotification);          
+                }
+                else if (type.equals("MapTimestampDeltaNotification")) {
+                    assertEquals(notification, mapTimestampDeltaNotification);
+                } else if (type.equals("SpatTimestampDeltaNotification")) {
+                    assertEquals(notification, spatTimestampDeltaNotification);
                 }
                 else{
                     assertEquals(1,0);
