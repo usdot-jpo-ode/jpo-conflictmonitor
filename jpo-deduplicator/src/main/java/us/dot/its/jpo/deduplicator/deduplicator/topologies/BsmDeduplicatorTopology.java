@@ -2,7 +2,6 @@ package us.dot.its.jpo.deduplicator.deduplicator.topologies;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
@@ -10,8 +9,6 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
-import us.dot.its.jpo.deduplicator.deduplicator.models.OdeBsmPair;
-import us.dot.its.jpo.deduplicator.deduplicator.serialization.PairSerdes;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.model.OdeMapData;
@@ -19,20 +16,22 @@ import us.dot.its.jpo.ode.model.OdeMapPayload;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 import org.geotools.referencing.GeodeticCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Objects;
+
+import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeBsmJsonProcessorSupplier;
 
 public class BsmDeduplicatorTopology {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapDeduplicatorTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(BsmDeduplicatorTopology.class);
 
     Topology topology;
     KafkaStreams streams;
@@ -80,62 +79,16 @@ public class BsmDeduplicatorTopology {
 
         KStream<Void, OdeBsmData> inputStream = builder.stream(this.props.getKafkaTopicOdeBsmJson(), Consumed.with(Serdes.Void(), JsonSerdes.OdeBsm()));
 
+        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreOdeBsmJsonName()),
+                Serdes.String(), JsonSerdes.OdeBsm()));
 
         KStream<String, OdeBsmData> bsmRekeyedStream = inputStream.selectKey((key, value)->{
                 J2735BsmCoreData core = ((J2735Bsm)value.getPayload().getData()).getCoreData();
                 return core.getId();
-        });
+        }).repartition(Repartitioned.with(Serdes.String(), JsonSerdes.OdeBsm()));
 
-        KStream<String, OdeBsmData> deduplicatedStream = bsmRekeyedStream
-            .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeBsm()))
-            .aggregate(() -> new OdeBsmPair(new OdeBsmData(), true),
-            (key, newValue, aggregate)->{
-                
-                if(aggregate.getMessage().getMetadata() == null){
-                    return new OdeBsmPair(newValue, true);
-                }
+        KStream<String, OdeBsmData> deduplicatedStream = bsmRekeyedStream.process(new OdeBsmJsonProcessorSupplier(props.getKafkaStateStoreOdeBsmJsonName(), props), props.getKafkaStateStoreOdeBsmJsonName());
 
-                Instant newValueTime = getInstantFromBsm(newValue);
-                Instant oldValueTime = getInstantFromBsm(aggregate.getMessage());
-
-                // If the messages are more than a certain time apart, forward the new message on
-                if(newValueTime.minus(Duration.ofMillis(props.getOdeBsmMaximumTimeDelta())).isAfter(oldValueTime)){
-                    return new OdeBsmPair(newValue, true );   
-                }
-
-                J2735BsmCoreData oldCore = ((J2735Bsm)aggregate.getMessage().getPayload().getData()).getCoreData();
-                J2735BsmCoreData newCore = ((J2735Bsm)newValue.getPayload().getData()).getCoreData();
-
-
-                // If the Vehicle is moving, forward the message on
-                if(newCore.getSpeed().doubleValue() > props.getOdeBsmAlwaysIncludeAtSpeed()){
-                    return new OdeBsmPair(newValue, true);    
-                }
-
-
-                double distance = calculateGeodeticDistance(
-                    newCore.getPosition().getLatitude().doubleValue(),
-                    newCore.getPosition().getLongitude().doubleValue(),
-                    oldCore.getPosition().getLatitude().doubleValue(),
-                    oldCore.getPosition().getLongitude().doubleValue()
-                );
-
-                // If the position delta between the messages is suitable large, forward the message on
-                if(distance > props.getOdeBsmMaximumPositionDelta()){
-                    return new OdeBsmPair(newValue, true);
-                }
-
-                return new OdeBsmPair(aggregate.getMessage(), false);
-                
-            }, Materialized.with(Serdes.String(), PairSerdes.OdeBsmPair()))
-            .toStream()
-            .flatMap((key, value) ->{
-                ArrayList<KeyValue<String, OdeBsmData>> outputList = new ArrayList<>();
-                if(value != null && value.isShouldSend()){
-                    outputList.add(new KeyValue<>(key, value.getMessage()));   
-                }
-                return outputList;
-            });
         
         deduplicatedStream.to(this.props.getKafkaTopicDeduplicatedOdeBsmJson(), Produced.with(Serdes.String(), JsonSerdes.OdeBsm()));
 

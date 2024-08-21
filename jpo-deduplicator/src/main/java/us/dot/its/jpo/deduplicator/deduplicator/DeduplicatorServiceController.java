@@ -17,9 +17,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.BsmDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.MapDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.OdeRawEncodedTimDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
-import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
 
 @Controller
 @DependsOn("createKafkaTopics")
@@ -46,8 +47,7 @@ public class DeduplicatorServiceController {
 
             if(props.isEnableProcessedMapDeduplication()){
                 ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
-                    props.getKafkaTopicProcessedMap(),
-                    props.getKafkaTopicDeduplicatedProcessedMap(),
+                    props,
                     props.createStreamProperties("ProcessedMapDeduplicator")
                 );
                 processedMapDeduplicatorTopology.start();
@@ -55,8 +55,7 @@ public class DeduplicatorServiceController {
             
             if(props.isEnableProcessedMapWktDeduplication()){
                 ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
-                    props.getKafkaTopicProcessedMapWKT(),
-                    props.getKafkaTopicDeduplicatedProcessedMapWKT(),
+                    props,
                     props.createStreamProperties("ProcessedMapWKTdeduplicator")
                 );
                 processedMapWktDeduplicatorTopology.start();
@@ -64,8 +63,7 @@ public class DeduplicatorServiceController {
             
             if(props.isEnableProcessedMapDeduplication()){
                 MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
-                    props.getKafkaTopicOdeMapJson(),
-                    props.getKafkaTopicDeduplicatedOdeMapJson(),
+                    props,
                     props.createStreamProperties("MapDeduplicator")
                 );
                 mapDeduplicatorTopology.start();
@@ -73,11 +71,18 @@ public class DeduplicatorServiceController {
             
             if(props.isEnableOdeTimDeduplication()){
                 TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
-                    props.getKafkaTopicOdeTimJson(),
-                    props.getKafkaTopicDeduplicatedOdeTimJson(),
+                    props,
                     props.createStreamProperties("TimDeduplicator")
                 );
                 timDeduplicatorTopology.start();
+            }
+
+            if(props.isEnableOdeRawEncodedTimDeduplication()){
+                OdeRawEncodedTimDeduplicatorTopology odeRawEncodedTimDeduplicatorTopology = new OdeRawEncodedTimDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("OdeRawEncodedTimDeduplicator")
+                );
+                odeRawEncodedTimDeduplicatorTopology.start();
             }
 
             if(props.isEnableOdeBsmDeduplication()){
