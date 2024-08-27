@@ -9,6 +9,7 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.Stores;
@@ -40,7 +41,7 @@ public class OdeRawEncodedTimDeduplicatorTopology {
 
     public OdeRawEncodedTimDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
         this.streamsProperties = streamsProperties;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = DateJsonMapper.getInstance();
         this.props = props;
     }
 

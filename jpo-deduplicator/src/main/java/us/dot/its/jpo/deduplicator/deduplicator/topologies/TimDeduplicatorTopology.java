@@ -8,6 +8,7 @@ import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 import us.dot.its.jpo.deduplicator.deduplicator.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.Stores;
@@ -38,7 +39,7 @@ public class TimDeduplicatorTopology {
     public TimDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties) {
         this.props = props;
         this.streamsProperties = streamsProperties;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = DateJsonMapper.getInstance();
     }
 
     public void start() {

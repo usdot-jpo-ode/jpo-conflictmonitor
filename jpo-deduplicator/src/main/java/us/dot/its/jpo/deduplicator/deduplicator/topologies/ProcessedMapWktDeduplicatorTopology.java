@@ -9,6 +9,7 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.ProcessedMapWktProcessorSupplier;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
 
@@ -35,7 +36,7 @@ public class ProcessedMapWktDeduplicatorTopology {
     public ProcessedMapWktDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
         this.props = props;
         this.streamsProperties = streamsProperties;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = DateJsonMapper.getInstance();
     }
 
     
