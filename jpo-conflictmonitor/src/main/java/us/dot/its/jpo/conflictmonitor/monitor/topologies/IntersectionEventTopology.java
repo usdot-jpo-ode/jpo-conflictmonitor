@@ -349,9 +349,8 @@ public class IntersectionEventTopology
         
         StreamsBuilder builder = new StreamsBuilder();
 
-        if (messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm) {
-            var messageIngestStreamsAlgorithm = (MessageIngestStreamsAlgorithm)messageIngestAlgorithm;
-            builder = messageIngestStreamsAlgorithm.buildTopology(builder);
+        if (messageIngestAlgorithm instanceof MessageIngestStreamsAlgorithm messageIngestStreamsAlgorithm) {
+            messageIngestStreamsAlgorithm.buildTopology(builder);
         }
 
 

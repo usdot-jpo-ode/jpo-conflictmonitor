@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 
 import lombok.Getter;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.Topology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
@@ -23,6 +25,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
@@ -68,6 +73,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.S
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
@@ -78,6 +88,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -91,14 +102,13 @@ public class MonitorServiceController {
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
     org.apache.kafka.common.serialization.Serdes bas;
 
-    // Temporary for KafkaStreams that don't implement the Algorithm interface
-    @Getter
-    final ConcurrentHashMap<String, KafkaStreams> streamsMap = new ConcurrentHashMap<String, KafkaStreams>();
+//    // Temporary for KafkaStreams that don't implement the Algorithm interface
+//    @Getter
+//    final ConcurrentHashMap<String, KafkaStreams> streamsMap = new ConcurrentHashMap<String, KafkaStreams>();
 
     @Getter
     final ConcurrentHashMap<String, StreamsTopology> algoMap = new ConcurrentHashMap<String, StreamsTopology>();
 
-   
     
     @Autowired
     public MonitorServiceController(final ConflictMonitorProperties conflictMonitorProps, 
@@ -127,8 +137,6 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.setKafkaTemplate(kafkaTemplate);
             configTopology.start();
-            
-
 
 
             final String repartition = "repartition";
@@ -167,46 +175,48 @@ public class MonitorServiceController {
             notificationAlgo.start();
            
 
-            // Map Broadcast Rate Topology
-            // Sends "MAP Broadcast Rate" events when the number of MAPs per rolling period is too low or too high
-            final String mapBroadcastRate = "mapBroadcastRate";
+            // Map Validation Topology
+            final String mapValidation = "mapValidation";
             final MapValidationAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapValidationAlgorithmFactory();
             final String mapAlgo = conflictMonitorProps.getMapValidationAlgorithm();
-            final MapValidationAlgorithm mapCountAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
-            final MapValidationParameters mapCountParams = conflictMonitorProps.getMapValidationParameters();
-            configTopology.registerConfigListeners(mapCountParams);
-            logger.info("Map params {}", mapCountParams);
-            if (mapCountAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)mapCountAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapBroadcastRate));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapBroadcastRate, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapBroadcastRate, healthTopic));
-                algoMap.put(mapBroadcastRate, streamsAlgo);
+            final MapValidationAlgorithm mapValidationAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
+            final MapValidationParameters mapValidationParams = conflictMonitorProps.getMapValidationParameters();
+            configTopology.registerConfigListeners(mapValidationParams);
+            logger.info("Map params {}", mapValidationParams);
+            if (mapValidationAlgo instanceof StreamsTopology streamsAlgo) {
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapValidation));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapValidation, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapValidation, healthTopic));
+                algoMap.put(mapValidation, streamsAlgo);
             }
-            mapCountAlgo.setParameters(mapCountParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(mapCountAlgo::stop));
-            mapCountAlgo.start();
+            mapValidationAlgo.setParameters(mapValidationParams);
+            // Plugin timestamp delta algorithm
+            final MapTimestampDeltaAlgorithm mapTimestampAlgo = getMapTimestampDeltaAlgorithm(conflictMonitorProps);
+            mapValidationAlgo.setTimestampDeltaAlgorithm(mapTimestampAlgo);
+            Runtime.getRuntime().addShutdownHook(new Thread(mapValidationAlgo::stop));
+            mapValidationAlgo.start();
            
 
             
-            // Spat Broadcast Rate Topology
-            // Sends "SPAT Broadcast Rate" events when the number of SPATs per rolling period is too low or too high
-            final String spatBroadcastRate = "spatBroadcastRate";
+            // Spat Validation Topology
+            final String spatValidation = "spatValidation";
             final SpatValidationStreamsAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatValidationAlgorithmFactory();
             final String spatAlgo = conflictMonitorProps.getSpatValidationAlgorithm();
-            final SpatValidationAlgorithm spatCountAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
-            final SpatValidationParameters spatCountParams = conflictMonitorProps.getSpatValidationParameters();
-            configTopology.registerConfigListeners(spatCountParams);
-            if (spatCountAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)spatCountAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatBroadcastRate));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatBroadcastRate, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatBroadcastRate, healthTopic));
-                algoMap.put(spatBroadcastRate, streamsAlgo);
+            final SpatValidationAlgorithm spatValidationAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
+            final SpatValidationParameters spatValidationParams = conflictMonitorProps.getSpatValidationParameters();
+            configTopology.registerConfigListeners(spatValidationParams);
+            if (spatValidationAlgo instanceof StreamsTopology streamsAlgo) {
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatValidation));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatValidation, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatValidation, healthTopic));
+                algoMap.put(spatValidation, streamsAlgo);
             }
-            spatCountAlgo.setParameters(spatCountParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(spatCountAlgo::stop));
-            spatCountAlgo.start();
+            spatValidationAlgo.setParameters(spatValidationParams);
+            // Plugin timestamp delta algorithm
+            final SpatTimestampDeltaAlgorithm spatTimestampAlgo = getSpatTimestampDeltaAlgorithm(conflictMonitorProps);
+            spatValidationAlgo.setTimestampDeltaAlgorithm(spatTimestampAlgo);
+            Runtime.getRuntime().addShutdownHook(new Thread(spatValidationAlgo::stop));
+            spatValidationAlgo.start();
             
 
 
@@ -473,6 +483,23 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(bsmRevisionCounterAlgo::stop));
             bsmRevisionCounterAlgo.start();
 
+            // Combined Event Topology
+            final String event = "event";
+            final EventAlgorithmFactory eventAlgorithmFactory = conflictMonitorProps.getEventAlgorithmFactory();
+            final String eventAlgorithmName = conflictMonitorProps.getEventAlgorithm();
+            final EventAlgorithm eventAlgorithm = eventAlgorithmFactory.getAlgorithm(eventAlgorithmName);
+            final EventParameters eventParams = conflictMonitorProps.getEventParameters();
+            configTopology.registerConfigListeners(eventParams);
+            if (eventAlgorithm instanceof StreamsTopology streamsAlgo) {
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(event));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, event, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, event, healthTopic));
+                algoMap.put(event, streamsAlgo);
+            }
+            eventAlgorithm.setParameters(eventParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(eventAlgorithm::stop));
+            eventAlgorithm.start();
+
             // Restore properties
             configInitializer.initializeDefaultConfigs();
             configTopology.initializePropertiesAsync();
@@ -485,5 +512,25 @@ public class MonitorServiceController {
         }
     }
 
-    
+
+
+    private static MapTimestampDeltaAlgorithm getMapTimestampDeltaAlgorithm(ConflictMonitorProperties props) {
+        final var factory = props.getMapTimestampDeltaAlgorithmFactory();
+        final String algorithmName = props.getMapTimestampDeltaAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = props.getMapTimestampDeltaParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private static SpatTimestampDeltaAlgorithm getSpatTimestampDeltaAlgorithm(ConflictMonitorProperties props) {
+        final var factory = props.getSpatTimestampDeltaAlgorithmFactory();
+        final String algorithmName = props.getSpatTimestampDeltaAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = props.getSpatTimestampDeltaParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+
 }

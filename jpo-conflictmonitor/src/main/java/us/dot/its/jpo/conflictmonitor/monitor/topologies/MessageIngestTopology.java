@@ -4,8 +4,18 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.streams.state.*;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KGroupedStream;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,7 +23,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
@@ -38,9 +47,10 @@ public class MessageIngestTopology
         implements MessageIngestStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
-    //private int count = 0;
-    
-    public StreamsBuilder buildTopology(StreamsBuilder builder) {
+
+
+    @Override
+    public void buildTopology(StreamsBuilder builder) {
 
 
         
@@ -190,10 +200,6 @@ public class MessageIngestTopology
         );
 
 
-
-
-
-        return builder;
     }
 
 
@@ -223,7 +229,6 @@ public class MessageIngestTopology
         return streams.store(StoreQueryParameters.fromNameAndType(
             parameters.getMapStoreName(), QueryableStoreTypes.keyValueStore()));
     }
-
 
 
 

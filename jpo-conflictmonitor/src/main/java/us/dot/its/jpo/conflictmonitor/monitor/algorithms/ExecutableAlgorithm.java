@@ -1,11 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms;
 
-import org.slf4j.Logger;
-
 /**
  * General interface for an algorithm that can be started and stopped.
- * 
- * @param TParameters Type of configuration parameters the algorithm requires.
  */
 public interface ExecutableAlgorithm {
 

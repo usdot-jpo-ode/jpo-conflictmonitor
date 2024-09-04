@@ -28,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeBsmJsonProcessorSupplier;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
 public class BsmDeduplicatorTopology {
 
@@ -44,7 +45,7 @@ public class BsmDeduplicatorTopology {
 
     public BsmDeduplicatorTopology(DeduplicatorProperties props){
         this.props = props;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = DateJsonMapper.getInstance();
         calculator = new GeodeticCalculator();
     }
 

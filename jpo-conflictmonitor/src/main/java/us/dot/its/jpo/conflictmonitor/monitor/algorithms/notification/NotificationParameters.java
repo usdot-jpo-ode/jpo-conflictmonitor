@@ -56,5 +56,9 @@ public class NotificationParameters {
         description = "The name of the topic to read Spat Time Change Details from", 
         updateType = READ_ONLY)
     String spatTimeChangeDetailsNotificationTopicName;
+
+    @ConfigData(key = "notification.timestampDeltaNotificationTopicName",
+        description = "The name of the topic to read MAP and SPAT Timestamp Delta Notifications from")
+    String timestampDeltaNotificationTopicName;
     
 }

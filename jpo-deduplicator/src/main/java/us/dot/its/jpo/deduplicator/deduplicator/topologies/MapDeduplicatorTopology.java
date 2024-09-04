@@ -11,6 +11,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeMapJsonProcessorSupplier;
+import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
@@ -49,8 +50,7 @@ public class MapDeduplicatorTopology {
     public MapDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
         this.props = props;
         this.streamsProperties = streamsProperties;
-        this.objectMapper = new ObjectMapper();
-        
+        this.objectMapper = DateJsonMapper.getInstance();
     }
 
 

@@ -3,15 +3,15 @@ package us.dot.its.jpo.conflictmonitor.monitor;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.State;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.TopologyDescription;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.locationtech.jts.index.quadtree.Quadtree;
 import org.slf4j.Logger;
@@ -39,6 +39,7 @@ import us.dot.its.jpo.conflictmonitor.KafkaConfiguration;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.health.TopologyGraph;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfigMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigMap;
@@ -51,6 +52,9 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+
+import javax.ws.rs.Produces;
+
 
 @Getter
 @Setter
@@ -106,7 +110,8 @@ public class AppHealthMonitor {
                 "spatial-indexes",
                 "spat-window-store",
                 "bsm-window-store",
-                "map-store"
+                "map-store",
+                "topologies"
             );
         return getResponse(linkMap);
 
@@ -157,7 +162,6 @@ public class AppHealthMonitor {
 
     @GetMapping(value = "/properties")
     public @ResponseBody ResponseEntity<TreeMap<String, Object>> listProperties() {
-
         var propMap = new TreeMap<String, Object>();
 
         for (var params : parameterObjects()) {
@@ -165,7 +169,6 @@ public class AppHealthMonitor {
         }
 
         return getResponse(propMap);
-
     }
 
 
@@ -191,6 +194,56 @@ public class AppHealthMonitor {
         }
         return getResponse(result);
     }
+
+    @GetMapping(value = "/topologies")
+    public @ResponseBody ResponseEntity<TreeMap<String, TopologyInfoLinks>> listTopologies() {
+        var topoMap = getTopologies();
+        String baseUrl = baseUrl();
+        var result = new TreeMap<String, TopologyInfoLinks>();
+        for (Map.Entry<String, Topology> entry : topoMap.entrySet()) {
+            String name = entry.getKey();
+            String detailUrl = String.format("%s/health/topologies/detail/%s", baseUrl, name);
+            String simpleGraphUrl = String.format("%s/health/topologies/simple/%s", baseUrl, name);
+            result.put(name, new TopologyInfoLinks(detailUrl, simpleGraphUrl));
+        }
+        String allUrl = String.format("%s/health/topologies/simple/all", baseUrl);
+        result.put("all", new TopologyInfoLinks("n/a", allUrl));
+        return getResponse(result);
+    }
+
+    @GetMapping(value = "/topologies/detail/{name}")
+    @Produces(MediaType.TEXT_PLAIN_VALUE)
+    public @ResponseBody ResponseEntity<String> topologyDetails(@PathVariable String name) {
+        var topoMap = getTopologies();
+        if (!topoMap.containsKey(name)) {
+            throw new RuntimeException("The topology map doesn't contain an object named " + name);
+        }
+        Topology topology = topoMap.get(name);
+        TopologyDescription description = topology.describe();
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(description.toString());
+    }
+
+    @GetMapping(value = "/topologies/simple/{name}")
+    @Produces(MediaType.TEXT_PLAIN_VALUE)
+    public @ResponseBody ResponseEntity<String> topologySimpleGraph(@PathVariable String name) {
+        TopologyGraph graph;
+        var topoMap = getTopologies();
+        if ("all".equals(name)) {
+            graph = new TopologyGraph(topoMap);
+        } else {
+            if (!topoMap.containsKey(name)) {
+                throw new RuntimeException("The topology map doesn't contain an object named " + name);
+            }
+            Topology topology = topoMap.get(name);
+            graph = new TopologyGraph(name, topology);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .header("Content-Disposition", String.format("inline; filename=\"%s.dot\"", name))
+                .body(graph.exportDOT());
+    }
+
+
 
     @GetMapping(value = "/streams/{name}")
     public @ResponseBody ResponseEntity<MetricsGroupMap> namedStreams(@PathVariable String name) {
@@ -336,9 +389,6 @@ public class AppHealthMonitor {
         
         var streamsMap = new TreeMap<String, KafkaStreams>();
 
-        // Streams not part of an algorithm
-        streamsMap.putAll(monitorServiceController.getStreamsMap());
-
         // Algorithm streams
         for (String key : monitorServiceController.getAlgoMap().keySet()) {
             var algorithm = monitorServiceController.getAlgoMap().get(key);
@@ -350,6 +400,21 @@ public class AppHealthMonitor {
         return streamsMap;
     }
 
+    private Map<String, Topology> getTopologies() {
+        var topoMap = new TreeMap<String, Topology>();
+        for (Map.Entry<String, StreamsTopology> algoEntry : monitorServiceController.getAlgoMap().entrySet()) {
+            String key = algoEntry.getKey();
+            StreamsTopology streamsTopology = algoEntry.getValue();
+            Topology topology = streamsTopology.getTopology();
+            if (topology != null) {
+                topoMap.put(key, topology);
+                logger.error("Topology is not created in {}", streamsTopology);
+            }
+        }
+        return topoMap;
+    }
+
+
 
 
 
@@ -358,15 +423,15 @@ public class AppHealthMonitor {
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(message);
     }
 
-    @ExceptionHandler
-    private ResponseEntity<String> getErrorJson(Exception ex) {
-        var errMap = Map.of("error", ex.getMessage());
+    @ExceptionHandler(Exception.class)
+    private ResponseEntity<String> getErrorJson(HttpServletRequest request, Exception ex) {
         try {
+            var errMap = Map.of("error", ex.getMessage());
             String errJson = mapper.writeValueAsString(errMap);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(errJson);
-        } catch (JsonProcessingException e) { 
-            logger.error("Error converting to JSON", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"error\" }");
+        } catch (Exception e) {
+            logger.error("Exception in exception handler", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body("{ \"error\": \"unknown error\" }");
         }
         
     }
@@ -395,5 +460,6 @@ public class AppHealthMonitor {
     public class IntersectionBsm extends TreeMap<String, TreeMap<String, TreeMap<String, OdeBsmData>>> {}
 
 
+    public record TopologyInfoLinks(String detailsUrl, String simpleGraphUrl) {}
 
 }

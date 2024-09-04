@@ -36,7 +36,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMin
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.BaseTimestampDeltaEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.MapTimestampDeltaNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.SpatTimestampDeltaNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -371,4 +376,33 @@ public class JsonSerdes {
                 new JsonDeserializer<>(MapBoundingBox.class)
         );
     }
+
+    public static Serde<MapTimestampDeltaEvent> MapTimestampDeltaEvent() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<MapTimestampDeltaEvent>(),
+                new JsonDeserializer<>(MapTimestampDeltaEvent.class)
+        );
+    }
+
+    public static Serde<SpatTimestampDeltaEvent> SpatTimestampDeltaEvent() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SpatTimestampDeltaEvent>(),
+                new JsonDeserializer<>(SpatTimestampDeltaEvent.class)
+        );
+    }
+
+    public static Serde<MapTimestampDeltaNotification> MapTimestampDeltaNotification() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<MapTimestampDeltaNotification>(),
+                new JsonDeserializer<>(MapTimestampDeltaNotification.class)
+        );
+    }
+
+    public static Serde<SpatTimestampDeltaNotification> SpatTimestampDeltaNotification() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SpatTimestampDeltaNotification>(),
+                new JsonDeserializer<>(SpatTimestampDeltaNotification.class)
+        );
+    }
+
 }

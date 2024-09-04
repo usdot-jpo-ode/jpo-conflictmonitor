@@ -48,7 +48,8 @@ public class MessageIngestTopologyTest {
         var messageIngestTopology = new MessageIngestTopology();
         messageIngestTopology.setParameters(parameters);
         messageIngestTopology.setMapIndex(mapIndex);
-        StreamsBuilder builder = messageIngestTopology.buildTopology(new StreamsBuilder());
+        StreamsBuilder builder = new StreamsBuilder();
+        messageIngestTopology.buildTopology(builder);
         Topology topology = builder.build();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
