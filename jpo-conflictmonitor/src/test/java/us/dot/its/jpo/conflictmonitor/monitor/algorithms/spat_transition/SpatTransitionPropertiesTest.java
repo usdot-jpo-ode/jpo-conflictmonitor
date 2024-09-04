@@ -8,8 +8,8 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatTransition;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatTransitionList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransition;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransitionList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -31,14 +31,14 @@ public class SpatTransitionPropertiesTest {
     @Test
     public void testIllegalSpatTransitionList() {
         assertThat(params, notNullValue());
-        SpatTransitionList theList = params.getIllegalSpatTransitionList();
+        PhaseStateTransitionList theList = params.getIllegalSpatTransitionList();
         assertThat(theList, allOf(notNullValue(), hasSize(greaterThan(1))));
 
-        SpatTransition st1 = theList.getFirst();
+        PhaseStateTransition st1 = theList.getFirst();
         assertThat(st1, hasProperty("firstState", equalTo(PERMISSIVE_MOVEMENT_ALLOWED)));
         assertThat(st1, hasProperty("secondState", equalTo(STOP_AND_REMAIN)));
 
-        SpatTransition st2 = theList.get(1);
+        PhaseStateTransition st2 = theList.get(1);
         assertThat(st2, hasProperty("firstState", equalTo(PROTECTED_MOVEMENT_ALLOWED)));
         assertThat(st2, hasProperty("secondState", equalTo(STOP_AND_REMAIN)));
 

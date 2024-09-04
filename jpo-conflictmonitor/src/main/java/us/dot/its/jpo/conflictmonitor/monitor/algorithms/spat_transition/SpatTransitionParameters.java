@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatTransitionList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransitionList;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.DEFAULT;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.READ_ONLY;
@@ -39,5 +39,5 @@ public class SpatTransitionParameters {
     @ConfigData(key = "spat.transition.illegalSpatTransitionList",
         description = "List of signal state transitions that are illegal and should produce an event",
         updateType = READ_ONLY)
-    volatile SpatTransitionList illegalSpatTransitionList;
+    volatile PhaseStateTransitionList illegalSpatTransitionList;
 }
