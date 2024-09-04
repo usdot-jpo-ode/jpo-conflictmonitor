@@ -462,4 +462,16 @@ spat.timestamp.delta:
 #  retentionTimeMinutes: 5
   notificationTopicName: topic.CmTimestampDeltaNotification
 
+spat.transition:
+  algorithm: defaultSpatTransitionAlgorithm
+  debug: false
+  outputTopicName: topic.CmSpatTransitionEvent
+  notificationTopicName: topic.CmSpatTransitionNotification
+  illegalSpatTransitionList:
+    # Permissive green to red
+    - firstState: PERMISSIVE_MOVEMENT_ALLOWED
+      secondState: STOP_AND_REMAIN
+    # Protected green to red
+    - firstState: PROTECTED_MOVEMENT_ALLOWED
+      secondState: STOP_AND_REMAIN
 

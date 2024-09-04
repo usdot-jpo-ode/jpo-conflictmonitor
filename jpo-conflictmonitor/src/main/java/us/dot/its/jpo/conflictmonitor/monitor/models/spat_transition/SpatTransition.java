@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Data;
 import lombok.Generated;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
