@@ -4,26 +4,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
- * Contains two sequential {@link SpatMovementEvent}s from the same signal group.
+ * Contains two sequential {@link SpatMovementState}s from the same signal group.
  */
 @Data
-public class SpatMovementEventTransition {
+public class SpatMovementStateTransition {
 
-    SpatMovementEvent firstEvent;
-    SpatMovementEvent secondEvent;
+    SpatMovementState firstEvent;
+    SpatMovementState secondEvent;
 
-    public SpatMovementEventTransition(SpatMovementEvent first, SpatMovementEvent second) {
+    public SpatMovementStateTransition(SpatMovementState first, SpatMovementState second) {
         verifySignalGroupsMatch(first, second);
         this.firstEvent = first;
         this.secondEvent = second;
     }
 
-    public void setFirstEvent(SpatMovementEvent first) {
+    public void setFirstEvent(SpatMovementState first) {
         verifySignalGroupsMatch(first, this.secondEvent);
         this.firstEvent = first;
     }
 
-    public void setSecondEvent(SpatMovementEvent second) {
+    public void setSecondEvent(SpatMovementState second) {
         verifySignalGroupsMatch(this.firstEvent, second);
         this.secondEvent = second;
     }
@@ -36,7 +36,7 @@ public class SpatMovementEventTransition {
          return pst;
     }
 
-    private static void verifySignalGroupsMatch(SpatMovementEvent first, SpatMovementEvent second) {
+    private static void verifySignalGroupsMatch(SpatMovementState first, SpatMovementState second) {
         if (first == null | second == null) return;
 
         if (first.getSignalGroup() != second.getSignalGroup()) {
