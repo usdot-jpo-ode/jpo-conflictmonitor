@@ -28,11 +28,20 @@ public class SpatTransitionParameters {
         updateType = DEFAULT)
     volatile boolean debug;
 
-    @ConfigData(key = "spat.transition.outputTopicName", description = "Name of the output topic", updateType = READ_ONLY)
+    @ConfigData(key = "spat.transition.outputTopicName",
+            description = "Name of the output topic",
+            updateType = READ_ONLY)
     volatile String outputTopicName;
 
-    @ConfigData(key = "spat.transition.notificationTopicName", description = "Name of the notification topic", updateType = READ_ONLY)
+    @ConfigData(key = "spat.transition.notificationTopicName",
+            description = "Name of the notification topic",
+            updateType = READ_ONLY)
     volatile String notificationTopicName;
+
+    @ConfigData(key = "spat.transition.stateStoreName",
+            description = "Name of the state store for the processor",
+            updateType = READ_ONLY)
+    volatile String stateStoreName;
 
     // Do we want to make this configurable at the intersection and signal-group level?
     // For now it is not.

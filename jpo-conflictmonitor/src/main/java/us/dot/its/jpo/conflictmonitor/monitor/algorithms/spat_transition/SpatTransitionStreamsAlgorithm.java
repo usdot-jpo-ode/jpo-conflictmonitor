@@ -11,6 +11,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 public interface SpatTransitionStreamsAlgorithm {
 
     // Consumes ProcessedSpats
+    // Uses StreamsBuilder to add state store.
     // Timestamp extractor should be event time (as in the MessageIngestTopology), not odeReceivedAt.
-    void buildTopology(KStream<RsuIntersectionKey, ProcessedSpat> inputStream);
+    void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, ProcessedSpat> inputStream);
 }
