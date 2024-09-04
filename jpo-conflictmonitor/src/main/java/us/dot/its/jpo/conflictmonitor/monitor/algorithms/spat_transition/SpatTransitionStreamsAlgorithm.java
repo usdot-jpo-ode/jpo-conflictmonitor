@@ -6,10 +6,11 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 /**
- * Streams Algirithm, plugs into Spat Validation Topology
+ * Streams Algorithm, plugs into Message Ingest Topology
  */
 public interface SpatTransitionStreamsAlgorithm {
 
     // Consumes ProcessedSpats
+    // Timestamp extractor should be event time (as in the MessageIngestTopology), not odeReceivedAt.
     void buildTopology(KStream<RsuIntersectionKey, ProcessedSpat> inputStream);
 }

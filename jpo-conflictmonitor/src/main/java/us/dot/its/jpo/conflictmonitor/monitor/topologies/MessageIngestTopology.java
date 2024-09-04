@@ -134,6 +134,9 @@ public class MessageIngestTopology
                         }
                     });
 
+        // Plug Illegal Spat Transition check into here since it needs the stream with event timestamp
+
+
         if (parameters.isDebug()) {
             processedSpatStream.process(() -> new DiagnosticProcessor<>("ProcessedSpats", logger));
         }
