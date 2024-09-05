@@ -12,6 +12,17 @@ public class SpatMovementStateTransition {
     SpatMovementState firstEvent;
     SpatMovementState secondEvent;
 
+    @JsonIgnore
+    public int getSignalGroup() {
+        if (firstEvent != null) {
+            return firstEvent.getSignalGroup();
+        } else if (secondEvent != null) {
+            return secondEvent.getSignalGroup();
+        } else {
+            return -1;
+        }
+    }
+
     public SpatMovementStateTransition(SpatMovementState first, SpatMovementState second) {
         verifySignalGroupsMatch(first, second);
         this.firstEvent = first;
@@ -44,4 +55,5 @@ public class SpatMovementStateTransition {
                     first.getSignalGroup(), second.getSignalGroup()));
         }
     }
+
 }

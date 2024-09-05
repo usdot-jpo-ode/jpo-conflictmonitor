@@ -11,4 +11,9 @@ public class PhaseStateTransition {
     J2735MovementPhaseState firstState;
     J2735MovementPhaseState secondState;
 
+    @Override
+    public String toString() {
+        return String.format("%s_%s", firstState, secondState);
+    }
+
 }

@@ -29,7 +29,8 @@ public class SpatMovementState {
     // Fields from MovementState
     int signalGroup;
 
-    // Fields from the first MovementEvent of the MovementState (additional MovementEvents are ignored)
+    // Fields from the first MovementEvent of the MovementState (additional MovementEvents representing the future are
+    // ignored)
     J2735MovementPhaseState phaseState;
 
     // Fields from TimeChangeDetails
@@ -51,7 +52,8 @@ public class SpatMovementState {
             int signalGroup = state.getSignalGroup() != null ? state.getSignalGroup() : -1;
             sms.setSignalGroup(signalGroup);
             List<MovementEvent> movementEventList = state.getStateTimeSpeed();
-            MovementEvent firstMovementEvent = movementEventList != null && !movementEventList.isEmpty() ? movementEventList.getFirst() : null;
+            MovementEvent firstMovementEvent =
+                    movementEventList != null && !movementEventList.isEmpty() ? movementEventList.getFirst() : null;
             sms.setPhaseState(firstMovementEvent.getEventState());
             TimingChangeDetails timing = firstMovementEvent.getTiming();
             sms.setStartTime(toMillis(timing.getStartTime()));
