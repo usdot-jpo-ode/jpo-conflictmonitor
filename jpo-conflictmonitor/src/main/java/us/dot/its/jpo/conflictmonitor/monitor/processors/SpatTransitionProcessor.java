@@ -48,14 +48,16 @@ public class SpatTransitionProcessor
         // Insert into the buffer
         stateStore.put(record.key(), record.value(), record.timestamp());
 
-        // Query the buffer, excluding the grace period
+        // Query the buffer, excluding the grace period relative to stream time "now".
         Instant excludeGracePeriod =
-                Instant.ofEpochMilli(record.timestamp())
+                Instant.ofEpochMilli(context().currentStreamTimeMs())
                         .minusMillis(parameters.getBufferGracePeriodMs());
+
         var query =
                 MultiVersionedKeyQuery.<RsuIntersectionSignalGroupKey, SpatMovementState>withKey(record.key())
                     .toTime(excludeGracePeriod)
                     .withAscendingTimestamps();
+
         QueryResult<VersionedRecordIterator<SpatMovementState>> result =
                 stateStore.query(query,
                         PositionBound.unbounded(),
@@ -65,23 +67,21 @@ public class SpatTransitionProcessor
             // Identify transitions, and forward transition messages
             VersionedRecordIterator<SpatMovementState> iterator = result.getResult();
             SpatMovementState previousState = null;
-            List<Long> timestampsToRemove = new ArrayList<>();
+            final List<Long> timestampsToRemove = new ArrayList<>();
             while (iterator.hasNext()) {
-                VersionedRecord<SpatMovementState> state = iterator.next();
+                final VersionedRecord<SpatMovementState> state = iterator.next();
                 timestampsToRemove.add(state.timestamp());
                 final SpatMovementState thisState = state.value();
-                if (previousState != null) {
-                    if (previousState.getPhaseState() != thisState.getPhaseState()) {
-                        // Transition detected,
-                        context().forward(record
-                                    .withTimestamp(state.timestamp())
-                                    .withValue(new SpatMovementStateTransition(previousState, thisState)));
-                        // Remove the old spats from the buffer up to here
-                        for (long timestamp : timestampsToRemove) {
-                            stateStore.delete(record.key(), timestamp);
-                        }
-                        timestampsToRemove.clear();
+                if (previousState != null && previousState.getPhaseState() != thisState.getPhaseState()) {
+                    // Transition detected,
+                    context().forward(record
+                            .withTimestamp(state.timestamp())
+                            .withValue(new SpatMovementStateTransition(previousState, thisState)));
+                    // Clean up the old entries from the buffer up to here
+                    for (long timestamp : timestampsToRemove) {
+                        stateStore.delete(record.key(), timestamp);
                     }
+                    timestampsToRemove.clear();
                 }
                 previousState = thisState;
             }
