@@ -18,7 +18,11 @@ public class SpatTransitionProcessor
 
     KeyValueStore<RsuIntersectionSignalGroupKey, SpatMovementState> store;
 
-    SpatTransitionParameters parameters;
+    final SpatTransitionParameters parameters;
+
+    public SpatTransitionProcessor(SpatTransitionParameters parameters) {
+        this.parameters = parameters;
+    }
 
     @Override
     public void init(ProcessorContext<RsuIntersectionSignalGroupKey, SpatMovementStateTransition> context) {
