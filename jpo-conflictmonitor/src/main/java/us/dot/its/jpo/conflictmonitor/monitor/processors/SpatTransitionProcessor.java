@@ -29,7 +29,6 @@ public class SpatTransitionProcessor
 
     // Store to keep track of the latest Spat MovementState per signal group
     VersionedKeyValueStore<RsuIntersectionSignalGroupKey, SpatMovementState> stateStore;
-    KeyValueStore<RsuIntersectionSignalGroupKey, SpatMovementState> keyStore;
 
     final SpatTransitionParameters parameters;
 
@@ -45,7 +44,8 @@ public class SpatTransitionProcessor
 
     @Override
     public void process(Record<RsuIntersectionSignalGroupKey, SpatMovementState> record) {
-        // Insert into the buffer
+
+        // Insert new record into the buffer
         stateStore.put(record.key(), record.value(), record.timestamp());
 
         // Query the buffer, excluding the grace period relative to stream time "now".
@@ -64,6 +64,7 @@ public class SpatTransitionProcessor
                         new QueryConfig(false));
 
         if (result.isSuccess()) {
+
             // Identify transitions, and forward transition messages
             VersionedRecordIterator<SpatMovementState> iterator = result.getResult();
             SpatMovementState previousState = null;
@@ -73,11 +74,13 @@ public class SpatTransitionProcessor
                 timestampsToRemove.add(state.timestamp());
                 final SpatMovementState thisState = state.value();
                 if (previousState != null && previousState.getPhaseState() != thisState.getPhaseState()) {
+
                     // Transition detected,
                     context().forward(record
                             .withTimestamp(state.timestamp())
                             .withValue(new SpatMovementStateTransition(previousState, thisState)));
-                    // Clean up the old entries from the buffer up to here
+
+                    // Clear out old entries from the buffer up to here
                     for (long timestamp : timestampsToRemove) {
                         stateStore.delete(record.key(), timestamp);
                     }
