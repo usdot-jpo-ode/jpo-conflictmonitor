@@ -1,5 +1,27 @@
 ## JPO Conflict Monitor Release Notes
 
+## Version 1.4.0
+
+### **Summary**
+
+The fifth release for the jpo-conflictmonitor, version 1.4.0
+
+- Deduplicator
+    - Updated Keying Scheme for TIM messages
+    - Added ability to toggle deduplication algorithsm on / off
+    - Added BSM messages to Deduplicator
+    - Added RawEncodedTim messages to Deduplicator
+    - Added unit test coverage to Deduplicator
+    - Refactored existing Deduplication algorithms to use Processors to avoid dropping messages
+
+
+- Conflict Monitor
+    - Added Revision counter topology to detect when message revisions change
+    - Added Dark Events to Stop Line Stop Events
+    - Added Topology to validate SPaT and MAP message Timings
+    - Added Topology Connection Visualization
+
+
 ## Version 1.3.0
 
 ### **Summary**
