@@ -66,6 +66,7 @@ const collections = [
     // GeoJson Converter Data
     {name: "ProcessedMap", ttlField: "recordGeneratedAt", timeField: "properties.timeStamp", intersectionField: "properties.intersectionId"},
     {name: "ProcessedSpat", ttlField: "recordGeneratedAt", timeField: "utcTimeStamp", intersectionField: "intersectionId"},
+    {name: "ProcessedBsm", ttlField: "recordGeneratedAt", timeField: "timeStamp", geoSpatialField: "features.geometry.coordinates"},
     
     // Conflict Monitor Events
     { name: "CmStopLineStopEvent", ttlField: "eventGeneratedAt", timeField: "eventGeneratedAt", intersectionField: "intersectionID" },
@@ -145,6 +146,7 @@ do {
                 createTimeIntersectionIndex(collection);
                 createTimeRsuIpIndex(collection);
                 createTimeIndex(collection);
+		createGeoSpatialIndex(collection);
             }else{
                 missing_collection_count++;
                 console.log("Collection " + collection.name + " does not exist yet");
@@ -318,6 +320,38 @@ function createTimeIntersectionIndex(collection){
     }
 }
 
+function createGeoSpatialIndex(collection){
+    if(geoSpatialIndexExists(collection)){
+        return;
+    }
+
+    if(collection.hasOwnProperty("timeField") && collection.timeField != null && collection.hasOwnProperty("geoSpatialField") && collection.geoSpatialField != null){
+        const collectionName = collection.name;
+        const timeField = collection.timeField;
+        const geoSpatialField = collection.geoSpatialField;
+        console.log("Creating GeoSpatial index for " + collectionName);
+
+        var indexJson = {};
+        indexJson[geoSpatialField] = "2dsphere";
+        indexJson[timeField] = -1;
+
+
+        try {
+            db[collectionName].createIndex(indexJson);
+            console.log("Created time geospatial index for " + collectionName + " using the field: " + timeField + " as the timestamp and : " + geoSpatialField + " as the GeoSpatial Field");
+        } catch (err) {
+            db.runCommand({
+                "collMod": collectionName,
+                "index": {
+                    keyPattern: indexJson
+                }
+            });
+            console.log("Updated time geospatial index for " + collectionName + " using the field: " + timeField + " as the timestamp and : " + geoSpatialField + " as the GeoSpatial Field");
+        }
+    }
+
+}
+
 function ttlIndexExists(collection) {
     return db[collection.name].getIndexes().find((idx) => idx.hasOwnProperty("expireAfterSeconds")) !== undefined;
 }
@@ -332,4 +366,8 @@ function timeRsuIpIndexExists(collection){
 
 function timeIndexExists(collection){
     return db[collection.name].getIndexes().find((idx) => idx.name == collection.timeField + "_-1") !== undefined;
+}
+
+function geoSpatialIndexExists(collection){
+    return db[collection.name].getIndexes().find((idx) => idx.name == collection.geoSpatialField + "_2dsphere_timeStamp_-1") !== undefined;
 }

@@ -16,6 +16,8 @@ declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A ProcessedBsm=([name]="topic.ProcessedBsm" [collection]="ProcessedBsm"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 # Record Map Data
 declare -A OdeMapJson=([name]="topic.DeduplicatedOdeMapJson" [collection]="OdeMapJson"
@@ -214,6 +216,7 @@ function createSink() {
 
 createSink OdeRawEncodedBSMJson
 createSink OdeBsmJson
+createSink ProcessedBsm
 
 createSink OdeMapJson
 createSink ProcessedMap
