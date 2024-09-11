@@ -8,7 +8,8 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 /**
  * Streams Algorithm, plugs into Message Ingest Topology
  */
-public interface SpatTransitionStreamsAlgorithm {
+public interface SpatTransitionStreamsAlgorithm
+    extends SpatTransitionAlgorithm {
 
     // Consumes ProcessedSpats
     // Uses StreamsBuilder to add state store.

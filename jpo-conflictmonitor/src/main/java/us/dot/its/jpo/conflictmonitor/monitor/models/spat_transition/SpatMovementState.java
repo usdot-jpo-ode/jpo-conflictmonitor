@@ -1,8 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition;
 
 import lombok.Data;
-1
-import us.dot.its.jpo.conflictmonitor.monitor.utils.DateTimeUtils;
+
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;

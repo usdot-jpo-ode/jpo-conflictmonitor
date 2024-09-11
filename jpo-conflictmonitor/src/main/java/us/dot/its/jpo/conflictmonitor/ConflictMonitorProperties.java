@@ -67,6 +67,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.S
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
@@ -142,6 +144,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String spatTimeChangeDetailsNotificationAlgorithm;
    private SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters;
 
+   private SpatTransitionAlgorithmFactory spatTransitionAlgorithmFactory;
+   private String spatTransitionAlgorithm;
+   private SpatTransitionParameters spatTransitionParameters;
 
    private MapTimeChangeDetailsAlgorithmFactory mapTimeChangeDetailsAlgorithmFactory;
    private String mapTimeChangeDetailsAlgorithm;
@@ -418,7 +423,20 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatTimeChangeDetailsParameters = spatTimeChangeDetailsParameters;
    }
 
-   
+   @Autowired
+   public void setSpatTransitionAlgorithmFactory(SpatTransitionAlgorithmFactory spatTransitionAlgorithmFactory) {
+      this.spatTransitionAlgorithmFactory = spatTransitionAlgorithmFactory;
+   }
+
+   @Value("${spat.transition.algorithm}")
+   public void setSpatTransitionAlgorithm(String spatTransitionAlgorithm) {
+      this.spatTransitionAlgorithm = spatTransitionAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatTransitionParameters(SpatTransitionParameters spatTransitionParameters) {
+      this.spatTransitionParameters = spatTransitionParameters;
+   }
 
 
    @Autowired

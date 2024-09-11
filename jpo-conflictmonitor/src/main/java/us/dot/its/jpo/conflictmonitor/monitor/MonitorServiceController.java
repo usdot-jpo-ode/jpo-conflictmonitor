@@ -49,6 +49,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
@@ -101,10 +104,6 @@ public class MonitorServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceController.class);
     org.apache.kafka.common.serialization.Serdes bas;
-
-//    // Temporary for KafkaStreams that don't implement the Algorithm interface
-//    @Getter
-//    final ConcurrentHashMap<String, KafkaStreams> streamsMap = new ConcurrentHashMap<String, KafkaStreams>();
 
     @Getter
     final ConcurrentHashMap<String, StreamsTopology> algoMap = new ConcurrentHashMap<String, StreamsTopology>();
@@ -285,9 +284,6 @@ public class MonitorServiceController {
             bsmEventAlgorithm.start();
 
 
-
-            // Get Algorithms used by intersection event topology
-
             // The message ingest topology tracks and stores incoming messages for further processing
             // It is a sub-topology of the IntersectionEvent Topology
             final MessageIngestParameters messageIngestParams = conflictMonitorProps.getMessageIngestParameters();
@@ -297,6 +293,12 @@ public class MonitorServiceController {
             final MessageIngestAlgorithm messageIngestAlgorithm = messageIngestAlgorithmFactory.getAlgorithm(messageIngestAlgorithmName);
             messageIngestAlgorithm.setMapIndex(mapIndex);
             messageIngestAlgorithm.setParameters(messageIngestParams);
+            // Plugin Spat Transition algorithm
+            final SpatTransitionAlgorithm spatTransitionAlgorithm = getSpatTransitionAlgorithm(conflictMonitorProps);
+            messageIngestAlgorithm.setSpatTransitionAlgorithm(spatTransitionAlgorithm);
+
+
+            // Get Algorithms used by intersection event topology
             
             // Setup Lane Direction of Travel Factory
             final LaneDirectionOfTravelAlgorithmFactory ldotAlgoFactory = conflictMonitorProps.getLaneDirectionOfTravelAlgorithmFactory();
@@ -532,5 +534,12 @@ public class MonitorServiceController {
         return algorithm;
     }
 
-
+    private static SpatTransitionAlgorithm getSpatTransitionAlgorithm(ConflictMonitorProperties props) {
+        final var factory = props.getSpatTransitionAlgorithmFactory();
+        final String algorithmName = props.getSpatTransitionAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = props.getSpatTransitionParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
 }
