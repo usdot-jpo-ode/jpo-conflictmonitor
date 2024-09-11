@@ -472,7 +472,9 @@ spat.transition:
   debug: false
   outputTopicName: topic.CmSpatTransitionEvent
   notificationTopicName: topic.CmSpatTransitionNotification
-  stateStoreName: spatTransitionStateStore
+  movementStateStoreName: spatTransitionStateStore
+  bufferTimeMs: 1000
+  bufferGracePeriodMs: 100
   illegalSpatTransitionList:
     # Permissive green to red
     - firstState: PERMISSIVE_MOVEMENT_ALLOWED

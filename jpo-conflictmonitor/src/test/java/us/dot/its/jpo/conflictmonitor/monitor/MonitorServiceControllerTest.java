@@ -41,6 +41,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
@@ -137,6 +140,12 @@ public class MonitorServiceControllerTest {
     @Mock MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
     @Mock MessageIngestStreamsAlgorithm messageIngestAlgorithm;
     MessageIngestParameters messageIngestParameters = new MessageIngestParameters();
+
+    @Mock
+    SpatTransitionAlgorithmFactory spatTransitionAlgorithmFactory;
+    @Mock
+    SpatTransitionStreamsAlgorithm spatTransitionAlgorithm;
+    SpatTransitionParameters spatTransitionParameters = new SpatTransitionParameters();
 
     @Mock LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
@@ -245,6 +254,12 @@ public class MonitorServiceControllerTest {
         messageIngestParameters.setAlgorithm(defaultAlgo);
         when(messageIngestAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(messageIngestAlgorithm);
         when(conflictMonitorProperties.getMessageIngestParameters()).thenReturn(messageIngestParameters);
+
+        when (conflictMonitorProperties.getSpatTransitionAlgorithmFactory()).thenReturn(spatTransitionAlgorithmFactory);
+        spatTransitionParameters.setAlgorithm(defaultAlgo);
+        when(spatTransitionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTransitionAlgorithm);
+        when(conflictMonitorProperties.getSpatTransitionParameters()).thenReturn(spatTransitionParameters);
+
 
         when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithmFactory()).thenReturn(laneDirectionOfTravelAlgorithmFactory);
         when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithm()).thenReturn(defaultAlgo);

@@ -58,10 +58,10 @@ public class SpatTransitionParameters {
         updateType = READ_ONLY)
     volatile int bufferGracePeriodMs;
 
-    @ConfigData(key = "spat.transition.keyStoreName",
-            description = "Name of the key state store",
-            updateType = READ_ONLY)
-    volatile String keyStoreName;
+//    @ConfigData(key = "spat.transition.keyStoreName",
+//            description = "Name of the key state store",
+//            updateType = READ_ONLY)
+//    volatile String keyStoreName;
 
     // Do we want to make this configurable at the intersection and signal-group level?
     // For now it is not.
