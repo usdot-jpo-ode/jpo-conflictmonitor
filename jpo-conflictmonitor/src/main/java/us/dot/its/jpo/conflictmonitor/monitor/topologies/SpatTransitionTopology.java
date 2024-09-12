@@ -67,7 +67,7 @@ public class SpatTransitionTopology
                                         state)).toList();
                 })
                 // Find phase state transitions
-                .process(() -> new SpatTransitionProcessor(parameters))
+                .process(() -> new SpatTransitionProcessor(parameters), movementStateStore)
                 // Pass only illegal transitions
                 .filter(((rsuIntersectionSignalGroupKey, spatMovementStateTransition) -> {
                     final PhaseStateTransition stateTransition = spatMovementStateTransition.getStateTransition();

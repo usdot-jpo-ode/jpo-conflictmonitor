@@ -113,11 +113,12 @@ public class ConfigInitializer {
         } else if (PhaseStateTransitionList.class.equals(type)) {
             var config = new DefaultConfig<PhaseStateTransitionList>();
             if (propValue != null) {
-                config.setValue((PhaseStateTransitionList)propValue);
+                config.setValue((PhaseStateTransitionList) propValue);
             } else {
                 config.setValue(new PhaseStateTransitionList());
             }
             setConfigProps(config, updatable, PhaseStateTransitionList.class);
+            return config;
         } else {
             var config = new DefaultConfig<Integer>();
             config.setValue((Integer)propValue);
