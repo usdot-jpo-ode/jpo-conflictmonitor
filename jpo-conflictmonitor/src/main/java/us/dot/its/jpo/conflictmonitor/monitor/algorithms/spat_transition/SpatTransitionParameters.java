@@ -44,6 +44,11 @@ public class SpatTransitionParameters {
             updateType = READ_ONLY)
     volatile String movementStateStoreName;
 
+    @ConfigData(key = "spat.transition.latestTransitionStoreName",
+        description = "Name of key-value store to keep track of the latest phase transition for each intersection/signal group",
+        updateType = READ_ONLY)
+    volatile String latestTransitionStoreName;
+
     @ConfigData(key = "spat.transition.bufferTimeMs",
         description = "The size of the spat buffer.  Must be larger than the expected interval between spats and expected jitter time.",
         units = UnitsEnum.MILLISECONDS,

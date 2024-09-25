@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
@@ -42,46 +43,55 @@ public class SpatTransitionTopology
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, ProcessedSpat> inputStream) {
 
         final String movementStateStore = parameters.getMovementStateStoreName();
+        final String latestTransitionStore = parameters.getLatestTransitionStoreName();
         final Duration retentionTime = Duration.ofMillis(parameters.getBufferTimeMs());
 
         builder.addStateStore(
                 Stores.versionedKeyValueStoreBuilder(
                         Stores.persistentVersionedKeyValueStore(movementStateStore, retentionTime),
                         JsonSerdes.RsuIntersectionSignalGroupKey(),
-                        JsonSerdes.SpatMovementStateTransition()
+                        JsonSerdes.SpatMovementState()
+                )
+        );
+
+        builder.addStateStore(
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore(latestTransitionStore),
+                        JsonSerdes.RsuIntersectionSignalGroupKey(),
+                        Serdes.Long()
                 )
         );
 
         var signalGroupStates = inputStream
-                // Ignore tombstones
-                .filter(((rsuIntersectionKey, processedSpat) -> processedSpat != null))
-                // Extract all the signal group MovementStates from a ProcessedSpat
-                .flatMap((rsuIntersectionKey, processedSpat) -> {
-                    List<SpatMovementState> states = SpatMovementState.fromProcessedSpat(processedSpat);
+            // Ignore tombstones
+            .filter(((rsuIntersectionKey, processedSpat) -> processedSpat != null))
+            // Extract all the signal group MovementStates from a ProcessedSpat
+            .flatMap((rsuIntersectionKey, processedSpat) -> {
+                List<SpatMovementState> states = SpatMovementState.fromProcessedSpat(processedSpat);
 
-                    // Add signal group to key
-                    // Return type List<KeyValue<RsuIntersectionSignalGroupKey, SpatMovementState>>
-                    return states.stream().map(state
-                                -> new KeyValue<>(
-                                        new RsuIntersectionSignalGroupKey(rsuIntersectionKey, state.getSignalGroup()),
-                                        state)).toList();
-                })
-                // Find phase state transitions
-                .process(() -> new SpatTransitionProcessor(parameters), movementStateStore)
-                // Pass only illegal transitions
-                .filter(((rsuIntersectionSignalGroupKey, spatMovementStateTransition) -> {
-                    final PhaseStateTransition stateTransition = spatMovementStateTransition.getStateTransition();
-                    return parameters.getIllegalSpatTransitionList().contains(stateTransition);
-                }))
-                // Create IllegalSpatTransitionEvent
-                .mapValues((key, stateTransition) -> {
-                    var event = new IllegalSpatTransitionEvent();
-                    event.setTransition(stateTransition);
-                    event.setSource(key.getRsuId());
-                    event.setIntersectionID(key.getIntersectionId());
-                    event.setRoadRegulatorID(key.getRegion());
-                    return event;
-                });
+                // Add signal group to key
+                // Return type List<KeyValue<RsuIntersectionSignalGroupKey, SpatMovementState>>
+                return states.stream().map(state
+                            -> new KeyValue<>(
+                                    new RsuIntersectionSignalGroupKey(rsuIntersectionKey, state.getSignalGroup()),
+                                    state)).toList();
+            })
+            // Find phase state transitions
+            .process(() -> new SpatTransitionProcessor(parameters), movementStateStore, latestTransitionStore)
+            // Pass only illegal transitions
+            .filter(((rsuIntersectionSignalGroupKey, spatMovementStateTransition) -> {
+                final PhaseStateTransition stateTransition = spatMovementStateTransition.getStateTransition();
+                return parameters.getIllegalSpatTransitionList().contains(stateTransition);
+            }))
+            // Create IllegalSpatTransitionEvent
+            .mapValues((key, stateTransition) -> {
+                var event = new IllegalSpatTransitionEvent();
+                event.setTransition(stateTransition);
+                event.setSource(key.getRsuId());
+                event.setIntersectionID(key.getIntersectionId());
+                event.setRoadRegulatorID(key.getRegion());
+                return event;
+            });
 
         // Send events to topic
         signalGroupStates.to(parameters.getOutputTopicName(),

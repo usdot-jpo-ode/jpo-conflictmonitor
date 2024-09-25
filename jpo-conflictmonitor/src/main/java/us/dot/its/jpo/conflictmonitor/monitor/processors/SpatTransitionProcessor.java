@@ -29,6 +29,7 @@ public class SpatTransitionProcessor
 
     // Store to keep track of the latest Spat MovementState per signal group
     VersionedKeyValueStore<RsuIntersectionSignalGroupKey, SpatMovementState> stateStore;
+    KeyValueStore<RsuIntersectionSignalGroupKey, Long> latestTransitionStore;
 
     final SpatTransitionParameters parameters;
 
@@ -40,10 +41,14 @@ public class SpatTransitionProcessor
     public void init(ProcessorContext<RsuIntersectionSignalGroupKey, SpatMovementStateTransition> context) {
         super.init(context);
         stateStore = context.getStateStore(parameters.getMovementStateStoreName());
+        latestTransitionStore = context.getStateStore(parameters.getLatestTransitionStoreName());
     }
 
     @Override
     public void process(Record<RsuIntersectionSignalGroupKey, SpatMovementState> record) {
+
+        log.info("Received record: timestamp {}, signal group {}, phase {}", record.timestamp(), record.key().getSignalGroup(),
+                record.value().getPhaseState());
 
         // Insert new record into the buffer
         stateStore.put(record.key(), record.value(), record.timestamp());
@@ -53,10 +58,24 @@ public class SpatTransitionProcessor
                 Instant.ofEpochMilli(context().currentStreamTimeMs())
                         .minusMillis(parameters.getBufferGracePeriodMs());
 
+
+
+        // Start query at the latest transition point to avoid duplicates
+        Long latestTransitionTime = latestTransitionStore.get(record.key());
+        Instant startTime;
+        if (latestTransitionTime != null) {
+           startTime = Instant.ofEpochMilli(latestTransitionTime);
+        } else {
+            // No transitions yet, base start time on time window
+            startTime = Instant.ofEpochMilli(context().currentStreamTimeMs())
+                    .minusMillis(parameters.getBufferTimeMs());
+        }
         var query =
-                MultiVersionedKeyQuery.<RsuIntersectionSignalGroupKey, SpatMovementState>withKey(record.key())
-                    .toTime(excludeGracePeriod)
-                    .withAscendingTimestamps();
+                    MultiVersionedKeyQuery.<RsuIntersectionSignalGroupKey, SpatMovementState>withKey(record.key())
+                            .fromTime(startTime)
+                            .toTime(excludeGracePeriod)
+                            .withAscendingTimestamps();
+
 
         QueryResult<VersionedRecordIterator<SpatMovementState>> result =
                 stateStore.query(query,
@@ -68,23 +87,30 @@ public class SpatTransitionProcessor
             // Identify transitions, and forward transition messages
             VersionedRecordIterator<SpatMovementState> iterator = result.getResult();
             SpatMovementState previousState = null;
-            final List<Long> timestampsToRemove = new ArrayList<>();
+            //final List<Long> timestampsToRemove = new ArrayList<>();
             while (iterator.hasNext()) {
                 final VersionedRecord<SpatMovementState> state = iterator.next();
-                timestampsToRemove.add(state.timestamp());
+                //timestampsToRemove.add(state.timestamp());
                 final SpatMovementState thisState = state.value();
                 if (previousState != null && previousState.getPhaseState() != thisState.getPhaseState()) {
+
+                    log.info("transition detected at timestamp {}, signal group {}, {} -> {}", state.timestamp(),
+                            record.key().getSignalGroup(), previousState.getPhaseState(), thisState.getPhaseState());
+
+                    latestTransitionStore.put(record.key(), record.timestamp());
 
                     // Transition detected,
                     context().forward(record
                             .withTimestamp(state.timestamp())
                             .withValue(new SpatMovementStateTransition(previousState, thisState)));
 
-                    // Clear out old entries from the buffer up to here
-                    for (long timestamp : timestampsToRemove) {
-                        stateStore.delete(record.key(), timestamp);
-                    }
-                    timestampsToRemove.clear();
+//                    // Clear out old entries from the buffer up to here
+//                    log.info("Removing {} items from buffer for signal group {}", timestampsToRemove.size(), record.key().getSignalGroup());
+//                    for (long timestamp : timestampsToRemove) {
+//                        log.info("Removing spat with timestamp {}, signal group {}", timestamp, record.key().getSignalGroup());
+//                        stateStore.delete(record.key(), timestamp);
+//                    }
+//                    timestampsToRemove.clear();
                 }
                 previousState = thisState;
             }

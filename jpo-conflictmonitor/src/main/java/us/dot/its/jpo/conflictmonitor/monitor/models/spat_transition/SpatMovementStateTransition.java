@@ -23,6 +23,8 @@ public class SpatMovementStateTransition {
         }
     }
 
+    public SpatMovementStateTransition() {}
+
     public SpatMovementStateTransition(SpatMovementState first, SpatMovementState second) {
         verifySignalGroupsMatch(first, second);
         this.firstEvent = first;

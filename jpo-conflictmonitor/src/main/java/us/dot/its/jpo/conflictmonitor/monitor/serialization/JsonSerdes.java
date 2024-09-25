@@ -45,6 +45,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_del
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.SpatTimestampDeltaNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.RsuIntersectionSignalGroupKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -409,6 +410,12 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
                 new JsonSerializer<SpatMovementStateTransition>(),
                 new JsonDeserializer<>(SpatMovementStateTransition.class));
+    }
+
+    public static Serde<SpatMovementState> SpatMovementState() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SpatMovementState>(),
+                new JsonDeserializer<>(SpatMovementState.class));
     }
 
     public static Serde<IllegalSpatTransitionEvent> IllegalSpatTransitionEvent() {
