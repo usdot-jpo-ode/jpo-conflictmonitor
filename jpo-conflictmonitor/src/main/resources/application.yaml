@@ -473,6 +473,7 @@ spat.transition:
   outputTopicName: topic.CmSpatTransitionEvent
   notificationTopicName: topic.CmSpatTransitionNotification
   movementStateStoreName: spatTransitionStateStore
+  latestTransitionStoreName: latestTransitionStateStore
   bufferTimeMs: 1000
   bufferGracePeriodMs: 100
   illegalSpatTransitionList:
