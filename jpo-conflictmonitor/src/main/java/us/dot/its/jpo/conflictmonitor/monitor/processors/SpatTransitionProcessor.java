@@ -93,7 +93,7 @@ public class SpatTransitionProcessor
 
                     if (parameters.isDebug()) {
                         log.info("transition detected at timestamp {} -> {}, signal group {}, {} -> {}",
-                                state.timestamp(), previousState.getUtcTimeStamp(),
+                                previousState.getUtcTimeStamp(),state.timestamp(),
                                 record.key().getSignalGroup(), previousState.getPhaseState(), thisState.getPhaseState());
                     }
 

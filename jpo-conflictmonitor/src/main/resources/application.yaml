@@ -469,7 +469,7 @@ spat.timestamp.delta:
 
 spat.transition:
   algorithm: defaultSpatTransitionAlgorithm
-  debug: false
+  debug: true
   outputTopicName: topic.CmSpatTransitionEvent
   notificationTopicName: topic.CmSpatTransitionNotification
   movementStateStoreName: spatTransitionStateStore
