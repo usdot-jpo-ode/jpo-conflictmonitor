@@ -113,5 +113,8 @@ public class EventParameters {
         updateType = READ_ONLY)
     String timestampDeltaEventTopicName;
 
-
+    @ConfigData(key = "event.spatTransitionEventTopicName",
+            description = "The name of the topic to read SPaT Transition events from",
+            updateType = READ_ONLY)
+    String spatTransitionEventTopicName;
 }

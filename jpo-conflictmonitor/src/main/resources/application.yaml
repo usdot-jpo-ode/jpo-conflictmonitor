@@ -286,6 +286,7 @@ notification:
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   timestampDeltaNotificationTopicName: topic.CmTimestampDeltaNotification
+  spatTransitionNotificationTopicName: topic.CmSpatTransitionNotification
 
 assessment:
   algorithm: defaultAssessmentAlgorithm
@@ -316,6 +317,7 @@ event:
   mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
   bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
+  spatTransitionEventTopicName: topic.CmSpatTransitionEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
