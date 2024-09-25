@@ -16,12 +16,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTra
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementStateTransition;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class SpatTransitionProcessor
@@ -47,8 +43,10 @@ public class SpatTransitionProcessor
     @Override
     public void process(Record<RsuIntersectionSignalGroupKey, SpatMovementState> record) {
 
-        log.info("Received record: timestamp {}, signal group {}, phase {}", record.timestamp(), record.key().getSignalGroup(),
-                record.value().getPhaseState());
+        if (parameters.isDebug()) {
+            log.trace("Received record: timestamp {}, signal group {}, phase {}", record.timestamp(), record.key().getSignalGroup(),
+                    record.value().getPhaseState());
+        }
 
         // Insert new record into the buffer
         stateStore.put(record.key(), record.value(), record.timestamp());
@@ -87,15 +85,17 @@ public class SpatTransitionProcessor
             // Identify transitions, and forward transition messages
             VersionedRecordIterator<SpatMovementState> iterator = result.getResult();
             SpatMovementState previousState = null;
-            //final List<Long> timestampsToRemove = new ArrayList<>();
+
             while (iterator.hasNext()) {
                 final VersionedRecord<SpatMovementState> state = iterator.next();
-                //timestampsToRemove.add(state.timestamp());
                 final SpatMovementState thisState = state.value();
                 if (previousState != null && previousState.getPhaseState() != thisState.getPhaseState()) {
 
-                    log.info("transition detected at timestamp {}, signal group {}, {} -> {}", state.timestamp(),
-                            record.key().getSignalGroup(), previousState.getPhaseState(), thisState.getPhaseState());
+                    if (parameters.isDebug()) {
+                        log.info("transition detected at timestamp {} -> {}, signal group {}, {} -> {}",
+                                state.timestamp(), previousState.getUtcTimeStamp(),
+                                record.key().getSignalGroup(), previousState.getPhaseState(), thisState.getPhaseState());
+                    }
 
                     latestTransitionStore.put(record.key(), record.timestamp());
 
@@ -104,13 +104,6 @@ public class SpatTransitionProcessor
                             .withTimestamp(state.timestamp())
                             .withValue(new SpatMovementStateTransition(previousState, thisState)));
 
-//                    // Clear out old entries from the buffer up to here
-//                    log.info("Removing {} items from buffer for signal group {}", timestampsToRemove.size(), record.key().getSignalGroup());
-//                    for (long timestamp : timestampsToRemove) {
-//                        log.info("Removing spat with timestamp {}, signal group {}", timestamp, record.key().getSignalGroup());
-//                        stateStore.delete(record.key(), timestamp);
-//                    }
-//                    timestampsToRemove.clear();
                 }
                 previousState = thisState;
             }
