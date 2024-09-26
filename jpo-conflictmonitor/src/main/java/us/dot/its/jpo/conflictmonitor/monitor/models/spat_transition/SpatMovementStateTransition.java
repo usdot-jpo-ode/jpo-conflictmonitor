@@ -44,8 +44,8 @@ public class SpatMovementStateTransition {
     @JsonIgnore
     public PhaseStateTransition getStateTransition() {
          var pst = new PhaseStateTransition();
-         if (firstEvent != null) pst.setFirstState(firstEvent.phaseState);
-         if (secondEvent != null) pst.setSecondState(secondEvent.phaseState);
+         if (firstEvent != null) pst.setStateA(firstEvent.phaseState);
+         if (secondEvent != null) pst.setStateB(secondEvent.phaseState);
          return pst;
     }
 
