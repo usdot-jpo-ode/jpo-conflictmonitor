@@ -8,13 +8,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.ConnectionOfTravelNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.LaneDirectionOfTravelNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.Notification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.MapTimestampDeltaNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.SpatTimestampDeltaNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -34,6 +28,7 @@ public class NotificationTopologyTest {
     String spatTimeChangeDetailsTopicName = "topic.CmSpatTimeChangeDetailsNotification";
     String notificationTopicName = "topic.CmNotification";
     String timestampDeltaNotificationTopicName = "topic.CmTimestampDeltaNotification";
+    String spatTransitionNotificationTopicName = "topic.CmSpatTransitionNotification";
 
 
     @Test
@@ -50,6 +45,7 @@ public class NotificationTopologyTest {
         parameters.setNotificationOutputTopicName(notificationTopicName);
         parameters.setDebug(false);
         parameters.setTimestampDeltaNotificationTopicName(timestampDeltaNotificationTopicName);
+        parameters.setSpatTransitionNotificationTopicName(spatTransitionNotificationTopicName);
         
 
 
@@ -65,6 +61,7 @@ public class NotificationTopologyTest {
         TimeChangeDetailsNotification tcdNotification = new TimeChangeDetailsNotification();
         MapTimestampDeltaNotification mapTimestampDeltaNotification = new MapTimestampDeltaNotification();
         SpatTimestampDeltaNotification spatTimestampDeltaNotification = new SpatTimestampDeltaNotification();
+        IllegalSpatTransitionNotification spatTransitionNotification = new IllegalSpatTransitionNotification();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
@@ -118,6 +115,12 @@ public class NotificationTopologyTest {
             );
             inputTimestampDeltaNotification.pipeInput("12109", mapTimestampDeltaNotification);
             inputTimestampDeltaNotification.pipeInput("12109", spatTimestampDeltaNotification);
+
+            TestInputTopic<String, Notification> inputSpatTransitionNotification = driver.createInputTopic(
+                    spatTransitionNotificationTopicName,
+                    Serdes.String().serializer(),
+                    JsonSerdes.Notification().serializer());
+            inputSpatTransitionNotification.pipeInput("12109", spatTransitionNotification);
             
 
             TestOutputTopic<String, Notification> outputNotificationTopic = driver.createOutputTopic(
@@ -130,7 +133,7 @@ public class NotificationTopologyTest {
 
             
             
-            assertEquals(8, notificationResults.size());
+            assertEquals(9, notificationResults.size());
  
             for(KeyValue<String, Notification> notificationKeyValue: notificationResults){
                 assertEquals("12109", notificationKeyValue.key);
@@ -158,6 +161,8 @@ public class NotificationTopologyTest {
                     assertEquals(notification, mapTimestampDeltaNotification);
                 } else if (type.equals("SpatTimestampDeltaNotification")) {
                     assertEquals(notification, spatTimestampDeltaNotification);
+                } else if (type.equals("IllegalSpatTransitionNotification")) {
+                    assertEquals(notification, spatTransitionNotification);
                 }
                 else{
                     assertEquals(1,0);

@@ -41,6 +41,7 @@ public class EventTopologyTest {
     String mapRevisionCounterEventTopicName = "topic.CmMapRevisionCounterEvents";
     String bsmRevisionCounterEventTopicName = "topic.CmBsmRevisionCounterEvents";
     String timestampDeltaEventTopicName = "topic.CmTimestampDeltaEvent";
+    String spatTransitionEventTopicName = "topic.CmSpatTransitionEvent";
 
     @Test
     public void testTopology() {
@@ -63,7 +64,7 @@ public class EventTopologyTest {
         parameters.setMapRevisionCounterEventTopicName(mapRevisionCounterEventTopicName);
         parameters.setBsmRevisionCounterEventTopicName(bsmRevisionCounterEventTopicName);
         parameters.setTimestampDeltaEventTopicName(timestampDeltaEventTopicName);
-
+        parameters.setSpatTransitionEventTopicName(spatTransitionEventTopicName);
 
         eventTopology.setParameters(parameters);
 
@@ -86,6 +87,7 @@ public class EventTopologyTest {
         BsmRevisionCounterEvent brcEvent = new BsmRevisionCounterEvent();
         MapTimestampDeltaEvent mapTimestampDeltaEvent = new MapTimestampDeltaEvent();
         SpatTimestampDeltaEvent spatTimestampDeltaEvent = new SpatTimestampDeltaEvent();
+        IllegalSpatTransitionEvent spatTransitionEvent = new IllegalSpatTransitionEvent();
         
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -195,6 +197,12 @@ public class EventTopologyTest {
             inputTimestampDeltaEvent.pipeInput("12109", mapTimestampDeltaEvent);
             inputTimestampDeltaEvent.pipeInput("12109", spatTimestampDeltaEvent);
 
+            TestInputTopic<String, Event> inputSpatTransitionEvent = driver.createInputTopic(
+              spatTransitionEventTopicName,
+              Serdes.String().serializer(),
+              JsonSerdes.Event().serializer());
+            inputSpatTransitionEvent.pipeInput("12109", spatTransitionEvent);
+
             TestOutputTopic<String, Event> outputEventTopic = driver.createOutputTopic(
                 eventOutputTopicName, 
                 Serdes.String().deserializer(), 
@@ -205,7 +213,7 @@ public class EventTopologyTest {
 
             
             
-            assertEquals(16, eventResults.size());
+            assertEquals(17, eventResults.size());
  
             for(KeyValue<String, Event> eventKeyValue: eventResults){
                 assertEquals("12109", eventKeyValue.key);
@@ -260,6 +268,8 @@ public class EventTopologyTest {
                 }
                 else if (type.equals("SpatTimestampDelta")) {
                     assertEquals(event, spatTimestampDeltaEvent);
+                } else if (type.equals("IllegalSpatTransition")) {
+                    assertEquals(event, spatTransitionEvent);
                 }
                 else{
                     // Throw an error

@@ -27,11 +27,15 @@ public class IllegalSpatTransitionNotification extends Notification {
 
     @Override
     public String getUniqueId() {
-        return String.format("%s_%s_%s_%s_%s",
-            this.getNotificationType(),
-            event.getSource(),
-            event.getRoadRegulatorID(),
-            event.getIntersectionID(),
-            event.getSignalGroup());
+        if (event != null) {
+            return String.format("%s_%s_%s_%s_%s",
+                    this.getNotificationType(),
+                    event.getSource(),
+                    event.getRoadRegulatorID(),
+                    event.getIntersectionID(),
+                    event.getSignalGroup());
+        } else {
+            return this.getNotificationType();
+        }
     }
 }
