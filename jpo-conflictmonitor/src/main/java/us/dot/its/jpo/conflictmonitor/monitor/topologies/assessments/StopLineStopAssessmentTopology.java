@@ -125,7 +125,7 @@ public class StopLineStopAssessmentTopology
                 for(StopLineStopAssessmentGroup group: assessment.getStopLineStopAssessmentGroup()){
                     // Only Send Assessments that match the generating signal group.
                     if(group.getSignalGroup() == event.getSignalGroup() && group.getNumberOfEvents() >= parameters.getMinimumEventsToNotify()){
-                        double totalTime = group.getTimeStoppedOnDark() + group.getTimeStoppedOnGreen() + group.getTimeStoppedOnRed() + group.getTimeStoppedOnYellow();
+                        double totalTime = group.getTimeStoppedOnDark() + group.getTimeStoppedOnGreen() + group.getTimeStoppedOnRed() + group.getTimeStoppedOnYellow() + group.getTimeStoppedOnDark();
                         if(group.getTimeStoppedOnGreen() > parameters.getGreenLightPercentToNotify() * totalTime){
                             StopLineStopNotification notification = new StopLineStopNotification();
                             notification.setSignalGroup(group.getSignalGroup());

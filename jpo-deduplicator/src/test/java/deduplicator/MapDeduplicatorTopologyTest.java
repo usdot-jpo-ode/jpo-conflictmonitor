@@ -43,7 +43,11 @@ public class MapDeduplicatorTopologyTest {
     @Test
     public void testTopology() {
 
-        MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(inputTopic, outputTopic, null);
+        props = new DeduplicatorProperties();
+        props.setKafkaTopicOdeMapJson(inputTopic);
+        props.setKafkaTopicDeduplicatedOdeMapJson(outputTopic);
+
+        MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(props, null);
 
         Topology topology = mapDeduplicatorTopology.buildTopology();
 

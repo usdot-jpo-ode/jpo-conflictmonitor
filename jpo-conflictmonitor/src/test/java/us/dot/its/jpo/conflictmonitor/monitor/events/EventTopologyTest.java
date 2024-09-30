@@ -14,6 +14,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.EventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
@@ -35,7 +37,10 @@ public class EventTopologyTest {
     String signalStateConflictEventTopicName = "topic.CmSignalStateConflictEvents";
     String laneDirectionOfTravelEventTopicName = "topic.CmLaneDirectionOfTravelEvent";
     String connectionOfTravelEventTopicName = "topic.CmConnectionOfTravelEvent";
-
+    String spatRevisionCounterEventTopicName = "topic.CmSpatRevisionCounterEvents";
+    String mapRevisionCounterEventTopicName = "topic.CmMapRevisionCounterEvents";
+    String bsmRevisionCounterEventTopicName = "topic.CmBsmRevisionCounterEvents";
+    String timestampDeltaEventTopicName = "topic.CmTimestampDeltaEvent";
 
     @Test
     public void testTopology() {
@@ -54,7 +59,10 @@ public class EventTopologyTest {
         parameters.setSignalStateConflictEventTopicName(signalStateConflictEventTopicName);
         parameters.setLaneDirectionOfTravelEventTopicName(laneDirectionOfTravelEventTopicName);
         parameters.setConnectionOfTravelEventTopicName(connectionOfTravelEventTopicName);
-        
+        parameters.setSpatRevisionCounterEventTopicName(spatRevisionCounterEventTopicName);
+        parameters.setMapRevisionCounterEventTopicName(mapRevisionCounterEventTopicName);
+        parameters.setBsmRevisionCounterEventTopicName(bsmRevisionCounterEventTopicName);
+        parameters.setTimestampDeltaEventTopicName(timestampDeltaEventTopicName);
 
 
         eventTopology.setParameters(parameters);
@@ -73,6 +81,11 @@ public class EventTopologyTest {
         SignalStateConflictEvent sscEvent = new SignalStateConflictEvent();
         LaneDirectionOfTravelEvent ldotEvent = new LaneDirectionOfTravelEvent();
         ConnectionOfTravelEvent cotEvent = new ConnectionOfTravelEvent();
+        SpatRevisionCounterEvent srcEvent = new SpatRevisionCounterEvent();
+        MapRevisionCounterEvent mrcEvent = new MapRevisionCounterEvent();
+        BsmRevisionCounterEvent brcEvent = new BsmRevisionCounterEvent();
+        MapTimestampDeltaEvent mapTimestampDeltaEvent = new MapTimestampDeltaEvent();
+        SpatTimestampDeltaEvent spatTimestampDeltaEvent = new SpatTimestampDeltaEvent();
         
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -154,18 +167,45 @@ public class EventTopologyTest {
 
             inputConnectionOfTravel.pipeInput("12109", cotEvent);
             
+            TestInputTopic<String, SpatRevisionCounterEvent> inputSpatRevisionCounterEvent = driver.createInputTopic(
+                spatRevisionCounterEventTopicName, 
+                Serdes.String().serializer(), 
+                JsonSerdes.SpatRevisionCounterEvent().serializer());
+
+            inputSpatRevisionCounterEvent.pipeInput("12109", srcEvent);
+
+            TestInputTopic<String, MapRevisionCounterEvent> inputMapRevisionCounterEvent = driver.createInputTopic(
+                mapRevisionCounterEventTopicName, 
+                Serdes.String().serializer(), 
+                JsonSerdes.MapRevisionCounterEvent().serializer());
+
+            inputMapRevisionCounterEvent.pipeInput("12109", mrcEvent);
+
+            TestInputTopic<String, BsmRevisionCounterEvent> inputBsmRevisionCounterEvent = driver.createInputTopic(
+                bsmRevisionCounterEventTopicName, 
+                Serdes.String().serializer(), 
+                JsonSerdes.BsmRevisionCounterEvent().serializer());
+
+            inputBsmRevisionCounterEvent.pipeInput("12109", brcEvent);
+
+            TestInputTopic<String, Event> inputTimestampDeltaEvent = driver.createInputTopic(
+                    timestampDeltaEventTopicName,
+                    Serdes.String().serializer(),
+                    JsonSerdes.Event().serializer());
+            inputTimestampDeltaEvent.pipeInput("12109", mapTimestampDeltaEvent);
+            inputTimestampDeltaEvent.pipeInput("12109", spatTimestampDeltaEvent);
 
             TestOutputTopic<String, Event> outputEventTopic = driver.createOutputTopic(
                 eventOutputTopicName, 
                 Serdes.String().deserializer(), 
                 JsonSerdes.Event().deserializer());
-            
+
 
             List<KeyValue<String, Event>> eventResults = outputEventTopic.readKeyValuesToList();
 
             
             
-            assertEquals(11, eventResults.size());
+            assertEquals(16, eventResults.size());
  
             for(KeyValue<String, Event> eventKeyValue: eventResults){
                 assertEquals("12109", eventKeyValue.key);
@@ -205,6 +245,21 @@ public class EventTopologyTest {
                 }
                 else if(type.equals("ConnectionOfTravel")){
                     assertEquals((ConnectionOfTravelEvent) event, cotEvent);
+                }
+                else if(type.equals("SpatRevisionCounter")){
+                    assertEquals((SpatRevisionCounterEvent) event, srcEvent);
+                }
+                else if(type.equals("MapRevisionCounter")){
+                    assertEquals((MapRevisionCounterEvent) event, mrcEvent);
+                }
+                else if(type.equals("BsmRevisionCounter")){
+                    assertEquals((BsmRevisionCounterEvent) event, brcEvent);
+                }
+                else if (type.equals("MapTimestampDelta")) {
+                    assertEquals(event, mapTimestampDeltaEvent);
+                }
+                else if (type.equals("SpatTimestampDelta")) {
+                    assertEquals(event, spatTimestampDeltaEvent);
                 }
                 else{
                     // Throw an error

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 
 @Getter
@@ -24,6 +23,7 @@ public class StopLineStopAssessmentGroup {
         timeStoppedOnRed += event.getTimeStoppedDuringRed();
         timeStoppedOnYellow += event.getTimeStoppedDuringYellow();
         timeStoppedOnGreen += event.getTimeStoppedDuringGreen();
+        timeStoppedOnDark += event.getTimeStoppedDuringDark();
     }
 
 }

@@ -16,6 +16,8 @@ declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
+declare -A ProcessedBsm=([name]="topic.ProcessedBsm" [collection]="ProcessedBsm"
+    [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 # Record Map Data
 declare -A OdeMapJson=([name]="topic.DeduplicatedOdeMapJson" [collection]="OdeMapJson"
@@ -89,6 +91,9 @@ declare -A CmMapMinimumDataEvents=([name]="topic.CmMapMinimumDataEvents" [collec
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [collection]="CmSpatBroadcastRateEvents"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+declare -A CmTimestampDeltaEvent=([name]="topic.CmTimestampDeltaEvent" [collection]="CmTimestampDeltaEvent"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+
 
 # Record BSM Events
 declare -A CmBsmEvents=([name]="topic.CmBsmEvents" [collection]="CmBsmEvents"
@@ -124,6 +129,8 @@ declare -A CmNotification=([name]="topic.CmNotification" [collection]="CmNotific
 declare -A CmStopLineStopNotification=([name]="topic.CmStopLineStopNotification" [collection]="CmStopLineStopNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmStopLinePassageNotification=([name]="topic.CmStopLinePassageNotification" [collection]="CmStopLinePassageNotification"
+    [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+declare -A CmTimestampDeltaNotification=([name]="topic.CmTimestampDeltaNotification" [collection]="CmTimestampDeltaNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 
 function createSink() {
@@ -209,6 +216,7 @@ function createSink() {
 
 createSink OdeRawEncodedBSMJson
 createSink OdeBsmJson
+createSink ProcessedBsm
 
 createSink OdeMapJson
 createSink ProcessedMap
@@ -245,6 +253,7 @@ createSink CmSpatMinimumDataEvents
 createSink CmMapBroadcastRateEvents
 createSink CmMapMinimumDataEvents
 createSink CmSpatBroadcastRateEvents
+createSink CmTimestampDeltaEvent
 
 createSink CmBsmEvents
 
@@ -262,6 +271,7 @@ createSink CmSignalGroupAlignmentNotification
 createSink CmNotification
 createSink CmStopLineStopNotification
 createSink CmStopLinePassageNotification
+createSink CmTimestampDeltaNotification
 
 
 echo "----------------------------------"

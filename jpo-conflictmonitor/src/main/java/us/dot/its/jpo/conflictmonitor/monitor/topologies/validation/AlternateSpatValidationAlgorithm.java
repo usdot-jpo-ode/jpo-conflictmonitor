@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.timestamp_delta.AlternateSpatTimestampDeltaAlgorithm;
 
 /**
  * Test SPAT algorithm, writes random numbers to the log in debug mode.
@@ -63,5 +65,23 @@ public class AlternateSpatValidationAlgorithm
             timer = null;
         }
         
+    }
+
+    AlternateSpatTimestampDeltaAlgorithm timestampDeltaAlgorithm;
+
+
+    @Override
+    public SpatTimestampDeltaAlgorithm getTimestampDeltaAlgorithm() {
+        return timestampDeltaAlgorithm;
+    }
+
+    @Override
+    public void setTimestampDeltaAlgorithm(SpatTimestampDeltaAlgorithm timestampDeltaAlgorithm) {
+        // Enforce a specific algorithm implementation
+        if (timestampDeltaAlgorithm instanceof AlternateSpatTimestampDeltaAlgorithm altAlgorithm) {
+            this.timestampDeltaAlgorithm = altAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Algorithm is not an instance of AlternateSpatTimestampDeltaAlgorithm");
+        }
     }
 }

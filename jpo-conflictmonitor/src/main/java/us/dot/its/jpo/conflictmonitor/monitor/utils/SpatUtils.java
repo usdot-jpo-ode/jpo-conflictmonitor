@@ -4,14 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-import java.util.*;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
+@Slf4j
 public class SpatUtils {
 
     public static J2735MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
@@ -99,6 +105,8 @@ public class SpatUtils {
         long redMillis = 0;
         long yellowMillis = 0;
         long greenMillis = 0;
+        long darkMillis = 0;
+
         List<SpatTiming> spatTimingList = getSpatTiming(spats, signalGroupId);
         for (SpatTiming spatTiming : spatTimingList) {
         switch (spatTiming.getState()) {
@@ -113,11 +121,13 @@ public class SpatUtils {
                 case PROTECTED_MOVEMENT_ALLOWED:
                     greenMillis += spatTiming.getDuration();
                     break;
+                case DARK:
+                    darkMillis += spatTiming.getDuration();
                 default:
                     break;
             }
         }
-        return new SpatStatistics(redMillis/1000.0, yellowMillis/1000.0, greenMillis/1000.0);
+        return new SpatStatistics(redMillis/1000.0, yellowMillis/1000.0, greenMillis/1000.0, darkMillis/1000.0);
     }
 
     @Getter
@@ -156,5 +166,46 @@ public class SpatUtils {
          * vehicle was stopped.
          */
         private double timeStoppedDuringGreen;
+
+
+        /**
+         * The amount of time (seconds) the event state was ‘dark’ while the
+         * vehicle was stopped.
+         */
+        private double timeStoppedDuringDark;
+
+
+
+    }
+
+    public static long getTimestamp(ProcessedSpat processedSpat) {
+        if (processedSpat == null) {
+            log.error("ProcessedSpat is null");
+            return 0L;
+        }
+        ZonedDateTime zdt = processedSpat.getUtcTimeStamp();
+        if (zdt == null) {
+            log.error("ProcessedSpat.UtcTimeStamp is null");
+            return 0L;
+        }
+        return zdt.toInstant().toEpochMilli();
+    }
+
+    public static long getOdeReceivedAt(ProcessedSpat processedSpat) {
+        if (processedSpat == null) {
+            log.error("ProcessedSpat is null");
+            return 0L;
+        }
+        String odeReceivedAtStr = processedSpat.getOdeReceivedAt();
+        if (odeReceivedAtStr == null) {
+            log.error("ProcessedSpat.OdeReceivedAt is null");
+            return 0L;
+        }
+        try {
+            return Instant.parse(odeReceivedAtStr).toEpochMilli();
+        } catch (Exception ex) {
+            log.error("Exception parsing ProcessedSpat.OdeReceivedAt", ex);
+            return 0L;
+        }
     }
 }

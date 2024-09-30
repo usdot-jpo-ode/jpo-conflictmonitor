@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.CoordinateXY;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
@@ -8,8 +9,11 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
+@Slf4j
 public class BsmUtils {
     public static CoordinateXY getPosition(OdeBsmData bsm) {
         CoordinateXY position = new CoordinateXY();
@@ -73,5 +77,19 @@ public class BsmUtils {
             ip = metadata.getOriginIp();
         }
         return ip;
+    }
+
+    public static long getOdeReceivedAt(OdeBsmData bsm) {
+        long odeReceivedAt = 0;
+        if (bsm != null && bsm.getMetadata() != null && bsm.getMetadata() instanceof OdeBsmMetadata metadata) {
+            String strOdeReceivedAt = metadata.getOdeReceivedAt();
+            assert(strOdeReceivedAt != null);
+            try {
+                odeReceivedAt = Instant.parse(strOdeReceivedAt).toEpochMilli();
+            } catch (DateTimeParseException ex) {
+                log.error(String.format("Error parsing odeReceivedAt: %s", strOdeReceivedAt), ex);
+            }
+        }
+        return odeReceivedAt;
     }
 }

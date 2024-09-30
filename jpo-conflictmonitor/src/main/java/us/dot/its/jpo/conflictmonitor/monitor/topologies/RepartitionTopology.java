@@ -54,20 +54,10 @@ public class RepartitionTopology
 
         KStream<BsmRsuIdKey, OdeBsmData> bsmRekeyedStream = bsmRepartitionStream.selectKey((key, value)->{
             String ip = BsmUtils.getRsuIp(value);
-//            if (value.getMetadata() != null && value.getMetadata() instanceof OdeBsmMetadata) {
-//                var metadata = (OdeBsmMetadata) value.getMetadata();
-//                ip = metadata.getOriginIp();
-//            }
             String bsmId = BsmUtils.getVehicleId(value);
-//            if (value.getPayload() != null
-//                    && value.getPayload().getData() instanceof J2735Bsm
-//                    && ((J2735Bsm) value.getPayload().getData()).getCoreData() != null) {
-//                var coreData = ((J2735Bsm) value.getPayload().getData()).getCoreData();
-//                bsmId = coreData.getId();
-//            }
-
             return new BsmRsuIdKey(ip, bsmId);
         });
+
 
         bsmRekeyedStream.to(
             parameters.getBsmRepartitionOutputTopicName(),

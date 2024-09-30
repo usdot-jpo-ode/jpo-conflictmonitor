@@ -6,11 +6,47 @@ version: ^project.version^
 server.port: 8085
 
 # Kafka properties
-spring.kafka.bootstrap-servers: 172.250.250.181:9092
+spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:localhost}:9092
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
 log4j.logger.kafka: OFF
 log4j.logger.org.apache.kafka: OFF
+
+
+
+# Processed Map Configuration
+kafkaTopicProcessedMap: topic.ProcessedMap
+kafkaTopicDeduplicatedProcessedMap: topic.DeduplicatedProcessedMap
+enableProcessedMapDeduplication: true
+
+# Processed Map WKT Configuration
+kafkaTopicProcessedMapWKT: topic.ProcessedMapWKT
+kafkaTopicDeduplicatedProcessedMapWKT: topic.DeduplicatedProcessedMapWKT
+enableProcessedMapWktDeduplication: true
+
+# Ode Map Json Configuration
+kafkaTopicOdeMapJson: topic.OdeMapJson
+kafkaTopicDeduplicatedOdeMapJson: topic.DeduplicatedOdeMapJson
+enableOdeMapDeduplication: true
+
+# Ode Tim Json Configuration
+kafkaTopicOdeTimJson: topic.OdeTimJson
+kafkaTopicDeduplicatedOdeTimJson: topic.DeduplicatedOdeTimJson
+enableOdeTimDeduplication: true
+
+# Ode Raw Encoded Tim Json Configuration
+kafkaTopicOdeRawEncodedTimJson: topic.OdeRawEncodedTIMJson
+kafkaTopicDeduplicatedOdeRawEncodedTimJson: topic.DeduplicatedOdeRawEncodedTIMJson
+enableOdeRawEncodedTimDeduplication: true
+
+# Ode Bsm Json Configuration
+kafkaTopicOdeBsmJson: topic.OdeBsmJson
+kafkaTopicDeduplicatedOdeBsmJson: topic.DeduplicatedOdeBsmJson
+enableOdeBsmDeduplication: true
+odeBsmMaximumTimeDelta: 10000 # Milliseconds
+odeBsmMaximumPositionDelta: 1 # Meter
+odeBsmAlwaysIncludeAtSpeed: 1 # Meter / Second
+
 
 
 
@@ -20,28 +56,28 @@ kafka.topics:
   numPartitions: 1
   numReplicas: 1
   createTopics:
-    - name: topic.ProcessedMap
+    - name: ${kafkaTopicProcessedMap}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedProcessedMap
+    - name: ${kafkaTopicDeduplicatedProcessedMap}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.ProcessedMapWKT
+    - name: ${kafkaTopicProcessedMapWKT}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedProcessedMapWKT
+    - name: ${kafkaTopicDeduplicatedProcessedMapWKT}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.OdeMapJson
+    - name: ${kafkaTopicOdeMapJson}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedOdeMapJson
+    - name: ${kafkaTopicDeduplicatedOdeMapJson}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.OdeTimJson
+    - name: ${kafkaTopicOdeTimJson}
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.DeduplicatedOdeTimJson
+    - name: ${kafkaTopicDeduplicatedOdeTimJson}
       cleanupPolicy: delete
       retentionMs: 300000
     

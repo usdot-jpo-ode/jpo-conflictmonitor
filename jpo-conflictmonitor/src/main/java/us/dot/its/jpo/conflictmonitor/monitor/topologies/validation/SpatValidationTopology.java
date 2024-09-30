@@ -12,6 +12,8 @@ import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
@@ -44,6 +46,31 @@ public class SpatValidationTopology
 
     private static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
 
+    SpatTimestampDeltaStreamsAlgorithm timestampDeltaAlgorithm;
+
+    @Override
+    public SpatTimestampDeltaAlgorithm getTimestampDeltaAlgorithm() {
+        return timestampDeltaAlgorithm;
+    }
+
+    @Override
+    public void setTimestampDeltaAlgorithm(SpatTimestampDeltaAlgorithm timestampDeltaAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (timestampDeltaAlgorithm instanceof SpatTimestampDeltaStreamsAlgorithm timestampDeltaStreamsAlgorithm) {
+            this.timestampDeltaAlgorithm = timestampDeltaStreamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Algorithm is not an instance of SpatTimestampDeltaStreamsAlgorithm");
+        }
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+
+        if (timestampDeltaAlgorithm == null) {
+            throw new IllegalStateException("SpatTimestampDeltaAlgorithm is not set");
+        }
+    }
 
     @Override
     public Topology buildTopology() {
@@ -64,6 +91,9 @@ public class SpatValidationTopology
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
                         .withTimestampExtractor(new TimestampExtractorForBroadcastRate())
                 );
+
+        // timestamp delta plugin after reading processed SPATs
+        timestampDeltaAlgorithm.buildTopology(builder, processedSpatStream);
 
         // Extract validation info for Minimum Data events
         processedSpatStream
@@ -180,5 +210,4 @@ public class SpatValidationTopology
 
 
 
-    
 }

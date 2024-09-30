@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import us.dot.its.jpo.deduplicator.deduplicator.models.ProcessedMapPair;
 import us.dot.its.jpo.deduplicator.deduplicator.models.ProcessedMapWktPair;
 import us.dot.its.jpo.deduplicator.deduplicator.models.OdeMapPair;
+import us.dot.its.jpo.deduplicator.deduplicator.models.OdeBsmPair;
 import us.dot.its.jpo.deduplicator.deduplicator.models.JsonPair;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.DeserializedRawMap;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -29,6 +30,12 @@ public class PairSerdes {
         return Serdes.serdeFrom(
             new JsonSerializer<OdeMapPair>(), 
             new JsonDeserializer<>(OdeMapPair.class));
+    }
+
+    public static Serde<OdeBsmPair> OdeBsmPair() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<OdeBsmPair>(), 
+            new JsonDeserializer<>(OdeBsmPair.class));
     }
 
     public static Serde<DeserializedRawMap> RawMap() {

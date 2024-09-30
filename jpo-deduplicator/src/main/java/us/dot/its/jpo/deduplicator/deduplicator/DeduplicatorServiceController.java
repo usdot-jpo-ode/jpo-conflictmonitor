@@ -15,10 +15,12 @@ import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.MonitorServiceController;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.BsmDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.MapDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.OdeRawEncodedTimDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
-import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
 
 @Controller
 @DependsOn("createKafkaTopics")
@@ -43,33 +45,51 @@ public class DeduplicatorServiceController {
 
         try {
 
-            ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
-                "topic.ProcessedMap",
-                "topic.DeduplicatedProcessedMap",
-                props.createStreamProperties("ProcessedMapDeduplicator")
-            );
-            processedMapDeduplicatorTopology.start();
+            if(props.isEnableProcessedMapDeduplication()){
+                ProcessedMapDeduplicatorTopology processedMapDeduplicatorTopology = new ProcessedMapDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("ProcessedMapDeduplicator")
+                );
+                processedMapDeduplicatorTopology.start();
+            }
+            
+            if(props.isEnableProcessedMapWktDeduplication()){
+                ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("ProcessedMapWKTdeduplicator")
+                );
+                processedMapWktDeduplicatorTopology.start();
+            }
+            
+            if(props.isEnableProcessedMapDeduplication()){
+                MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("MapDeduplicator")
+                );
+                mapDeduplicatorTopology.start();
+            }
+            
+            if(props.isEnableOdeTimDeduplication()){
+                TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("TimDeduplicator")
+                );
+                timDeduplicatorTopology.start();
+            }
 
-            ProcessedMapWktDeduplicatorTopology processedMapWktDeduplicatorTopology = new ProcessedMapWktDeduplicatorTopology(
-                "topic.ProcessedMapWKT",
-                "topic.DeduplicatedProcessedMapWKT",
-                props.createStreamProperties("ProcessedMapWKTdeduplicator")
-            );
-            processedMapWktDeduplicatorTopology.start();
+            if(props.isEnableOdeRawEncodedTimDeduplication()){
+                OdeRawEncodedTimDeduplicatorTopology odeRawEncodedTimDeduplicatorTopology = new OdeRawEncodedTimDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("OdeRawEncodedTimDeduplicator")
+                );
+                odeRawEncodedTimDeduplicatorTopology.start();
+            }
 
-            MapDeduplicatorTopology mapDeduplicatorTopology = new MapDeduplicatorTopology(
-                "topic.OdeMapJson",
-                "topic.DeduplicatedOdeMapJson",
-                props.createStreamProperties("MapDeduplicator")
-            );
-            mapDeduplicatorTopology.start();
-
-            TimDeduplicatorTopology timDeduplicatorTopology = new TimDeduplicatorTopology(
-                "topic.OdeTimJson",
-                "topic.DeduplicatedOdeTimJson",
-                props.createStreamProperties("TimDeduplicator")
-            );
-            timDeduplicatorTopology.start();
+            if(props.isEnableOdeBsmDeduplication()){
+                BsmDeduplicatorTopology bsmDeduplicatorTopology = new BsmDeduplicatorTopology(props);
+                bsmDeduplicatorTopology.start();
+            }
+            
 
         } catch (Exception e) {
             logger.error("Encountered issue with creating topologies", e);

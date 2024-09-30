@@ -46,6 +46,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelParameters;
@@ -59,6 +61,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
@@ -71,6 +79,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
@@ -96,6 +109,13 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private SpatValidationParameters spatValidationParameters;
    private MapValidationParameters mapValidationParameters;
 
+   private String mapTimestampDeltaAlgorithm;
+   private MapTimestampDeltaParameters mapTimestampDeltaParameters;
+   private MapTimestampDeltaAlgorithmFactory mapTimestampDeltaAlgorithmFactory;
+
+   private String spatTimestampDeltaAlgorithm;
+   private SpatTimestampDeltaParameters spatTimestampDeltaParameters;
+   private SpatTimestampDeltaAlgorithmFactory spatTimestampDeltaAlgorithmFactory;
   
    private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
    private String laneDirectionOfTravelAlgorithm;
@@ -147,9 +167,25 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
 
+   private MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory;
+   private String mapRevisionCounterAlgorithm;
+   private MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters;
+
+   private SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory;
+   private String spatRevisionCounterAlgorithm;
+   private SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters;
+
+   private BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
+   private String bsmRevisionCounterAlgorithm;
+   private BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters;
+
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
    private NotificationParameters notificationAlgorithmParameters;
+
+   private EventAlgorithmFactory eventAlgorithmFactory;
+   private String eventAlgorithm;
+   private EventParameters eventParameters;
 
    // Confluent Properties
    private boolean confluentCloudEnabled = false;
@@ -214,6 +250,31 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Value("${spat.validation.algorithm}")
    public void setSpatValidationAlgorithm(String spatBroadcastRateAlgorithm) {
       this.spatValidationAlgorithm = spatBroadcastRateAlgorithm;
+   }
+
+
+   @Autowired
+   public void setMapTimestampDeltaParameters(MapTimestampDeltaParameters mapTimestampDeltaParameters) {
+      this.mapTimestampDeltaParameters = mapTimestampDeltaParameters;
+      this.mapTimestampDeltaAlgorithm = mapTimestampDeltaParameters.getAlgorithm();
+   }
+
+
+   @Autowired
+   public void setMapTimestampDeltaAlgorithmFactory(MapTimestampDeltaAlgorithmFactory factory) {
+      this.mapTimestampDeltaAlgorithmFactory = factory;
+   }
+
+
+   @Autowired
+   public void setSpatTimestampDeltaParameters(SpatTimestampDeltaParameters spatTimestampDeltaParameters) {
+      this.spatTimestampDeltaParameters = spatTimestampDeltaParameters;
+      this.spatTimestampDeltaAlgorithm = spatTimestampDeltaParameters.getAlgorithm();
+   }
+
+   @Autowired
+   public void setSpatTimestampDeltaAlgorithmFactory(SpatTimestampDeltaAlgorithmFactory factory) {
+      this.spatTimestampDeltaAlgorithmFactory = factory;
    }
 
 
@@ -492,6 +553,56 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.repartitionAlgorithmParameters = repartitionAlgorithmParameters;
    }
 
+
+   @Autowired
+   public void setMapRevisionCounterAlgorithmFactory(MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory) {
+      this.mapRevisionCounterAlgorithmFactory = mapRevisionCounterAlgorithmFactory;
+   }
+
+   @Value("${map.revision.counter.algorithm}")
+   public void setMapRevisionCorrectionAlgorithm(String mapRevisionCounterAlgorithm) {
+      this.mapRevisionCounterAlgorithm = mapRevisionCounterAlgorithm;
+   }
+
+   @Autowired
+   public void setMapRevisionCounterAlgorithmParameters(MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters) {
+      this.mapRevisionCounterAlgorithmParameters = mapRevisionCounterAlgorithmParameters;
+   }
+
+
+
+   @Autowired
+   public void setSpatRevisionCounterAlgorithmFactory(SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory) {
+      this.spatRevisionCounterAlgorithmFactory = spatRevisionCounterAlgorithmFactory;
+   }
+
+   @Value("${spat.revision.counter.algorithm}")
+   public void setSpatRevisionCorrectionAlgorithm(String spatRevisionCounterAlgorithm) {
+      this.spatRevisionCounterAlgorithm = spatRevisionCounterAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatRevisionCounterAlgorithmParameters(SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters) {
+      this.spatRevisionCounterAlgorithmParameters = spatRevisionCounterAlgorithmParameters;
+   }
+
+
+   @Autowired
+   public void setBsmRevisionCounterAlgorithmFactory(BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory) {
+      this.bsmRevisionCounterAlgorithmFactory = bsmRevisionCounterAlgorithmFactory;
+   }
+
+   @Value("${bsm.revision.counter.algorithm}")
+   public void setBsmRevisionCorrectionAlgorithm(String bsmRevisionCounterAlgorithm) {
+      this.bsmRevisionCounterAlgorithm = bsmRevisionCounterAlgorithm;
+   }
+
+   @Autowired
+   public void setBsmRevisionCounterAlgorithmParameters(BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters) {
+      this.bsmRevisionCounterAlgorithmParameters = bsmRevisionCounterAlgorithmParameters;
+   }
+
+
    public NotificationAlgorithmFactory getNotificationAlgorithmFactory() {
       return notificationAlgorithmFactory;
    }
@@ -520,6 +631,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    public void setNotificationAlgorithmParameters(NotificationParameters notificationAlgorithmParameters) {
       this.notificationAlgorithmParameters = notificationAlgorithmParameters;
+   }
+
+   @Autowired
+   public void setEventParameters(EventParameters eventParameters) {
+      this.eventParameters = eventParameters;
+      this.eventAlgorithm = eventParameters.getAlgorithm();
+   }
+
+   @Autowired
+   public void setEventAlgorithmFactory(EventAlgorithmFactory factory) {
+      this.eventAlgorithmFactory = factory;
    }
 
    public Boolean getConfluentCloudStatus() {

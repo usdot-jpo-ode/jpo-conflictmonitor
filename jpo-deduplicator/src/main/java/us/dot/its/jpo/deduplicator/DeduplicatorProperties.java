@@ -53,11 +53,51 @@ public class DeduplicatorProperties implements EnvironmentAware  {
 
    private static final Logger logger = LoggerFactory.getLogger(DeduplicatorProperties.class);
 
+   // Processed Map Configuration
+   private String kafkaTopicProcessedMap;
+   private String kafkaTopicDeduplicatedProcessedMap;
+   private boolean enableProcessedMapDeduplication;
+   private String kafkaStateStoreProcessedMapName = "ProcessedMap-store";
+
+   // Processed Map WKT Configuration
+   private String kafkaTopicProcessedMapWKT;
+   private String kafkaTopicDeduplicatedProcessedMapWKT;
+   private boolean enableProcessedMapWktDeduplication;
+   private String kafkaStateStoreProcessedMapWKTName = "ProcessedMapWKT-store";
+
+   // Ode Map Json Configuration
+   private String kafkaTopicOdeMapJson;
+   private String kafkaTopicDeduplicatedOdeMapJson;
+   private boolean enableOdeMapDeduplication;
+   private String kafkaStateStoreOdeMapJsonName = "OdeMapJson-store";
+
+   // Ode Tim Json Configuration
+   private String kafkaTopicOdeTimJson;
+   private String kafkaTopicDeduplicatedOdeTimJson;
+   private boolean enableOdeTimDeduplication;
+   private String kafkaStateStoreOdeTimJsonName = "OdeTimJson-store";
+
+   // Ode Raw Encoded Tim Json Configuration
+   private String kafkaTopicOdeRawEncodedTimJson;
+   private String kafkaTopicDeduplicatedOdeRawEncodedTimJson;
+   private boolean enableOdeRawEncodedTimDeduplication;
+   private String kafkaStateStoreOdeRawEncodedTimJsonName = "OdeRawEncodedTimJson-store";
+
+   //Ode BsmJson Configuration
+   private String kafkaTopicOdeBsmJson;
+   private String kafkaTopicDeduplicatedOdeBsmJson;
+   private boolean enableOdeBsmDeduplication;
+   private long odeBsmMaximumTimeDelta;
+   private double odeBsmMaximumPositionDelta;
+   private double odeBsmAlwaysIncludeAtSpeed;
+   private String kafkaStateStoreOdeBsmJsonName = "OdeBsmJson-store";
 
    // Confluent Properties
    private boolean confluentCloudEnabled = false;
    private String confluentKey = null;
    private String confluentSecret = null;
+
+   
 
    @Autowired
    @Setter(AccessLevel.NONE)
@@ -254,6 +294,111 @@ public class DeduplicatorProperties implements EnvironmentAware  {
 		return confluentCloudEnabled;
 	}
 
+
+   @Value("${kafkaTopicProcessedMap}")
+   public void setKafkaTopicProcessedMap(String kafkaTopicProcessedMap) {
+      this.kafkaTopicProcessedMap = kafkaTopicProcessedMap;
+   }
+
+   @Value("${kafkaTopicDeduplicatedProcessedMap}")
+   public void setKafkaTopicDeduplicatedProcessedMap(String kafkaTopicDeduplicatedProcessedMap) {
+      this.kafkaTopicDeduplicatedProcessedMap = kafkaTopicDeduplicatedProcessedMap;
+   }
+
+   @Value("${enableProcessedMapDeduplication}")
+   public void setEnableProcessedMapDeduplication(boolean enableProcessedMapDeduplication) {
+      this.enableProcessedMapDeduplication = enableProcessedMapDeduplication;
+   }
+
+   @Value("${kafkaTopicProcessedMapWKT}")
+   public void setKafkaTopicProcessedMapWKT(String kafkaTopicProcessedMapWKT) {
+      this.kafkaTopicProcessedMapWKT = kafkaTopicProcessedMapWKT;
+   }
+
+   @Value("${kafkaTopicDeduplicatedProcessedMapWKT}")
+   public void setKafkaTopicDeduplicatedProcessedMapWKT(String kafkaTopicDeduplicatedProcessedMapWKT) {
+      this.kafkaTopicDeduplicatedProcessedMapWKT = kafkaTopicDeduplicatedProcessedMapWKT;
+   }
+
+   @Value("${enableProcessedMapWktDeduplication}")
+   public void setEnableProcessedMapWktDeduplication(boolean enableProcessedMapWktDeduplication) {
+      this.enableProcessedMapWktDeduplication = enableProcessedMapWktDeduplication;
+   }
+
+   @Value("${kafkaTopicOdeMapJson}")
+   public void setKafkaTopicOdeMapJson(String kafkaTopicOdeMapJson) {
+      this.kafkaTopicOdeMapJson = kafkaTopicOdeMapJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedOdeMapJson}")
+   public void setKafkaTopicDeduplicatedOdeMapJson(String kafkaTopicDeduplicatedOdeMapJson) {
+      this.kafkaTopicDeduplicatedOdeMapJson = kafkaTopicDeduplicatedOdeMapJson;
+   }
+
+   @Value("${enableOdeMapDeduplication}")
+   public void setEnableOdeMapDeduplication(boolean enableOdeMapDeduplication) {
+      this.enableOdeMapDeduplication = enableOdeMapDeduplication;
+   }
+
+   @Value("${kafkaTopicOdeTimJson}")
+   public void setKafkaTopicOdeTimJson(String kafkaTopicOdeTimJson) {
+      this.kafkaTopicOdeTimJson = kafkaTopicOdeTimJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedOdeTimJson}")
+   public void setKafkaTopicDeduplicatedOdeTimJson(String kafkaTopicDeduplicatedOdeTimJson) {
+      this.kafkaTopicDeduplicatedOdeTimJson = kafkaTopicDeduplicatedOdeTimJson;
+   }
+
+   @Value("${enableOdeTimDeduplication}")
+   public void setEnableOdeTimDeduplication(boolean enableOdeTimDeduplication) {
+      this.enableOdeTimDeduplication = enableOdeTimDeduplication;
+   }
+
+   @Value("${kafkaTopicOdeRawEncodedTimJson}")
+   public void setKafkaTopicOdeRawEncodedTimJson(String kafkaTopicOdeRawEncodedTimJson) {
+      this.kafkaTopicOdeRawEncodedTimJson = kafkaTopicOdeRawEncodedTimJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedOdeRawEncodedTimJson}")
+   public void setKafkaTopicDeduplicatedOdeRawEncodedTimJson(String kafkaTopicDeduplicatedOdeRawEncodedTimJson) {
+      this.kafkaTopicDeduplicatedOdeRawEncodedTimJson = kafkaTopicDeduplicatedOdeRawEncodedTimJson;
+   }
+
+   @Value("${enableOdeRawEncodedTimDeduplication}")
+   public void setEnableOdeRawEncodedTimDeduplication(boolean enableOdeRawEncodedTimDeduplication) {
+      this.enableOdeRawEncodedTimDeduplication = enableOdeRawEncodedTimDeduplication;
+   }
+
+   @Value("${kafkaTopicOdeBsmJson}")
+   public void setkafkaTopicOdeBsmJson(String kafkaTopicOdeBsmJson) {
+      this.kafkaTopicOdeBsmJson = kafkaTopicOdeBsmJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedOdeBsmJson}")
+   public void setkafkaTopicDeduplicatedOdeBsmJson(String kafkaTopicDeduplicatedOdeBsmJson) {
+      this.kafkaTopicDeduplicatedOdeBsmJson = kafkaTopicDeduplicatedOdeBsmJson;
+   }
+
+   @Value("${enableOdeBsmDeduplication}")
+   public void setenableOdeBsmDeduplication(boolean enableOdeBsmDeduplication) {
+      this.enableOdeBsmDeduplication = enableOdeBsmDeduplication;
+   }
+
+   @Value("${odeBsmMaximumTimeDelta}")
+   public void setMaximumTimeDelta(long maximumTimeDelta) {
+      this.odeBsmMaximumTimeDelta = maximumTimeDelta;
+   }
+
+   @Value("${odeBsmMaximumPositionDelta}")
+   public void setMaximumPositionDelta(double maximumPositionDelta) {
+      this.odeBsmMaximumPositionDelta = maximumPositionDelta;
+   }
+
+   @Value("${odeBsmAlwaysIncludeAtSpeed}")
+   public void setAlwaysIncludeAtSpeed(double alwaysIncludeAtSpeed) {
+      this.odeBsmAlwaysIncludeAtSpeed = alwaysIncludeAtSpeed;
+   }
 
    @Value("${spring.kafka.bootstrap-servers}")
    public void setKafkaBrokers(String kafkaBrokers) {

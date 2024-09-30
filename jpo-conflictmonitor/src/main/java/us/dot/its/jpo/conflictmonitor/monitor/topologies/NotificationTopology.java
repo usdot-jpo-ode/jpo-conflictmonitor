@@ -45,7 +45,8 @@ public class NotificationTopology
             .merge(builder.stream(parameters.getIntersectionReferenceAlignmentNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())))
             .merge(builder.stream(parameters.getSignalGroupAlignmentNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())))
             .merge(builder.stream(parameters.getSignalStateConflictNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())))
-            .merge(builder.stream(parameters.getSpatTimeChangeDetailsNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())));        
+            .merge(builder.stream(parameters.getSpatTimeChangeDetailsNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())))
+            .merge(builder.stream(parameters.getTimestampDeltaNotificationTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Notification())));
 
         allNotifications.to(parameters.getNotificationOutputTopicName(), Produced.with(Serdes.String(), JsonSerdes.Notification()));
         if(parameters.isDebug()){

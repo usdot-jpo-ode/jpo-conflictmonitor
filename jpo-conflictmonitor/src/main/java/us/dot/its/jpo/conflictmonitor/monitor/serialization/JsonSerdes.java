@@ -21,7 +21,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.RsuConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
@@ -34,7 +33,15 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.BaseTimestampDeltaEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.MapTimestampDeltaNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.timestamp_delta.SpatTimestampDeltaNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -139,6 +146,25 @@ public class JsonSerdes {
             new JsonSerializer<TimeChangeDetailsEvent>(),
             new JsonDeserializer<>(TimeChangeDetailsEvent.class));
     }
+
+    public static Serde<MapRevisionCounterEvent> MapRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<MapRevisionCounterEvent>(),
+            new JsonDeserializer<>(MapRevisionCounterEvent.class));
+    }
+
+    public static Serde<SpatRevisionCounterEvent> SpatRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<SpatRevisionCounterEvent>(),
+            new JsonDeserializer<>(SpatRevisionCounterEvent.class));
+    }
+
+    public static Serde<BsmRevisionCounterEvent> BsmRevisionCounterEvent() {
+        return Serdes.serdeFrom(
+            new JsonSerializer<BsmRevisionCounterEvent>(),
+            new JsonDeserializer<>(BsmRevisionCounterEvent.class));
+    }
+
 
     public static Serde<SpatTimeChangeDetailAggregator> SpatTimeChangeDetailAggregator() {
         return Serdes.serdeFrom(
@@ -336,12 +362,6 @@ public class JsonSerdes {
         );
     }
 
-    public static Serde<RsuConfigKey> RsuConfigKey() {
-        return Serdes.serdeFrom(
-            new JsonSerializer<RsuConfigKey>(),
-            new JsonDeserializer<>(RsuConfigKey.class)
-        );
-    }
 
     public static Serde<IntersectionConfigKey> IntersectionConfigKey() {
         return Serdes.serdeFrom(
@@ -356,4 +376,33 @@ public class JsonSerdes {
                 new JsonDeserializer<>(MapBoundingBox.class)
         );
     }
+
+    public static Serde<MapTimestampDeltaEvent> MapTimestampDeltaEvent() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<MapTimestampDeltaEvent>(),
+                new JsonDeserializer<>(MapTimestampDeltaEvent.class)
+        );
+    }
+
+    public static Serde<SpatTimestampDeltaEvent> SpatTimestampDeltaEvent() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SpatTimestampDeltaEvent>(),
+                new JsonDeserializer<>(SpatTimestampDeltaEvent.class)
+        );
+    }
+
+    public static Serde<MapTimestampDeltaNotification> MapTimestampDeltaNotification() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<MapTimestampDeltaNotification>(),
+                new JsonDeserializer<>(MapTimestampDeltaNotification.class)
+        );
+    }
+
+    public static Serde<SpatTimestampDeltaNotification> SpatTimestampDeltaNotification() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SpatTimestampDeltaNotification>(),
+                new JsonDeserializer<>(SpatTimestampDeltaNotification.class)
+        );
+    }
+
 }
