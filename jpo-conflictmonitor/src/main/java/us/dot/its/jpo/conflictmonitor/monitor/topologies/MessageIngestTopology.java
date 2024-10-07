@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
@@ -50,12 +50,12 @@ public class MessageIngestTopology
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
 
-    SpatTransitionStreamsAlgorithm spatTransitionAlgorithm;
+    EventStateProgressionStreamsAlgorithm spatTransitionAlgorithm;
 
     @Override
-    public void setSpatTransitionAlgorithm(SpatTransitionAlgorithm spatTransitionAlgorithm) {
+    public void setSpatTransitionAlgorithm(EventStateProgressionAlgorithm spatTransitionAlgorithm) {
         // Enforce the algorithm being a Streams algorithm
-        if (spatTransitionAlgorithm instanceof SpatTransitionStreamsAlgorithm spatTransitionStreamsAlgorithm) {
+        if (spatTransitionAlgorithm instanceof EventStateProgressionStreamsAlgorithm spatTransitionStreamsAlgorithm) {
             this.spatTransitionAlgorithm = spatTransitionStreamsAlgorithm;
         } else {
             throw new IllegalArgumentException("Algorithm is not an instance of SpatTransitionStreamsAlgorithm");
@@ -63,7 +63,7 @@ public class MessageIngestTopology
     }
 
     @Override
-    public SpatTransitionAlgorithm getSpatTransitionAlgorithm() {
+    public EventStateProgressionAlgorithm getSpatTransitionAlgorithm() {
         return spatTransitionAlgorithm;
     }
 

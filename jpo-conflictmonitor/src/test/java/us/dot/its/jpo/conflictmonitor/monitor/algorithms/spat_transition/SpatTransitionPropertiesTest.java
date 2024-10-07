@@ -9,14 +9,14 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransition;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransitionList;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransition;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransitionList;
 
 import java.util.HashSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -27,7 +27,7 @@ import static us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState.*;
 public class SpatTransitionPropertiesTest {
 
     @Autowired
-    private SpatTransitionParameters params;
+    private EventStateProgressionParameters params;
 
     private final int expectedNumberOfEntries = 28;
 

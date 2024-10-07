@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition;
+package us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression;
 
 
 import lombok.Data;

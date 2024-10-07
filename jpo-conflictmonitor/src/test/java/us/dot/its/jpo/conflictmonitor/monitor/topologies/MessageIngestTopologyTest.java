@@ -7,7 +7,6 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
@@ -51,7 +50,7 @@ public class MessageIngestTopologyTest {
     public void testMessageIngestTopology() throws JsonProcessingException {
 
         // Test this plugin separately, mock it here
-        var spatTransitionTopology = mock(SpatTransitionTopology.class);
+        var spatTransitionTopology = mock(EventStateTransitionTopology.class);
         doNothing().when(spatTransitionTopology).buildTopology(any(), any());
 
         var parameters = getParamters();

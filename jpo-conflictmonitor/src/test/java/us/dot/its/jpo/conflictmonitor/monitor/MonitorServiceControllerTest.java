@@ -47,9 +47,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
@@ -146,9 +146,11 @@ public class MonitorServiceControllerTest {
     @Mock MessageIngestStreamsAlgorithm messageIngestAlgorithm;
     MessageIngestParameters messageIngestParameters = new MessageIngestParameters();
 
-    @Mock SpatTransitionAlgorithmFactory spatTransitionAlgorithmFactory;
-    @Mock SpatTransitionStreamsAlgorithm spatTransitionAlgorithm;
-    SpatTransitionParameters spatTransitionParameters = new SpatTransitionParameters();
+    @Mock
+    EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory;
+    @Mock
+    EventStateProgressionStreamsAlgorithm spatTransitionAlgorithm;
+    EventStateProgressionParameters spatTransitionParameters = new EventStateProgressionParameters();
 
     @Mock LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;

@@ -10,13 +10,13 @@ import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IllegalSpatTransitionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IllegalSpatTransitionNotification;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransition;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.RsuIntersectionSignalGroupKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransition;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatTransitionProcessor;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -26,13 +26,13 @@ import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import java.time.Duration;
 import java.util.List;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionConstants.DEFAULT_SPAT_TRANSITION_ALGORITHM;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionConstants.DEFAULT_EVENT_STATE_PROGRESSION_ALGORITHM;
 
-@Component(DEFAULT_SPAT_TRANSITION_ALGORITHM)
+@Component(DEFAULT_EVENT_STATE_PROGRESSION_ALGORITHM)
 @Slf4j
-public class SpatTransitionTopology
-    extends BaseStreamsBuilder<SpatTransitionParameters>
-    implements SpatTransitionStreamsAlgorithm {
+public class EventStateTransitionTopology
+    extends BaseStreamsBuilder<EventStateProgressionParameters>
+    implements EventStateProgressionStreamsAlgorithm {
 
     @Override
     protected Logger getLogger() {

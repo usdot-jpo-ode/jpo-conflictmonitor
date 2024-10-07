@@ -11,8 +11,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransition;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.PhaseStateTransitionList;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransitionList;
 
 
 import java.lang.reflect.Field;

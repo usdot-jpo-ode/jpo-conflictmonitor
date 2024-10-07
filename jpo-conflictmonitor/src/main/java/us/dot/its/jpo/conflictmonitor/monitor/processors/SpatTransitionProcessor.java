@@ -12,10 +12,10 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
 import org.apache.kafka.streams.state.VersionedRecord;
 import org.apache.kafka.streams.state.VersionedRecordIterator;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_transition.SpatTransitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.RsuIntersectionSignalGroupKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementState;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat_transition.SpatMovementStateTransition;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementStateTransition;
 
 import java.time.Instant;
 
@@ -27,9 +27,9 @@ public class SpatTransitionProcessor
     VersionedKeyValueStore<RsuIntersectionSignalGroupKey, SpatMovementState> stateStore;
     KeyValueStore<RsuIntersectionSignalGroupKey, Long> latestTransitionStore;
 
-    final SpatTransitionParameters parameters;
+    final EventStateProgressionParameters parameters;
 
-    public SpatTransitionProcessor(SpatTransitionParameters parameters) {
+    public SpatTransitionProcessor(EventStateProgressionParameters parameters) {
         this.parameters = parameters;
     }
 

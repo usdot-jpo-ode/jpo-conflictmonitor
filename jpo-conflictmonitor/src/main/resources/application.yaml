@@ -469,7 +469,7 @@ spat.timestamp.delta:
 #  retentionTimeMinutes: 5
   notificationTopicName: topic.CmTimestampDeltaNotification
 
-spat.transition:
+event.state.progression:
   algorithm: defaultSpatTransitionAlgorithm
   debug: true
   outputTopicName: topic.CmSpatTransitionEvent
