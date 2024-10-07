@@ -86,7 +86,17 @@ public class EventStateTransitionTopology
             // Create IllegalSpatTransitionEvent
             .mapValues((key, stateTransition) -> {
                 var event = new EventStateProgressionEvent();
-                event.setTransition(stateTransition);
+                event.setSignalGroupID(stateTransition.getSignalGroup());
+                var firstEvent = stateTransition.getFirstEvent();
+                if (firstEvent != null){
+                    event.setEventStateA(firstEvent.getPhaseState());
+                    event.setTimestampA(firstEvent.getUtcTimeStamp());
+                }
+                var secondEvent = stateTransition.getSecondEvent();
+                if (secondEvent != null) {
+                    event.setEventStateB(secondEvent.getPhaseState());
+                    event.setTimestampB(secondEvent.getUtcTimeStamp());
+                }
                 event.setSource(key.getRsuId());
                 event.setIntersectionID(key.getIntersectionId());
                 event.setRoadRegulatorID(key.getRegion());

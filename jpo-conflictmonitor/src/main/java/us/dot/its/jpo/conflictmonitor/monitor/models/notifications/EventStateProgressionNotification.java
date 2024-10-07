@@ -33,7 +33,7 @@ public class EventStateProgressionNotification extends Notification {
                     event.getSource(),
                     event.getRoadRegulatorID(),
                     event.getIntersectionID(),
-                    event.getSignalGroup());
+                    event.getSignalGroupID());
         } else {
             return this.getNotificationType();
         }
