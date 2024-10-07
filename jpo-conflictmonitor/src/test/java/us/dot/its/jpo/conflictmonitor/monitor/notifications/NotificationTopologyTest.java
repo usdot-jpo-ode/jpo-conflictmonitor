@@ -28,7 +28,7 @@ public class NotificationTopologyTest {
     String spatTimeChangeDetailsTopicName = "topic.CmSpatTimeChangeDetailsNotification";
     String notificationTopicName = "topic.CmNotification";
     String timestampDeltaNotificationTopicName = "topic.CmTimestampDeltaNotification";
-    String spatTransitionNotificationTopicName = "topic.CmSpatTransitionNotification";
+    String spatTransitionNotificationTopicName = "topic.CmEventStateProgressionNotification";
 
 
     @Test
@@ -45,7 +45,7 @@ public class NotificationTopologyTest {
         parameters.setNotificationOutputTopicName(notificationTopicName);
         parameters.setDebug(false);
         parameters.setTimestampDeltaNotificationTopicName(timestampDeltaNotificationTopicName);
-        parameters.setSpatTransitionNotificationTopicName(spatTransitionNotificationTopicName);
+        parameters.setEventStateProgressionNotificationTopicName(spatTransitionNotificationTopicName);
         
 
 
@@ -61,7 +61,7 @@ public class NotificationTopologyTest {
         TimeChangeDetailsNotification tcdNotification = new TimeChangeDetailsNotification();
         MapTimestampDeltaNotification mapTimestampDeltaNotification = new MapTimestampDeltaNotification();
         SpatTimestampDeltaNotification spatTimestampDeltaNotification = new SpatTimestampDeltaNotification();
-        IllegalSpatTransitionNotification spatTransitionNotification = new IllegalSpatTransitionNotification();
+        EventStateProgressionNotification spatTransitionNotification = new EventStateProgressionNotification();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
@@ -161,7 +161,7 @@ public class NotificationTopologyTest {
                     assertEquals(notification, mapTimestampDeltaNotification);
                 } else if (type.equals("SpatTimestampDeltaNotification")) {
                     assertEquals(notification, spatTimestampDeltaNotification);
-                } else if (type.equals("IllegalSpatTransitionNotification")) {
+                } else if (type.equals("EventStateProgressionNotification")) {
                     assertEquals(notification, spatTransitionNotification);
                 }
                 else{

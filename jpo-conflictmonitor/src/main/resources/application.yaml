@@ -286,7 +286,7 @@ notification:
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   timestampDeltaNotificationTopicName: topic.CmTimestampDeltaNotification
-  spatTransitionNotificationTopicName: topic.CmSpatTransitionNotification
+  eventStateProgressionNotificationTopicName: topic.CmEventStateTransitionNotification
 
 assessment:
   algorithm: defaultAssessmentAlgorithm
@@ -317,7 +317,7 @@ event:
   mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
   bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
-  spatTransitionEventTopicName: topic.CmSpatTransitionEvent
+  eventStateProgressionEventTopicName: topic.CmEventStateProgressionEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
@@ -470,10 +470,10 @@ spat.timestamp.delta:
   notificationTopicName: topic.CmTimestampDeltaNotification
 
 event.state.progression:
-  algorithm: defaultSpatTransitionAlgorithm
+  algorithm: defaultEventStateProgressionAlgorithm
   debug: true
-  outputTopicName: topic.CmSpatTransitionEvent
-  notificationTopicName: topic.CmSpatTransitionNotification
+  outputTopicName: topic.CmEventStateProgressionEvent
+  notificationTopicName: topic.CmEventStateProgressionNotification
   movementStateStoreName: spatTransitionStateStore
   latestTransitionStoreName: latestTransitionStateStore
   bufferTimeMs: 1000

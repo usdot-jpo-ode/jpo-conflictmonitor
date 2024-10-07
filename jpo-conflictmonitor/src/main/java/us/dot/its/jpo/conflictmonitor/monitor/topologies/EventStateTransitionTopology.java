@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IllegalSpatTransitionEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IllegalSpatTransitionNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.EventStateProgressionNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
@@ -85,7 +85,7 @@ public class EventStateTransitionTopology
             }))
             // Create IllegalSpatTransitionEvent
             .mapValues((key, stateTransition) -> {
-                var event = new IllegalSpatTransitionEvent();
+                var event = new EventStateProgressionEvent();
                 event.setTransition(stateTransition);
                 event.setSource(key.getRsuId());
                 event.setIntersectionID(key.getIntersectionId());
@@ -103,7 +103,7 @@ public class EventStateTransitionTopology
         // Send notifications to topic
         signalGroupStates
                 .mapValues(event -> {
-                    var notification = new IllegalSpatTransitionNotification();
+                    var notification = new EventStateProgressionNotification();
                     notification.setEvent(event);
                     return notification;
                 })

@@ -2,25 +2,25 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IllegalSpatTransitionEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 
 @Getter
 @Setter
-public class IllegalSpatTransitionNotification extends Notification {
+public class EventStateProgressionNotification extends Notification {
 
-    public IllegalSpatTransitionNotification() {
-        super("IllegalSpatTransitionNotification");
+    public EventStateProgressionNotification() {
+        super("EventStateProgressionNotification");
     }
 
-    IllegalSpatTransitionEvent event;
+    EventStateProgressionEvent event;
 
-    public void setEvent(IllegalSpatTransitionEvent event) {
+    public void setEvent(EventStateProgressionEvent event) {
         if (event != null) {
             this.event = event;
             this.setIntersectionID(event.getIntersectionID());
             this.setRoadRegulatorID(event.getRoadRegulatorID());
             this.key = getUniqueId();
-            this.setNotificationHeading("Illegal SPaT Transition");
+            this.setNotificationHeading("Event State Progression");
             this.setNotificationText("An illegal SPaT transition was detected");
         }
     }

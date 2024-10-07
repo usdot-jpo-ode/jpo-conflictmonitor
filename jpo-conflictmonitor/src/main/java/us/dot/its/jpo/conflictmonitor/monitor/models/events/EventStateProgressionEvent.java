@@ -9,10 +9,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Spa
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class IllegalSpatTransitionEvent extends Event {
+public class EventStateProgressionEvent extends Event {
 
-    public IllegalSpatTransitionEvent() {
-        super("IllegalSpatTransition");
+    public EventStateProgressionEvent() {
+        super("EventStateProgression");
     }
 
     String source;

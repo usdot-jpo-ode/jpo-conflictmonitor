@@ -62,6 +62,8 @@ public class NotificationParameters {
         updateType = READ_ONLY)
     String timestampDeltaNotificationTopicName;
 
-    @ConfigData(key = "notification.topic.CmSpatTransitionNotification", description = "The name of the topic to read SPaT Transition Notifications from", updateType = READ_ONLY)
-    String spatTransitionNotificationTopicName;
+    @ConfigData(key = "notification.topic.CmSpatTransitionNotification",
+            description = "The name of the topic to read Event State Progression Notifications from",
+            updateType = READ_ONLY)
+    String eventStateProgressionNotificationTopicName;
 }

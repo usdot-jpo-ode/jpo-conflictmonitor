@@ -41,7 +41,7 @@ public class EventTopologyTest {
     String mapRevisionCounterEventTopicName = "topic.CmMapRevisionCounterEvents";
     String bsmRevisionCounterEventTopicName = "topic.CmBsmRevisionCounterEvents";
     String timestampDeltaEventTopicName = "topic.CmTimestampDeltaEvent";
-    String spatTransitionEventTopicName = "topic.CmSpatTransitionEvent";
+    String spatTransitionEventTopicName = "topic.CmEventStateProgressionEvent";
 
     @Test
     public void testTopology() {
@@ -64,7 +64,7 @@ public class EventTopologyTest {
         parameters.setMapRevisionCounterEventTopicName(mapRevisionCounterEventTopicName);
         parameters.setBsmRevisionCounterEventTopicName(bsmRevisionCounterEventTopicName);
         parameters.setTimestampDeltaEventTopicName(timestampDeltaEventTopicName);
-        parameters.setSpatTransitionEventTopicName(spatTransitionEventTopicName);
+        parameters.setEventStateProgressionEventTopicName(spatTransitionEventTopicName);
 
         eventTopology.setParameters(parameters);
 
@@ -87,7 +87,7 @@ public class EventTopologyTest {
         BsmRevisionCounterEvent brcEvent = new BsmRevisionCounterEvent();
         MapTimestampDeltaEvent mapTimestampDeltaEvent = new MapTimestampDeltaEvent();
         SpatTimestampDeltaEvent spatTimestampDeltaEvent = new SpatTimestampDeltaEvent();
-        IllegalSpatTransitionEvent spatTransitionEvent = new IllegalSpatTransitionEvent();
+        EventStateProgressionEvent spatTransitionEvent = new EventStateProgressionEvent();
         
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -268,7 +268,7 @@ public class EventTopologyTest {
                 }
                 else if (type.equals("SpatTimestampDelta")) {
                     assertEquals(event, spatTimestampDeltaEvent);
-                } else if (type.equals("IllegalSpatTransition")) {
+                } else if (type.equals("EventStateProgression")) {
                     assertEquals(event, spatTransitionEvent);
                 }
                 else{

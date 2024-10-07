@@ -30,7 +30,7 @@ public class EventStateProgressionParameters {
     volatile boolean debug;
 
     @ConfigData(key = "event.state.progression.outputTopicName",
-            description = "Name of the output topic",
+            description = "Name of the output topic for events",
             updateType = READ_ONLY)
     volatile String outputTopicName;
 

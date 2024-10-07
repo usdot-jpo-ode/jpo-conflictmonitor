@@ -36,7 +36,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMin
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IllegalSpatTransitionEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
@@ -418,16 +418,16 @@ public class JsonSerdes {
                 new JsonDeserializer<>(SpatMovementState.class));
     }
 
-    public static Serde<IllegalSpatTransitionEvent> IllegalSpatTransitionEvent() {
+    public static Serde<EventStateProgressionEvent> IllegalSpatTransitionEvent() {
         return Serdes.serdeFrom(
-                new JsonSerializer<IllegalSpatTransitionEvent>(),
-                new JsonDeserializer<>(IllegalSpatTransitionEvent.class));
+                new JsonSerializer<EventStateProgressionEvent>(),
+                new JsonDeserializer<>(EventStateProgressionEvent.class));
     }
 
-    public static Serde<IllegalSpatTransitionNotification> IllegalSpatTransitionNotification() {
+    public static Serde<EventStateProgressionNotification> IllegalSpatTransitionNotification() {
         return Serdes.serdeFrom(
-                new JsonSerializer<IllegalSpatTransitionNotification>(),
-                new JsonDeserializer<>(IllegalSpatTransitionNotification.class));
+                new JsonSerializer<EventStateProgressionNotification>(),
+                new JsonDeserializer<>(EventStateProgressionNotification.class));
     }
 
 }
