@@ -41,7 +41,8 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
         @JsonSubTypes.Type(value = TimeChangeDetailsNotification.class, name = "TimeChangeDetailsNotification"),
         @JsonSubTypes.Type(value = KafkaStreamsAnomalyNotification.class, name = "AppHealthNotification"),
         @JsonSubTypes.Type(value = MapTimestampDeltaNotification.class, name = "MapTimestampDeltaNotification"),
-        @JsonSubTypes.Type(value = SpatTimestampDeltaNotification.class, name = "SpatTimestampDeltaNotification")
+        @JsonSubTypes.Type(value = SpatTimestampDeltaNotification.class, name = "SpatTimestampDeltaNotification"),
+        @JsonSubTypes.Type(value = EventStateProgressionNotification.class, name = "EventStateProgressionNotification")
 })
 @Getter
 @Setter

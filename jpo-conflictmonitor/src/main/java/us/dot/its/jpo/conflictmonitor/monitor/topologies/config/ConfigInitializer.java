@@ -11,7 +11,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
-
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransitionList;
 
 
 import java.lang.reflect.Field;
@@ -108,6 +108,15 @@ public class ConfigInitializer {
                 config.setValue(new ConnectedLanesPairList());
             }
             setConfigProps(config, updatable, ConnectedLanesPairList.class);
+            return config;
+        } else if (PhaseStateTransitionList.class.equals(type)) {
+            var config = new DefaultConfig<PhaseStateTransitionList>();
+            if (propValue != null) {
+                config.setValue((PhaseStateTransitionList) propValue);
+            } else {
+                config.setValue(new PhaseStateTransitionList());
+            }
+            setConfigProps(config, updatable, PhaseStateTransitionList.class);
             return config;
         } else {
             var config = new DefaultConfig<Integer>();
