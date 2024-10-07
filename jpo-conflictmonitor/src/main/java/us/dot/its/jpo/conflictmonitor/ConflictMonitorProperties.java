@@ -427,7 +427,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatTransitionAlgorithmFactory = spatTransitionAlgorithmFactory;
    }
 
-   @Value("${spat.transition.algorithm}")
+   @Value("${event.state.progression.algorithm}")
    public void setSpatTransitionAlgorithm(String spatTransitionAlgorithm) {
       this.spatTransitionAlgorithm = spatTransitionAlgorithm;
    }
