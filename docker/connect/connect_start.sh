@@ -91,6 +91,8 @@ declare -A CmSpatBroadcastRateEvents=([name]="topic.CmSpatBroadcastRateEvents" [
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 declare -A CmTimestampDeltaEvent=([name]="topic.CmTimestampDeltaEvent" [collection]="CmTimestampDeltaEvent"
     [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
+declare -A CmEventStateProgressionEvent=([name]="topic.CmEventStateProgressionEvent" [collection]="CmEventStateProgressionEvent"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 
 
 # Record BSM Events
@@ -130,6 +132,8 @@ declare -A CmStopLinePassageNotification=([name]="topic.CmStopLinePassageNotific
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
 declare -A CmTimestampDeltaNotification=([name]="topic.CmTimestampDeltaNotification" [collection]="CmTimestampDeltaNotification"
     [convert_timestamp]=true [timefield]="notificationGeneratedAt" [use_key]=true [key]="key" [add_timestamp]=false)
+declare -A CmEventStateProgressionNotification=([name]="topic.CmEventStateProgressionNotification" [collection]="CmEventStateProgressionNotification"
+    [convert_timestamp]=true [timefield]="eventGeneratedAt" [use_key]=false [key]="" [add_timestamp]=false)
 
 function createSink() {
     local -n topic=$1
@@ -251,6 +255,7 @@ createSink CmMapBroadcastRateEvents
 createSink CmMapMinimumDataEvents
 createSink CmSpatBroadcastRateEvents
 createSink CmTimestampDeltaEvent
+createSink CmEventStateProgressionEvent
 
 createSink CmBsmEvents
 
@@ -269,7 +274,7 @@ createSink CmNotification
 createSink CmStopLineStopNotification
 createSink CmStopLinePassageNotification
 createSink CmTimestampDeltaNotification
-
+createSink CmEventStateProgressionNotification
 
 echo "----------------------------------"
 echo "Kafka connector creation complete!"

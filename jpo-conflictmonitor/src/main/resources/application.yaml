@@ -181,15 +181,12 @@ kafka.topics:
       retentionMs: 300000
     - name: topic.CmSpatTransitionNotification
       cleanupPolicy: compact
-    # - name: topic.CmSpatBroadcastRateNotification
-    #   cleanupPolicy: compact
-    # - name: topic.CmMapBroadcastRateNotification
-    #   cleanupPolicy: compact    
+    - name: topic.CmEventStateProgressionEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmEventStateProgressionNotification
+      cleanupPolicy: compact
     
-
-
-
-
 
 
 # Connection of Travel
