@@ -17,7 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.EventStatePro
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
-import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatTransitionProcessor;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.EventStateProgressionProcessor;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -30,7 +30,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_prog
 
 @Component(DEFAULT_EVENT_STATE_PROGRESSION_ALGORITHM)
 @Slf4j
-public class EventStateTransitionTopology
+public class EventStateProgressionTopology
     extends BaseStreamsBuilder<EventStateProgressionParameters>
     implements EventStateProgressionStreamsAlgorithm {
 
@@ -77,7 +77,7 @@ public class EventStateTransitionTopology
                                     state)).toList();
             })
             // Find phase state transitions
-            .process(() -> new SpatTransitionProcessor(parameters), movementStateStore, latestTransitionStore)
+            .process(() -> new EventStateProgressionProcessor(parameters), movementStateStore, latestTransitionStore)
             // Pass only illegal transitions
             .filter(((rsuIntersectionSignalGroupKey, spatMovementStateTransition) -> {
                 final PhaseStateTransition stateTransition = spatMovementStateTransition.getStateTransition();

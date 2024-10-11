@@ -50,7 +50,7 @@ public class MessageIngestTopologyTest {
     public void testMessageIngestTopology() throws JsonProcessingException {
 
         // Test this plugin separately, mock it here
-        var spatTransitionTopology = mock(EventStateTransitionTopology.class);
+        var spatTransitionTopology = mock(EventStateProgressionTopology.class);
         doNothing().when(spatTransitionTopology).buildTopology(any(), any());
 
         var parameters = getParamters();
@@ -59,7 +59,7 @@ public class MessageIngestTopologyTest {
         var messageIngestTopology = new MessageIngestTopology();
         messageIngestTopology.setParameters(parameters);
         messageIngestTopology.setMapIndex(mapIndex);
-        messageIngestTopology.setSpatTransitionAlgorithm(spatTransitionTopology);
+        messageIngestTopology.setEventStateProgressionAlgorithm(spatTransitionTopology);
         StreamsBuilder builder = new StreamsBuilder();
         messageIngestTopology.buildTopology(builder);
         Topology topology = builder.build();

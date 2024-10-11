@@ -20,7 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Spa
 import java.time.Instant;
 
 @Slf4j
-public class SpatTransitionProcessor
+public class EventStateProgressionProcessor
         extends ContextualProcessor<RsuIntersectionSignalGroupKey, SpatMovementState, RsuIntersectionSignalGroupKey, SpatMovementStateTransition> {
 
     // Store to keep track of the latest Spat MovementState per signal group
@@ -29,7 +29,7 @@ public class SpatTransitionProcessor
 
     final EventStateProgressionParameters parameters;
 
-    public SpatTransitionProcessor(EventStateProgressionParameters parameters) {
+    public EventStateProgressionProcessor(EventStateProgressionParameters parameters) {
         this.parameters = parameters;
     }
 

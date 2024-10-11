@@ -11,6 +11,6 @@ public interface MessageIngestAlgorithm
     void validate();
 
     // Plug-in Spat Transition algorithm
-    void setSpatTransitionAlgorithm(EventStateProgressionAlgorithm spatTransitionAlgorithm);
-    EventStateProgressionAlgorithm getSpatTransitionAlgorithm();
+    void setEventStateProgressionAlgorithm(EventStateProgressionAlgorithm spatTransitionAlgorithm);
+    EventStateProgressionAlgorithm getEventStateProgressionAlgorithm();
 }

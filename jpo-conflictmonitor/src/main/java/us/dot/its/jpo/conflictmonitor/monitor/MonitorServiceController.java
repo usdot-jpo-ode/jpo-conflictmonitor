@@ -286,7 +286,7 @@ public class MonitorServiceController {
             messageIngestAlgorithm.setParameters(messageIngestParams);
             // Plugin Spat Transition algorithm
             final EventStateProgressionAlgorithm spatTransitionAlgorithm = getSpatTransitionAlgorithm(conflictMonitorProps);
-            messageIngestAlgorithm.setSpatTransitionAlgorithm(spatTransitionAlgorithm);
+            messageIngestAlgorithm.setEventStateProgressionAlgorithm(spatTransitionAlgorithm);
 
 
             // Get Algorithms used by intersection event topology

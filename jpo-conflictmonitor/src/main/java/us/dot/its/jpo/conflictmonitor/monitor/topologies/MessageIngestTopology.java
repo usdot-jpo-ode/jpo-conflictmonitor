@@ -53,7 +53,7 @@ public class MessageIngestTopology
     EventStateProgressionStreamsAlgorithm spatTransitionAlgorithm;
 
     @Override
-    public void setSpatTransitionAlgorithm(EventStateProgressionAlgorithm spatTransitionAlgorithm) {
+    public void setEventStateProgressionAlgorithm(EventStateProgressionAlgorithm spatTransitionAlgorithm) {
         // Enforce the algorithm being a Streams algorithm
         if (spatTransitionAlgorithm instanceof EventStateProgressionStreamsAlgorithm spatTransitionStreamsAlgorithm) {
             this.spatTransitionAlgorithm = spatTransitionStreamsAlgorithm;
@@ -63,7 +63,7 @@ public class MessageIngestTopology
     }
 
     @Override
-    public EventStateProgressionAlgorithm getSpatTransitionAlgorithm() {
+    public EventStateProgressionAlgorithm getEventStateProgressionAlgorithm() {
         return spatTransitionAlgorithm;
     }
 
