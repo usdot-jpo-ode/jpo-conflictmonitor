@@ -6,9 +6,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.kafka.core.KafkaTemplate;
 
+
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
@@ -21,6 +24,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
@@ -41,6 +47,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
@@ -82,7 +91,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitialize
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  * Unit test for {@link MonitorServiceController}
@@ -138,6 +146,12 @@ public class MonitorServiceControllerTest {
     @Mock MessageIngestStreamsAlgorithm messageIngestAlgorithm;
     MessageIngestParameters messageIngestParameters = new MessageIngestParameters();
 
+    @Mock
+    EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory;
+    @Mock
+    EventStateProgressionStreamsAlgorithm spatTransitionAlgorithm;
+    EventStateProgressionParameters spatTransitionParameters = new EventStateProgressionParameters();
+
     @Mock LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
     LaneDirectionOfTravelParameters laneDirectionOfTravelParameters = new LaneDirectionOfTravelParameters();
@@ -188,6 +202,13 @@ public class MonitorServiceControllerTest {
     @Mock BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
     @Mock BsmRevisionCounterAlgorithm bsmRevisionCounterAlgorithm;
     BsmRevisionCounterParameters bsmRevisionCounterParameters = new BsmRevisionCounterParameters();
+
+    @Mock
+    EventAlgorithmFactory eventAlgorithmFactory;
+    @Mock
+    EventAlgorithm eventAlgorithm;
+    @Mock
+    EventParameters eventParameters;
 
     MapIndex mapIndex = new MapIndex();
     
@@ -246,6 +267,11 @@ public class MonitorServiceControllerTest {
         when(messageIngestAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(messageIngestAlgorithm);
         when(conflictMonitorProperties.getMessageIngestParameters()).thenReturn(messageIngestParameters);
 
+        when (conflictMonitorProperties.getSpatTransitionAlgorithmFactory()).thenReturn(spatTransitionAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatTransitionAlgorithm()).thenReturn(defaultAlgo);
+        when(spatTransitionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTransitionAlgorithm);
+        when(conflictMonitorProperties.getSpatTransitionParameters()).thenReturn(spatTransitionParameters);
+
         when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithmFactory()).thenReturn(laneDirectionOfTravelAlgorithmFactory);
         when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithm()).thenReturn(defaultAlgo);
         when(laneDirectionOfTravelAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(laneDirectionOfTravelAlgorithm);
@@ -299,6 +325,16 @@ public class MonitorServiceControllerTest {
         when(conflictMonitorProperties.getSpatRevisionCounterAlgorithm()).thenReturn(defaultAlgo);
         when(spatRevisionCounterAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatRevisionCounterAlgorithm);
         when(conflictMonitorProperties.getSpatRevisionCounterAlgorithmParameters()).thenReturn(spatRevisionCounterParameters);
+
+        when(conflictMonitorProperties.getBsmRevisionCounterAlgorithmFactory()).thenReturn(bsmRevisionCounterAlgorithmFactory);
+        when(conflictMonitorProperties.getBsmRevisionCounterAlgorithm()).thenReturn(defaultAlgo);
+        when(bsmRevisionCounterAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmRevisionCounterAlgorithm);
+        when(conflictMonitorProperties.getBsmRevisionCounterAlgorithmParameters()).thenReturn(bsmRevisionCounterParameters);
+
+        when(conflictMonitorProperties.getEventAlgorithmFactory()).thenReturn(eventAlgorithmFactory);
+        when(conflictMonitorProperties.getEventAlgorithm()).thenReturn(defaultAlgo);
+        when(eventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(eventAlgorithm);
+        when(conflictMonitorProperties.getEventParameters()).thenReturn(eventParameters);
 
         var monitorServiceController = new MonitorServiceController(
                 conflictMonitorProperties,

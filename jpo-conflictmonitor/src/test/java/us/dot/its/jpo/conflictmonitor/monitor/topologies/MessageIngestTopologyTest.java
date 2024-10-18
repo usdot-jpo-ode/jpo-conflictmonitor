@@ -23,7 +23,11 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.*;
+
 
 public class MessageIngestTopologyTest {
 
@@ -40,17 +44,28 @@ public class MessageIngestTopologyTest {
     final int intersectionId = 12109;
     final String mapSpatialIndexStoreName = "MapSpatialIndexStore";
 
+
+
     @Test
     public void testMessageIngestTopology() throws JsonProcessingException {
+
+        // Test this plugin separately, mock it here
+        var spatTransitionTopology = mock(EventStateProgressionTopology.class);
+        doNothing().when(spatTransitionTopology).buildTopology(any(), any());
+
         var parameters = getParamters();
         var streamsConfig = new Properties();
         var mapIndex = new MapIndex();
         var messageIngestTopology = new MessageIngestTopology();
         messageIngestTopology.setParameters(parameters);
         messageIngestTopology.setMapIndex(mapIndex);
+        messageIngestTopology.setEventStateProgressionAlgorithm(spatTransitionTopology);
         StreamsBuilder builder = new StreamsBuilder();
         messageIngestTopology.buildTopology(builder);
         Topology topology = builder.build();
+
+        // Verify plugin would have been initialized
+        verify(spatTransitionTopology, times(1)).buildTopology(any(), any());
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
 

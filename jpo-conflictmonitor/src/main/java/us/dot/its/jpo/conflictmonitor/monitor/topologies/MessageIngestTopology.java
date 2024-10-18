@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
@@ -48,6 +50,22 @@ public class MessageIngestTopology
 
     private static final Logger logger = LoggerFactory.getLogger(MessageIngestTopology.class);
 
+    EventStateProgressionStreamsAlgorithm spatTransitionAlgorithm;
+
+    @Override
+    public void setEventStateProgressionAlgorithm(EventStateProgressionAlgorithm spatTransitionAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (spatTransitionAlgorithm instanceof EventStateProgressionStreamsAlgorithm spatTransitionStreamsAlgorithm) {
+            this.spatTransitionAlgorithm = spatTransitionStreamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Algorithm is not an instance of SpatTransitionStreamsAlgorithm");
+        }
+    }
+
+    @Override
+    public EventStateProgressionAlgorithm getEventStateProgressionAlgorithm() {
+        return spatTransitionAlgorithm;
+    }
 
     @Override
     public void buildTopology(StreamsBuilder builder) {
@@ -133,6 +151,10 @@ public class MessageIngestTopology
                             return true;
                         }
                     });
+
+        // Plug Illegal Spat Transition check into here since it needs the stream with event timestamp
+        spatTransitionAlgorithm.buildTopology(builder, processedSpatStream);
+
 
         if (parameters.isDebug()) {
             processedSpatStream.process(() -> new DiagnosticProcessor<>("ProcessedSpats", logger));
@@ -251,4 +273,6 @@ public class MessageIngestTopology
             throw new IllegalArgumentException("MapIndex is not set");
         }
     }
+
+
 }
