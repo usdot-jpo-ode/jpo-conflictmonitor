@@ -868,7 +868,14 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       streamProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, FIVE_MINUTES_MS);
 
       // Disable batching
-      streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+      // We really should not disable batching!  By itself, with no linger, it doesn't cause any latency
+      //streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+      // Add some linger to help batching.
+      // This does introduce latency; comment out if undesired.
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, 50);
+
+      streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");
