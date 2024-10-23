@@ -48,7 +48,8 @@ odeBsmMaximumPositionDelta: 1 # Meter
 odeBsmAlwaysIncludeAtSpeed: 1 # Meter / Second
 
 
-
+# Amount of time to wait to try and increase batching
+kafka.linger_ms: 50
 
 # Custom kafka properties
 kafka.topics:
