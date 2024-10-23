@@ -192,6 +192,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String confluentKey = null;
    private String confluentSecret = null;
 
+   private int lingerMs = 0;
+
 
    
 
@@ -669,6 +671,15 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.messageIngestParameters = messageIngestParameters;
    }
 
+   @Value("${kafka.linger_ms}")
+   public void setKafkaLingerMs(int lingerMs) {
+      this.lingerMs = lingerMs;
+   }
+
+   public int getKafkaLingerMs() {
+      return lingerMs;
+   }
+
 
    /*
     * General Properties
@@ -855,7 +866,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Enable Compression
       streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
-      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, 50);
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");
