@@ -10,6 +10,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.temporal.ChronoUnit;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -29,6 +31,6 @@ public class CommonAggregationPropertiesTest {
         log.info("CommonAggregationProperties: {}", params);
         assertThat(params, notNullValue());
         assertThat(params, hasProperty("interval", greaterThan(0)));
-        assertThat(params, hasProperty("intervalUnits", instanceOf(CommonAggregationParameters.IntervalUnits.class)));
+        assertThat(params, hasProperty("intervalUnits", instanceOf(ChronoUnit.class)));
     }
 }

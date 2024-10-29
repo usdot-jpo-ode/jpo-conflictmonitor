@@ -1,13 +1,20 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation;
 
+import com.google.common.collect.ImmutableSet;
 import lombok.Data;
 import lombok.Generated;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Set;
+
+import static java.time.temporal.ChronoUnit.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.DEFAULT;
 
 @Data
@@ -15,6 +22,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.DE
 @Component
 @ConfigurationProperties(prefix = "aggregation.common")
 @ConfigDataClass
+@Slf4j
 public class CommonAggregationParameters {
 
     @ConfigData(key = "aggregation.common.debug",
@@ -30,11 +38,47 @@ public class CommonAggregationParameters {
     @ConfigData(key = "aggregation.common.interval.units",
             description = "The time units of the aggregation interval",
             updateType = DEFAULT)
-    IntervalUnits intervalUnits;
+    ChronoUnit intervalUnits;
 
-    public enum IntervalUnits {
-        SECONDS,
-        MINUTES,
-        HOURS
+    public Duration timeInterval() {
+        return Duration.of(interval, intervalUnits);
     }
+
+    /**
+     * Preliminary Design Details, Data Management, p.9:
+     * <pre>
+     * The user shall only be able to select intervals that are
+     * • a factor of 60 seconds (if less than 60 seconds)
+     *     e.g. 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 seconds
+     * • OR a factor of 60 minutes (between 1 minute and 60 minutes)
+     *     e.g. 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 minutes
+     * • OR a factor of 24 hours (between 1 hour and 24 hours)
+     *     e.g. 1, 2, 3, 4, 6, 8, 24 hours
+     * </pre>
+     * @return valid or not
+     */
+    public boolean validateInterval() {
+        if (!allowedIntervalUnits.contains(intervalUnits)) {
+            log.error("Invalid interval units: {}, allowed values are: {}", intervalUnits, allowedIntervalUnits);
+            return false;
+        }
+
+        if (intervalUnits.equals(HOURS)) {
+            if (interval < 0 || 24 % interval != 0) {
+                log.error("Invalid time interval: {}, allowed values are: 1, 2, 3, 4, 6, 8, 24 hours", interval);
+                return false;
+            }
+        }
+
+        // SECONDS or MINUTES
+        if (interval < 0 || 60 % interval != 0) {
+            log.error("Invalid time interval: {}, allowed values are: 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 {}", interval, intervalUnits);
+            return false;
+        }
+
+        return true;
+    }
+
+    private Set<ChronoUnit> allowedIntervalUnits
+            = ImmutableSet.of(SECONDS, MINUTES, HOURS);
 }
