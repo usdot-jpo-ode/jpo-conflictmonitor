@@ -13,21 +13,21 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.DE
 @Data
 @Generated
 @Component
-@ConfigurationProperties(prefix = "aggregation")
+@ConfigurationProperties(prefix = "aggregation.common")
 @ConfigDataClass
-public class AggregationParameters {
+public class CommonAggregationParameters {
 
-    @ConfigData(key = "aggregation.debug",
+    @ConfigData(key = "aggregation.common.debug",
             description = "Whether to log diagnostic information for debugging",
             updateType = DEFAULT)
     boolean debug;
 
-    @ConfigData(key = "aggregation.interval",
+    @ConfigData(key = "aggregation.common.interval",
             description = "The time interval over which to aggregate events",
             updateType = DEFAULT)
     int interval;
 
-    @ConfigData(key = "aggregation.interval.units",
+    @ConfigData(key = "aggregation.common.interval.units",
             description = "The time units of the aggregation interval",
             updateType = DEFAULT)
     IntervalUnits intervalUnits;
