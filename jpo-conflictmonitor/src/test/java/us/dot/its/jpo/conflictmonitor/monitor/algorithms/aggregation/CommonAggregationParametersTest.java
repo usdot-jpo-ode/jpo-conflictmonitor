@@ -21,16 +21,18 @@ import static org.hamcrest.Matchers.*;
 @EmbeddedKafka(partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092"})
 @DirtiesContext
 @Slf4j
-public class CommonAggregationPropertiesTest {
+public class CommonAggregationParametersTest {
 
     @Autowired
     private CommonAggregationParameters params;
 
     @Test
     public void testPropertiesLoaded() {
-        log.info("CommonAggregationProperties: {}", params);
+        log.info("CommonAggregationParameters: {}", params);
         assertThat(params, notNullValue());
         assertThat(params, hasProperty("interval", greaterThan(0)));
         assertThat(params, hasProperty("intervalUnits", instanceOf(ChronoUnit.class)));
     }
+
+
 }

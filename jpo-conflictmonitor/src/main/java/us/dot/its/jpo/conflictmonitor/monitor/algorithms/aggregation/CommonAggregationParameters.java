@@ -67,6 +67,8 @@ public class CommonAggregationParameters {
             if (interval < 0 || 24 % interval != 0) {
                 log.error("Invalid time interval: {}, allowed values are: 1, 2, 3, 4, 6, 8, 24 hours", interval);
                 return false;
+            } else {
+                return true;
             }
         }
 
@@ -74,11 +76,12 @@ public class CommonAggregationParameters {
         if (interval < 0 || 60 % interval != 0) {
             log.error("Invalid time interval: {}, allowed values are: 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 {}", interval, intervalUnits);
             return false;
+        } else {
+            return true;
         }
-
-        return true;
     }
 
-    private Set<ChronoUnit> allowedIntervalUnits
+
+    private static final Set<ChronoUnit> allowedIntervalUnits
             = ImmutableSet.of(SECONDS, MINUTES, HOURS);
 }
