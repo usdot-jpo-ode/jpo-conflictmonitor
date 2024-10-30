@@ -15,13 +15,13 @@ import static org.hamcrest.Matchers.equalTo;
 
 @Slf4j
 @RunWith(Parameterized.class)
-public class CommonAggregationParameters_ValidateIntervalTest {
+public class AggregationParameters_ValidateIntervalTest {
 
     int interval;
     ChronoUnit units;
     boolean expectValid;
 
-    public CommonAggregationParameters_ValidateIntervalTest(int interval, ChronoUnit units, boolean expectValid) {
+    public AggregationParameters_ValidateIntervalTest(int interval, ChronoUnit units, boolean expectValid) {
         this.interval = interval;
         this.units = units;
         this.expectValid = expectValid;
@@ -29,7 +29,7 @@ public class CommonAggregationParameters_ValidateIntervalTest {
 
     @Test
     public void testValidateInterval() {
-        var params = new CommonAggregationParameters();
+        var params = new AggregationParameters();
         params.setInterval(interval);
         params.setIntervalUnits(units);
         assertThat(String.format("params: %s", params), params.validateInterval(), equalTo(expectValid));

@@ -12,7 +12,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 import java.util.Set;
 
 import static java.time.temporal.ChronoUnit.*;
@@ -22,27 +21,27 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.RE
 @Data
 @Generated
 @Component
-@ConfigurationProperties(prefix = "aggregation.common")
+@ConfigurationProperties(prefix = "aggregation")
 @ConfigDataClass
 @Slf4j
-public class CommonAggregationParameters {
+public class AggregationParameters {
 
-    @ConfigData(key = "aggregation.common.debug",
+    @ConfigData(key = "aggregation.debug",
             description = "Whether to log diagnostic information for debugging",
             updateType = DEFAULT)
     volatile boolean debug;
 
-    @ConfigData(key = "aggregation.common.interval",
+    @ConfigData(key = "aggregation.interval",
             description = "The time interval over which to aggregate events",
             updateType = DEFAULT)
     volatile int interval;
 
-    @ConfigData(key = "aggregation.common.interval.units",
+    @ConfigData(key = "aggregation.interval.units",
             description = "The time units of the aggregation interval",
             updateType = DEFAULT)
     volatile ChronoUnit intervalUnits;
 
-    @ConfigData(key = "aggregation.common.eventTopicMap",
+    @ConfigData(key = "aggregation.eventTopicMap",
         description = "Map of aggregated event names to output topic names",
         updateType = READ_ONLY)
     EventTopicMap eventTopicMap;

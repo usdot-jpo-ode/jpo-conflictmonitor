@@ -17,6 +17,8 @@ public interface BaseAggregationStreamsAlgorithm<TKey, TEvent extends Event, TAg
 
     void buildTopology(StreamsBuilder builder, KStream<TKey, TEvent> inputStream);
 
+    Class<TKey> keyClass();
+
     /**
      * @return Serializer/deserializer for the key
      */

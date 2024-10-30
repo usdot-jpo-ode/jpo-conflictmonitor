@@ -21,10 +21,10 @@ import static org.hamcrest.Matchers.*;
 @EmbeddedKafka(partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092"})
 @DirtiesContext
 @Slf4j
-public class CommonAggregationParametersTest {
+public class AggregationParametersTest {
 
     @Autowired
-    private CommonAggregationParameters params;
+    private AggregationParameters params;
 
     @Test
     public void testPropertiesLoaded() {

@@ -506,13 +506,12 @@ event.state.progression:
     - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_AND_REMAIN }
 
 aggregation:
-  common:
-    debug: true
-    interval: 30
-    intervalUnits: SECONDS
-    eventTopicMap:
-      SpatMinimumDataAggregation: topic.CmMapMinimumDataEvent
-      MapMinimumDataAggregation: topic.CmMapMinimumDataEvent
+  debug: true
+  interval: 30
+  intervalUnits: SECONDS
+  eventTopicMap:
+    SpatMinimumDataAggregation: topic.CmMapMinimumDataEvent
+    MapMinimumDataAggregation: topic.CmMapMinimumDataEvent
 
 
 

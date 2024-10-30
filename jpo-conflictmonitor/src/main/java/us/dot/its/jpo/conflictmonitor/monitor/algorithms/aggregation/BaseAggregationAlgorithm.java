@@ -10,11 +10,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
  * @param <TAggEvent> Output aggregated event type
  */
 public interface BaseAggregationAlgorithm<TEvent extends Event, TAggEvent extends Event>
-    extends ConfigurableAlgorithm<CommonAggregationParameters> {
+    extends ConfigurableAlgorithm<AggregationParameters> {
 
     /**
      * @return A new TAggEvent
      */
     TAggEvent constructEventAggregation();
+
 
 }
