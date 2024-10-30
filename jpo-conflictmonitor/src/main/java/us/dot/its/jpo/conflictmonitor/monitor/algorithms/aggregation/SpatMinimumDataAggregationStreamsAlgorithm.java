@@ -5,5 +5,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMin
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 public interface SpatMinimumDataAggregationStreamsAlgorithm
-        extends SpatMinimumDataAggregationAlgorithm, BaseAggregationStreamsAlgorithm<RsuIntersectionKey, SpatMinimumDataEvent> {
+        extends SpatMinimumDataAggregationAlgorithm,
+            BaseAggregationStreamsAlgorithm<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation> {
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventTopicMap;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
@@ -15,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Pha
 
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 @Component
 @Profile("!test")
@@ -117,6 +119,15 @@ public class ConfigInitializer {
                 config.setValue(new PhaseStateTransitionList());
             }
             setConfigProps(config, updatable, PhaseStateTransitionList.class);
+            return config;
+        } else if (EventTopicMap.class.equals(type)) {
+            var config = new DefaultConfig<EventTopicMap>();
+            if (propValue != null) {
+                config.setValue((EventTopicMap)propValue);
+            } else {
+                config.setValue(new EventTopicMap());
+            }
+            setConfigProps(config, updatable, EventTopicMap.class);
             return config;
         } else {
             var config = new DefaultConfig<Integer>();

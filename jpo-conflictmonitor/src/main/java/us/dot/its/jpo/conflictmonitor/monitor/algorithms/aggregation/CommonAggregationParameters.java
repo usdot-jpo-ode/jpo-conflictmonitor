@@ -12,10 +12,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Set;
 
 import static java.time.temporal.ChronoUnit.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.DEFAULT;
+import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.READ_ONLY;
 
 @Data
 @Generated
@@ -28,17 +30,22 @@ public class CommonAggregationParameters {
     @ConfigData(key = "aggregation.common.debug",
             description = "Whether to log diagnostic information for debugging",
             updateType = DEFAULT)
-    boolean debug;
+    volatile boolean debug;
 
     @ConfigData(key = "aggregation.common.interval",
             description = "The time interval over which to aggregate events",
             updateType = DEFAULT)
-    int interval;
+    volatile int interval;
 
     @ConfigData(key = "aggregation.common.interval.units",
             description = "The time units of the aggregation interval",
             updateType = DEFAULT)
-    ChronoUnit intervalUnits;
+    volatile ChronoUnit intervalUnits;
+
+    @ConfigData(key = "aggregation.common.eventTopicMap",
+        description = "Map of aggregated event names to output topic names",
+        updateType = READ_ONLY)
+    EventTopicMap eventTopicMap;
 
     public Duration timeInterval() {
         return Duration.of(interval, intervalUnits);
@@ -84,4 +91,6 @@ public class CommonAggregationParameters {
 
     private static final Set<ChronoUnit> allowedIntervalUnits
             = ImmutableSet.of(SECONDS, MINUTES, HOURS);
+
+
 }
