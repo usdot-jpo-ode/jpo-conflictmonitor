@@ -16,23 +16,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatMessageCountProgressionEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterConstants.DEFAULT_SPAT_REVISION_COUNTER_ALGORITHM;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionConstants.DEFAULT_SPAT_REVISION_COUNTER_ALGORITHM;
 
 import java.util.ArrayList;
 
 @Component(DEFAULT_SPAT_REVISION_COUNTER_ALGORITHM)
-public class SpatRevisionCounterTopology
-        extends BaseStreamsTopology<SpatRevisionCounterParameters>
-        implements SpatRevisionCounterStreamsAlgorithm {
+public class SpatMessageCountProgressionTopology
+        extends BaseStreamsTopology<SpatMessageCountProgressionParameters>
+        implements SpatMessageCountProgressionStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatRevisionCounterTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpatMessageCountProgressionTopology.class);
 
 
 
@@ -47,9 +47,9 @@ public class SpatRevisionCounterTopology
 
         KStream<String, ProcessedSpat> inputStream = builder.stream(parameters.getSpatInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedSpat()));
 
-        KStream<String, SpatRevisionCounterEvent> eventStream = inputStream
+        KStream<String, SpatMessageCountProgressionEvent> eventStream = inputStream
         .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedSpat()))
-        .aggregate(() -> new SpatRevisionCounterEvent(),
+        .aggregate(() -> new SpatMessageCountProgressionEvent(),
         (key, newValue, aggregate) -> {
 
             aggregate.setMessage(null);
@@ -87,16 +87,16 @@ public class SpatRevisionCounterTopology
 
             }
 
-        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatRevisionCounterEvent()))
+        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatMessageCountProgressionEvent()))
         .toStream()
         .flatMap((key, value) ->{
-            ArrayList<KeyValue<String, SpatRevisionCounterEvent>> outputList = new ArrayList<>();
+            ArrayList<KeyValue<String, SpatMessageCountProgressionEvent>> outputList = new ArrayList<>();
             if (value.getMessage() != null){
                 outputList.add(new KeyValue<>(key, value));   
             }
             return outputList;
         });
-        eventStream.to(parameters.getSpatRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatRevisionCounterEvent()));
+        eventStream.to(parameters.getSpatRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatMessageCountProgressionEvent()));
 
         return builder.build();
     }

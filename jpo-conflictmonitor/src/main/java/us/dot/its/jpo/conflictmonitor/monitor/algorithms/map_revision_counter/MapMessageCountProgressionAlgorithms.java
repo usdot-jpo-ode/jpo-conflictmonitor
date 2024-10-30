@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SpatRevisionCounterAlgorithms {
+public class MapMessageCountProgressionAlgorithms {
     @Bean
-    public FactoryBean<?> spatRevisionCounterServiceLocatorFactoryBean() {
+    public FactoryBean<?> mapMessageCountProgressionServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
-        factoryBean.setServiceLocatorInterface(SpatRevisionCounterAlgorithmFactory.class);
+        factoryBean.setServiceLocatorInterface(MapMessageCountProgressionAlgorithmFactory.class);
         return factoryBean;
     }
 }

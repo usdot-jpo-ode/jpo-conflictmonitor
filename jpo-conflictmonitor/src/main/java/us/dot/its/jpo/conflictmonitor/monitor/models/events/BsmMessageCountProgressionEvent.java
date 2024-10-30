@@ -10,14 +10,14 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
-public class BsmRevisionCounterEvent extends Event{
+public class BsmMessageCountProgressionEvent extends Event{
 
     private OdeBsmData previousBsm;
     private OdeBsmData newBsm;
     private String message;
 
-    public BsmRevisionCounterEvent(){
-        super("BsmRevisionCounter");
+    public BsmMessageCountProgressionEvent(){
+        super("BsmMessageCountProgression");
     }
 
 }

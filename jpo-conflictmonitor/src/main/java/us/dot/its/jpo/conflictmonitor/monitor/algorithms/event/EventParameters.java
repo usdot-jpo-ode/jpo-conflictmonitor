@@ -93,20 +93,20 @@ public class EventParameters {
         updateType = READ_ONLY)
     String connectionOfTravelEventTopicName;
 
-    @ConfigData(key = "event.spatRevisionCounterEventTopicName", 
+    @ConfigData(key = "event.spatMessageCountProgressionEventTopicName", 
         description = "The name of the topic to read spat revision counter events from", 
         updateType = READ_ONLY)
-    String spatRevisionCounterEventTopicName;
+    String spatMessageCountProgressionEventTopicName;
 
-    @ConfigData(key = "event.mapRevisionCounterEventTopicName", 
+    @ConfigData(key = "event.mapMessageCountProgressionEventTopicName", 
         description = "The name of the topic to read map revision counter events from", 
         updateType = READ_ONLY)
-    String mapRevisionCounterEventTopicName;
+    String mapMessageCountProgressionEventTopicName;
     
-    @ConfigData(key = "event.bsmRevisionCounterEventTopicName", 
+    @ConfigData(key = "event.bsmMessageCountProgressionEventTopicName", 
         description = "The name of the topic to read bsm revision counter events from", 
         updateType = READ_ONLY)
-    String bsmRevisionCounterEventTopicName;
+    String bsmMessageCountProgressionEventTopicName;
 
     @ConfigData(key = "event.timestampDeltaEventTopicName",
         description = "The name of the topic to read MAP and SPaT Timestamp Delta events from",

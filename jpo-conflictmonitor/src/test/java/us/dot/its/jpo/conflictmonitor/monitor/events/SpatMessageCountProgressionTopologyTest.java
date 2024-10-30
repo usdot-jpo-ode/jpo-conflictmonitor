@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.SpatRevisionCounterTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.SpatMessageCountProgressionTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatMessageCountProgressionEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import static org.junit.Assert.assertNotEquals;
@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-public class SpatRevisionCounterTopologyTest {
+public class SpatMessageCountProgressionTopologyTest {
 
     String inputTopic = "topic.ProcessedSpat";
-    String outputTopic = "topic.CmSpatRevisionCounterEvents";
+    String outputTopic = "topic.CmSpatMessageCountProgressionEvents";
 
 
     TypeReference<ProcessedSpat> typeReference = new TypeReference<>(){};
@@ -47,14 +47,14 @@ public class SpatRevisionCounterTopologyTest {
     @Test
     public void testTopology() {
 
-        SpatRevisionCounterTopology spatRevisionCounterTopology = new SpatRevisionCounterTopology();
-        SpatRevisionCounterParameters parameters = new SpatRevisionCounterParameters();
+        SpatMessageCountProgressionTopology spatMessageCountProgressionTopology = new SpatMessageCountProgressionTopology();
+        SpatMessageCountProgressionParameters parameters = new SpatMessageCountProgressionParameters();
         parameters.setSpatInputTopicName(inputTopic);
         parameters.setSpatRevisionEventOutputTopicName(outputTopic);
         
-        spatRevisionCounterTopology.setParameters(parameters);
+        spatMessageCountProgressionTopology.setParameters(parameters);
 
-        Topology topology = spatRevisionCounterTopology.buildTopology();
+        Topology topology = spatMessageCountProgressionTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -65,10 +65,10 @@ public class SpatRevisionCounterTopologyTest {
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
 
-            TestOutputTopic<String, SpatRevisionCounterEvent> outputRevisionCounterEvents = driver.createOutputTopic(
+            TestOutputTopic<String, SpatMessageCountProgressionEvent> outputRevisionCounterEvents = driver.createOutputTopic(
                 outputTopic, 
                 Serdes.String().deserializer(), 
-                us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatRevisionCounterEvent().deserializer());
+                us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.SpatMessageCountProgressionEvent().deserializer());
 
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat1); // a spat
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat2); // the same spat, with revision incremented
@@ -76,18 +76,18 @@ public class SpatRevisionCounterTopologyTest {
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat4); // a changed spat, without revision incremented
             inputProcessedSpatData.pipeInput(key, inputProcessedSpat4); // spat 4 again
 
-            List<KeyValue<String, SpatRevisionCounterEvent>> spatRevisionCounterEvents = outputRevisionCounterEvents.readKeyValuesToList();
+            List<KeyValue<String, SpatMessageCountProgressionEvent>> spatMessageCountProgressionEvents = outputRevisionCounterEvents.readKeyValuesToList();
 
             // validate that just 1 event is returned, for the 3-4 spat change without a revision change
-            assertEquals(1, spatRevisionCounterEvents.size());
+            assertEquals(1, spatMessageCountProgressionEvents.size());
 
             ProcessedSpat spat3 = objectMapper.readValue(inputProcessedSpat3, typeReference);
             ProcessedSpat spat4 = objectMapper.readValue(inputProcessedSpat4, typeReference);
 
-            assertEquals(spat3.getOdeReceivedAt(), spatRevisionCounterEvents.get(0).value.getPreviousSpat().getOdeReceivedAt());
-            assertEquals(spat4.getOdeReceivedAt(), spatRevisionCounterEvents.get(0).value.getNewSpat().getOdeReceivedAt());
-            assertEquals(spatRevisionCounterEvents.get(0).value.getPreviousSpat().getRevision(),
-            spatRevisionCounterEvents.get(0).value.getNewSpat().getRevision());
+            assertEquals(spat3.getOdeReceivedAt(), spatMessageCountProgressionEvents.get(0).value.getPreviousSpat().getOdeReceivedAt());
+            assertEquals(spat4.getOdeReceivedAt(), spatMessageCountProgressionEvents.get(0).value.getNewSpat().getOdeReceivedAt());
+            assertEquals(spatMessageCountProgressionEvents.get(0).value.getPreviousSpat().getRevision(),
+            spatMessageCountProgressionEvents.get(0).value.getNewSpat().getRevision());
 
             int hashSpat3 = spat3.hashCode();
             int hashSpat4 = spat4.hashCode();    

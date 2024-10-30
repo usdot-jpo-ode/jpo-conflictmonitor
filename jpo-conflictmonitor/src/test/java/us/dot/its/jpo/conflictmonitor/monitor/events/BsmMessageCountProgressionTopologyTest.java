@@ -14,21 +14,21 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmRevisionCounterTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmMessageCountProgressionTopology;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmMessageCountProgressionEvent;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-public class BsmRevisionCounterTopologyTest {
+public class BsmMessageCountProgressionTopologyTest {
 
     String inputTopic = "topic.CmBsmJsonRepartition";
-    String outputTopic = "topic.CmBsmRevisionCounterEvents";
+    String outputTopic = "topic.CmBsmMessageCountProgressionEvents";
 
 
     TypeReference<OdeBsmData> typeReference = new TypeReference<>(){};
@@ -44,14 +44,14 @@ public class BsmRevisionCounterTopologyTest {
     @Test
     public void testTopology() {
 
-        BsmRevisionCounterTopology bsmRevisionCounterTopology = new BsmRevisionCounterTopology();
-        BsmRevisionCounterParameters parameters = new BsmRevisionCounterParameters();
+        BsmMessageCountProgressionTopology bsmMessageCountProgressionTopology = new BsmMessageCountProgressionTopology();
+        BsmMessageCountProgressionParameters parameters = new BsmMessageCountProgressionParameters();
         parameters.setBsmInputTopicName(inputTopic);
         parameters.setBsmRevisionEventOutputTopicName(outputTopic);
         
-        bsmRevisionCounterTopology.setParameters(parameters);
+        bsmMessageCountProgressionTopology.setParameters(parameters);
 
-        Topology topology = bsmRevisionCounterTopology.buildTopology();
+        Topology topology = bsmMessageCountProgressionTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -62,10 +62,10 @@ public class BsmRevisionCounterTopologyTest {
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
 
-            TestOutputTopic<String, BsmRevisionCounterEvent> outputRevisionCounterEvents = driver.createOutputTopic(
+            TestOutputTopic<String, BsmMessageCountProgressionEvent> outputRevisionCounterEvents = driver.createOutputTopic(
                 outputTopic, 
                 Serdes.String().deserializer(), 
-                us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRevisionCounterEvent().deserializer());
+                us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent().deserializer());
 
             inputBsmData.pipeInput(key, inputBsm1); // a bsm
             inputBsmData.pipeInput(key, inputBsm2); // the same bsm, with msgCount incremented
@@ -73,18 +73,18 @@ public class BsmRevisionCounterTopologyTest {
             inputBsmData.pipeInput(key, inputBsm4); // a changed bsm, without msgCount incremented
             inputBsmData.pipeInput(key, inputBsm4); // bsm 4 again
 
-            List<KeyValue<String, BsmRevisionCounterEvent>> bsmRevisionCounterEvents = outputRevisionCounterEvents.readKeyValuesToList();
+            List<KeyValue<String, BsmMessageCountProgressionEvent>> bsmMessageCountProgressionEvents = outputRevisionCounterEvents.readKeyValuesToList();
 
             // validate that just 1 event is returned, for the 3-4 bsm change without a revision change
-            assertEquals(1, bsmRevisionCounterEvents.size());
+            assertEquals(1, bsmMessageCountProgressionEvents.size());
 
             OdeBsmData bsm3 = objectMapper.readValue(inputBsm3, typeReference);
             OdeBsmData bsm4 = objectMapper.readValue(inputBsm4, typeReference);
-            J2735Bsm eventPreviousBsmPayload = (J2735Bsm) bsmRevisionCounterEvents.get(0).value.getPreviousBsm().getPayload().getData();
-            J2735Bsm eventNewBsmPayload = (J2735Bsm) bsmRevisionCounterEvents.get(0).value.getNewBsm().getPayload().getData();
+            J2735Bsm eventPreviousBsmPayload = (J2735Bsm) bsmMessageCountProgressionEvents.get(0).value.getPreviousBsm().getPayload().getData();
+            J2735Bsm eventNewBsmPayload = (J2735Bsm) bsmMessageCountProgressionEvents.get(0).value.getNewBsm().getPayload().getData();
 
-//            assertEquals(bsm3.getOdeReceivedAt(), bsmRevisionCounterEvents.get(0).value.getPreviousBsm().getOdeReceivedAt());
-//            assertEquals(bsm4.getOdeReceivedAt(), bsmRevisionCounterEvents.get(0).value.getNewBsm().getOdeReceivedAt());
+//            assertEquals(bsm3.getOdeReceivedAt(), bsmMessageCountProgressionEvents.get(0).value.getPreviousBsm().getOdeReceivedAt());
+//            assertEquals(bsm4.getOdeReceivedAt(), bsmMessageCountProgressionEvents.get(0).value.getNewBsm().getOdeReceivedAt());
             assertEquals(eventPreviousBsmPayload.getCoreData().getMsgCnt(), eventNewBsmPayload.getCoreData().getMsgCnt());
             
             int hashBsm3 = bsm3.hashCode();

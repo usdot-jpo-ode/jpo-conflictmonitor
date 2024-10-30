@@ -10,14 +10,14 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
-public class MapRevisionCounterEvent extends Event{
+public class MapMessageCountProgressionEvent extends Event{
 
     private ProcessedMap<LineString> previousMap;
     private ProcessedMap<LineString> newMap;
     private String message;
 
-    public MapRevisionCounterEvent(){
-        super("MapRevisionCounter");
+    public MapMessageCountProgressionEvent(){
+        super("MapMessageCountProgression");
     }
 
 }

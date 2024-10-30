@@ -14,7 +14,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 @Component
 @ConfigurationProperties(prefix = "bsm.revision.counter")
 @ConfigDataClass
-public class BsmRevisionCounterParameters {
+public class BsmMessageCountProgressionParameters {
     
     @ConfigData(key = "bsm.revision.counter.debug", 
         description = "Whether to log diagnostic information for debugging",

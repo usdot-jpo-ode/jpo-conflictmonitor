@@ -14,7 +14,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 @Component
 @ConfigurationProperties(prefix = "map.revision.counter")
 @ConfigDataClass
-public class MapRevisionCounterParameters {
+public class MapMessageCountProgressionParameters {
     
     @ConfigData(key = "map.revision.counter.debug", 
         description = "Whether to log diagnostic information for debugging",

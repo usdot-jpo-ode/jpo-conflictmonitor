@@ -162,13 +162,13 @@ kafka.topics:
     - name: topic.CmStopLinePassageNotification
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmMapRevisionCounterEvents
+    - name: topic.CmMapMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmSpatRevisionCounterEvents
+    - name: topic.CmSpatMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmBsmRevisionCounterEvents
+    - name: topic.CmBsmMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
     - name: topic.CmTimestampDeltaEvent
@@ -310,9 +310,9 @@ event:
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
   connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
-  spatRevisionCounterEventTopicName: topic.CmSpatRevisionCounterEvents
-  mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
-  bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
+  spatMessageCountProgressionEventTopicName: topic.CmSpatMessageCountProgressionEvents
+  mapMessageCountProgressionEventTopicName: topic.CmMapMessageCountProgressionEvents
+  bsmMessageCountProgressionEventTopicName: topic.CmBsmMessageCountProgressionEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
   eventStateProgressionEventTopicName: topic.CmEventStateProgressionEvent
 
@@ -414,24 +414,24 @@ message.ingest:
 
 # MAP Revision Counter
 map.revision.counter:
-  algorithm: defaultMapRevisionCounterAlgorithm
+  algorithm: defaultMapMessageCountProgressionAlgorithm
   debug: false
   mapInputTopicName: topic.ProcessedMap
-  mapRevisionEventOutputTopicName: topic.CmMapRevisionCounterEvents
+  mapRevisionEventOutputTopicName: topic.CmMapMessageCountProgressionEvents
 
 # SPAT Revision Counter
 spat.revision.counter:
-  algorithm: defaultSpatRevisionCounterAlgorithm
+  algorithm: defaultSpatMessageCountProgressionAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
-  spatRevisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
+  spatRevisionEventOutputTopicName: topic.CmSpatMessageCountProgressionEvents
 
 # BSM Revision Counter
 bsm.revision.counter:
-  algorithm: defaultBsmRevisionCounterAlgorithm
+  algorithm: defaultBsmMessageCountProgressionAlgorithm
   debug: false
   bsmInputTopicName: topic.CmBsmJsonRepartition
-  bsmRevisionEventOutputTopicName: topic.CmBsmRevisionCounterEvents
+  bsmRevisionEventOutputTopicName: topic.CmBsmMessageCountProgressionEvents
 
 # Config parameters
 config:

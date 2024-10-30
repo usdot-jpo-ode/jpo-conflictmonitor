@@ -14,7 +14,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
 @Component
 @ConfigurationProperties(prefix = "spat.revision.counter")
 @ConfigDataClass
-public class SpatRevisionCounterParameters {
+public class SpatMessageCountProgressionParameters {
     
     @ConfigData(key = "spat.revision.counter.debug", 
         description = "Whether to log diagnostic information for debugging",

@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapRevisionCounterTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapMessageCountProgressionTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapMessageCountProgressionEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-public class MapRevisionCounterTopologyTest {
+public class MapMessageCountProgressionTopologyTest {
 
     String inputTopic = "topic.ProcessedMap";
-    String outputTopic = "topic.CmMapRevisionCounterEvents";
+    String outputTopic = "topic.CmMapMessageCountProgressionEvents";
 
 
     TypeReference<ProcessedMap<LineString>> typeReference = new TypeReference<>(){};
@@ -48,14 +48,14 @@ public class MapRevisionCounterTopologyTest {
     @Test
     public void testTopology() {
 
-        MapRevisionCounterTopology mapRevisionCounterTopology = new MapRevisionCounterTopology();
-        MapRevisionCounterParameters parameters = new MapRevisionCounterParameters();
+        MapMessageCountProgressionTopology mapMessageCountProgressionTopology = new MapMessageCountProgressionTopology();
+        MapMessageCountProgressionParameters parameters = new MapMessageCountProgressionParameters();
         parameters.setMapInputTopicName(inputTopic);
         parameters.setMapRevisionEventOutputTopicName(outputTopic);
         
-        mapRevisionCounterTopology.setParameters(parameters);
+        mapMessageCountProgressionTopology.setParameters(parameters);
 
-        Topology topology = mapRevisionCounterTopology.buildTopology();
+        Topology topology = mapMessageCountProgressionTopology.buildTopology();
         objectMapper.registerModule(new JavaTimeModule());
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
@@ -66,10 +66,10 @@ public class MapRevisionCounterTopologyTest {
                 Serdes.String().serializer(), 
                 Serdes.String().serializer());
 
-            TestOutputTopic<String, MapRevisionCounterEvent> outputRevisionCounterEvents = driver.createOutputTopic(
+            TestOutputTopic<String, MapMessageCountProgressionEvent> outputRevisionCounterEvents = driver.createOutputTopic(
                 outputTopic, 
                 Serdes.String().deserializer(), 
-                us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent().deserializer());
+                us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapMessageCountProgressionEvent().deserializer());
 
             inputProcessedMapData.pipeInput(key, inputProcessedMap1); // a map
             inputProcessedMapData.pipeInput(key, inputProcessedMap2); // the same map, with revision incremented
@@ -77,18 +77,18 @@ public class MapRevisionCounterTopologyTest {
             inputProcessedMapData.pipeInput(key, inputProcessedMap4); // a changed map, without revision incremented
             inputProcessedMapData.pipeInput(key, inputProcessedMap4); // map 4 again
 
-            List<KeyValue<String, MapRevisionCounterEvent>> mapRevisionCounterEvents = outputRevisionCounterEvents.readKeyValuesToList();
+            List<KeyValue<String, MapMessageCountProgressionEvent>> mapMessageCountProgressionEvents = outputRevisionCounterEvents.readKeyValuesToList();
 
             // validate that just 1 event is returned, for the 3-4 map change without a revision change
-            assertEquals(1, mapRevisionCounterEvents.size());
+            assertEquals(1, mapMessageCountProgressionEvents.size());
 
             ProcessedMap<LineString> map3 = objectMapper.readValue(inputProcessedMap3, typeReference);
             ProcessedMap<LineString> map4 = objectMapper.readValue(inputProcessedMap4, typeReference);
 
-            assertEquals(map3.getProperties().getOdeReceivedAt(), mapRevisionCounterEvents.get(0).value.getPreviousMap().getProperties().getOdeReceivedAt());
-            assertEquals(map4.getProperties().getOdeReceivedAt(), mapRevisionCounterEvents.get(0).value.getNewMap().getProperties().getOdeReceivedAt());
-            assertEquals(mapRevisionCounterEvents.get(0).value.getPreviousMap().getProperties().getRevision(),
-            mapRevisionCounterEvents.get(0).value.getNewMap().getProperties().getRevision());
+            assertEquals(map3.getProperties().getOdeReceivedAt(), mapMessageCountProgressionEvents.get(0).value.getPreviousMap().getProperties().getOdeReceivedAt());
+            assertEquals(map4.getProperties().getOdeReceivedAt(), mapMessageCountProgressionEvents.get(0).value.getNewMap().getProperties().getOdeReceivedAt());
+            assertEquals(mapMessageCountProgressionEvents.get(0).value.getPreviousMap().getProperties().getRevision(),
+            mapMessageCountProgressionEvents.get(0).value.getNewMap().getProperties().getRevision());
 
             int hashMap3 = map3.hashCode();
             int hashMap4 = map4.hashCode();    

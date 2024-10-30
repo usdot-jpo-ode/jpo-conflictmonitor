@@ -14,25 +14,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapMessageCountProgressionEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterConstants.DEFAULT_MAP_REVISION_COUNTER_ALGORITHM;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionConstants.DEFAULT_MAP_REVISION_COUNTER_ALGORITHM;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 @Component(DEFAULT_MAP_REVISION_COUNTER_ALGORITHM)
-public class MapRevisionCounterTopology
-        extends BaseStreamsTopology<MapRevisionCounterParameters>
-        implements MapRevisionCounterStreamsAlgorithm {
+public class MapMessageCountProgressionTopology
+        extends BaseStreamsTopology<MapMessageCountProgressionParameters>
+        implements MapMessageCountProgressionStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapRevisionCounterTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapMessageCountProgressionTopology.class);
 
 
 
@@ -47,9 +47,9 @@ public class MapRevisionCounterTopology
 
         KStream<String, ProcessedMap<LineString>> inputStream = builder.stream(parameters.getMapInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()));
 
-        KStream<String, MapRevisionCounterEvent> eventStream = inputStream
+        KStream<String, MapMessageCountProgressionEvent> eventStream = inputStream
         .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ProcessedMapGeoJson()))
-        .aggregate(() -> new MapRevisionCounterEvent(),
+        .aggregate(() -> new MapMessageCountProgressionEvent(),
         (key, newValue, aggregate) -> {
 
             aggregate.setMessage(null);
@@ -86,16 +86,16 @@ public class MapRevisionCounterTopology
 
             }
 
-        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()))
+        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapMessageCountProgressionEvent()))
         .toStream()
         .flatMap((key, value) ->{
-            ArrayList<KeyValue<String, MapRevisionCounterEvent>> outputList = new ArrayList<>();
+            ArrayList<KeyValue<String, MapMessageCountProgressionEvent>> outputList = new ArrayList<>();
             if (value.getMessage() != null){
                 outputList.add(new KeyValue<>(key, value));   
             }
             return outputList;
         });
-        eventStream.to(parameters.getMapRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapRevisionCounterEvent()));
+        eventStream.to(parameters.getMapRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.MapMessageCountProgressionEvent()));
 
         return builder.build();
 

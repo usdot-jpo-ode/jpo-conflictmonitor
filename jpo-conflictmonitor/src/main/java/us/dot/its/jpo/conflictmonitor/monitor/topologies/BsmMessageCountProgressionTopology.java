@@ -16,24 +16,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmMessageCountProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterConstants.DEFAULT_BSM_REVISION_COUNTER_ALGORITHM;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionConstants.DEFAULT_BSM_REVISION_COUNTER_ALGORITHM;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 @Component(DEFAULT_BSM_REVISION_COUNTER_ALGORITHM)
-public class BsmRevisionCounterTopology
-        extends BaseStreamsTopology<BsmRevisionCounterParameters>
-        implements BsmRevisionCounterStreamsAlgorithm {
+public class BsmMessageCountProgressionTopology
+        extends BaseStreamsTopology<BsmMessageCountProgressionParameters>
+        implements BsmMessageCountProgressionStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(BsmRevisionCounterTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(BsmMessageCountProgressionTopology.class);
 
 
 
@@ -48,9 +48,9 @@ public class BsmRevisionCounterTopology
 
         KStream<String, OdeBsmData> inputStream = builder.stream(parameters.getBsmInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.OdeBsm()));
 
-        KStream<String, BsmRevisionCounterEvent> eventStream = inputStream
+        KStream<String, BsmMessageCountProgressionEvent> eventStream = inputStream
         .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeBsm()))
-        .aggregate(() -> new BsmRevisionCounterEvent(),
+        .aggregate(() -> new BsmMessageCountProgressionEvent(),
         (key, newValue, aggregate) -> {
             aggregate.setMessage(null);
             if (aggregate.getNewBsm() == null){
@@ -92,16 +92,16 @@ public class BsmRevisionCounterTopology
 
             }
 
-        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRevisionCounterEvent()))
+        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()))
         .toStream()
         .flatMap((key, value) ->{
-            ArrayList<KeyValue<String, BsmRevisionCounterEvent>> outputList = new ArrayList<>();
+            ArrayList<KeyValue<String, BsmMessageCountProgressionEvent>> outputList = new ArrayList<>();
             if (value.getMessage() != null){
                 outputList.add(new KeyValue<>(key, value));   
             }
             return outputList;
         });
-        eventStream.to(parameters.getBsmRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRevisionCounterEvent()));
+        eventStream.to(parameters.getBsmRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()));
 
         return builder.build();
     }

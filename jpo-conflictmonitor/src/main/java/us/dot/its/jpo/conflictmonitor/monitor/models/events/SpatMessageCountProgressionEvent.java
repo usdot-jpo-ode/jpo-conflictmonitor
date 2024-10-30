@@ -10,14 +10,14 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
-public class SpatRevisionCounterEvent extends Event{
+public class SpatMessageCountProgressionEvent extends Event{
 
     private ProcessedSpat previousSpat;
     private ProcessedSpat newSpat;
     private String message;
 
-    public SpatRevisionCounterEvent(){
-        super("SpatRevisionCounter");
+    public SpatMessageCountProgressionEvent(){
+        super("SpatMessageCountProgression");
     }
 
 }
