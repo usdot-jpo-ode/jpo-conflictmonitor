@@ -12,7 +12,7 @@ The latest image can be pulled using the following command:
 
 ## Required environment variables
 	• DOCKER_HOST_IP
-	• DB_HOST_IP
+	• MONGO_IP
 	• CONNECT_BOOTSTRAP_SERVERS
 
 ## Direct Dependencies
@@ -40,9 +40,9 @@ services:
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
-      DB_HOST_IP: ${DB_HOST_IP}
+      MONGO_IP: ${MONGO_IP}
       spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
-      spring.data.mongodb.uri: mongodb://${DB_HOST_IP}:27017
+      spring.data.mongodb.uri: mongodb://${MONGO_IP}:27017
     logging:
       options:
         max-size: "10m"
@@ -58,14 +58,14 @@ services:
     restart: always
     environment:
       - MONGO_REPLICA_SET_NAME=rs0
-      - DB_HOST_IP=${DB_HOST_IP}
+      - MONGO_IP=${MONGO_IP}
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data_container:/data/db
     healthcheck:
       test: | 
-        test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${DB_HOST_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
+        test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '${MONGO_IP}' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 10s
       start_period: 30s
     command: ["--replSet", "rs0", "--bind_ip_all"]
@@ -92,7 +92,7 @@ services:
         condition: service_healthy
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
-      DB_HOST_IP: ${DB_HOST_IP}
+      MONGO_IP: ${MONGO_IP}
       CONNECT_BOOTSTRAP_SERVERS: ${KAFKA_BROKER_IP}:9092
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083

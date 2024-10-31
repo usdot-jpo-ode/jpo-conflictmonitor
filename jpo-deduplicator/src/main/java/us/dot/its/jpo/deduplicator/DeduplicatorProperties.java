@@ -159,7 +159,7 @@ public class DeduplicatorProperties implements EnvironmentAware  {
       EventLogger.logger.info("Initializing services on host {}", hostId);
 
       if(dbHostIP == null){
-         String dbHost = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+         String dbHost = CommonUtils.getEnvironmentVariable("MONGO_IP");
 
          if(dbHost == null){
             logger.warn(
@@ -198,7 +198,7 @@ public class DeduplicatorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+         String kafkaBroker = CommonUtils.getEnvironmentVariable("MONGO_IP");
          if (kafkaBroker == null) {
             kafkaBroker = "localhost";
          }

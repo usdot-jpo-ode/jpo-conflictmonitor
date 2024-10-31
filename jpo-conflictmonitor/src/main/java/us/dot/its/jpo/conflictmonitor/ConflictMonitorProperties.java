@@ -710,9 +710,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Setter(AccessLevel.NONE)
    private String kafkaBrokerIP = null;
 
-
-   @Setter(AccessLevel.NONE)
-   private String dbHostIP = null;
+   // No longer need a mongo DB connection for this service
+   // @Setter(AccessLevel.NONE)
+   // private String dbHostIP = null;
 
 
 
@@ -770,16 +770,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       logger.info("Host ID: {}", hostId);
       EventLogger.logger.info("Initializing services on host {}", hostId);
 
-      if(dbHostIP == null){
-         String dbHost = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+      // No longer need a mongo DB connection for this service
+      // if(dbHostIP == null){
+      //    String dbHost = CommonUtils.getEnvironmentVariable("MONGO_IP");
 
-         if(dbHost == null){
-            logger.warn(
-                  "DB Host IP not defined, Defaulting to localhost.");
-            dbHost = "localhost";
-         }
-         dbHostIP = dbHost;
-      }
+      //    if(dbHost == null){
+      //       logger.warn(
+      //             "DB Host IP not defined, Defaulting to localhost.");
+      //       dbHost = "localhost";
+      //    }
+      //    dbHostIP = dbHost;
+      // }
 
       if (kafkaBrokers == null) {
 
@@ -810,7 +811,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+         String kafkaBroker = CommonUtils.getEnvironmentVariable("MONGO_IP");
          if (kafkaBroker == null) {
             kafkaBroker = "localhost";
          }
