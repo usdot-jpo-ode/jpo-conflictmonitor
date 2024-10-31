@@ -18,6 +18,8 @@ import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
+import java.time.Duration;
+
 
 @Slf4j
 public class SpatMinimumDataAggregationTopology
@@ -88,7 +90,10 @@ public class SpatMinimumDataAggregationTopology
                         keySerde(),
                         eventAggregationSerde());
 
-        inputStream.process(() -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation>())
+        inputStream.process(() -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation>(
+
+
+                ))
                     .to(eventAggregationTopic, produced);
 
     }

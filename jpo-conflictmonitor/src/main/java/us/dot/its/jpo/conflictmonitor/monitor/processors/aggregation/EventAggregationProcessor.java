@@ -9,6 +9,7 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 
 import java.time.Duration;
 
@@ -21,15 +22,11 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
 
     Cancellable punctuatorCancellationToken;
     final String storeName;
-    final Duration aggInterval;
-    final long gracePeriodMs;
-    final Duration punctuatorInterval;
+    final AggregationParameters params;
 
-    public EventAggregationProcessor(String storeName, Duration aggInterval, Duration punctuatorInterval, long gracePeriodMs) {
+    public EventAggregationProcessor(String storeName, AggregationParameters parameters) {
         this.storeName = storeName;
-        this.aggInterval = aggInterval;
-        this.punctuatorInterval = punctuatorInterval;
-        this.gracePeriodMs = gracePeriodMs;
+        this.params = parameters;
     }
 
     @Override
@@ -42,6 +39,7 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
         try {
             super.init(context);
             store = context.getStateStore(storeName);
+            final var punctuatorInterval = Duration.ofMillis(params.getCheckIntervalMs());
             punctuatorCancellationToken = context.schedule(punctuatorInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
         } catch (Exception e) {
             log.error("Error initializing EventAggregationProcessor", e);

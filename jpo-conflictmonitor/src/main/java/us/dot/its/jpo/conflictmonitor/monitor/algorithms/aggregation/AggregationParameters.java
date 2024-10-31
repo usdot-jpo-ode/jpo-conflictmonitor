@@ -8,9 +8,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
@@ -41,14 +45,75 @@ public class AggregationParameters {
             updateType = DEFAULT)
     volatile ChronoUnit intervalUnits;
 
+    @ConfigData(key = "aggregation.punctuator.interval.ms",
+            description = """
+            How often to run the process to check whether to emit an aggregated event, in milliseconds. Must be shorter
+            than the aggregation interval. Publishing the aggregated events may be delayed by up to this amount of time
+            after the aggregation period elapses.
+            """,
+            updateType = READ_ONLY)
+    long checkIntervalMs;
+
+    @ConfigData(key = "aggregation.grace.period.ms",
+            description = "Grace period for receiving out-of-order events",
+            updateType = DEFAULT)
+    volatile long gracePeriodMs;
+
     @ConfigData(key = "aggregation.eventTopicMap",
         description = "Map of aggregated event names to output topic names",
         updateType = READ_ONLY)
     EventTopicMap eventTopicMap;
 
-    public Duration timeInterval() {
+    public Duration aggInterval() {
         return Duration.of(interval, intervalUnits);
     }
+
+    public long aggIntervalMillis() {
+        return aggInterval().toMillis();
+    }
+
+    /**
+     * Utility function to get the beginning and end of the aggregation interval aligned to the beginning of the day,
+     * hour, or minute, containing the timestamp.
+     *
+     * @param timestampMs Epoch millisecond timestamp
+     * @return A midnight aligned time period (begin and end time) containing the timestamp.
+     */
+    public ProcessingTimePeriod aggTimePeriod(final long timestampMs) {
+        validateInterval();
+        final var timestamp = Instant.ofEpochMilli(timestampMs);
+        final var zdt = ZonedDateTime.ofInstant(timestamp, ZoneOffset.UTC);
+        return switch (intervalUnits) {
+            case HOURS -> {
+                final Instant startOfDay = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(), 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
+                final int numHours = zdt.getHour();
+                yield alignedTimePeriod(startOfDay, numHours);
+            }
+            case MINUTES -> {
+                final Instant startOfHour = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(), zdt.getHour(), 0, 0, 0, ZoneOffset.UTC).toInstant();
+                final int numMinutes = zdt.getMinute();
+                yield alignedTimePeriod(startOfHour, numMinutes);
+            }
+            case SECONDS -> {
+                final Instant startOfMinute = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(), zdt.getHour(), zdt.getMinute(), 0, 0, ZoneOffset.UTC).toInstant();
+                final int numSeconds = zdt.getSecond();
+                yield alignedTimePeriod(startOfMinute, numSeconds);
+            }
+            default -> throw new RuntimeException("Invalid interval units");
+        };
+
+    }
+
+    private ProcessingTimePeriod alignedTimePeriod(final Instant startOfUnits, final int numUnits) {
+        final var numberOfIntervals = numUnits / interval;
+        final var startOfInterval = startOfUnits.plus((long) numberOfIntervals * interval, intervalUnits);
+        final var endOfInterval = startOfInterval.plus(interval, intervalUnits);
+        final var period = new ProcessingTimePeriod();
+        period.setBeginTimestamp(startOfInterval.toEpochMilli());
+        period.setEndTimestamp(endOfInterval.toEpochMilli());
+        return period;
+    }
+
 
     /**
      * Preliminary Design Details, Data Management, p.9:
