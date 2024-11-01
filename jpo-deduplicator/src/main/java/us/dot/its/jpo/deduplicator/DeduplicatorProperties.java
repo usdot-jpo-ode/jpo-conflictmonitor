@@ -97,6 +97,12 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private String confluentKey = null;
    private String confluentSecret = null;
 
+   // Processed SPaT Configuration
+   private String kafkaTopicProcessedSpat;
+   private String kafkaTopicDeduplicatedProcessedSpat;
+   private boolean enableProcessedSpatDeduplication;
+   private String kafkaStateStoreProcessedSpatName = "ProcessedSpat-store";
+
    
 
    @Autowired
@@ -403,6 +409,21 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    @Value("${spring.kafka.bootstrap-servers}")
    public void setKafkaBrokers(String kafkaBrokers) {
       this.kafkaBrokers = kafkaBrokers;
+   }
+
+   @Value("${kafkaTopicProcessedSpat}")
+   public void setKafkaTopicProcessedSpat(String kafkaTopicProcessedSpat) {
+      this.kafkaTopicProcessedSpat = kafkaTopicProcessedSpat;
+   }
+
+   @Value("${kafkaTopicDeduplicatedProcessedSpat}")
+   public void setKafkaTopicDeduplicatedProcessedSpat(String kafkaTopicDeduplicatedProcessedSpat) {
+      this.kafkaTopicDeduplicatedProcessedSpat = kafkaTopicDeduplicatedProcessedSpat;
+   }
+
+   @Value("${enableProcessedSpatDeduplication}")
+   public void setEnableProcessedSpatDeduplication(boolean enableProcessedSpatDeduplication) {
+      this.enableProcessedSpatDeduplication = enableProcessedSpatDeduplication;
    }
 
    @Override

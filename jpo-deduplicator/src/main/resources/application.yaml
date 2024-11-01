@@ -47,6 +47,11 @@ odeBsmMaximumTimeDelta: 10000 # Milliseconds
 odeBsmMaximumPositionDelta: 1 # Meter
 odeBsmAlwaysIncludeAtSpeed: 1 # Meter / Second
 
+# Processed Map Configuration
+kafkaTopicProcessedSpat: topic.ProcessedSpat
+kafkaTopicDeduplicatedProcessedSpat: topic.DeduplicatedProcessedSpat
+enableProcessedSpatDeduplication: true
+
 
 
 
@@ -78,6 +83,12 @@ kafka.topics:
       cleanupPolicy: delete
       retentionMs: 300000
     - name: ${kafkaTopicDeduplicatedOdeTimJson}
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: ${kafkaTopicProcessedSpat}
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: ${kafkaTopicDeduplicatedProcessedSpat}
       cleanupPolicy: delete
       retentionMs: 300000
     
