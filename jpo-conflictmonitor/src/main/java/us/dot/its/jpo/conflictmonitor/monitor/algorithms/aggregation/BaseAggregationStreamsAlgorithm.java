@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.processor.StreamPartitioner;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 
 
@@ -34,4 +35,11 @@ public interface BaseAggregationStreamsAlgorithm<TKey, TEvent extends Event, TAg
      */
     Serde<TAggEvent> eventAggregationSerde();
 
+    /**
+     * Stream Partitioner for the output aggregated event.  Output events should use the same
+     * partitioner as input events to minimize repartitioning in the topologies.
+     *
+     * @return An instance of the partitioner
+     */
+    StreamPartitioner<TKey, TAggEvent> eventAggregationPartitioner();
 }

@@ -8,8 +8,8 @@ import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
-import org.apache.kafka.streams.state.WindowStore;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 import java.time.Duration;
 
@@ -18,19 +18,25 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
 
     // version timestamp is the end of the aggregation interval
     // Key contains all unique fields of the event
-    VersionedKeyValueStore<TKey, TAggEvent> store;
+    VersionedKeyValueStore<TKey, TAggEvent> eventStore;
+    KeyValueStore<TKey, Long> keyStore;
 
     Cancellable punctuatorCancellationToken;
-    final String storeName;
+    final String eventStoreName;
+    final String keyStoreName;
     final AggregationParameters params;
 
-    public EventAggregationProcessor(String storeName, AggregationParameters parameters) {
-        this.storeName = storeName;
+    public EventAggregationProcessor(String eventStoreName, String keyStoreName, AggregationParameters parameters) {
+        this.eventStoreName = eventStoreName;
+        this.keyStoreName = keyStoreName;
         this.params = parameters;
     }
 
     @Override
     public void process(Record<TKey, TEvent> record) {
+        final long timestamp = record.timestamp();
+        ProcessingTimePeriod period = params.aggTimePeriod(timestamp);
+
 
     }
 
@@ -38,7 +44,8 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
     public void init(ProcessorContext<TKey, TAggEvent> context) {
         try {
             super.init(context);
-            store = context.getStateStore(storeName);
+            eventStore = context.getStateStore(eventStoreName);
+            keyStore = context.getStateStore(keyStoreName);
             final var punctuatorInterval = Duration.ofMillis(params.getCheckIntervalMs());
             punctuatorCancellationToken = context.schedule(punctuatorInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
         } catch (Exception e) {

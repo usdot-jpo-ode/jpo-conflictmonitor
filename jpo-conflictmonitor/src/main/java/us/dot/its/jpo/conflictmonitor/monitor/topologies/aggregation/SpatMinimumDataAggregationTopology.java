@@ -2,9 +2,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.aggregation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
@@ -59,11 +61,17 @@ public class SpatMinimumDataAggregationTopology
     }
 
     @Override
+    public StreamPartitioner<RsuIntersectionKey, SpatMinimumDataEventAggregation> eventAggregationPartitioner() {
+        return new IntersectionIdPartitioner<>();
+    }
+
+    @Override
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, SpatMinimumDataEvent> inputStream) {
 
-        // Name store by convention
+        // Name stores by convention so we don't have to create properties for their names
         final String eventName = constructEventAggregation().getEventType();
-        final String storeName = eventName + "Store";
+        final String eventStoreName = eventName + "EventStore";
+        final String keyStoreName = eventName + "KeyStore";
         final var eventTopicMap = parameters.getEventTopicMap();
         String eventAggregationTopic;
         if (eventTopicMap.containsKey(eventName)) {
@@ -71,30 +79,35 @@ public class SpatMinimumDataAggregationTopology
         } else {
             throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap", eventName));
         }
+        // Store retention time: double interval plus grace period to be safe in the worst case
+        final long retentionTimeMillis = 2 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
+        final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
 
-
-        final var storeBuilder =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore(storeName),
+        final var eventStoreBuilder =
+                Stores.versionedKeyValueStoreBuilder(
+                        Stores.persistentVersionedKeyValueStore(eventStoreName, retentionTime),
                         keySerde(),
                         eventAggregationSerde()
                 );
-        builder.addStateStore(storeBuilder);
+        final var keyStoreBuilder =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore(keyStoreName),
+                        keySerde(),
+                        Serdes.Boolean()
+                );
+        builder.addStateStore(eventStoreBuilder);
+        builder.addStateStore(keyStoreBuilder);
 
-        var produced = IntersectionKey.class.isAssignableFrom(keyClass())
-                ? Produced.with(    // Use intersection id partitioner if we can
+        inputStream
+            .process(
+                () -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent,
+                        SpatMinimumDataEventAggregation>(eventStoreName, keyStoreName, parameters),
+                    eventStoreName, keyStoreName)
+            .to(eventAggregationTopic,
+                Produced.with(
                     keySerde(),
                     eventAggregationSerde(),
-                    new IntersectionIdPartitioner<>())
-                : Produced.with(    // We don't know how to partition the key, use default partitioner
-                        keySerde(),
-                        eventAggregationSerde());
-
-        inputStream.process(() -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation>(
-
-
-                ))
-                    .to(eventAggregationTopic, produced);
+                    eventAggregationPartitioner()));
 
     }
 

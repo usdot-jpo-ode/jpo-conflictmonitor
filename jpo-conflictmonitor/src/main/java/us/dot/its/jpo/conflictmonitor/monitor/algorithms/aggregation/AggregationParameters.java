@@ -37,12 +37,12 @@ public class AggregationParameters {
 
     @ConfigData(key = "aggregation.interval",
             description = "The time interval over which to aggregate events",
-            updateType = DEFAULT)
+            updateType = READ_ONLY)
     volatile int interval;
 
     @ConfigData(key = "aggregation.interval.units",
             description = "The time units of the aggregation interval",
-            updateType = DEFAULT)
+            updateType = READ_ONLY)
     volatile ChronoUnit intervalUnits;
 
     @ConfigData(key = "aggregation.punctuator.interval.ms",
@@ -56,7 +56,7 @@ public class AggregationParameters {
 
     @ConfigData(key = "aggregation.grace.period.ms",
             description = "Grace period for receiving out-of-order events",
-            updateType = DEFAULT)
+            updateType = READ_ONLY)
     volatile long gracePeriodMs;
 
     @ConfigData(key = "aggregation.eventTopicMap",
@@ -85,17 +85,20 @@ public class AggregationParameters {
         final var zdt = ZonedDateTime.ofInstant(timestamp, ZoneOffset.UTC);
         return switch (intervalUnits) {
             case HOURS -> {
-                final Instant startOfDay = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(), 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
+                final Instant startOfDay = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(),
+                        0, 0, 0, 0, ZoneOffset.UTC).toInstant();
                 final int numHours = zdt.getHour();
                 yield alignedTimePeriod(startOfDay, numHours);
             }
             case MINUTES -> {
-                final Instant startOfHour = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(), zdt.getHour(), 0, 0, 0, ZoneOffset.UTC).toInstant();
+                final Instant startOfHour = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(),
+                        zdt.getHour(), 0, 0, 0, ZoneOffset.UTC).toInstant();
                 final int numMinutes = zdt.getMinute();
                 yield alignedTimePeriod(startOfHour, numMinutes);
             }
             case SECONDS -> {
-                final Instant startOfMinute = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(), zdt.getHour(), zdt.getMinute(), 0, 0, ZoneOffset.UTC).toInstant();
+                final Instant startOfMinute = ZonedDateTime.of(zdt.getYear(), zdt.getMonthValue(), zdt.getDayOfMonth(),
+                        zdt.getHour(), zdt.getMinute(), 0, 0, ZoneOffset.UTC).toInstant();
                 final int numSeconds = zdt.getSecond();
                 yield alignedTimePeriod(startOfMinute, numSeconds);
             }
