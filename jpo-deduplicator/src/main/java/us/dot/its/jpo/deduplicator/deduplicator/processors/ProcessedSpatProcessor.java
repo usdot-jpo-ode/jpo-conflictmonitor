@@ -40,6 +40,10 @@ public class ProcessedSpatProcessor extends DeduplicationProcessor<ProcessedSpat
                 lastMessageStates.put(state.getSignalGroup(), state.getStateTimeSpeed());
             }
 
+            if(lastMessageStates.size() != newMessage.getStates().size()){
+                return false; // message cannot be duplicate if the signal groups have a different number of signal groups
+            }
+
             for(MovementState state: newMessage.getStates()){
                 List<MovementEvent> lastMessageState = lastMessageStates.get(state.getSignalGroup());
 
