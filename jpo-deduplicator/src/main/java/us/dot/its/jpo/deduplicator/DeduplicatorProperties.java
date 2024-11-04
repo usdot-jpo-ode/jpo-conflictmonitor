@@ -103,6 +103,9 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private boolean enableProcessedSpatDeduplication;
    private String kafkaStateStoreProcessedSpatName = "ProcessedSpat-store";
 
+
+   private int lingerMs = 0;
+
    
 
    @Autowired
@@ -262,7 +265,10 @@ public class DeduplicatorProperties implements EnvironmentAware  {
       streamProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, FIVE_MINUTES_MS);
 
       // Disable batching
-      streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+      // streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+      streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");
@@ -429,5 +435,14 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    @Override
    public void setEnvironment(Environment environment) {
       env = environment;
+   }
+
+   @Value("${kafka.linger_ms}")
+   public void setKafkaLingerMs(int lingerMs) {
+      this.lingerMs = lingerMs;
+   }
+
+   public int getKafkaLingerMs() {
+      return lingerMs;
    }
 }

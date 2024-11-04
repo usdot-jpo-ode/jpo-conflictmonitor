@@ -53,7 +53,8 @@ kafkaTopicDeduplicatedProcessedSpat: topic.DeduplicatedProcessedSpat
 enableProcessedSpatDeduplication: true
 
 
-
+# Amount of time to wait to try and increase batching
+kafka.linger_ms: 50
 
 # Custom kafka properties
 kafka.topics:

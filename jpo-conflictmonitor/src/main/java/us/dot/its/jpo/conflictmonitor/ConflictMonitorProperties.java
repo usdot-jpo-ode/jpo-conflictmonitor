@@ -67,6 +67,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.S
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
@@ -79,7 +81,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithmFactory;
@@ -142,6 +143,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String spatTimeChangeDetailsNotificationAlgorithm;
    private SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters;
 
+   private EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory;
+   private String spatTransitionAlgorithm;
+   private EventStateProgressionParameters spatTransitionParameters;
 
    private MapTimeChangeDetailsAlgorithmFactory mapTimeChangeDetailsAlgorithmFactory;
    private String mapTimeChangeDetailsAlgorithm;
@@ -191,6 +195,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private boolean confluentCloudEnabled = false;
    private String confluentKey = null;
    private String confluentSecret = null;
+
+   private int lingerMs = 0;
 
 
    
@@ -418,7 +424,20 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatTimeChangeDetailsParameters = spatTimeChangeDetailsParameters;
    }
 
-   
+   @Autowired
+   public void setSpatTransitionAlgorithmFactory(EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory) {
+      this.spatTransitionAlgorithmFactory = spatTransitionAlgorithmFactory;
+   }
+
+   @Value("${event.state.progression.algorithm}")
+   public void setSpatTransitionAlgorithm(String spatTransitionAlgorithm) {
+      this.spatTransitionAlgorithm = spatTransitionAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatTransitionParameters(EventStateProgressionParameters spatTransitionParameters) {
+      this.spatTransitionParameters = spatTransitionParameters;
+   }
 
 
    @Autowired
@@ -669,6 +688,15 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.messageIngestParameters = messageIngestParameters;
    }
 
+   @Value("${kafka.linger_ms}")
+   public void setKafkaLingerMs(int lingerMs) {
+      this.lingerMs = lingerMs;
+   }
+
+   public int getKafkaLingerMs() {
+      return lingerMs;
+   }
+
 
    /*
     * General Properties
@@ -851,7 +879,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       streamProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, FIVE_MINUTES_MS);
 
       // Disable batching
-      streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+      // streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+      // Enable Compression
+      streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");

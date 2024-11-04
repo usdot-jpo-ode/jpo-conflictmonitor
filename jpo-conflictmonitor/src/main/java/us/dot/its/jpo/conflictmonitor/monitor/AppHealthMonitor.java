@@ -408,6 +408,7 @@ public class AppHealthMonitor {
             Topology topology = streamsTopology.getTopology();
             if (topology != null) {
                 topoMap.put(key, topology);
+            } else {
                 logger.error("Topology is not created in {}", streamsTopology);
             }
         }
