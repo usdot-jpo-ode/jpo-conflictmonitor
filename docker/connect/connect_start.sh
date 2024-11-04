@@ -14,7 +14,7 @@ echo "------------------------------------------"
 # Record BSM JSON Data
 declare -A OdeRawEncodedBSMJson=([name]="topic.OdeRawEncodedBSMJson" [collection]="OdeRawEncodedBSMJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
-declare -A OdeBsmJson=([name]="topic.OdeBsmJson" [collection]="OdeBsmJson"
+declare -A OdeBsmJson=([name]="topic.DeduplicatedOdeBsmJson" [collection]="OdeBsmJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A ProcessedBsm=([name]="topic.ProcessedBsm" [collection]="ProcessedBsm"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
@@ -32,7 +32,7 @@ declare -A OdeRawEncodedSPATJson=([name]="topic.OdeRawEncodedSPATJson" [collecti
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeSpatJson=([name]="topic.OdeSpatJson" [collection]="OdeSpatJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
-declare -A ProcessedSpat=([name]="topic.ProcessedSpat" [collection]="ProcessedSpat"
+declare -A ProcessedSpat=([name]="topic.DeduplicatedProcessedSpat" [collection]="ProcessedSpat"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeSpatRxJson=([name]="topic.OdeSpatRxJson" [collection]="OdeSpatRxJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
@@ -61,7 +61,7 @@ declare -A OdeTimBroadcastJson=([name]="topic.OdeTimBroadcastJson" [collection]=
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 declare -A OdeTIMCertExpirationTimeJson=([name]="topic.OdeTIMCertExpirationTimeJson" [collection]="OdeTIMCertExpirationTimeJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
-declare -A OdeRawEncodedTIMJson=([name]="topic.OdeRawEncodedTIMJson" [collection]="OdeRawEncodedTIMJson"
+declare -A OdeRawEncodedTIMJson=([name]="topic.DeduplicatedOdeRawEncodedTIMJson" [collection]="OdeRawEncodedTIMJson"
     [convert_timestamp]=false [timefield]="" [use_key]=false [key]="" [add_timestamp]=true)
 
 ############################################################################################### 
