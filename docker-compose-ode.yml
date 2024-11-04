@@ -26,7 +26,8 @@ services:
         max-size: "10m"
         max-file: "5"
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
   # ODE Services:
   ode:

@@ -2,12 +2,12 @@ include:
   - docker-compose-ode.yml
 
 services:
-  conflictmonitor:
+  conflictmonitor-build:
     profiles:
       - all
       - cm_full
       - cm_base
-      - conflictmonitor
+      - cm_build
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
         MAVEN_GITHUB_TOKEN: ${MAVEN_GITHUB_TOKEN:?error}
         MAVEN_GITHUB_ORG: ${MAVEN_GITHUB_ORG:?error}
     image: jpo-conflictmonitor:latest
-    restart: always
+    restart: ${RESTART_POLICY}
     ports:
       - "8082:8082"
     environment:
@@ -36,6 +36,38 @@ services:
       resources:
         limits:
           memory: 3G
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  conflictmonitor-release:
+    profiles:
+      - cm_release
+    image: usdotjpoode/jpo-conflictmonitor:latest
+    restart: ${RESTART_POLICY}
+    ports:
+      - "8082:8082"
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
+      KAFKA_BROKER_IP: ${KAFKA_BROKER_IP:?error}
+      MONGO_IP: ${MONGO_IP:?error}
+      spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:?error}:9092
+    healthcheck:
+      test: ["CMD", "java", "-version"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+    depends_on:
+      kafka:
+        condition: service_healthy
 
   deduplicator:
     profiles:
@@ -50,7 +82,7 @@ services:
         MAVEN_GITHUB_TOKEN: ${MAVEN_GITHUB_TOKEN:?error}
         MAVEN_GITHUB_ORG: ${MAVEN_GITHUB_ORG:?error}
     image: jpo-deduplicator:latest
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
@@ -68,3 +100,6 @@ services:
       resources:
         limits:
           memory: 3G
+    depends_on:
+      kafka:
+        condition: service_healthy
