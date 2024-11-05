@@ -12,8 +12,8 @@ The latest image can be pulled using the following command:
 
 ## Required environment variables
 	• DOCKER_HOST_IP
-	• MONGO_IP
-	• CONNECT_BOOTSTRAP_SERVERS
+	• KAFKA_BOOTSTRAP_SERVERS
+	• CONNECT_URL
 
 ## Direct Dependencies
 	- MongoDB
@@ -28,7 +28,7 @@ The latest image can be pulled using the following command:
 version: '3.9'
 services:
   conflictmonitor:
-    image: usdotjpoode/jpo-conflictmonitor:release_q3
+    image: usdotjpoode/jpo-conflictmonitor:latest
     restart: always
     depends_on:
       mongodb_container:
@@ -38,11 +38,10 @@ services:
     ports:
       - "8082:8082"
     environment:
-      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
-      KAFKA_BROKER_IP: ${KAFKA_BROKER_IP}
-      MONGO_IP: ${MONGO_IP}
-      spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP}:9092
-      spring.data.mongodb.uri: mongodb://${MONGO_IP}:27017
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
+      CONNECT_URL: ${CONNECT_URL:?error}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
     logging:
       options:
         max-size: "10m"

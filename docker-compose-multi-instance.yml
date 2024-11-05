@@ -20,9 +20,9 @@ services:
       - "8082:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
-      KAFKA_BROKER_IP: ${KAFKA_BROKER_IP:?error}
-      MONGO_IP: ${MONGO_IP:?error}
-      spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:?error}:9092
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
+      CONNECT_URL: ${CONNECT_URL:?error}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
       kafka.topics.numPartitions: 3
     healthcheck:
       test: ["CMD", "java", "-version"]
@@ -55,9 +55,9 @@ services:
       - "8182:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
-      KAFKA_BROKER_IP: ${KAFKA_BROKER_IP:?error}
-      MONGO_IP: ${MONGO_IP:?error}
-      spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:?error}:9092
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
+      CONNECT_URL: ${CONNECT_URL:?error}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
       kafka.topics.numPartitions: 3
     healthcheck:
       test: ["CMD", "java", "-version"]
@@ -90,9 +90,9 @@ services:
       - "8382:8082"
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
-      KAFKA_BROKER_IP: ${KAFKA_BROKER_IP:?error}
-      MONGO_IP: ${MONGO_IP:?error}
-      spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:?error}:9092
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
+      CONNECT_URL: ${CONNECT_URL:?error}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
       kafka.topics.numPartitions: 3
     healthcheck:
       test: ["CMD", "java", "-version"]
