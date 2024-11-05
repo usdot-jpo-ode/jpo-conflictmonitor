@@ -36,7 +36,7 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
     public void process(Record<TKey, TEvent> record) {
         final long timestamp = record.timestamp();
         ProcessingTimePeriod period = params.aggTimePeriod(timestamp);
-
+        // TODO
 
     }
 
