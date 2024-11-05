@@ -821,10 +821,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String connectURL = CommonUtils.getEnvironmentVariable("CONNECT_URL");
-         if (connectURL == null) {
-            connectURL = String.format("http://%s:%s", "localhost", DEFAULT_CONNECT_PORT);
+         String tempConnectURL = CommonUtils.getEnvironmentVariable("CONNECT_URL");
+         if (tempConnectURL == null) {
+            tempConnectURL = String.format("http://%s:%s", "localhost", DEFAULT_CONNECT_PORT);
          }
+         connectURL = tempConnectURL;
       }
 
       // List<String> asList = Arrays.asList(this.getKafkaTopicsDisabled());
