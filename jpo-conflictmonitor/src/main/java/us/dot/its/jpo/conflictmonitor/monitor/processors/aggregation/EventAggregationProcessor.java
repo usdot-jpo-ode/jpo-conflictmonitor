@@ -8,10 +8,12 @@ import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
+import org.apache.kafka.streams.state.VersionedRecord;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 @Slf4j
 public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends ContextualProcessor<TKey, TEvent, TKey, TAggEvent> {
@@ -25,18 +27,31 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
     final String eventStoreName;
     final String keyStoreName;
     final AggregationParameters params;
+    final Supplier<TAggEvent> aggEventSupplier;
 
-    public EventAggregationProcessor(String eventStoreName, String keyStoreName, AggregationParameters parameters) {
+    public EventAggregationProcessor(String eventStoreName, String keyStoreName, AggregationParameters parameters,
+                                     Supplier<TAggEvent> aggEventSupplier) {
         this.eventStoreName = eventStoreName;
         this.keyStoreName = keyStoreName;
         this.params = parameters;
+        this.aggEventSupplier = aggEventSupplier;
     }
 
     @Override
     public void process(Record<TKey, TEvent> record) {
-        final long timestamp = record.timestamp();
-        ProcessingTimePeriod period = params.aggTimePeriod(timestamp);
-        // TODO
+        final TKey key = record.key();
+        ProcessingTimePeriod period = params.aggTimePeriod(record.timestamp());
+        final long endPeriodTimestamp = period.getEndTimestamp();
+        // Check if there is already an aggregated event for the time period
+        VersionedRecord<TAggEvent> aggEventRecord = eventStore.get(key, endPeriodTimestamp);
+        if (aggEventRecord == null) {
+            // Create and add new agg event
+            TAggEvent aggEvent = aggEventSupplier.get();
+            eventStore.put(key, aggEvent, endPeriodTimestamp);
+        }
+
+        final TEvent event = record.value();
+
 
     }
 
