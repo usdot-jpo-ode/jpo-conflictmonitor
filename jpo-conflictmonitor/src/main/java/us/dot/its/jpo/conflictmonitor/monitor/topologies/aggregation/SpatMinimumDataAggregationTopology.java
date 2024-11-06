@@ -25,14 +25,13 @@ import java.time.Duration;
 
 @Slf4j
 public class SpatMinimumDataAggregationTopology
-    extends BaseStreamsBuilder<AggregationParameters>
-    implements SpatMinimumDataAggregationStreamsAlgorithm {
+        extends BaseStreamsBuilder<AggregationParameters>
+        implements SpatMinimumDataAggregationStreamsAlgorithm {
 
     @Override
     protected Logger getLogger() {
         return log;
     }
-
 
 
     @Override
@@ -77,7 +76,8 @@ public class SpatMinimumDataAggregationTopology
         if (eventTopicMap.containsKey(eventName)) {
             eventAggregationTopic = parameters.getEventTopicMap().get(eventName);
         } else {
-            throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap", eventName));
+            throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap",
+                    eventName));
         }
         // Store retention time: double interval plus grace period to be safe in the worst case
         final long retentionTimeMillis = 2 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
@@ -99,19 +99,27 @@ public class SpatMinimumDataAggregationTopology
         builder.addStateStore(keyStoreBuilder);
 
         inputStream
-            .process(
-                () -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent,
-                        SpatMinimumDataEventAggregation>(eventStoreName, keyStoreName, parameters),
-                    eventStoreName, keyStoreName)
-            .to(eventAggregationTopic,
-                Produced.with(
-                    keySerde(),
-                    eventAggregationSerde(),
-                    eventAggregationPartitioner()));
+                .process(
+                        () -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent,
+                                SpatMinimumDataEventAggregation>(
+                                eventStoreName,
+                                keyStoreName,
+                                parameters,
+                                event -> {
+                                    var aggEvent = new SpatMinimumDataEventAggregation();
+                                    aggEvent.setSource(event.getSource());
+                                    aggEvent.setIntersectionID(event.getIntersectionID());
+                                    aggEvent.setRoadRegulatorID(event.getRoadRegulatorID());
+                                    return aggEvent;
+                                }),
+                        eventStoreName, keyStoreName)
+                .to(eventAggregationTopic,
+                        Produced.with(
+                                keySerde(),
+                                eventAggregationSerde(),
+                                eventAggregationPartitioner()));
 
     }
-
-
 
 
 }

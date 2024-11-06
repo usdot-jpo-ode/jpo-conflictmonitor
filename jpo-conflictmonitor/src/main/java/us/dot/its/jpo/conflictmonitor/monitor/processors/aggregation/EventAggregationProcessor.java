@@ -10,13 +10,17 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
 import org.apache.kafka.streams.state.VersionedRecord;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 import java.time.Duration;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
-public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends ContextualProcessor<TKey, TEvent, TKey, TAggEvent> {
+public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent extends EventAggregation<TEvent>>
+        extends ContextualProcessor<TKey, TEvent, TKey, TAggEvent> {
 
     // version timestamp is the end of the aggregation interval
     // Key contains all unique fields of the event
@@ -27,14 +31,22 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
     final String eventStoreName;
     final String keyStoreName;
     final AggregationParameters params;
-    final Supplier<TAggEvent> aggEventSupplier;
+    final Function<TEvent, TAggEvent> createAggEvent;
 
+    /**
+     *
+     * @param eventStoreName Versioned event store name
+     * @param keyStoreName Key store name
+     * @param parameters Common aggregation parameters
+     * @param createAggEvent A function that accepts an event of type TEvent and creates an aggregated event of type
+     *                       TAggEvent.
+     */
     public EventAggregationProcessor(String eventStoreName, String keyStoreName, AggregationParameters parameters,
-                                     Supplier<TAggEvent> aggEventSupplier) {
+                                     Function<TEvent, TAggEvent> createAggEvent) {
         this.eventStoreName = eventStoreName;
         this.keyStoreName = keyStoreName;
         this.params = parameters;
-        this.aggEventSupplier = aggEventSupplier;
+        this.createAggEvent = createAggEvent;
     }
 
     @Override
@@ -42,17 +54,23 @@ public class EventAggregationProcessor<TKey, TEvent, TAggEvent> extends Contextu
         final TKey key = record.key();
         ProcessingTimePeriod period = params.aggTimePeriod(record.timestamp());
         final long endPeriodTimestamp = period.getEndTimestamp();
+
         // Check if there is already an aggregated event for the time period
         VersionedRecord<TAggEvent> aggEventRecord = eventStore.get(key, endPeriodTimestamp);
+        final TEvent event = record.value();
         if (aggEventRecord == null) {
             // Create and add new agg event
-            TAggEvent aggEvent = aggEventSupplier.get();
+            TAggEvent aggEvent = createAggEvent.apply(event);
+            aggEvent.setTimePeriod(period);
+            aggEvent.setNumberOfEvents(1);
+            aggEvent.update(event);
             eventStore.put(key, aggEvent, endPeriodTimestamp);
+
+        } else {
+            // Other increment and update the saved agg event
+            TAggEvent aggEvent = aggEventRecord.value();
+            aggEvent.update(event);
         }
-
-        final TEvent event = record.value();
-
-
     }
 
     @Override
