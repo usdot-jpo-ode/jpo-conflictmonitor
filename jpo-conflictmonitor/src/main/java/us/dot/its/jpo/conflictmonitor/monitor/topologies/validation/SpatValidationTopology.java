@@ -129,8 +129,6 @@ public class SpatValidationTopology
                 });
 
 
-
-
         // If aggregation is enabled, don't send individual events to the topic
         // This is a read-only flag, so the subtopology for the unchosen option is not constructed at all
         if (parameters.isAggregateMinimumDataEvents()) {
@@ -143,7 +141,7 @@ public class SpatValidationTopology
                             Produced.with(
                                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                                     JsonSerdes.SpatMinimumDataEvent(),
-                                    new IntersectionIdPartitioner<RsuIntersectionKey, SpatMinimumDataEvent>())
+                                    new IntersectionIdPartitioner<>())
                     );
         }
 
