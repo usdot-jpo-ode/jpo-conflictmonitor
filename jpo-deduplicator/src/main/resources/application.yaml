@@ -6,7 +6,7 @@ version: ^project.version^
 server.port: 8085
 
 # Kafka properties
-spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:localhost}:9092
+spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
 log4j.logger.kafka: OFF
