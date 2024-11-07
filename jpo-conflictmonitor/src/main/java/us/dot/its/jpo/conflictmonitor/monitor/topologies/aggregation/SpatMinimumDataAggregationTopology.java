@@ -105,6 +105,7 @@ public class SpatMinimumDataAggregationTopology
                                 eventStoreName,
                                 keyStoreName,
                                 parameters,
+                                // Agg event constructor
                                 event -> {
                                     var aggEvent = new SpatMinimumDataEventAggregation();
                                     aggEvent.setSource(event.getSource());

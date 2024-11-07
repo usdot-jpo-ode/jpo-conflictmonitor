@@ -3,6 +3,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.ConfigurableAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 
+import java.util.function.Supplier;
+
 /**
  * Aggregation Algorithm
  *
@@ -16,6 +18,5 @@ public interface BaseAggregationAlgorithm<TEvent extends Event, TAggEvent extend
      * @return A new TAggEvent
      */
     TAggEvent constructEventAggregation();
-
 
 }

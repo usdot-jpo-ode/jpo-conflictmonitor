@@ -382,6 +382,8 @@ spat.validation:
   lowerBound: 90
   upperBound: 110
   debug: false
+  aggregateMinimumDataEvents: true
+
 
 # Intersection Reference Alignment Notification
 intersection.reference.alignment.notification:

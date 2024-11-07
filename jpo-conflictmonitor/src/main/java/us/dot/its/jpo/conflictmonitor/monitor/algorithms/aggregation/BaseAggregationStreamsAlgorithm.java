@@ -6,6 +6,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.processor.StreamPartitioner;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 
+import java.util.function.Supplier;
+
 
 /**
  * Streams implementation of an aggregation algorithm that plugs into a topology that produces an event.
@@ -42,4 +44,6 @@ public interface BaseAggregationStreamsAlgorithm<TKey, TEvent extends Event, TAg
      * @return An instance of the partitioner
      */
     StreamPartitioner<TKey, TAggEvent> eventAggregationPartitioner();
+
+
 }
