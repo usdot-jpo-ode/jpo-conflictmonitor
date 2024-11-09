@@ -511,11 +511,11 @@ event.state.progression:
 
 aggregation:
   debug: true
-  interval: 30
+  interval: 10
   intervalUnits: SECONDS
   eventTopicMap:
-    SpatMinimumDataAggregation: topic.CmMapMinimumDataEvent
-    MapMinimumDataAggregation: topic.CmMapMinimumDataEvent
+    SpatMinimumDataAggregation: topic.CmSpatMinimumDataEventAggregation
+    MapMinimumDataAggregation: topic.CmMapMinimumDataEventAggregation
   eventAlgorithmMap:
     SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
     MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm

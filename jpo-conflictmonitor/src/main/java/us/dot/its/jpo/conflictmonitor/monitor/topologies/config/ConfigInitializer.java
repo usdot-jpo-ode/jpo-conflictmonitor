@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventTopicMap;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
@@ -123,11 +124,20 @@ public class ConfigInitializer {
         } else if (EventTopicMap.class.equals(type)) {
             var config = new DefaultConfig<EventTopicMap>();
             if (propValue != null) {
-                config.setValue((EventTopicMap)propValue);
+                config.setValue((EventTopicMap) propValue);
             } else {
                 config.setValue(new EventTopicMap());
             }
             setConfigProps(config, updatable, EventTopicMap.class);
+            return config;
+        } else if (EventAlgorithmMap.class.equals(type)) {
+            var config = new DefaultConfig<EventAlgorithmMap>();
+            if (propValue != null) {
+                config.setValue((EventAlgorithmMap) propValue);
+            } else {
+                config.setValue(new EventAlgorithmMap());
+            }
+            setConfigProps(config, updatable, EventAlgorithmMap.class);
             return config;
         } else {
             var config = new DefaultConfig<Integer>();
