@@ -12,6 +12,7 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
@@ -205,6 +206,8 @@ public class MonitorServiceController {
             // Plugin timestamp delta algorithm
             final SpatTimestampDeltaAlgorithm spatTimestampAlgo = getSpatTimestampDeltaAlgorithm(conflictMonitorProps);
             spatValidationAlgo.setTimestampDeltaAlgorithm(spatTimestampAlgo);
+            final SpatMinimumDataAggregationAlgorithm spatMinDataAggAlgo = getSpatMinimumDataAggregationAlgorithm(conflictMonitorProps);
+            spatValidationAlgo.setMinimumDataAggregationAlgorithm(spatMinDataAggAlgo);
             Runtime.getRuntime().addShutdownHook(new Thread(spatValidationAlgo::stop));
             spatValidationAlgo.start();
             
@@ -521,6 +524,15 @@ public class MonitorServiceController {
         final String algorithmName = props.getSpatTimestampDeltaAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
         final var parameters = props.getSpatTimestampDeltaParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private static SpatMinimumDataAggregationAlgorithm getSpatMinimumDataAggregationAlgorithm(ConflictMonitorProperties props) {
+        final var factory = props.getSpatMinimumDataAggregationAlgorithmFactory();
+        final String algorithmName = props.getSpatMinimumDataAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = props.getAggregationParameters();
         algorithm.setParameters(parameters);
         return algorithm;
     }

@@ -64,6 +64,10 @@ public class AggregationParameters {
         updateType = READ_ONLY)
     EventTopicMap eventTopicMap;
 
+    @ConfigData(key = "aggregation.eventAlgorithmMap", description = "Map of aggregated event names to algorithm names",
+        updateType = READ_ONLY)
+    EventAlgorithmMap eventAlgorithmMap;
+
     public Duration aggInterval() {
         return Duration.of(interval, intervalUnits);
     }

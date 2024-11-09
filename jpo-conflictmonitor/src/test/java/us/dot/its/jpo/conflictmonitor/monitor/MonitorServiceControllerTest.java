@@ -14,6 +14,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
@@ -129,6 +132,13 @@ public class MonitorServiceControllerTest {
     @Mock SpatTimestampDeltaAlgorithmFactory spatTimestampDeltaAlgorithmFactory;
     @Mock SpatTimestampDeltaStreamsAlgorithm spatTimestampDeltaStreamsAlgorithm;
     SpatTimestampDeltaParameters spatTimestampDeltaParameters = new SpatTimestampDeltaParameters();
+
+    AggregationParameters aggregationParameters = new AggregationParameters();
+    @Mock
+    SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory;
+    @Mock
+    SpatMinimumDataAggregationAlgorithm spatMinimumDataAggregationAlgorithm;
+
 
     @Mock SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
     @Mock SpatTimeChangeDetailsStreamsAlgorithm spatTimeChangeDetailsAlgorithm;
@@ -246,6 +256,13 @@ public class MonitorServiceControllerTest {
         when(conflictMonitorProperties.getSpatTimestampDeltaAlgorithm()).thenReturn(defaultAlgo);
         when(spatTimestampDeltaAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTimestampDeltaStreamsAlgorithm);
         when(conflictMonitorProperties.getSpatTimestampDeltaParameters()).thenReturn(spatTimestampDeltaParameters);
+
+        when(conflictMonitorProperties.getAggregationParameters()).thenReturn(aggregationParameters);
+
+        when(conflictMonitorProperties.getSpatMinimumDataAggregationAlgorithmFactory()).thenReturn(spatMinimumDataAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatMinimumDataAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(spatMinimumDataAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMinimumDataAggregationAlgorithm);
+
 
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithmFactory()).thenReturn(spatTimeChangeDetailsAlgorithmFactory);
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithm()).thenReturn(defaultAlgo);

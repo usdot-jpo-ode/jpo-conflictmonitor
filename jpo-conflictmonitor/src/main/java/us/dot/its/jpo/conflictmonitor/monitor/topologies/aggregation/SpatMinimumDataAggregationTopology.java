@@ -9,6 +9,7 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationStreamsAlgorithm;
@@ -22,7 +23,9 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import java.time.Duration;
 
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationConstants.DEFAULT_SPAT_MINIMUM_DATA_AGGREGATION_ALGORITHM;
 
+@Component(DEFAULT_SPAT_MINIMUM_DATA_AGGREGATION_ALGORITHM)
 @Slf4j
 public class SpatMinimumDataAggregationTopology
         extends BaseStreamsBuilder<AggregationParameters>
@@ -67,10 +70,13 @@ public class SpatMinimumDataAggregationTopology
     @Override
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, SpatMinimumDataEvent> inputStream) {
 
-        // Name stores by convention so we don't have to create properties for their names
+
         final String eventName = constructEventAggregation().getEventType();
+
+        // Name stores by convention so we don't have to create properties for their names
         final String eventStoreName = eventName + "EventStore";
         final String keyStoreName = eventName + "KeyStore";
+
         final var eventTopicMap = parameters.getEventTopicMap();
         String eventAggregationTopic;
         if (eventTopicMap.containsKey(eventName)) {

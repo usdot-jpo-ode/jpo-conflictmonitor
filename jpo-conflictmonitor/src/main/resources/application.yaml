@@ -516,6 +516,9 @@ aggregation:
   eventTopicMap:
     SpatMinimumDataAggregation: topic.CmMapMinimumDataEvent
     MapMinimumDataAggregation: topic.CmMapMinimumDataEvent
+  eventAlgorithmMap:
+    SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
+    MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm
 
 
 

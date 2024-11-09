@@ -40,6 +40,9 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -89,6 +92,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.util.CommonUtils;
 
@@ -102,6 +106,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    @Setter(AccessLevel.NONE)
    private Environment env;
+
+   private AggregationParameters aggregationParameters;
+   private String spatMinimumDataAggregationAlgorithm;
+   private SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory;
 
    private MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
    private SpatValidationStreamsAlgorithmFactory spatValidationAlgorithmFactory;
@@ -117,7 +125,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String spatTimestampDeltaAlgorithm;
    private SpatTimestampDeltaParameters spatTimestampDeltaParameters;
    private SpatTimestampDeltaAlgorithmFactory spatTimestampDeltaAlgorithmFactory;
-  
+
    private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
    private String laneDirectionOfTravelAlgorithm;
    private LaneDirectionOfTravelParameters laneDirectionOfTravelParameters;
@@ -215,6 +223,25 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
    private MessageIngestParameters messageIngestParameters;
+
+
+
+   @Autowired
+   public void setAggregationParameters(AggregationParameters aggregationParameters) {
+      this.aggregationParameters = aggregationParameters;
+      EventAlgorithmMap algorithmMap = aggregationParameters.getEventAlgorithmMap();
+      final String spatMinimumDataEventType = (new SpatMinimumDataEventAggregation()).getEventType();
+      if (algorithmMap.containsKey(spatMinimumDataEventType)) {
+         this.spatMinimumDataAggregationAlgorithm = algorithmMap.get(spatMinimumDataEventType);
+      } else {
+         throw new RuntimeException("No algorithm found for " + spatMinimumDataEventType);
+      }
+   }
+
+   @Autowired
+   public void setSpatMinimumDataAggregationAlgorithmFactory(SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory) {
+      this.spatMinimumDataAggregationAlgorithmFactory = spatMinimumDataAggregationAlgorithmFactory;
+   }
 
    @Autowired
    public void setIntersectionEventAlgorithmFactory(IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory) {
