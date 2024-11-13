@@ -513,6 +513,8 @@ aggregation:
   debug: true
   interval: 10
   intervalUnits: SECONDS
+  checkIntervalMs: 1000
+  gracePeriodMs: 500
   eventTopicMap:
     SpatMinimumDataAggregation: topic.CmSpatMinimumDataEventAggregation
     MapMinimumDataAggregation: topic.CmMapMinimumDataEventAggregation

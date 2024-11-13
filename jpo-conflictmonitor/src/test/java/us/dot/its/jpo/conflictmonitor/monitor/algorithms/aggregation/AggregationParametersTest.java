@@ -34,8 +34,8 @@ public class AggregationParametersTest {
         assertThat(params, hasProperty("intervalUnits", instanceOf(ChronoUnit.class)));
         var eventTopicMap = params.getEventTopicMap();
         assertThat("eventTopicMap", eventTopicMap, notNullValue());
-        assertThat(eventTopicMap, hasEntry("SpatMinimumDataAggregation", "topic.CmMapMinimumDataEvent"));
-        assertThat(eventTopicMap, hasEntry("MapMinimumDataAggregation", "topic.CmMapMinimumDataEvent"));
+        assertThat(eventTopicMap, hasEntry("SpatMinimumDataAggregation", "topic.CmSpatMinimumDataEventAggregation"));
+        assertThat(eventTopicMap, hasEntry("MapMinimumDataAggregation", "topic.CmMapMinimumDataEventAggregation"));
     }
 
 

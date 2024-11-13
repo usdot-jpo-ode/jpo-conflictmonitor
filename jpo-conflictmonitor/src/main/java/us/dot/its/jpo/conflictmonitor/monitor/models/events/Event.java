@@ -12,6 +12,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBr
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -44,7 +45,8 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = BsmRevisionCounterEvent.class, name = "BsmRevisionCounter"),
         @JsonSubTypes.Type(value = MapTimestampDeltaEvent.class, name = "MapTimestampDelta"),
         @JsonSubTypes.Type(value = SpatTimestampDeltaEvent.class, name = "SpatTimestampDelta"),
-        @JsonSubTypes.Type(value = EventStateProgressionEvent.class, name = "EventStateProgression")
+        @JsonSubTypes.Type(value = EventStateProgressionEvent.class, name = "EventStateProgression"),
+        @JsonSubTypes.Type(value = SpatMinimumDataEventAggregation.class, name = "SpatMinimumDataAggregation")
 })
 @Getter
 @Setter

@@ -1,6 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.processors.aggregation;
 
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.Cancellable;
@@ -17,11 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 import java.time.Duration;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Slf4j
 public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent extends EventAggregation<TEvent>>
@@ -33,7 +28,7 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
 
     // KevValueStore to keep track of all the keys and timestamps in the event store
     // Needed because of the lack of range queries for Versioned KeyValueStores.
-    KeyValueStore<TKey, SortedSet<Long>> keyStore;
+    KeyValueStore<TKey, TimestampSet> keyStore;
 
     Cancellable punctuatorCancellationToken;
     final String eventStoreName;
@@ -65,10 +60,10 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         final TEvent event = record.value();
 
         // Keep track of time periods per key
-        final Set<Long> endTimePeriods = keyStore.get(key);
+        final TimestampSet endTimePeriods = keyStore.get(key);
         if (endTimePeriods == null || endTimePeriods.isEmpty()) {
             // This is the first received time period for this key, so add the current period
-            final SortedSet<Long> timePeriods = new TreeSet<>();    // Sorted set
+            final var timePeriods = new TimestampSet();
             timePeriods.add(periodEndTimestamp);
             keyStore.put(key, timePeriods);
         } else {
@@ -102,6 +97,7 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
             // Increment and update the saved agg event
             final TAggEvent aggEvent = aggEventRecord.value();
             aggEvent.update(event);
+            eventStore.put(key, aggEvent, periodEndTimestamp);
         }
 
     }
@@ -126,9 +122,9 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         // Check for agg events earlier than the current period plus grace period for each known key
         try (var iterator = keyStore.all()) {
             while (iterator.hasNext()) {
-                final KeyValue<TKey, SortedSet<Long>> kv = iterator.next();
+                final KeyValue<TKey, TimestampSet> kv = iterator.next();
                 final TKey key = kv.key;
-                final SortedSet<Long> timePeriods = kv.value;
+                final TimestampSet timePeriods = kv.value;
                 final Long earliestPeriodEndTimeStamp = timePeriods.getFirst();
                 if (timestamp > earliestPeriodEndTimeStamp + params.getGracePeriodMs()) {
                     VersionedRecord<TAggEvent> aggEventRecord = eventStore.get(key, earliestPeriodEndTimeStamp);
@@ -145,9 +141,15 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
                     // Delete the key if no time periods
                     if (timePeriods.isEmpty()) {
                         keyStore.delete(key);
+                    } else {
+                        keyStore.put(key, timePeriods);
                     }
                 }
             }
         }
     }
+
+
 }
+
+

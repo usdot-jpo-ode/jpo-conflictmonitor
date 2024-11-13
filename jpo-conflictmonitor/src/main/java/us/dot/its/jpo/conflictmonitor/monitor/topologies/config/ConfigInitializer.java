@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Pha
 
 
 import java.lang.reflect.Field;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Component
@@ -139,11 +140,19 @@ public class ConfigInitializer {
             }
             setConfigProps(config, updatable, EventAlgorithmMap.class);
             return config;
-        } else {
-            var config = new DefaultConfig<Integer>();
-            config.setValue((Integer)propValue);
-            setConfigProps(config, updatable, Integer.class);
+        } else if (ChronoUnit.class.equals(type)) {
+            var config = new DefaultConfig<ChronoUnit>();
+            config.setValue((ChronoUnit)propValue);
+            setConfigProps(config, updatable, ChronoUnit.class);
             return config;
+        } else {
+            String errMsg = String.format("Unknown type %s in parameters class", type);
+            logger.error(errMsg);
+            throw new RuntimeException(errMsg);
+//            var config = new DefaultConfig<Integer>();
+//            config.setValue((Integer)propValue);
+//            setConfigProps(config, updatable, Integer.class);
+//            return config;
         }
     }
 
