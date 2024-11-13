@@ -20,7 +20,7 @@
     <geotools.version>29-SNAPSHOT</geotools.version>
     <sonar.organization>usdot-jpo-ode</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <maven.deploy.skip>true</maven.deploy.skip>
+    <!-- <maven.deploy.skip>false</maven.deploy.skip> -->
     <description>Detects Intersection Message Conflicts from messaged passed by the ODE</description>
     <java.version>21</java.version>
     <!-- Resource delimeter for build properties in application.yaml -->
