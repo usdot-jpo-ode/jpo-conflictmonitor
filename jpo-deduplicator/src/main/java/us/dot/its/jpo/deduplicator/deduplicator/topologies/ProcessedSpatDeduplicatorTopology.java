@@ -8,14 +8,10 @@ import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
-import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.OdeMapJsonProcessorSupplier;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.deduplicator.deduplicator.processors.suppliers.ProcessedSpatProcessorSupplier;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
-import us.dot.its.jpo.ode.model.OdeMapData;
-import us.dot.its.jpo.ode.model.OdeMapMetadata;
-import us.dot.its.jpo.ode.model.OdeMapPayload;
-import us.dot.its.jpo.ode.plugin.j2735.J2735IntersectionReferenceID;
 
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.Stores;
@@ -24,14 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Properties;
 
-public class MapDeduplicatorTopology {
+public class ProcessedSpatDeduplicatorTopology {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapDeduplicatorTopology.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProcessedSpatDeduplicatorTopology.class);
 
     Topology topology;
     KafkaStreams streams;
@@ -43,7 +37,7 @@ public class MapDeduplicatorTopology {
     DeduplicatorProperties props;
 
 
-    public MapDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
+    public ProcessedSpatDeduplicatorTopology(DeduplicatorProperties props, Properties streamsProperties){
         this.props = props;
         this.streamsProperties = streamsProperties;
         this.objectMapper = DateJsonMapper.getInstance();
@@ -63,50 +57,32 @@ public class MapDeduplicatorTopology {
         streams.start();
     }
 
-    public Instant getInstantFromMap(OdeMapData map){
-        String time = ((OdeMapMetadata)map.getMetadata()).getOdeReceivedAt();
-
-        return Instant.from(formatter.parse(time));
-    }
-
-    public int hashMapMessage(OdeMapData map){
-        OdeMapPayload payload = (OdeMapPayload)map.getPayload();
-        return Objects.hash(payload.toJson());
-        
-    }
-
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<Void, OdeMapData> inputStream = builder.stream(props.getKafkaTopicOdeMapJson(), Consumed.with(Serdes.Void(), JsonSerdes.OdeMap()));
+        KStream<String, ProcessedSpat> inputStream = builder.stream(props.getKafkaTopicProcessedSpat(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedSpat()));
 
-        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreOdeMapJsonName()),
-                Serdes.String(), JsonSerdes.OdeMap()));
-
-        KStream<String, OdeMapData> mapRekeyedStream = inputStream.selectKey((key, value)->{
-                J2735IntersectionReferenceID intersectionId = ((OdeMapPayload)value.getPayload()).getMap().getIntersections().getIntersections().get(0).getId();
-                RsuIntersectionKey newKey = new RsuIntersectionKey();
-                newKey.setRsuId(((OdeMapMetadata)value.getMetadata()).getOriginIp());
-                newKey.setIntersectionReferenceID(intersectionId);
-                return newKey.toString();
-        }).repartition(Repartitioned.with(Serdes.String(), JsonSerdes.OdeMap()));
-
-        KStream<String, OdeMapData> deduplicatedStream = mapRekeyedStream.process(new OdeMapJsonProcessorSupplier(props), props.getKafkaStateStoreOdeMapJsonName());
+        builder.addStateStore(Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(props.getKafkaStateStoreProcessedSpatName()),
+                Serdes.String(), JsonSerdes.ProcessedSpat()));
         
-        deduplicatedStream.to(props.getKafkaTopicDeduplicatedOdeMapJson(), Produced.with(Serdes.String(), JsonSerdes.OdeMap()));
+        KStream<String, ProcessedSpat> deduplicatedStream = inputStream.process(new ProcessedSpatProcessorSupplier(props), props.getKafkaStateStoreProcessedSpatName());
+        
+        deduplicatedStream.print(Printed.toSysOut());
+
+        deduplicatedStream.to(props.getKafkaTopicDeduplicatedProcessedSpat(), Produced.with(Serdes.String(), JsonSerdes.ProcessedSpat()));
 
         return builder.build();
 
     }
 
     public void stop() {
-        logger.info("Stopping Map Deduplicator Socket Broadcast Topology.");
+        logger.info("Stopping Processed SPaT deduplicator Socket Broadcast Topology.");
         if (streams != null) {
             streams.close();
             streams.cleanUp();
             streams = null;
         }
-        logger.info("Stopped Map Deduplicator Socket Broadcast Topology.");
+        logger.info("Stopped Processed SPaT deduplicator Socket Broadcast Topology.");
     }
 
     StateListener stateListener;

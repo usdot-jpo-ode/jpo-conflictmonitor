@@ -881,7 +881,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Enable Compression
       streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
-      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getLingerMs());
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");

@@ -97,6 +97,13 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private String confluentKey = null;
    private String confluentSecret = null;
 
+   // Processed SPaT Configuration
+   private String kafkaTopicProcessedSpat;
+   private String kafkaTopicDeduplicatedProcessedSpat;
+   private boolean enableProcessedSpatDeduplication;
+   private String kafkaStateStoreProcessedSpatName = "ProcessedSpat-store";
+
+
    private int lingerMs = 0;
 
    
@@ -257,7 +264,7 @@ public class DeduplicatorProperties implements EnvironmentAware  {
       // streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
 
       streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
-      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getLingerMs());
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");
@@ -404,6 +411,21 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    @Value("${spring.kafka.bootstrap-servers}")
    public void setKafkaBrokers(String kafkaBrokers) {
       this.kafkaBrokers = kafkaBrokers;
+   }
+
+   @Value("${kafkaTopicProcessedSpat}")
+   public void setKafkaTopicProcessedSpat(String kafkaTopicProcessedSpat) {
+      this.kafkaTopicProcessedSpat = kafkaTopicProcessedSpat;
+   }
+
+   @Value("${kafkaTopicDeduplicatedProcessedSpat}")
+   public void setKafkaTopicDeduplicatedProcessedSpat(String kafkaTopicDeduplicatedProcessedSpat) {
+      this.kafkaTopicDeduplicatedProcessedSpat = kafkaTopicDeduplicatedProcessedSpat;
+   }
+
+   @Value("${enableProcessedSpatDeduplication}")
+   public void setEnableProcessedSpatDeduplication(boolean enableProcessedSpatDeduplication) {
+      this.enableProcessedSpatDeduplication = enableProcessedSpatDeduplication;
    }
 
    @Override
