@@ -87,6 +87,7 @@ public class SpatMinimumDataAggregationTopology
         }
         // Store retention time: double interval plus grace period to be safe in the worst case
         final long retentionTimeMillis = 2 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
+        log.info("eventStore retention time = {} ms", retentionTimeMillis);
         final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
 
         final var eventStoreBuilder =
