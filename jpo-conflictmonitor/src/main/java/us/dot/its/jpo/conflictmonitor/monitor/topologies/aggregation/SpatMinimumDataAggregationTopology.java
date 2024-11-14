@@ -9,9 +9,11 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
@@ -26,8 +28,15 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.Aggr
 
 @Component(DEFAULT_SPAT_MINIMUM_DATA_AGGREGATION_ALGORITHM)
 @Slf4j
+@DependsOn({"ConfigTopology"})
 public class SpatMinimumDataAggregationTopology
-        extends BaseAggregationTopology<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation> {
+        extends
+            BaseAggregationTopology<
+                    RsuIntersectionKey,
+                    SpatMinimumDataEvent,
+                    SpatMinimumDataEventAggregation>
+        implements
+            SpatMinimumDataAggregationStreamsAlgorithm {
 
     @Override
     protected Logger getLogger() {
@@ -72,64 +81,5 @@ public class SpatMinimumDataAggregationTopology
     public String eventAggregationType() {
         return new SpatMinimumDataEventAggregation().getEventType();
     }
-
-
-//    @Override
-//    public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, SpatMinimumDataEvent> inputStream) {
-//
-//
-//        final String eventName = eventAggregationType();
-//
-//        // Name stores by convention so we don't have to create properties for their names
-//        final String eventStoreName = eventName + "EventStore";
-//        final String keyStoreName = eventName + "KeyStore";
-//
-//        final var eventTopicMap = parameters.getEventTopicMap();
-//        String eventAggregationTopic;
-//        if (eventTopicMap.containsKey(eventName)) {
-//            eventAggregationTopic = parameters.getEventTopicMap().get(eventName);
-//        } else {
-//            throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap",
-//                    eventName));
-//        }
-//
-//        final long retentionTimeMillis = parameters.retentionTimeMs();
-//        log.info("eventStore retention time = {} ms", retentionTimeMillis);
-//
-//        final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
-//
-//        final var eventStoreBuilder =
-//                Stores.versionedKeyValueStoreBuilder(
-//                        Stores.persistentVersionedKeyValueStore(eventStoreName, retentionTime),
-//                        keySerde(),
-//                        eventAggregationSerde()
-//                );
-//        final var keyStoreBuilder =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore(keyStoreName),
-//                        keySerde(),
-//                        Serdes.Long()
-//                );
-//        builder.addStateStore(eventStoreBuilder);
-//        builder.addStateStore(keyStoreBuilder);
-//
-//        inputStream
-//                .process(
-//                        () -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent,
-//                                SpatMinimumDataEventAggregation>(
-//                                    eventStoreName,
-//                                    keyStoreName,
-//                                    parameters,
-//                                    this::constructEventAggregation,
-//                                    eventName),
-//                        eventStoreName, keyStoreName)
-//                .to(eventAggregationTopic,
-//                        Produced.with(
-//                                keySerde(),
-//                                eventAggregationSerde(),
-//                                eventAggregationPartitioner()));
-//
-//    }
-
 
 }
