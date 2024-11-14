@@ -23,8 +23,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent extends EventAggregation<TEvent>>
@@ -34,15 +34,16 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
     // Key contains all unique fields of the event
     VersionedKeyValueStore<TKey, TAggEvent> eventStore;
 
-    // KevValueStore to keep track of all the keys and timestamps in the event store
+    // KevValueStore to keep track of all the keys the event store and earliest time period sent already
     // Needed because of the lack of range queries for Versioned KeyValueStores.
-    KeyValueStore<TKey, TimestampSet> keyStore;
+    KeyValueStore<TKey, Long> keyStore;
 
     Cancellable punctuatorCancellationToken;
     final String eventStoreName;
     final String keyStoreName;
     final AggregationParameters params;
     final Function<TEvent, TAggEvent> createAggEvent;
+    final String aggEventName;
 
     /**
      *
@@ -53,51 +54,26 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
      *                       TAggEvent.
      */
     public EventAggregationProcessor(String eventStoreName, String keyStoreName, AggregationParameters parameters,
-                                     Function<TEvent, TAggEvent> createAggEvent) {
+                                     Function<TEvent, TAggEvent> createAggEvent, String aggEventName) {
         this.eventStoreName = eventStoreName;
         this.keyStoreName = keyStoreName;
         this.params = parameters;
         this.createAggEvent = createAggEvent;
+        this.aggEventName = aggEventName;
     }
 
     @Override
     public void process(Record<TKey, TEvent> record) {
         final TKey key = record.key();
         final long recordTimestamp = record.timestamp();
-        if (params.isDebug()) log.info("process record: key, timestamp: {}, {}", key, recordTimestamp);
         final ProcessingTimePeriod period = params.aggTimePeriod(recordTimestamp);
         final long periodEndTimestamp = period.getEndTimestamp();
-        if (params.isDebug()) log.debug("process: record period end timestamp: {}", periodEndTimestamp);
         final TEvent event = record.value();
+        if (params.isDebug()) log.info("process record: type: {}, key: {}, timestamp: {}, period ending: {}",
+                event.getEventType(), key, recordTimestamp, periodEndTimestamp);
 
-        // Keep track of time periods per key
-        final TimestampSet endTimePeriods = keyStore.get(key);
-        if (params.isDebug()) log.debug("process: endTimePeriods: {}", endTimePeriods);
-        if (endTimePeriods == null || endTimePeriods.isEmpty()) {
-            // This is the first received time period for this key, so add the current period
-            final var timePeriods = new TimestampSet();
-            timePeriods.add(periodEndTimestamp);
-            keyStore.put(key, timePeriods);
-            if (params.isDebug()) log.debug("process: First time period added {}: {}", key, timePeriods);
-        } else {
-            // There are already timestamp periods for this key.
-            // Discard the current event if it's period is earlier than the earliest known because the agg event was
-            // already emitted.
-            final Long earliestPeriodEndTimestamp = endTimePeriods.getFirst();
-            if (params.isDebug()) log.debug("process: earliestPeriodEndTimestamp: {}", earliestPeriodEndTimestamp);
-            if (periodEndTimestamp < earliestPeriodEndTimestamp) {
-                log.warn("""
-                        An event, {}, arrived for aggregation period {}, which is earlier than the current aggregation
-                        period ending at {}. It will be ignored. If there are a lot of these warnings, consider
-                        adjusting the aggregation or grace period to get more accurate counts.
-                        """, event, period, earliestPeriodEndTimestamp);
-                return;
-            }
-            // Otherwise, it's a future or current period timestamp. Union with the active set of timestamps
-            endTimePeriods.add(periodEndTimestamp);
-            keyStore.put(key, endTimePeriods);
-            if (params.isDebug()) log.debug("process: Updated timePeriods list: {}: {}", key, endTimePeriods);
-        }
+        // Keep track of keys
+        keyStore.put(key, 0L);
 
         // Check if there is already an aggregated event for the time period
         VersionedRecord<TAggEvent> aggEventRecord = queryEventStore(key, periodEndTimestamp);
@@ -126,20 +102,8 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         // Get the record for the key and end-of-period timestamp.
         // A simple eventStore.get(key, periodEndTimestamp) does not work because it retrieves the latest
         // record before the given timestamp, not the specific record at that timestamp.
-        final var periodEndInstant = Instant.ofEpochMilli(periodEndTimestamp);
-        var versionedQuery =
-                MultiVersionedKeyQuery.<TKey, TAggEvent>withKey(key)
-                        .fromTime(periodEndInstant)
-                        .toTime(periodEndInstant);
-        QueryResult<VersionedRecordIterator<TAggEvent>> queryResult =
-                eventStore.query(versionedQuery, PositionBound.unbounded(), new QueryConfig(false));
-        VersionedRecordIterator<TAggEvent> resultIterator = queryResult.getResult();
-        var records = new ArrayList<VersionedRecord<TAggEvent>>();
-        while (resultIterator.hasNext()) {
-            VersionedRecord<TAggEvent> record = resultIterator.next();
-            records.add(record);
-        }
-        if (params.isDebug()) log.debug("queryEventStore: Found {} records", records.size());
+        //final var periodEndInstant = Instant.ofEpochMilli(periodEndTimestamp);
+        var records = queryEventStore(key);
         // Filter because fromTime in the query doesn't behave quite as one would expect:
         // Ref. https://kafka.apache.org/39/javadoc/org/apache/kafka/streams/query/MultiVersionedKeyQuery.html#fromTime(java.time.Instant)
         var recordsAtTimestamp = records.stream().filter(record -> record.timestamp() == periodEndTimestamp).toList();
@@ -158,6 +122,29 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         }
     }
 
+    private List<VersionedRecord<TAggEvent>> queryEventStore(final TKey key) {
+        // Get the record for the key and end-of-period timestamp.
+        // A simple eventStore.get(key, periodEndTimestamp) does not work because it retrieves the latest
+        // record before the given timestamp, not the specific record at that timestamp.
+        //final var periodEndInstant = Instant.ofEpochMilli(periodEndTimestamp);
+        var versionedQuery =
+                MultiVersionedKeyQuery.<TKey, TAggEvent>withKey(key)
+                        .fromTime(null)
+                        .toTime(null);
+        QueryResult<VersionedRecordIterator<TAggEvent>> queryResult =
+                eventStore.query(versionedQuery, PositionBound.unbounded(), new QueryConfig(false));
+        VersionedRecordIterator<TAggEvent> resultIterator = queryResult.getResult();
+        var records = new ArrayList<VersionedRecord<TAggEvent>>();
+        while (resultIterator.hasNext()) {
+            VersionedRecord<TAggEvent> record = resultIterator.next();
+            records.add(record);
+        }
+        if (params.isDebug()) log.debug("queryEventStore: Found {} records, timestamps: {}",
+                records.size(),
+                records.stream().map(VersionedRecord::timestamp).sorted().toArray());
+        return records;
+    }
+
     @Override
     public void init(ProcessorContext<TKey, TAggEvent> context) {
         try {
@@ -173,51 +160,51 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
     }
 
     private void punctuate(final long timestamp) {
-        if (params.isDebug()) log.info("punctuate at {}", timestamp);
+        if (params.isDebug()) log.info("punctuate at {}, type: {}", timestamp, aggEventName);
+
         // Emit events for which the time period is elapsed.
 
-
         // Check for agg events earlier than the current period plus grace period for each known key
+        List<TKey> keysToDelete = new ArrayList<>();
+
         try (var iterator = keyStore.all()) {
             while (iterator.hasNext()) {
-                final KeyValue<TKey, TimestampSet> kv = iterator.next();
+                final KeyValue<TKey, Long> kv = iterator.next();
                 final TKey key = kv.key;
-                if (params.isDebug()) log.debug("punctuate: key: {}", key);
-                final TimestampSet timePeriods = kv.value;
-                if (params.isDebug()) log.debug("punctuate: timePeriods: {}", timePeriods);
-                final Long earliestPeriodEndTimeStamp = timePeriods.getFirst();
-                if (params.isDebug()) log.debug("punctuate: earliestPeriodEndTimestamp: {}", earliestPeriodEndTimeStamp);
+                final long earliestSentAlready = kv.value;
+                if (params.isDebug()) log.debug("punctuate: key: {}, earliest sent already: {}", key, earliestSentAlready);
 
-                // Does the earliest time period meet the condition to send an agg event?
-                if (timestamp > earliestPeriodEndTimeStamp + params.getGracePeriodMs()) {
-                    if (params.isDebug()) log.debug("punctuate: timestamp > earliestPeriodTimestamp + gracePeriod: {} > {}", timestamp,
-                            earliestPeriodEndTimeStamp + params.getGracePeriodMs());
-                    VersionedRecord<TAggEvent> aggEventRecord = queryEventStore(key, earliestPeriodEndTimeStamp);
+                List<VersionedRecord<TAggEvent>> records = queryEventStore(key);
 
-                    // Send agg event
-                    if (aggEventRecord != null) {
+                // Check for elapsed time periods
+                for (final VersionedRecord<TAggEvent> aggEventRecord : records) {
+
+                    final long periodEndTimestamp = aggEventRecord.timestamp();
+                    if (params.isDebug())
+                        log.debug("punctuate: periodEndTimestamp: {}", periodEndTimestamp);
+
+                    // Is the periodEndTimestamp of the time period longer ago than the grace period, but not earlier than the
+                    // earliest already sent?
+                    if (timestamp > periodEndTimestamp + params.getGracePeriodMs()
+                        && periodEndTimestamp > earliestSentAlready) {
+
+                        if (params.isDebug())
+                            log.debug("punctuate: timestamp > periodEndTimestamp + gracePeriod: {} > {} and " +
+                                            "periodEndTimestamp > earliestSentAlready: {} > {}",
+                                    timestamp, periodEndTimestamp + params.getGracePeriodMs(),
+                                    periodEndTimestamp, earliestSentAlready);
+
+                        // Send agg event
                         TAggEvent aggEvent = aggEventRecord.value();
+
                         // Update eventGeneratedAt to current time
                         aggEvent.setEventGeneratedAt(timestamp);
                         context().forward(new Record<>(key, aggEvent, timestamp));
-                        if (params.isDebug()) log.info("punctuate: Sent agg event: {}, {}, {}", key, aggEvent, timestamp);
-                    } else {
-                        log.error("punctuate: No aggregated event found for key, time period ending: {}, {}. " +
-                                        "EventStore retention time may be too short. ",
-                                key, earliestPeriodEndTimeStamp);
-                    }
 
-                    // Remove the time period
-                    timePeriods.remove(earliestPeriodEndTimeStamp);
-                    if (params.isDebug()) log.debug("punctuate: Removed earliestPeriodEndTimeStamp: {}", earliestPeriodEndTimeStamp);
-
-                    // Delete the key if no time periods
-                    if (timePeriods.isEmpty()) {
-                        keyStore.delete(key);
-                        if (params.isDebug()) log.debug("punctuate: Deleted key: {}", key);
-                    } else {
-                        keyStore.put(key, timePeriods);
-                        if (params.isDebug()) log.debug("punctuate: Updated key, timePeriods: {}, {}", key, timePeriods);
+                        // Update earliestSentAlready
+                        keyStore.put(key, periodEndTimestamp);
+                        if (params.isDebug())
+                            log.info("punctuate: Sent agg event: {}, {}, {}", key, aggEvent, timestamp);
                     }
                 }
             }

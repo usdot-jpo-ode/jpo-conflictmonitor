@@ -85,9 +85,9 @@ public class SpatMinimumDataAggregationTopology
             throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap",
                     eventName));
         }
-        // Store retention time: double interval plus grace period to be safe in the worst case
-        //final long retentionTimeMillis = 2 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
-        final long retentionTimeMillis = Long.MAX_VALUE;
+        // Store retention time: multiple of agg interval to be safe
+        final long retentionTimeMillis = 10 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
+        //final long retentionTimeMillis = Long.MAX_VALUE;
         log.info("eventStore retention time = {} ms", retentionTimeMillis);
         final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
 
@@ -120,7 +120,8 @@ public class SpatMinimumDataAggregationTopology
                                     aggEvent.setIntersectionID(event.getIntersectionID());
                                     aggEvent.setRoadRegulatorID(event.getRoadRegulatorID());
                                     return aggEvent;
-                                }),
+                                },
+                                new SpatMinimumDataEventAggregation().getEventType()),
                         eventStoreName, keyStoreName)
                 .to(eventAggregationTopic,
                         Produced.with(
