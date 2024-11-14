@@ -18,7 +18,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMin
 import us.dot.its.jpo.conflictmonitor.monitor.processors.aggregation.EventAggregationProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
-import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import java.time.Duration;
@@ -67,6 +66,8 @@ public class SpatMinimumDataAggregationTopology
         return new IntersectionIdPartitioner<>();
     }
 
+
+
     @Override
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, SpatMinimumDataEvent> inputStream) {
 
@@ -85,10 +86,10 @@ public class SpatMinimumDataAggregationTopology
             throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap",
                     eventName));
         }
-        // Store retention time: multiple of agg interval to be safe
-        final long retentionTimeMillis = 2 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
-        //final long retentionTimeMillis = Long.MAX_VALUE;
+
+        final long retentionTimeMillis = parameters.retentionTimeMs();
         log.info("eventStore retention time = {} ms", retentionTimeMillis);
+
         final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
 
         final var eventStoreBuilder =

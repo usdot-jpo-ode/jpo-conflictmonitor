@@ -72,8 +72,19 @@ public class AggregationParameters {
         return Duration.of(interval, intervalUnits);
     }
 
-    public long aggIntervalMillis() {
+    /**
+     * @return Aggregation interval in epoch milliseconds
+     */
+    public long aggIntervalMs() {
         return aggInterval().toMillis();
+    }
+
+    /**
+     * @return Aggregated event state store retention time in milliseconds, calculated to include 2 aggregation
+     * intervals and grace periods.
+     */
+    public long retentionTimeMs() {
+        return 2 * (aggIntervalMs() + gracePeriodMs);
     }
 
     /**

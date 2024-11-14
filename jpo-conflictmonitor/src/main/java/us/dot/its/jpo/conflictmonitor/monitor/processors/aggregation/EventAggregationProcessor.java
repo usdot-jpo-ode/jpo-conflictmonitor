@@ -71,8 +71,6 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         if (params.isDebug()) log.info("process record: type: {}, key: {}, timestamp: {}, period ending: {}",
                 event.getEventType(), key, recordTimestamp, periodEndTimestamp);
 
-
-
         // Check if there is already an aggregated event for the time period
         VersionedRecord<TAggEvent> aggEventRecord = queryEventStore(key, periodEndTimestamp);
 
@@ -101,6 +99,12 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
 
     }
 
+    /**
+     * Query the event store
+     * @param key The event key
+     * @param periodEndTimestamp The end timestamp of the period to retrieve
+     * @return The Aggregated Event for the time period
+     */
     private VersionedRecord<TAggEvent> queryEventStore(final TKey key, final long periodEndTimestamp) {
         // Get the record for the key and end-of-period timestamp.
         // A simple eventStore.get(key, periodEndTimestamp) does not work because it retrieves the latest
@@ -125,6 +129,11 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         }
     }
 
+    /**
+     * Query the Event Store
+     * @param key The event key
+     * @return List of aggregated events for all time period currently being tracked.
+     */
     private List<VersionedRecord<TAggEvent>> queryEventStore(final TKey key) {
         // Get the record for the key and end-of-period timestamp.
         // A simple eventStore.get(key, periodEndTimestamp) does not work because it retrieves the latest
