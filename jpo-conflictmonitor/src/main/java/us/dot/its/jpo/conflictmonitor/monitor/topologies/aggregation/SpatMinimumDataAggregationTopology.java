@@ -86,7 +86,7 @@ public class SpatMinimumDataAggregationTopology
                     eventName));
         }
         // Store retention time: multiple of agg interval to be safe
-        final long retentionTimeMillis = 10 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
+        final long retentionTimeMillis = 2 * (parameters.aggIntervalMillis() + parameters.getGracePeriodMs());
         //final long retentionTimeMillis = Long.MAX_VALUE;
         log.info("eventStore retention time = {} ms", retentionTimeMillis);
         final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);

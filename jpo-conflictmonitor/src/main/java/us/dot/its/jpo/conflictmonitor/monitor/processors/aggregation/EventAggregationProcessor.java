@@ -21,7 +21,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -81,7 +80,6 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
             // Create and add new agg event
             final TAggEvent aggEvent = createAggEvent.apply(event);
             aggEvent.setTimePeriod(period);
-            aggEvent.setNumberOfEvents(1);
             aggEvent.update(event);
             eventStore.put(key, aggEvent, periodEndTimestamp);
             // Keep track of keys
