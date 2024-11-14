@@ -6,5 +6,5 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 public interface SpatMinimumDataAggregationStreamsAlgorithm
         extends SpatMinimumDataAggregationAlgorithm,
-            BaseAggregationStreamsAlgorithm<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation> {
+        AggregationStreamsAlgorithmInterface<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation> {
 }

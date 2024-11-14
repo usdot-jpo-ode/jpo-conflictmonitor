@@ -27,18 +27,11 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.Aggr
 @Component(DEFAULT_SPAT_MINIMUM_DATA_AGGREGATION_ALGORITHM)
 @Slf4j
 public class SpatMinimumDataAggregationTopology
-        extends BaseStreamsBuilder<AggregationParameters>
-        implements SpatMinimumDataAggregationStreamsAlgorithm {
+        extends BaseAggregationTopology<RsuIntersectionKey, SpatMinimumDataEvent, SpatMinimumDataEventAggregation> {
 
     @Override
     protected Logger getLogger() {
         return log;
-    }
-
-
-    @Override
-    public SpatMinimumDataEventAggregation constructEventAggregation() {
-        return new SpatMinimumDataEventAggregation();
     }
 
     @Override
@@ -66,71 +59,77 @@ public class SpatMinimumDataAggregationTopology
         return new IntersectionIdPartitioner<>();
     }
 
-
+    @Override
+    public SpatMinimumDataEventAggregation constructEventAggregation(SpatMinimumDataEvent event) {
+        var aggEvent = new SpatMinimumDataEventAggregation();
+        aggEvent.setSource(event.getSource());
+        aggEvent.setIntersectionID(event.getIntersectionID());
+        aggEvent.setRoadRegulatorID(event.getRoadRegulatorID());
+        return aggEvent;
+    }
 
     @Override
-    public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, SpatMinimumDataEvent> inputStream) {
-
-
-        final String eventName = constructEventAggregation().getEventType();
-
-        // Name stores by convention so we don't have to create properties for their names
-        final String eventStoreName = eventName + "EventStore";
-        final String keyStoreName = eventName + "KeyStore";
-
-        final var eventTopicMap = parameters.getEventTopicMap();
-        String eventAggregationTopic;
-        if (eventTopicMap.containsKey(eventName)) {
-            eventAggregationTopic = parameters.getEventTopicMap().get(eventName);
-        } else {
-            throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap",
-                    eventName));
-        }
-
-        final long retentionTimeMillis = parameters.retentionTimeMs();
-        log.info("eventStore retention time = {} ms", retentionTimeMillis);
-
-        final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
-
-        final var eventStoreBuilder =
-                Stores.versionedKeyValueStoreBuilder(
-                        Stores.persistentVersionedKeyValueStore(eventStoreName, retentionTime),
-                        keySerde(),
-                        eventAggregationSerde()
-                );
-        final var keyStoreBuilder =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore(keyStoreName),
-                        keySerde(),
-                        Serdes.Long()
-                );
-        builder.addStateStore(eventStoreBuilder);
-        builder.addStateStore(keyStoreBuilder);
-
-        inputStream
-                .process(
-                        () -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent,
-                                SpatMinimumDataEventAggregation>(
-                                eventStoreName,
-                                keyStoreName,
-                                parameters,
-                                // Agg event constructor
-                                event -> {
-                                    var aggEvent = new SpatMinimumDataEventAggregation();
-                                    aggEvent.setSource(event.getSource());
-                                    aggEvent.setIntersectionID(event.getIntersectionID());
-                                    aggEvent.setRoadRegulatorID(event.getRoadRegulatorID());
-                                    return aggEvent;
-                                },
-                                new SpatMinimumDataEventAggregation().getEventType()),
-                        eventStoreName, keyStoreName)
-                .to(eventAggregationTopic,
-                        Produced.with(
-                                keySerde(),
-                                eventAggregationSerde(),
-                                eventAggregationPartitioner()));
-
+    public String eventAggregationType() {
+        return new SpatMinimumDataEventAggregation().getEventType();
     }
+
+
+//    @Override
+//    public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, SpatMinimumDataEvent> inputStream) {
+//
+//
+//        final String eventName = eventAggregationType();
+//
+//        // Name stores by convention so we don't have to create properties for their names
+//        final String eventStoreName = eventName + "EventStore";
+//        final String keyStoreName = eventName + "KeyStore";
+//
+//        final var eventTopicMap = parameters.getEventTopicMap();
+//        String eventAggregationTopic;
+//        if (eventTopicMap.containsKey(eventName)) {
+//            eventAggregationTopic = parameters.getEventTopicMap().get(eventName);
+//        } else {
+//            throw new RuntimeException(String.format("Aggregation topic for %s not found in aggregation.eventTopicMap",
+//                    eventName));
+//        }
+//
+//        final long retentionTimeMillis = parameters.retentionTimeMs();
+//        log.info("eventStore retention time = {} ms", retentionTimeMillis);
+//
+//        final Duration retentionTime = Duration.ofMillis(retentionTimeMillis);
+//
+//        final var eventStoreBuilder =
+//                Stores.versionedKeyValueStoreBuilder(
+//                        Stores.persistentVersionedKeyValueStore(eventStoreName, retentionTime),
+//                        keySerde(),
+//                        eventAggregationSerde()
+//                );
+//        final var keyStoreBuilder =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.persistentKeyValueStore(keyStoreName),
+//                        keySerde(),
+//                        Serdes.Long()
+//                );
+//        builder.addStateStore(eventStoreBuilder);
+//        builder.addStateStore(keyStoreBuilder);
+//
+//        inputStream
+//                .process(
+//                        () -> new EventAggregationProcessor<RsuIntersectionKey, SpatMinimumDataEvent,
+//                                SpatMinimumDataEventAggregation>(
+//                                    eventStoreName,
+//                                    keyStoreName,
+//                                    parameters,
+//                                    this::constructEventAggregation,
+//                                    eventName),
+//                        eventStoreName, keyStoreName)
+//                .to(eventAggregationTopic,
+//                        Produced.with(
+//                                keySerde(),
+//                                eventAggregationSerde(),
+//                                eventAggregationPartitioner()));
+//
+//    }
 
 
 }

@@ -5,8 +5,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.processor.StreamPartitioner;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
-
-import java.util.function.Supplier;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
 
 
 /**
@@ -16,7 +15,7 @@ import java.util.function.Supplier;
  * @param <TEvent> The event type of the input event KStream
  * @param <TAggEvent> The type of the output aggregated event
  */
-public interface BaseAggregationStreamsAlgorithm<TKey, TEvent extends Event, TAggEvent extends Event> {
+public interface AggregationStreamsAlgorithmInterface<TKey, TEvent extends Event, TAggEvent extends EventAggregation<TEvent>> {
 
     void buildTopology(StreamsBuilder builder, KStream<TKey, TEvent> inputStream);
 
@@ -44,6 +43,5 @@ public interface BaseAggregationStreamsAlgorithm<TKey, TEvent extends Event, TAg
      * @return An instance of the partitioner
      */
     StreamPartitioner<TKey, TAggEvent> eventAggregationPartitioner();
-
 
 }

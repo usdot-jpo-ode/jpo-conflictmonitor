@@ -23,7 +23,7 @@ public abstract class EventAggregation<TEvent extends Event> extends Event {
     int numberOfEvents;
 
     /**
-     * Update the event aggregation
+     * Update the aggregation with a received event.
      * @param event The event
      */
     public abstract void update(TEvent event);
