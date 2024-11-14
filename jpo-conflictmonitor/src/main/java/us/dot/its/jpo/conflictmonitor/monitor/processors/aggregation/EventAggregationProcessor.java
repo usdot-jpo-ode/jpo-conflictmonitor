@@ -72,8 +72,7 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         if (params.isDebug()) log.info("process record: type: {}, key: {}, timestamp: {}, period ending: {}",
                 event.getEventType(), key, recordTimestamp, periodEndTimestamp);
 
-        // Keep track of keys
-        keyStore.put(key, 0L);
+
 
         // Check if there is already an aggregated event for the time period
         VersionedRecord<TAggEvent> aggEventRecord = queryEventStore(key, periodEndTimestamp);
@@ -85,6 +84,7 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
             aggEvent.setNumberOfEvents(1);
             aggEvent.update(event);
             eventStore.put(key, aggEvent, periodEndTimestamp);
+            // Keep track of keys
             if (params.isDebug()) log.info("process: Added new event to store: key: {}, aggEvent count: {}, periodEndTimestamp: {}",
                     key, aggEvent.getNumberOfEvents(), periodEndTimestamp);
         } else {
@@ -94,6 +94,11 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
             eventStore.put(key, aggEvent, periodEndTimestamp);
             if (params.isDebug()) log.debug("process: Updated existing event in store: key: {}, aggEvent count: {}, periodEndTimestamp: {}",
                     key, aggEvent.getNumberOfEvents(), periodEndTimestamp);
+        }
+
+        // Initialize earliest period timestamp
+        if (keyStore.get(key) == null) {
+            keyStore.put(key, 0L);
         }
 
     }
@@ -130,7 +135,8 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
         var versionedQuery =
                 MultiVersionedKeyQuery.<TKey, TAggEvent>withKey(key)
                         .fromTime(null)
-                        .toTime(null);
+                        .toTime(null)
+                        .withAscendingTimestamps();
         QueryResult<VersionedRecordIterator<TAggEvent>> queryResult =
                 eventStore.query(versionedQuery, PositionBound.unbounded(), new QueryConfig(false));
         VersionedRecordIterator<TAggEvent> resultIterator = queryResult.getResult();
@@ -171,10 +177,15 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
             while (iterator.hasNext()) {
                 final KeyValue<TKey, Long> kv = iterator.next();
                 final TKey key = kv.key;
-                final long earliestSentAlready = kv.value;
+                long earliestSentAlready = kv.value;
                 if (params.isDebug()) log.debug("punctuate: key: {}, earliest sent already: {}", key, earliestSentAlready);
 
                 List<VersionedRecord<TAggEvent>> records = queryEventStore(key);
+
+                // Delete the key if there are no records.
+                if (records.isEmpty()) {
+                    keysToDelete.add(key);
+                }
 
                 // Check for elapsed time periods
                 for (final VersionedRecord<TAggEvent> aggEventRecord : records) {
@@ -202,12 +213,18 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
                         context().forward(new Record<>(key, aggEvent, timestamp));
 
                         // Update earliestSentAlready
-                        keyStore.put(key, periodEndTimestamp);
+                        earliestSentAlready = periodEndTimestamp;
+                        keyStore.put(key, earliestSentAlready);
                         if (params.isDebug())
                             log.info("punctuate: Sent agg event: {}, {}, {}", key, aggEvent, timestamp);
                     }
                 }
             }
+        }
+
+        for (final TKey key : keysToDelete) {
+            keyStore.delete(key);
+            if (params.isDebug()) log.info("Deleted key {}", key);
         }
     }
 

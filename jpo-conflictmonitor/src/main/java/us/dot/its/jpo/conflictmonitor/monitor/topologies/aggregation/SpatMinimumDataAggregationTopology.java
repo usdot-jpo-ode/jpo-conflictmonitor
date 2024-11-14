@@ -101,7 +101,7 @@ public class SpatMinimumDataAggregationTopology
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore(keyStoreName),
                         keySerde(),
-                        JsonSerdes.TimestampSet()
+                        Serdes.Long()
                 );
         builder.addStateStore(eventStoreBuilder);
         builder.addStateStore(keyStoreBuilder);
