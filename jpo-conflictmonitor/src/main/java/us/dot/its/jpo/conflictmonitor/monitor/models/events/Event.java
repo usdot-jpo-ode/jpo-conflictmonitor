@@ -53,7 +53,10 @@ import lombok.Setter;
                 name = "IntersectionReferenceAlignmentAggregation"),
         @JsonSubTypes.Type(value = SignalGroupAlignmentEventAggregation.class,
                 name = "SignalGroupAlignmentAggregation"),
-        @JsonSubTypes.Type(value = SignalStateConflictEventAggregation.class, name = "SignalStateConflictAggregation")
+        @JsonSubTypes.Type(value = SignalStateConflictEventAggregation.class, name = "SignalStateConflictAggregation"),
+        @JsonSubTypes.Type(value = TimeChangeDetailsEventAggregation.class, name = "TimeChangeDetailsAggregation"),
+        @JsonSubTypes.Type(value = EventStateProgressionEventAggregation.class,
+                name = "EventStateProgressionAggregation")
 })
 @Getter
 @Setter

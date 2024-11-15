@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@Generated
 public class MapMinimumDataEventAggregation extends BaseMinimumDataEventAggregation<MapMinimumDataEvent> {
 
     public MapMinimumDataEventAggregation() {

@@ -12,7 +12,6 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@Generated
 public abstract class BaseMinimumDataEventAggregation<TEvent extends BaseMinimumDataEvent>
         extends EventAggregation<TEvent> {
 

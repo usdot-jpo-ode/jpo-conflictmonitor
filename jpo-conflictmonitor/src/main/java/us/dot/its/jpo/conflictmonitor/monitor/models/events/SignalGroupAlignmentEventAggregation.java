@@ -11,7 +11,6 @@ import java.util.TreeSet;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@Generated
 public class SignalGroupAlignmentEventAggregation
     extends EventAggregation<SignalGroupAlignmentEvent> {
 

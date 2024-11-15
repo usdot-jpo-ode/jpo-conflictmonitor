@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@Generated
 public class SpatMinimumDataEventAggregation extends BaseMinimumDataEventAggregation<SpatMinimumDataEvent> {
 
     public SpatMinimumDataEventAggregation() {

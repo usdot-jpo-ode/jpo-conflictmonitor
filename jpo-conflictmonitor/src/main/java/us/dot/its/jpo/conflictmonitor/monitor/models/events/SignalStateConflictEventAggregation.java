@@ -10,7 +10,6 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@Generated
 public class SignalStateConflictEventAggregation
     extends EventAggregation<SignalStateConflictEvent>{
 

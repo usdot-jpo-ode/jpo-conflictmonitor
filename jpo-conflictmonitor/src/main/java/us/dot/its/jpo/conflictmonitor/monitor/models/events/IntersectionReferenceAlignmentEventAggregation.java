@@ -12,7 +12,6 @@ import java.util.TreeSet;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@Generated
 public class IntersectionReferenceAlignmentEventAggregation
     extends EventAggregation<IntersectionReferenceAlignmentEvent> {
 
