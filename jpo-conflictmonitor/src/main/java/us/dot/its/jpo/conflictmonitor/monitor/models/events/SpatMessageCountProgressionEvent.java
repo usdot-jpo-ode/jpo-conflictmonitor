@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 @Getter
 @Setter
@@ -12,9 +11,11 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 @Generated
 public class SpatMessageCountProgressionEvent extends Event{
 
-    private ProcessedSpat previousSpat;
-    private ProcessedSpat newSpat;
-    private String message;
+    private String messageType;
+    private int messageCountA;
+    private String timestampA;
+    private int messageCountB;
+    private String timestampB;
 
     public SpatMessageCountProgressionEvent(){
         super("SpatMessageCountProgression");

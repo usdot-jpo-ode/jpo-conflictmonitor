@@ -412,27 +412,39 @@ message.ingest:
   mapStoreName: ProcessedMapWindowStore
   mapSpatialIndexStoreName: MapSpatialIndexStore
 
-# MAP Revision Counter
-map.revision.counter:
+# MAP Message Count Progression
+map.message.count.progression:
   algorithm: defaultMapMessageCountProgressionAlgorithm
   debug: false
   mapInputTopicName: topic.ProcessedMap
-  mapRevisionEventOutputTopicName: topic.CmMapMessageCountProgressionEvents
+  mapMessageCountProgressionEventOutputTopicName: topic.CmMapMessageCountProgressionEvents
+  processedMapStateStoreName: processedMapStateStore
+  latestMapStateStoreName: latestMapStateStore
+  bufferTimeMs: 5000
+  bufferGracePeriodMs: 800
 
-# SPAT Revision Counter
-spat.revision.counter:
+# SPAT Message Count Progression
+spat.message.count.progression:
   algorithm: defaultSpatMessageCountProgressionAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
-  spatRevisionEventOutputTopicName: topic.CmSpatMessageCountProgressionEvents
+  spatMessageCountProgressionEventOutputTopicName: topic.CmSpatMessageCountProgressionEvents
+  processedSpatStateStoreName: processedSpatStateStore
+  latestSpatStateStoreName: latestSpatStateStore
+  bufferTimeMs: 500
+  bufferGracePeriodMs: 50
 
-# BSM Revision Counter
-bsm.revision.counter:
+# BSM Message Count Progression
+bsm.message.count.progression:
   algorithm: defaultBsmMessageCountProgressionAlgorithm
   debug: false
-  bsmInputTopicName: topic.CmBsmJsonRepartition
-  bsmRevisionEventOutputTopicName: topic.CmBsmMessageCountProgressionEvents
-
+  bsmInputTopicName: topic.ProcessedBsm
+  bsmMessageCountProgressionEventOutputTopicName: topic.CmBsmMessageCountProgressionEvents
+  processedBsmStateStoreName: processedBsmStateStore
+  latestBsmStateStoreName: latestBsmStateStore
+  bufferTimeMs: 500
+  bufferGracePeriodMs: 50
+  
 # Config parameters
 config:
   defaultStateStore: default-config

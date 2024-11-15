@@ -62,15 +62,15 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop_assessme
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithm;
@@ -422,7 +422,7 @@ public class MonitorServiceController {
             connectionofTravelAssessmentAlgo.start();
 
 
-            //Map Revision Counter Topology
+            //Map Message Count Progression Topology
             final String mapMessageCountProgression = "mapMessageCountProgression";
             final MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgoFactory = conflictMonitorProps.getMapMessageCountProgressionAlgorithmFactory();
             final String mapMessageCountProgressionAlgorithm = conflictMonitorProps.getMapMessageCountProgressionAlgorithm();
@@ -440,7 +440,7 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(mapMessageCountProgressionAlgo::stop));
             mapMessageCountProgressionAlgo.start();
 
-            //Spat Revision Counter Topology
+            //Spat Message Count Progression Topology
             final String spatMessageCountProgression = "spatMessageCountProgression";
             final SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgoFactory = conflictMonitorProps.getSpatMessageCountProgressionAlgorithmFactory();
             final String spatMessageCountProgressionAlgorithm = conflictMonitorProps.getSpatMessageCountProgressionAlgorithm();
@@ -458,7 +458,7 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(spatMessageCountProgressionAlgo::stop));
             spatMessageCountProgressionAlgo.start();
             
-            //Bsm Revision Counter Topology
+            //Bsm Message Count Progression Topology
             final String bsmMessageCountProgression = "bsmMessageCountProgression";
             final BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgoFactory = conflictMonitorProps.getBsmMessageCountProgressionAlgorithmFactory();
             final String bsmMessageCountProgressionAlgorithm = conflictMonitorProps.getBsmMessageCountProgressionAlgorithm();

@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
 

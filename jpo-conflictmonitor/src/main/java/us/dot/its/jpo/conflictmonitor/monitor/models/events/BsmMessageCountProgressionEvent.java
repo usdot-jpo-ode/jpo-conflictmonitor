@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 
 @Getter
 @Setter
@@ -12,9 +11,11 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 @Generated
 public class BsmMessageCountProgressionEvent extends Event{
 
-    private OdeBsmData previousBsm;
-    private OdeBsmData newBsm;
-    private String message;
+    private String messageType;
+    private int messageCountA;
+    private String timestampA;
+    private int messageCountB;
+    private String timestampB;
 
     public BsmMessageCountProgressionEvent(){
         super("BsmMessageCountProgression");

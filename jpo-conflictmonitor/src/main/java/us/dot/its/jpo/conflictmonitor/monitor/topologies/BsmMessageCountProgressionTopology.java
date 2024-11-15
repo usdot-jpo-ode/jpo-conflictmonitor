@@ -1,131 +1,67 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams.StateListener;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmMessageCountProgressionEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionStreamsAlgorithm;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmMessageCountProgressionProcessor;
 
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionConstants.DEFAULT_BSM_REVISION_COUNTER_ALGORITHM;
+import java.time.Duration;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionConstants.DEFAULT_BSM_MESSAGE_COUNT_PROGRESSION_ALGORITHM;
 
-@Component(DEFAULT_BSM_REVISION_COUNTER_ALGORITHM)
+@Component(DEFAULT_BSM_MESSAGE_COUNT_PROGRESSION_ALGORITHM)
+@Slf4j
 public class BsmMessageCountProgressionTopology
         extends BaseStreamsTopology<BsmMessageCountProgressionParameters>
         implements BsmMessageCountProgressionStreamsAlgorithm {
 
-    private static final Logger logger = LoggerFactory.getLogger(BsmMessageCountProgressionTopology.class);
-
-
-
     @Override
     protected Logger getLogger() {
-        return logger;
+        return log;
     }
 
     @Override
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, OdeBsmData> inputStream = builder.stream(parameters.getBsmInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.OdeBsm()));
+        final String processedBsmStateStore = parameters.getProcessedBsmStateStoreName();
+        final String latestBsmStateStore = parameters.getLatestBsmStateStoreName();
+        final Duration retentionTime = Duration.ofMillis(parameters.getBufferTimeMs());
 
-        KStream<String, BsmMessageCountProgressionEvent> eventStream = inputStream
-        .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.OdeBsm()))
-        .aggregate(() -> new BsmMessageCountProgressionEvent(),
-        (key, newValue, aggregate) -> {
-            aggregate.setMessage(null);
-            if (aggregate.getNewBsm() == null){
-                aggregate.setNewBsm(newValue);
-                return aggregate;
-            }
+        builder.addStateStore(
+                Stores.versionedKeyValueStoreBuilder(
+                        Stores.persistentVersionedKeyValueStore(processedBsmStateStore, retentionTime),
+                        Serdes.String(),
+                        JsonSerdes.ProcessedBsm()
+                )
+        );
 
-            //update the aggregate
-            aggregate.setPreviousBsm(aggregate.getNewBsm());
-            aggregate.setNewBsm(newValue);
+        builder.addStateStore(
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore(latestBsmStateStore),
+                        Serdes.String(),
+                        JsonSerdes.ProcessedBsm()
+                )
+        );
+        KStream<String, ProcessedBsm<Point>> inputStream = builder.stream(parameters.getBsmInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedBsm()));
 
-            J2735Bsm previousBsmPayload = (J2735Bsm) aggregate.getPreviousBsm().getPayload().getData();
-            J2735Bsm newBsmPayload = (J2735Bsm) aggregate.getNewBsm().getPayload().getData();
-
-            int newSecMark = newBsmPayload.getCoreData().getSecMark();
-
-            newBsmPayload.getCoreData().setSecMark(previousBsmPayload.getCoreData().getSecMark());
-            aggregate.getNewBsm().getMetadata().setOdeReceivedAt(aggregate.getPreviousBsm().getMetadata().getOdeReceivedAt());
-
-            int oldMetadataHash = Objects.hash(aggregate.getPreviousBsm().getMetadata().toJson());
-            int newMetadataHash = Objects.hash(aggregate.getNewBsm().getMetadata().toJson());
-            int oldPayloadHash = Objects.hash(previousBsmPayload.toJson());
-            int newPayloadHash = Objects.hash(newBsmPayload.toJson());
-
-            if (oldPayloadHash != newPayloadHash || oldMetadataHash != newMetadataHash){  //Contents of bsm message have changed
-                newBsmPayload.getCoreData().setSecMark(newSecMark);
-                aggregate.getNewBsm().getMetadata().setOdeReceivedAt(newValue.getMetadata().getOdeReceivedAt());
-                if (previousBsmPayload.getCoreData().getMsgCnt() == newBsmPayload.getCoreData().getMsgCnt()) { //Revision has not changed
-                    aggregate.setMessage("Bsm message changed without msgCount increment.");
-                    aggregate.setRoadRegulatorID(-1);
-                    return aggregate;
-                }
-                else { //Revision has changed
-                    return aggregate;
-                }
-            }
-            else { //Bsm messages are the same
-                return aggregate;
-
-            }
-
-        }, Materialized.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()))
-        .toStream()
-        .flatMap((key, value) ->{
-            ArrayList<KeyValue<String, BsmMessageCountProgressionEvent>> outputList = new ArrayList<>();
-            if (value.getMessage() != null){
-                outputList.add(new KeyValue<>(key, value));   
-            }
-            return outputList;
-        });
-        eventStream.to(parameters.getBsmRevisionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()));
+        inputStream
+            .process(() -> new BsmMessageCountProgressionProcessor<>(parameters), processedBsmStateStore, latestBsmStateStore)
+            .to(parameters.getBsmMessageCountProgressionEventOutputTopicName(), Produced.with(Serdes.String(), us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()));
 
         return builder.build();
     }
-
-    public void stop() {
-        logger.info("Stopping Bsm Revision Counter Socket Broadcast Topology.");
-        if (streams != null) {
-            streams.close();
-            streams.cleanUp();
-            streams = null;
-        }
-        logger.info("Stopped Bsm Revision Counter Socket Broadcast Topology.");
-    }
-
-    StateListener stateListener;
-    public void registerStateListener(StateListener stateListener) {
-        this.stateListener = stateListener;
-    }
-
-    StreamsUncaughtExceptionHandler exceptionHandler;
-    public void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
-
-
-
 }

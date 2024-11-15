@@ -61,12 +61,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapMessageCountProgressionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatMessageCountProgressionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
@@ -576,7 +576,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.mapMessageCountProgressionAlgorithmFactory = mapMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${map.revision.counter.algorithm}")
+   @Value("${map.message.count.progression.algorithm}")
    public void setMapRevisionCorrectionAlgorithm(String mapMessageCountProgressionAlgorithm) {
       this.mapMessageCountProgressionAlgorithm = mapMessageCountProgressionAlgorithm;
    }
@@ -593,7 +593,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatMessageCountProgressionAlgorithmFactory = spatMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${spat.revision.counter.algorithm}")
+   @Value("${spat.message.count.progression.algorithm}")
    public void setSpatRevisionCorrectionAlgorithm(String spatMessageCountProgressionAlgorithm) {
       this.spatMessageCountProgressionAlgorithm = spatMessageCountProgressionAlgorithm;
    }
@@ -609,7 +609,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.bsmMessageCountProgressionAlgorithmFactory = bsmMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${bsm.revision.counter.algorithm}")
+   @Value("${bsm.message.count.progression.algorithm}")
    public void setBsmRevisionCorrectionAlgorithm(String bsmMessageCountProgressionAlgorithm) {
       this.bsmMessageCountProgressionAlgorithm = bsmMessageCountProgressionAlgorithm;
    }

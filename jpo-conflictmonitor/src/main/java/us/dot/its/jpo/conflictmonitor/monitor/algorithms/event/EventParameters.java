@@ -94,17 +94,17 @@ public class EventParameters {
     String connectionOfTravelEventTopicName;
 
     @ConfigData(key = "event.spatMessageCountProgressionEventTopicName", 
-        description = "The name of the topic to read spat revision counter events from", 
+        description = "The name of the topic to read spat Message Count Progression events from", 
         updateType = READ_ONLY)
     String spatMessageCountProgressionEventTopicName;
 
     @ConfigData(key = "event.mapMessageCountProgressionEventTopicName", 
-        description = "The name of the topic to read map revision counter events from", 
+        description = "The name of the topic to read map Message Count Progression events from", 
         updateType = READ_ONLY)
     String mapMessageCountProgressionEventTopicName;
     
     @ConfigData(key = "event.bsmMessageCountProgressionEventTopicName", 
-        description = "The name of the topic to read bsm revision counter events from", 
+        description = "The name of the topic to read bsm Message Count Progression events from", 
         updateType = READ_ONLY)
     String bsmMessageCountProgressionEventTopicName;
 

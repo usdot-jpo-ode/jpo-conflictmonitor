@@ -4,17 +4,18 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
 @Generated
 public class MapMessageCountProgressionEvent extends Event{
 
-    private ProcessedMap<LineString> previousMap;
-    private ProcessedMap<LineString> newMap;
-    private String message;
+    private String messageType;
+    private int messageCountA;
+    private String timestampA;
+    private int messageCountB;
+    private String timestampB;
 
     public MapMessageCountProgressionEvent(){
         super("MapMessageCountProgression");
