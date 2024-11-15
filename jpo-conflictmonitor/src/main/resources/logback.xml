@@ -12,7 +12,8 @@
 	
 	<logger name="org.springframework.web" level="INFO" />
 
-	<logger name="us.dot.its.jpo.conflictmonitor.monitor.processors.aggregation" level="DEBUG"/>
+	<!-- Uncomment to enable detailed debugging info for event aggregation -->
+	<!--<logger name="us.dot.its.jpo.conflictmonitor.monitor.processors.aggregation" level="DEBUG"/>-->
 
 	<logger name="us.dot.its.jpo.conflictmonitor" level="INFO" />
 

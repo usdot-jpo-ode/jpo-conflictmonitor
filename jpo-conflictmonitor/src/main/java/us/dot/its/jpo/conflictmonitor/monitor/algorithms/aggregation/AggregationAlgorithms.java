@@ -14,4 +14,11 @@ public class AggregationAlgorithms {
         factoryBean.setServiceLocatorInterface(SpatMinimumDataAggregationAlgorithmFactory.class);
         return factoryBean;
     }
+
+    @Bean
+    FactoryBean<?> mapMinimumDataServiceLocatorFactoryBean() {
+        var factoryBean = new ServiceLocatorFactoryBean();
+        factoryBean.setServiceLocatorInterface(MapMinimumDataAggregationAlgorithmFactory.class);
+        return factoryBean;
+    }
 }

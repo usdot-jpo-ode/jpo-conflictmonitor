@@ -25,10 +25,11 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import java.time.Duration;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationConstants.DEFAULT_SPAT_MINIMUM_DATA_AGGREGATION_ALGORITHM;
+import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigConstants.CONFIG_TOPOLOGY;
 
 @Component(DEFAULT_SPAT_MINIMUM_DATA_AGGREGATION_ALGORITHM)
 @Slf4j
-@DependsOn({"ConfigTopology"})
+@DependsOn({CONFIG_TOPOLOGY})
 public class SpatMinimumDataAggregationTopology
         extends
             BaseAggregationTopology<

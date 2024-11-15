@@ -32,6 +32,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEve
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
@@ -267,6 +268,13 @@ public class JsonSerdes {
         );
     }
 
+    public static Serde<MapMinimumDataEventAggregation> MapMinimumDataEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(MapMinimumDataEventAggregation.class)
+        );
+    }
+
     public static Serde<SpatMinimumDataEvent> SpatMinimumDataEvent() {
         return Serdes.serdeFrom(
             new JsonSerializer<SpatMinimumDataEvent>(),
@@ -438,11 +446,7 @@ public class JsonSerdes {
                 new JsonDeserializer<>(EventStateProgressionNotification.class));
     }
 
-//    public static Serde<TimestampSet> TimestampSet() {
-//        return Serdes.serdeFrom(
-//                new JsonSerializer<>(),
-//                new JsonDeserializer<>(TimestampSet.class)
-//        );
-//    }
+
+
 
 }

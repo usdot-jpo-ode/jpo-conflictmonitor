@@ -173,7 +173,7 @@ public class EventAggregationProcessor<TKey, TEvent extends Event, TAggEvent ext
     }
 
     private void punctuate(final long timestamp) {
-        if (params.isDebug()) log.info("punctuate at {}, type: {}", timestamp, aggEventName);
+        if (params.isDebug()) log.debug("punctuate at {}, type: {}", timestamp, aggEventName);
 
         // Emit events for which the time period is elapsed.
 

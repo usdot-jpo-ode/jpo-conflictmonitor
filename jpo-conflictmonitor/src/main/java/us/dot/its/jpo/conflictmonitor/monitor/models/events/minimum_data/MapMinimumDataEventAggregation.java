@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @Generated
-public class SpatMinimumDataEventAggregation extends BaseMinimumDataEventAggregation<SpatMinimumDataEvent> {
+public class MapMinimumDataEventAggregation extends BaseMinimumDataEventAggregation<MapMinimumDataEvent> {
 
-    public SpatMinimumDataEventAggregation() {
-        super("SpatMinimumDataAggregation");
+    public MapMinimumDataEventAggregation() {
+        super("MapMinimumDataAggregation");
     }
 
 }
