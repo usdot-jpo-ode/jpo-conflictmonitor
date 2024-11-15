@@ -264,6 +264,7 @@ map.validation:
   lowerBound: 9
   upperBound: 11
   debug: false
+  aggregateMinimumDataEvents: true
 
 
 
