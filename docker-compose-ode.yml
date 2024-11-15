@@ -1,0 +1,105 @@
+include:
+  - jpo-utils/docker-compose.yml
+
+services:
+  geojsonconverter:
+    profiles:
+      - all
+      - cm_full
+      - ode_geojsonconverter
+    image: usdotjpoode/geojsonconverter:latest
+    restart: ${RESTART_POLICY}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
+      KAFKA_TYPE: ${KAFKA_TYPE}
+      CONFLUENT_KEY: ${CONFLUENT_KEY}
+      CONFLUENT_SECRET: ${CONFLUENT_SECRET}
+      geometry.output.mode: ${GEOMETRY_OUTPUT_MODE:-GEOJSON_ONLY}
+      spring.kafka.bootstrap-servers: ${DOCKER_HOST_IP:?error}:9092
+    logging: 
+      options:
+        max-size: "10m"
+        max-file: "5"
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # ODE Services:
+  ode:
+    profiles:
+      - all
+      - cm_full
+      - ode_geojsonconverter
+    image: usdotjpoode/jpo-ode:latest
+    restart: ${RESTART_POLICY}
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+      - "46753:46753/udp"
+      - "46800:46800/udp"
+      - "47900:47900/udp"
+      - "44900:44900/udp"
+      - "44910:44910/udp"
+      - "44920:44920/udp"
+      - "44930:44930/udp"
+      - "44940:44940/udp"
+      - "44990:44990/udp"
+      - "5555:5555/udp"
+      - "6666:6666/udp"
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
+      KAFKA_TYPE: ${KAFKA_TYPE}
+      CONFLUENT_KEY: ${CONFLUENT_KEY}
+      CONFLUENT_SECRET: ${CONFLUENT_SECRET}
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget" ,"--spider", "http://localhost:8080"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  adm:
+    profiles:
+      - all
+      - cm_full
+      - ode_geojsonconverter
+    image: usdotjpoode/asn1_codec:latest
+    restart: ${RESTART_POLICY}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
+      KAFKA_TYPE: ${KAFKA_TYPE}
+      CONFLUENT_KEY: ${CONFLUENT_KEY}
+      CONFLUENT_SECRET: ${CONFLUENT_SECRET}
+      ACM_CONFIG_FILE: adm.properties
+      ACM_LOG_TO_CONSOLE: ${ADM_LOG_TO_CONSOLE:-false}
+      ACM_LOG_TO_FILE: ${ADM_LOG_TO_FILE:-true}
+      ACM_LOG_LEVEL: ${ADM_LOG_LEVEL:-INFO}
+    depends_on:
+      kafka:
+        condition: service_healthy
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"

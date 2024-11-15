@@ -65,18 +65,19 @@ amount of data being processed by the software. The JPO-ConflictMonitor software
 
 ### Software Prerequisites
 
-The JPO-ConflictMonitor is a micro service that runs as an independent application within an existing Apache Kafka System. The JPO-conflictmonitor takes advantages of multiple data models defined in the jpo-geojsonconverter and jpoode. These are included into the Conflict Monitor as submodules, and must be run independently to ensure proper operation. The JPO-ODE in particular is still required to launch Kafka, Zookeeper, the ASN1 decoder and create the required Kafka topics. All other required dependencies will automatically be downloaded and installed as part of the Docker build process.
+The JPO-ConflictMonitor is a micro service that runs as an independent application within an existing Apache Kafka System. The JPO-conflictmonitor takes advantages of multiple data models defined in the jpo-geojsonconverter and jpoode. These are included into the Conflict Monitor as library references in maven, and images of these applications are spun up in the provided `docker-compose.yml`.
 
 - Docker: <https://docs.docker.com/engine/installation/>
 - Docker-Compose: <https://docs.docker.com/compose/install/>
 
 ### Tips and Advice
 
-Read the following guides to familiarize yourself with ConflictMonitors's Docker and the ODE managed Kafka modules.
+Read the following guides to familiarize yourself with ConflictMonitors's Docker and the ODE managed Kafka modules. The `jpo-utils` repository is referenced as a submodule and handles managing the base application that the conflict monitor relies on such as kafka, kafka-connect, and MongoDB.
 
 - [Docker README](docker.md)
 - [ODE Kafka README](https://github.com/usdot-jpo-ode/jpo-ode/blob/dev/kafka.md)
 - [GEOJSON Converter README](https://raw.githubusercontent.com/usdot-jpo-ode/jpo-geojsonconverter/develop/README.md)
+- [JPO Utils README](https://github.com/usdot-jpo-ode/jpo-utils)
 
 **Installation and Deployment:**
 
@@ -89,7 +90,7 @@ Read the following guides to familiarize yourself with ConflictMonitors's Docker
 The JPO-ConflictMonitor configuration is customized through the environment variables provided to Docker when Docker-Compose runs the Docker built JPO-ConflictMonitor image. This provides basic configuration on kafka items such as the kafka broker location. Individual process modules can be configured by modifing the properties files in the resource folder before building the docker image.
 
 **Important!**
-You must rename `sample.env` to `.env` for Docker to automatically read the file. Do not push this file to source control.
+You must rename `sample.env` to `.env` for Docker to automatically read the file. A `.env` file is also required in [jpo-utils](jpo-utils/sample.env). Do not push this file to source control.
 
 [Back to top](#toc)
 
@@ -124,15 +125,16 @@ git config core.longpaths true
 
 Note: if you intend to run the entire ConflictVisualizer system, you should instead start with [step 1 of the ConflictVisualizer Installation Guide](https://github.com/usdot-jpo-ode/jpo-conflictvisualizer?tab=readme-ov-file#1-initialize-and-update-submodules) before returning to step 2 below.
 
-The jpo-geojsonconverter software system consists of the following modules hosted in separate Github repositories:
+The jpo-conflictmonitor software system consists of the following modules hosted in separate Github repositories:
 
 |Name|Visibility|Description|
 |----|----------|-----------|
 |[jpo-conflictmonitor](https://github.com/usdot-jpo-ode/jpo-conflictmonitor)|public|Contains the public components of the application code.|
 |[jpo-geojsonconverter](https://github.com/usdot-jpo-ode/jpo-geojsonconverter)|public|Contains the public classes and libraries of the jpo-geojsonconverter used in the Conflict Monitor.|
 |[jpo-ode](https://github.com/usdot-jpo-ode/jpo-ode)|public|Contains the public classes and libraries of the jpo-ode used in the Conflict Monitor.|
+|[jpo-utils](https://github.com/usdot-jpo-ode/jpo-utils)|public|Contains the shared dependencies for jpo repositories|
 
-You may download the stable, default branch for ALL of these dependencies by using the following recursive git clone command:
+You may download the stable, default of the Conflict Monitor and jpo-utils repositories run the following command:
 
 ```bash
 git clone --recurse-submodules https://github.com/usdot-jpo-ode/jpo-conflictmonitor.git
@@ -140,36 +142,71 @@ git clone --recurse-submodules https://github.com/usdot-jpo-ode/jpo-conflictmoni
 
 Once you have these repositories obtained, you are ready to build and deploy the application.
 
-#### Step 2 - Build and run jpo-ode application
+#### Step 2 - Generate GitHub Token
 
-Navigate to the root directory of the jpo-ode project and run the following command:
+A GitHub token is required to pull artifacts from GitHub repositories. This is required to obtain the jpo-ode and jpo-geojsonconverter jars and must be done before attempting to build this repository.
 
-```bash
-docker-compose up --build -d
-docker-compose ps
+1. Log into GitHub.
+2. Navigate to Settings -> Developer settings -> Personal access tokens.
+3. Click "New personal access token (classic)".
+   1. As of now, GitHub does not support `Fine-grained tokens` for obtaining packages.
+4. Provide a name and expiration for the token.
+5. Select the `read:packages` scope.
+6. Click "Generate token" and copy the token.
+7. Copy the token name and token value into your `.env` file.
+8. Create a copy of [settings.xml](settings.xml) and save it to `~/.m2/settings.xml`
+9. Update the variables in your `~/.m2/settings.xml` with the token value and target jpo-ode organization. Here is an example filled in `settings.xml` file:
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <activeProfiles>
+        <activeProfile>default</activeProfile>
+    </activeProfiles>
+    <servers>
+        <server>
+            <id>github_jpo_ode</id>
+            <username>jpo_conflictmonitor</username>
+            <password>ghp_token-string-value</password>
+        </server>
+        <server>
+            <id>github_jpo_geojsonconverter</id>
+            <username>jpo_conflictmonitor</username>
+            <password>ghp_token-string-value</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <repositories>
+                <repository>
+                    <id>github_jpo_ode</id>
+                    <name>GitHub JPO ODE</name>
+                    <url>https://maven.pkg.github.com/usdot-jpo-ode/jpo-ode</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github_jpo_geojsonconverter</id>
+                    <name>GitHub JPO GeojsonConverter</name>
+                    <url>https://maven.pkg.github.com/usdot-jpo-ode/jpo-geojsonconverter</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+</settings>
 ```
 
-Verify the jpo-ode, kafka, zookeeper, asn1-decoder and asn1-encoder are running before performing step 3.
-
-#### Step 3 - Build and run jpo-geojsonconverter application
+#### Step 3 - Build and run jpo-conflictmonitor application
 
 **Notes:**
 - Docker builds may fail if you are on a corporate network due to DNS resolution errors.
-- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.**
-
-Navigate to the root directory of the jpo-geojsonconverter project and run the following command:
-
-```bash
-docker-compose up --build -d
-docker-compose ps
-```
-
-#### Step 4 - Build and run jpo-conflictmonitor application
-
-**Notes:**
-- Docker builds may fail if you are on a corporate network due to DNS resolution errors.
-- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.
-- The MongoDB keyfile should be randomized for each deployment. To Create a new keyfile run the following `openssl rand -base64 756 > ./docker/mongo/keyfile.txt`
+- In order for Docker to automatically read the environment variable file, you must rename it from `sample.env` to `.env`. **This file will contain private keys, do not put add it to version control.**. A copy of the `sample.env` file must be created in [jpo-utils](jpo-utils/sample.env) in order for the base applications (kafka, mongo, etc.) to start up correctly
+- The MongoDB keyfile should be randomized for each deployment. To Create a new keyfile run the following: `openssl rand -base64 32` and then set the `MONGO_DB_KEYFILE_STRING` environmental variable to its value.
 **
 
 Navigate to the root directory of the jpo-conflictmonitor project and run the following command:
@@ -237,7 +274,7 @@ This section outlines the software technology stacks of the GeoJsonConverter.
 
 ### ODE Code
 
-- [Java 11](https://openjdk.java.net/)
+- [Java](https://openjdk.java.net/)
 - [Maven](https://maven.apache.org/)
 - [Spring Boot](http://spring.io/projects/spring-boot)
 - [Logback](https://logback.qos.ch/)
@@ -275,17 +312,7 @@ Install the IDE of your choice:
 
 ## 6. Deployment
 
-### Standard Deployment
-
-* The standard deployment has the services provided by `docker-compose.yml` including a MongoDB container as well as the kafka-connector as well.
-
-### Standalone Deployment
-
-* The standalone deployment has the services provided by `docker-compose-standalone.yml` and is intended to only deploy the conflict monitor service with auto-restarting conditions. This deployment requires an existing MongoDB database as well as configurations for kafka connectors for an existing kafka-connector service.
-
-### Release Deployment
-
-* The release deployment has the services provided by `release-compose.yml` including a MongoDB container, Monitor Container and Connector container. This deployment references pre-built dockerfiles available on dockerhub, and can provide a streamlined deployment process using the latest formal release.
+Deployment of resources is largely managed through [docker compose profiles](https://docs.docker.com/reference/compose-file/profiles/). The available profiles are described in the Conflict Monitor [sample.env](sample.env) as well as in the JPO Utils [sample.env](jpo-utils/sample.env)
 
 [Back to top](#toc)
 

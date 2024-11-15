@@ -1,49 +1,35 @@
-FROM maven:3.8-eclipse-temurin-21-alpine as builder
+FROM maven:3.8-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /home
 
-# Copy only the files needed to avoid putting all sorts of junk from your local env on to the image
+ARG MAVEN_GITHUB_TOKEN
+ARG MAVEN_GITHUB_ORG
 
-# Copy and Build ODE
-COPY ./jpo-geojsonconverter/jpo-ode/pom.xml ./jpo-ode/
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-common/pom.xml ./jpo-ode/jpo-ode-common/
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-common/src ./jpo-ode/jpo-ode-common/src
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-plugins/pom.xml ./jpo-ode/jpo-ode-plugins/
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-plugins/src ./jpo-ode/jpo-ode-plugins/src
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-core/pom.xml ./jpo-ode/jpo-ode-core/
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-core/src ./jpo-ode/jpo-ode-core/src/
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-svcs/pom.xml ./jpo-ode/jpo-ode-svcs/
-COPY ./jpo-geojsonconverter/jpo-ode/jpo-ode-svcs/src ./jpo-ode/jpo-ode-svcs/src
+ENV MAVEN_GITHUB_TOKEN=$MAVEN_GITHUB_TOKEN
+ENV MAVEN_GITHUB_ORG=$MAVEN_GITHUB_ORG
 
-WORKDIR /home/jpo-ode
-RUN mvn install -DskipTests
-
-
-# Copy and Build GeoJsonConverter
-WORKDIR /home
-COPY ./jpo-geojsonconverter/jpo-geojsonconverter/pom.xml ./jpo-geojsonconverter/
-COPY ./jpo-geojsonconverter/jpo-geojsonconverter/src ./jpo-geojsonconverter/src
-
-WORKDIR /home/jpo-geojsonconverter
-RUN mvn clean install -DskipTests
-
+COPY ./jpo-conflictmonitor/pom.xml ./jpo-conflictmonitor/
+COPY ./settings.xml ./jpo-conflictmonitor/
 
 # Copy and Build Conflict Monitor
-WORKDIR /home
-COPY ./jpo-conflictmonitor/pom.xml ./jpo-conflictmonitor/
-COPY ./jpo-conflictmonitor/src ./jpo-conflictmonitor/src
-
+# Download dependencies alone to cache them first
 WORKDIR /home/jpo-conflictmonitor
-RUN mvn clean install -DskipTests
+RUN mvn -s settings.xml dependency:resolve
 
+# Copy the source code and build the conflict monitor
+COPY ./jpo-conflictmonitor/src ./src
+RUN mvn -s settings.xml install -DskipTests -Ppackage-jar
 
 # Copy and Build Deduplicator
 WORKDIR /home
 COPY ./jpo-deduplicator/pom.xml ./jpo-deduplicator/
-COPY ../jpo-deduplicator/src ./jpo-deduplicator/src
+COPY ./settings.xml ./jpo-deduplicator/
 
 WORKDIR /home/jpo-deduplicator
-RUN mvn clean package -DskipTests
+RUN mvn -s settings.xml dependency:resolve
+
+COPY ./jpo-deduplicator/src ./src
+RUN mvn -s settings.xml install -DskipTests
 
 FROM amazoncorretto:21
 

@@ -196,6 +196,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String confluentKey = null;
    private String confluentSecret = null;
 
+   private int lingerMs = 0;
+
 
    
 
@@ -686,6 +688,15 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.messageIngestParameters = messageIngestParameters;
    }
 
+   @Value("${kafka.linger_ms}")
+   public void setKafkaLingerMs(int lingerMs) {
+      this.lingerMs = lingerMs;
+   }
+
+   public int getKafkaLingerMs() {
+      return lingerMs;
+   }
+
 
    /*
     * General Properties
@@ -710,9 +721,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Setter(AccessLevel.NONE)
    private String kafkaBrokerIP = null;
 
-
-   @Setter(AccessLevel.NONE)
-   private String dbHostIP = null;
+   // No longer need a mongo DB connection for this service
+   // @Setter(AccessLevel.NONE)
+   // private String dbHostIP = null;
 
 
 
@@ -770,30 +781,30 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       logger.info("Host ID: {}", hostId);
       EventLogger.logger.info("Initializing services on host {}", hostId);
 
-      if(dbHostIP == null){
-         String dbHost = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+      // No longer need a mongo DB connection for this service
+      // if(dbHostIP == null){
+      //    String dbHost = CommonUtils.getEnvironmentVariable("MONGO_IP");
 
-         if(dbHost == null){
-            logger.warn(
-                  "DB Host IP not defined, Defaulting to localhost.");
-            dbHost = "localhost";
-         }
-         dbHostIP = dbHost;
-      }
+      //    if(dbHost == null){
+      //       logger.warn(
+      //             "DB Host IP not defined, Defaulting to localhost.");
+      //       dbHost = "localhost";
+      //    }
+      //    dbHostIP = dbHost;
+      // }
 
       if (kafkaBrokers == null) {
 
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("KAFKA_BROKER_IP");
+         String kafkaBrokers = CommonUtils.getEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
 
-         logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BROKER_IP => {}", kafkaBrokers);
+         logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BOOTSTRAP_SERVERS => {}", kafkaBrokers);
 
-         if (kafkaBroker == null) {
+         if (kafkaBrokers == null) {
             logger.warn(
-                  "Neither ode.kafkaBrokers ode property nor KAFKA_BROKER_IP environment variable are defined. Defaulting to localhost.");
-            kafkaBroker = "localhost";
+                  "Neither ode.kafkaBrokers ode property nor KAFKA_BOOTSTRAP_SERVERS environment variable are defined. Defaulting to localhost:9092");
+            kafkaBrokers = "localhost:9092";
          }
 
-         kafkaBrokers = kafkaBroker + ":" + DEFAULT_KAFKA_PORT;
       }
 
       String kafkaType = CommonUtils.getEnvironmentVariable("KAFKA_TYPE");
@@ -810,13 +821,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
-         if (kafkaBroker == null) {
-            kafkaBroker = "localhost";
+         String tempConnectURL = CommonUtils.getEnvironmentVariable("CONNECT_URL");
+         if (tempConnectURL == null) {
+            tempConnectURL = String.format("http://%s:%s", "localhost", DEFAULT_CONNECT_PORT);
          }
-         // dockerHostIP = dockerIp;
-         kafkaBrokerIP = kafkaBroker;
-         connectURL = String.format("http://%s:%s", kafkaBroker, DEFAULT_CONNECT_PORT);
+         connectURL = tempConnectURL;
       }
 
       // List<String> asList = Arrays.asList(this.getKafkaTopicsDisabled());
@@ -868,7 +877,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       streamProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, FIVE_MINUTES_MS);
 
       // Disable batching
-      streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+      // streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+      // Enable Compression
+      streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");
