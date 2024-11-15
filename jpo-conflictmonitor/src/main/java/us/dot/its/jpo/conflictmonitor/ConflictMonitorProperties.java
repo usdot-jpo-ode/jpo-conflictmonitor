@@ -42,6 +42,7 @@ import lombok.Setter;
 import lombok.AccessLevel;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.MapMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
@@ -92,6 +93,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.util.CommonUtils;
@@ -110,6 +113,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private AggregationParameters aggregationParameters;
    private String spatMinimumDataAggregationAlgorithm;
    private SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory;
+   private String mapMinimumDataAggregationAlgorithm;
+   private MapMinimumDataAggregationAlgorithmFactory mapMinimumDataAggregationAlgorithmFactory;
 
    private MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
    private SpatValidationStreamsAlgorithmFactory spatValidationAlgorithmFactory;
@@ -236,11 +241,22 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       } else {
          throw new RuntimeException("No algorithm found for " + spatMinimumDataEventType);
       }
+      final String mapMinimumDataEventType = (new MapMinimumDataEventAggregation()).getEventType();
+      if (algorithmMap.containsKey(mapMinimumDataEventType)) {
+         this.mapMinimumDataAggregationAlgorithm = algorithmMap.get(mapMinimumDataEventType);
+      } else {
+         throw new RuntimeException("No algorithm found for " + mapMinimumDataEventType);
+      }
    }
 
    @Autowired
    public void setSpatMinimumDataAggregationAlgorithmFactory(SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory) {
       this.spatMinimumDataAggregationAlgorithmFactory = spatMinimumDataAggregationAlgorithmFactory;
+   }
+
+   @Autowired
+   public void setMapMinimumDataAggregationAlgorithmFactory(MapMinimumDataAggregationAlgorithmFactory mapMinimumDataAggregationAlgorithmFactory) {
+      this.mapMinimumDataAggregationAlgorithmFactory = mapMinimumDataAggregationAlgorithmFactory;
    }
 
    @Autowired

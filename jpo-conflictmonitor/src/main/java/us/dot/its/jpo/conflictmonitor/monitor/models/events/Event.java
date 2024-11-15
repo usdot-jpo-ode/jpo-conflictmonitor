@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
@@ -46,7 +47,13 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = MapTimestampDeltaEvent.class, name = "MapTimestampDelta"),
         @JsonSubTypes.Type(value = SpatTimestampDeltaEvent.class, name = "SpatTimestampDelta"),
         @JsonSubTypes.Type(value = EventStateProgressionEvent.class, name = "EventStateProgression"),
-        @JsonSubTypes.Type(value = SpatMinimumDataEventAggregation.class, name = "SpatMinimumDataAggregation")
+        @JsonSubTypes.Type(value = SpatMinimumDataEventAggregation.class, name = "SpatMinimumDataAggregation"),
+        @JsonSubTypes.Type(value = MapMinimumDataEventAggregation.class, name = "MapMinimumDataAggregation"),
+        @JsonSubTypes.Type(value = IntersectionReferenceAlignmentEventAggregation.class,
+                name = "IntersectionReferenceAlignmentAggregation"),
+        @JsonSubTypes.Type(value = SignalGroupAlignmentEventAggregation.class,
+                name = "SignalGroupAlignmentAggregation"),
+        @JsonSubTypes.Type(value = SignalStateConflictEventAggregation.class, name = "SignalStateConflictAggregation")
 })
 @Getter
 @Setter
@@ -59,8 +66,8 @@ public abstract class Event {
     private long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     private String eventType;
 
-    private int intersectionID;
-    private int roadRegulatorID;
+    private int intersectionID = -1;
+    private int roadRegulatorID = -1;
     
 
     public Event(String eventType){

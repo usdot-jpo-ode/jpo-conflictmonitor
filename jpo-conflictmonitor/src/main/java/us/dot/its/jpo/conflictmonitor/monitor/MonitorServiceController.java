@@ -12,6 +12,7 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.MapMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
@@ -100,6 +101,15 @@ public class MonitorServiceController {
     @Getter
     final ConcurrentHashMap<String, StreamsTopology> algoMap = new ConcurrentHashMap<String, StreamsTopology>();
 
+    final ConflictMonitorProperties conflictMonitorProps;
+    final KafkaTemplate<String, String> kafkaTemplate;
+    final ConfigTopology configTopology;
+    final ConfigParameters configParameters;
+    final ConfigInitializer configInitializer;
+    final MapIndex mapIndex;
+    final String stateChangeTopic;
+    final String healthTopic;
+
     
     @Autowired
     public MonitorServiceController(final ConflictMonitorProperties conflictMonitorProps, 
@@ -108,11 +118,15 @@ public class MonitorServiceController {
             final ConfigParameters configParameters,
             final ConfigInitializer configInitializer,
             final MapIndex mapIndex) {
-       
 
-
-        final String stateChangeTopic = conflictMonitorProps.getKafkaStateChangeEventTopic();
-        final String healthTopic = conflictMonitorProps.getAppHealthNotificationTopic();
+        this.conflictMonitorProps = conflictMonitorProps;
+        this.kafkaTemplate = kafkaTemplate;
+        this.configTopology = configTopology;
+        this.configParameters = configParameters;
+        this.configInitializer = configInitializer;
+        this.mapIndex = mapIndex;
+        stateChangeTopic = conflictMonitorProps.getKafkaStateChangeEventTopic();
+        healthTopic = conflictMonitorProps.getAppHealthNotificationTopic();
 
         try {
             logger.info("Starting {}", this.getClass().getSimpleName());
@@ -164,54 +178,12 @@ public class MonitorServiceController {
             notificationAlgo.setParameters(notificationParams);
             Runtime.getRuntime().addShutdownHook(new Thread(notificationAlgo::stop));
             notificationAlgo.start();
-           
 
             // Map Validation Topology
-            final String mapValidation = "mapValidation";
-            final MapValidationAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapValidationAlgorithmFactory();
-            final String mapAlgo = conflictMonitorProps.getMapValidationAlgorithm();
-            final MapValidationAlgorithm mapValidationAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
-            final MapValidationParameters mapValidationParams = conflictMonitorProps.getMapValidationParameters();
-            configTopology.registerConfigListeners(mapValidationParams);
-            logger.info("Map params {}", mapValidationParams);
-            if (mapValidationAlgo instanceof StreamsTopology streamsAlgo) {
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapValidation));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapValidation, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapValidation, healthTopic));
-                algoMap.put(mapValidation, streamsAlgo);
-            }
-            mapValidationAlgo.setParameters(mapValidationParams);
-            // Plugin timestamp delta algorithm
-            final MapTimestampDeltaAlgorithm mapTimestampAlgo = getMapTimestampDeltaAlgorithm(conflictMonitorProps);
-            mapValidationAlgo.setTimestampDeltaAlgorithm(mapTimestampAlgo);
-            Runtime.getRuntime().addShutdownHook(new Thread(mapValidationAlgo::stop));
-            mapValidationAlgo.start();
-           
-
+            startMapValidationAlgorithm();
             
             // Spat Validation Topology
-            final String spatValidation = "spatValidation";
-            final SpatValidationStreamsAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatValidationAlgorithmFactory();
-            final String spatAlgo = conflictMonitorProps.getSpatValidationAlgorithm();
-            final SpatValidationAlgorithm spatValidationAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
-            final SpatValidationParameters spatValidationParams = conflictMonitorProps.getSpatValidationParameters();
-            configTopology.registerConfigListeners(spatValidationParams);
-            if (spatValidationAlgo instanceof StreamsTopology streamsAlgo) {
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatValidation));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatValidation, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatValidation, healthTopic));
-                algoMap.put(spatValidation, streamsAlgo);
-            }
-            spatValidationAlgo.setParameters(spatValidationParams);
-            // Plugin timestamp delta algorithm
-            final SpatTimestampDeltaAlgorithm spatTimestampAlgo = getSpatTimestampDeltaAlgorithm(conflictMonitorProps);
-            spatValidationAlgo.setTimestampDeltaAlgorithm(spatTimestampAlgo);
-            final SpatMinimumDataAggregationAlgorithm spatMinDataAggAlgo = getSpatMinimumDataAggregationAlgorithm(conflictMonitorProps);
-            spatValidationAlgo.setMinimumDataAggregationAlgorithm(spatMinDataAggAlgo);
-            Runtime.getRuntime().addShutdownHook(new Thread(spatValidationAlgo::stop));
-            spatValidationAlgo.start();
-            
-
+            startSpatValidationAlgorithm();
 
             // Spat Time Change Details Assessment
             //Sends Time Change Details Events when the time deltas in spat messages are incorrect
@@ -288,7 +260,7 @@ public class MonitorServiceController {
             messageIngestAlgorithm.setMapIndex(mapIndex);
             messageIngestAlgorithm.setParameters(messageIngestParams);
             // Plugin Spat Transition algorithm
-            final EventStateProgressionAlgorithm spatTransitionAlgorithm = getSpatTransitionAlgorithm(conflictMonitorProps);
+            final EventStateProgressionAlgorithm spatTransitionAlgorithm = getSpatTransitionAlgorithm();
             messageIngestAlgorithm.setEventStateProgressionAlgorithm(spatTransitionAlgorithm);
 
 
@@ -508,40 +480,99 @@ public class MonitorServiceController {
         }
     }
 
+    private void startMapValidationAlgorithm() {
+        final String mapValidation = "mapValidation";
+        final MapValidationAlgorithmFactory mapAlgoFactory = conflictMonitorProps.getMapValidationAlgorithmFactory();
+        final String mapAlgo = conflictMonitorProps.getMapValidationAlgorithm();
+        final MapValidationAlgorithm mapValidationAlgo = mapAlgoFactory.getAlgorithm(mapAlgo);
+        final MapValidationParameters mapValidationParams = conflictMonitorProps.getMapValidationParameters();
+        configTopology.registerConfigListeners(mapValidationParams);
+        logger.info("Map params {}", mapValidationParams);
+        if (mapValidationAlgo instanceof StreamsTopology streamsAlgo) {
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapValidation));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapValidation, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapValidation, healthTopic));
+            algoMap.put(mapValidation, streamsAlgo);
+        }
+        mapValidationAlgo.setParameters(mapValidationParams);
+        // Plugin timestamp delta algorithm
+        final MapTimestampDeltaAlgorithm mapTimestampAlgo = getMapTimestampDeltaAlgorithm();
+        mapValidationAlgo.setTimestampDeltaAlgorithm(mapTimestampAlgo);
+        // Plugin min data aggregation
+        final MapMinimumDataAggregationAlgorithm minDataAlgo = getMapMinimumDataAggregationAlgorithm();
+        mapValidationAlgo.setMinimumDataAggregationAlgorithm(minDataAlgo);
+        Runtime.getRuntime().addShutdownHook(new Thread(mapValidationAlgo::stop));
+        mapValidationAlgo.start();
+    }
+
+    private void startSpatValidationAlgorithm() {
+        // Spat Validation Topology
+        final String spatValidation = "spatValidation";
+        final SpatValidationStreamsAlgorithmFactory spatAlgoFactory = conflictMonitorProps.getSpatValidationAlgorithmFactory();
+        final String spatAlgo = conflictMonitorProps.getSpatValidationAlgorithm();
+        final SpatValidationAlgorithm spatValidationAlgo = spatAlgoFactory.getAlgorithm(spatAlgo);
+        final SpatValidationParameters spatValidationParams = conflictMonitorProps.getSpatValidationParameters();
+        configTopology.registerConfigListeners(spatValidationParams);
+        if (spatValidationAlgo instanceof StreamsTopology streamsAlgo) {
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatValidation));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatValidation, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatValidation, healthTopic));
+            algoMap.put(spatValidation, streamsAlgo);
+        }
+        spatValidationAlgo.setParameters(spatValidationParams);
+        // Plugin timestamp delta algorithm
+        final SpatTimestampDeltaAlgorithm spatTimestampAlgo = getSpatTimestampDeltaAlgorithm();
+        spatValidationAlgo.setTimestampDeltaAlgorithm(spatTimestampAlgo);
+        // Plugin min data aggregation
+        final SpatMinimumDataAggregationAlgorithm spatMinDataAggAlgo = getSpatMinimumDataAggregationAlgorithm();
+        spatValidationAlgo.setMinimumDataAggregationAlgorithm(spatMinDataAggAlgo);
+        Runtime.getRuntime().addShutdownHook(new Thread(spatValidationAlgo::stop));
+        spatValidationAlgo.start();
+    }
 
 
-    private static MapTimestampDeltaAlgorithm getMapTimestampDeltaAlgorithm(ConflictMonitorProperties props) {
-        final var factory = props.getMapTimestampDeltaAlgorithmFactory();
-        final String algorithmName = props.getMapTimestampDeltaAlgorithm();
+
+    private MapTimestampDeltaAlgorithm getMapTimestampDeltaAlgorithm() {
+        final var factory = conflictMonitorProps.getMapTimestampDeltaAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getMapTimestampDeltaAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
-        final var parameters = props.getMapTimestampDeltaParameters();
+        final var parameters = conflictMonitorProps.getMapTimestampDeltaParameters();
         algorithm.setParameters(parameters);
         return algorithm;
     }
 
-    private static SpatTimestampDeltaAlgorithm getSpatTimestampDeltaAlgorithm(ConflictMonitorProperties props) {
-        final var factory = props.getSpatTimestampDeltaAlgorithmFactory();
-        final String algorithmName = props.getSpatTimestampDeltaAlgorithm();
+    private SpatTimestampDeltaAlgorithm getSpatTimestampDeltaAlgorithm() {
+        final var factory = conflictMonitorProps.getSpatTimestampDeltaAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getSpatTimestampDeltaAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
-        final var parameters = props.getSpatTimestampDeltaParameters();
+        final var parameters = conflictMonitorProps.getSpatTimestampDeltaParameters();
         algorithm.setParameters(parameters);
         return algorithm;
     }
 
-    private static SpatMinimumDataAggregationAlgorithm getSpatMinimumDataAggregationAlgorithm(ConflictMonitorProperties props) {
-        final var factory = props.getSpatMinimumDataAggregationAlgorithmFactory();
-        final String algorithmName = props.getSpatMinimumDataAggregationAlgorithm();
+    private SpatMinimumDataAggregationAlgorithm getSpatMinimumDataAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getSpatMinimumDataAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getSpatMinimumDataAggregationAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
-        final var parameters = props.getAggregationParameters();
+        final var parameters = conflictMonitorProps.getAggregationParameters();
         algorithm.setParameters(parameters);
         return algorithm;
     }
 
-    private static EventStateProgressionAlgorithm getSpatTransitionAlgorithm(ConflictMonitorProperties props) {
-        final var factory = props.getSpatTransitionAlgorithmFactory();
-        final String algorithmName = props.getSpatTransitionAlgorithm();
+    private MapMinimumDataAggregationAlgorithm getMapMinimumDataAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getMapMinimumDataAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getMapMinimumDataAggregationAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
-        final var parameters = props.getSpatTransitionParameters();
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private EventStateProgressionAlgorithm getSpatTransitionAlgorithm() {
+        final var factory = conflictMonitorProps.getSpatTransitionAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getSpatTransitionAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getSpatTransitionParameters();
         algorithm.setParameters(parameters);
         return algorithm;
     }

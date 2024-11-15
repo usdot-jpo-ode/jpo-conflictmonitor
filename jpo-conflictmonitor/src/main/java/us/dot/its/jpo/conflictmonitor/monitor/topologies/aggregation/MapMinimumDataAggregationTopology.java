@@ -18,7 +18,6 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigCon
 
 @Component(DEFAULT_MAP_MINIMUM_DATA_AGGREGATION_ALGORITHM)
 @Slf4j
-@DependsOn({CONFIG_TOPOLOGY})
 public class MapMinimumDataAggregationTopology
     extends
         BaseAggregationTopology<

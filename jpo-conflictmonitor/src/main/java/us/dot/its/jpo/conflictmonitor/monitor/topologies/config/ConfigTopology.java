@@ -45,10 +45,9 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import static org.apache.kafka.common.serialization.Serdes.String;
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigConstants.CONFIG_TOPOLOGY;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.*;
 
-@Component(CONFIG_TOPOLOGY)
+@Component
 @Profile("!test")
 public class ConfigTopology
     extends BaseStreamsTopology<ConfigParameters>
