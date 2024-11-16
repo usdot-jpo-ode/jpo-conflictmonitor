@@ -12,8 +12,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenc
 
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationConstants.DEFAULT_INTERSECTION_REFERENCE_ALIGNMENT_AGGREGATION_ALGORITHM;

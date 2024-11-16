@@ -4,6 +4,8 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAggregator;
@@ -460,7 +462,28 @@ public class JsonSerdes {
                 new JsonDeserializer<>(SignalGroupAlignmentEventAggregation.class));
     }
 
+    public static Serde<SignalStateConflictAggregationKey> SignalStateConflictAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SignalStateConflictAggregationKey>(),
+                new JsonDeserializer<>(SignalStateConflictAggregationKey.class));
+    }
 
+    public static Serde<SignalStateConflictEventAggregation> SignalStateConflictEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SignalStateConflictEventAggregation>(),
+                new JsonDeserializer<>(SignalStateConflictEventAggregation.class));
+    }
 
+    public static Serde<TimeChangeDetailsAggregationKey> TimeChangeDetailsAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<TimeChangeDetailsAggregationKey>(),
+                new JsonDeserializer<>(TimeChangeDetailsAggregationKey.class));
+    }
+
+    public static Serde<TimeChangeDetailsEventAggregation> TimeChangeDetailsEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<TimeChangeDetailsEventAggregation>(),
+                new JsonDeserializer<>(TimeChangeDetailsEventAggregation.class));
+    }
 
 }

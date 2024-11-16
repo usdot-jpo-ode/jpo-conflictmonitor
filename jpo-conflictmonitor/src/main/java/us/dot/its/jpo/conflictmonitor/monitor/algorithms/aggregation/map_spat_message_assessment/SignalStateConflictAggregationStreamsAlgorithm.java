@@ -6,7 +6,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictE
 
 public interface SignalStateConflictAggregationStreamsAlgorithm
     extends
-        SignalGroupAlignmentAggregationAlgorithm,
+        SignalStateConflictAggregationAlgorithm,
         AggregationStreamsAlgorithmInterface<
                 SignalStateConflictAggregationKey,
                 SignalStateConflictEvent,

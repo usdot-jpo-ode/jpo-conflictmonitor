@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
@@ -29,7 +32,7 @@ public class SpatTimeChangeDetailsTopology
         return logger;
     }
 
-
+    private TimeChangeDetailsAggregationStreamsAlgorithm aggregationAlgorithm;
 
     @Override
     public Topology buildTopology() {
@@ -60,9 +63,13 @@ public class SpatTimeChangeDetailsTopology
     }
 
 
-
-    
-
-
-
+    @Override
+    public void setAggregationAlgorithm(TimeChangeDetailsAggregationAlgorithm aggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (aggregationAlgorithm instanceof TimeChangeDetailsAggregationStreamsAlgorithm aggregationStreamsAlgorithm) {
+            this.aggregationAlgorithm = aggregationStreamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Aggregation algorithm must be a Streams algorithm");
+        }
+    }
 }

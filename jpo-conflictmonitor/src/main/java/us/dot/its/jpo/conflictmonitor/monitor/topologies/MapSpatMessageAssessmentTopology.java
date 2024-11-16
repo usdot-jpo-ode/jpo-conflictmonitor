@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.*;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
@@ -55,7 +56,9 @@ public class MapSpatMessageAssessmentTopology
 
     private static final Logger logger = LoggerFactory.getLogger(MapSpatMessageAssessmentTopology.class);
 
-
+    private IntersectionReferenceAlignmentAggregationStreamsAlgorithm intersectionReferenceAlignmentAggregationAlgorithm;
+    private SignalGroupAlignmentAggregationStreamsAlgorithm signalGroupAlignmentAggregationAlgorithm;
+    private SignalStateConflictAggregationStreamsAlgorithm signalStateConflictAggregationAlgorithm;
 
     @Override
     protected Logger getLogger() {
@@ -451,4 +454,36 @@ public class MapSpatMessageAssessmentTopology
     }
 
 
+    @Override
+    public void setIntersectionReferenceAlignmentAggregationAlgorithm(
+            IntersectionReferenceAlignmentAggregationAlgorithm intersectionReferenceAlignmentAggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (intersectionReferenceAlignmentAggregationAlgorithm instanceof IntersectionReferenceAlignmentAggregationStreamsAlgorithm streamsAlgorithm) {
+            this.intersectionReferenceAlignmentAggregationAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Intersection Reference Alignment Aggregation algorithm must be a Streams algorithm");
+        }
+    }
+
+    @Override
+    public void setSignalGroupAlignmentAggregationAlgorithm(
+            SignalGroupAlignmentAggregationAlgorithm signalGroupAlignmentAggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (signalGroupAlignmentAggregationAlgorithm instanceof SignalGroupAlignmentAggregationStreamsAlgorithm streamsAlgorithm) {
+            this.signalGroupAlignmentAggregationAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Signal Group Alignment Aggregation algorithm must be a Streams algorithm");
+        }
+    }
+
+    @Override
+    public void setSignalStateConflictAggregationAlgorithm(
+            SignalStateConflictAggregationAlgorithm signalStateConflictAggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (signalStateConflictAggregationAlgorithm instanceof SignalStateConflictAggregationStreamsAlgorithm streamsAlgorithm) {
+            this.signalStateConflictAggregationAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Signal State Conflict Aggregation algorithm must be a Streams algorithm");
+        }
+    }
 }
