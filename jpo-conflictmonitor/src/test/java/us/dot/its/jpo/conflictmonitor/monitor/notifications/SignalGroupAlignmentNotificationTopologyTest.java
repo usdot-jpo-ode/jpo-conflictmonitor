@@ -14,7 +14,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateCo
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.MapSpatMessageAssessmentTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import static org.junit.Assert.assertTrue;

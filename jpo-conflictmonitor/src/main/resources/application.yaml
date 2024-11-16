@@ -480,6 +480,7 @@ event.state.progression:
   latestTransitionStoreName: latestTransitionStateStore
   bufferTimeMs: 1000
   bufferGracePeriodMs: 100
+  aggregateEvents: true
   illegalSpatTransitionList:
     - { stateA: STOP_THEN_PROCEED, stateB: PERMISSIVE_CLEARANCE }
     - { stateA: STOP_THEN_PROCEED, stateB: PROTECTED_CLEARANCE }

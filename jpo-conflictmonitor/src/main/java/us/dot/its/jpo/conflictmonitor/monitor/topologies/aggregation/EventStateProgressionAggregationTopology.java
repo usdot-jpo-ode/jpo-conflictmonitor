@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.topologies;
+package us.dot.its.jpo.conflictmonitor.monitor.topologies.aggregation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
@@ -10,7 +10,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.aggregation.BaseAggregationTopology;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationConstants.DEFAULT_EVENT_STATE_PROGRESSION_AGGREGATION_ALGORITHM;

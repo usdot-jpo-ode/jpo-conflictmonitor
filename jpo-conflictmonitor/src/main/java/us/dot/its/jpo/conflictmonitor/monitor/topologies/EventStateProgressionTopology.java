@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
@@ -107,14 +108,31 @@ public class EventStateProgressionTopology
                 return event;
             });
 
-        // Send events to topic
-        signalGroupStates.to(parameters.getOutputTopicName(),
-                Produced.with(
-                        JsonSerdes.RsuIntersectionSignalGroupKey(),
-                        JsonSerdes.EventStateProgressionEvent(),
-                        new IntersectionIdPartitioner<>()));
+        if (parameters.isAggregateEvents()) {
+            // Aggregate events
+            var signalGroupStatesAggKey = signalGroupStates.selectKey((key, value) -> {
+                var aggKey = new EventStateProgressionAggregationKey();
+                aggKey.setRsuId(key.getRsuId());
+                aggKey.setIntersectionId(key.getIntersectionId());
+                aggKey.setRegion(key.getRegion());
+                aggKey.setSignalGroup(value.getSignalGroupID());
+                aggKey.setEventStateA(value.getEventStateA());
+                aggKey.setEventStateB(value.getEventStateB());
+                return aggKey;
+            });
+            aggregationAlgorithm.buildTopology(builder, signalGroupStatesAggKey);
+        } else {
+            // Don't aggregate events
+            // Send events to topic
+            signalGroupStates.to(parameters.getOutputTopicName(),
+                    Produced.with(
+                            JsonSerdes.RsuIntersectionSignalGroupKey(),
+                            JsonSerdes.EventStateProgressionEvent(),
+                            new IntersectionIdPartitioner<>()));
+        }
 
         // Send notifications to topic
+        // TODO Aggregate notifications
         signalGroupStates
                 .mapValues(event -> {
                     var notification = new EventStateProgressionNotification();

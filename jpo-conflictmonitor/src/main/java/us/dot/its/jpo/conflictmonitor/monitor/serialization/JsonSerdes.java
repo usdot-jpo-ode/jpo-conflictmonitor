@@ -40,6 +40,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Rsu
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
@@ -445,6 +446,18 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
                 new JsonSerializer<EventStateProgressionEventAggregation>(),
                 new JsonDeserializer<>(EventStateProgressionEventAggregation.class));
+    }
+
+    public static Serde<IntersectionReferenceAlignmentEventAggregation> IntersectionReferenceAlignmentEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<IntersectionReferenceAlignmentEventAggregation>(),
+                new JsonDeserializer<>(IntersectionReferenceAlignmentEventAggregation.class));
+    }
+
+    public static Serde<SignalGroupAlignmentEventAggregation> SignalGroupAlignmentEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<SignalGroupAlignmentEventAggregation>(),
+                new JsonDeserializer<>(SignalGroupAlignmentEventAggregation.class));
     }
 
 

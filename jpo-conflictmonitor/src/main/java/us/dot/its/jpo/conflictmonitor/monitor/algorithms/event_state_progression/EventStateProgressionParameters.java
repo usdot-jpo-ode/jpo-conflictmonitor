@@ -22,7 +22,7 @@ public class EventStateProgressionParameters {
     @ConfigData(key = "event.state.progression.algorithm",
         description = "Name of the specific algorithm",
         updateType = READ_ONLY)
-    volatile String algorithm;
+    String algorithm;
 
     @ConfigData(key = "event.state.progression.debug",
         description = "Whether to log diagnostic info",
@@ -32,28 +32,28 @@ public class EventStateProgressionParameters {
     @ConfigData(key = "event.state.progression.outputTopicName",
             description = "Name of the output topic for events",
             updateType = READ_ONLY)
-    volatile String outputTopicName;
+    String outputTopicName;
 
     @ConfigData(key = "event.state.progression.notificationTopicName",
             description = "Name of the notification topic",
             updateType = READ_ONLY)
-    volatile String notificationTopicName;
+    String notificationTopicName;
 
     @ConfigData(key = "event.state.progression.signalGroupStateStoreName",
             description = "Name of the versioned state store for the spat buffer",
             updateType = READ_ONLY)
-    volatile String movementStateStoreName;
+    String movementStateStoreName;
 
     @ConfigData(key = "event.state.progression.latestTransitionStoreName",
         description = "Name of key-value store to keep track of the latest phase transition for each intersection/signal group",
         updateType = READ_ONLY)
-    volatile String latestTransitionStoreName;
+    String latestTransitionStoreName;
 
     @ConfigData(key = "event.state.progression.bufferTimeMs",
         description = "The size of the spat buffer.  Must be larger than the expected interval between spats and expected jitter time.",
         units = UnitsEnum.MILLISECONDS,
         updateType = READ_ONLY)
-    volatile int bufferTimeMs;
+    int bufferTimeMs;
 
     @ConfigData(key = "event.state.progression.bufferGracePeriodMs",
         description = """
@@ -61,13 +61,17 @@ public class EventStateProgressionParameters {
             Must be smaller than the buffer size.""",
         units = UnitsEnum.MILLISECONDS,
         updateType = READ_ONLY)
-    volatile int bufferGracePeriodMs;
+    int bufferGracePeriodMs;
 
+    @ConfigData(key = "event.state.progression.aggregateEvents",
+        description = "Whether to aggregate output events",
+        updateType = READ_ONLY)
+    boolean aggregateEvents;
 
     // Do we want to make this configurable at the intersection and signal-group level?
     // For now it is not.
     @ConfigData(key = "event.state.progression.illegalSpatTransitionList",
         description = "List of signal state transitions that are illegal and should produce an event",
         updateType = READ_ONLY)
-    volatile PhaseStateTransitionList illegalSpatTransitionList;
+    PhaseStateTransitionList illegalSpatTransitionList;
 }

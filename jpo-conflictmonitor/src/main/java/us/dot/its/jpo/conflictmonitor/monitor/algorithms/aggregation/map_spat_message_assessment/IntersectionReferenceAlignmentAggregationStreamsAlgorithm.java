@@ -9,7 +9,7 @@ public interface IntersectionReferenceAlignmentAggregationStreamsAlgorithm
     extends
         IntersectionReferenceAlignmentAggregationAlgorithm,
         AggregationStreamsAlgorithmInterface<
-                RsuIdKey,
+                String, // Key is the RSU ID string
                 IntersectionReferenceAlignmentEvent,
                 IntersectionReferenceAlignmentEventAggregation> {
 }
