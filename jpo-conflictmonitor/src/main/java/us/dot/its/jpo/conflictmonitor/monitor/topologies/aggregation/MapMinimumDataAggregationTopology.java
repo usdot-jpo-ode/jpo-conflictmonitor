@@ -13,7 +13,7 @@ import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationConstants.DEFAULT_MAP_MINIMUM_DATA_AGGREGATION_ALGORITHM;
-import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigConstants.CONFIG_TOPOLOGY;
+
 
 @Component(DEFAULT_MAP_MINIMUM_DATA_AGGREGATION_ALGORITHM)
 @Slf4j

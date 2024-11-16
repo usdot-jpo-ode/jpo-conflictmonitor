@@ -527,11 +527,11 @@ aggregation:
   eventAlgorithmMap:
     SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
     MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm
-    IntersectionReferenceAlignmentAggregation:
-    SignalGroupAlignmentAggregation:
-    SignalStateConflictAggregation:
-    TimeChangeDetailsAggregation:
-    EventStateProgressionAggregation:
+    IntersectionReferenceAlignmentAggregation: defaultIntersectionReferenceAlignmentAggregationAlgorithm
+    SignalGroupAlignmentAggregation: defaultSignalGroupAlignmentAggregationAlgorithm
+    SignalStateConflictAggregation: defaultSignalStateConflictAggregationAlgorithm
+    TimeChangeDetailsAggregation: defaultTimeChangeDetailsAggregationAlgorithm
+    EventStateProgressionAggregation: defaultEventStateProgressionAggregationAlgorithm
 
 
 

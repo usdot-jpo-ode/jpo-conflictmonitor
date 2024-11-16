@@ -10,6 +10,8 @@ import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
@@ -38,6 +40,8 @@ public class EventStateProgressionTopology
     protected Logger getLogger() {
         return log;
     }
+
+    EventStateProgressionAggregationStreamsAlgorithm aggregationAlgorithm;
 
     @Override
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, ProcessedSpat> inputStream) {
@@ -107,7 +111,7 @@ public class EventStateProgressionTopology
         signalGroupStates.to(parameters.getOutputTopicName(),
                 Produced.with(
                         JsonSerdes.RsuIntersectionSignalGroupKey(),
-                        JsonSerdes.IllegalSpatTransitionEvent(),
+                        JsonSerdes.EventStateProgressionEvent(),
                         new IntersectionIdPartitioner<>()));
 
         // Send notifications to topic
@@ -120,9 +124,19 @@ public class EventStateProgressionTopology
                 .to(parameters.getNotificationTopicName(),
                         Produced.with(
                                 JsonSerdes.RsuIntersectionSignalGroupKey(),
-                                JsonSerdes.IllegalSpatTransitionNotification(),
+                                JsonSerdes.EventStateProgressionNotification(),
                                 new IntersectionIdPartitioner<>()));
 
 
+    }
+
+    @Override
+    public void setAggregationAlgorithm(EventStateProgressionAggregationAlgorithm aggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (aggregationAlgorithm instanceof EventStateProgressionAggregationStreamsAlgorithm) {
+            this.aggregationAlgorithm = (EventStateProgressionAggregationStreamsAlgorithm) aggregationAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Aggregation algorithm must be a Streams algorithm");
+        }
     }
 }

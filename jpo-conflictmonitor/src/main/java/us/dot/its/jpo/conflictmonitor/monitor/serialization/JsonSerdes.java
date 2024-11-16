@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.serialization;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.ConnectionOfTravelAggregator;
@@ -21,23 +22,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapRevisionCounterEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatRevisionCounterEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmRevisionCounterEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
@@ -55,7 +45,6 @@ import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 public class JsonSerdes {
@@ -434,16 +423,28 @@ public class JsonSerdes {
                 new JsonDeserializer<>(SpatMovementState.class));
     }
 
-    public static Serde<EventStateProgressionEvent> IllegalSpatTransitionEvent() {
+    public static Serde<EventStateProgressionEvent> EventStateProgressionEvent() {
         return Serdes.serdeFrom(
                 new JsonSerializer<EventStateProgressionEvent>(),
                 new JsonDeserializer<>(EventStateProgressionEvent.class));
     }
 
-    public static Serde<EventStateProgressionNotification> IllegalSpatTransitionNotification() {
+    public static Serde<EventStateProgressionNotification> EventStateProgressionNotification() {
         return Serdes.serdeFrom(
                 new JsonSerializer<EventStateProgressionNotification>(),
                 new JsonDeserializer<>(EventStateProgressionNotification.class));
+    }
+
+    public static Serde<EventStateProgressionAggregationKey> EventStateProgressionAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<EventStateProgressionAggregationKey>(),
+                new JsonDeserializer<>(EventStateProgressionAggregationKey.class));
+    }
+
+    public static Serde<EventStateProgressionEventAggregation> EventStateProgressionEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<EventStateProgressionEventAggregation>(),
+                new JsonDeserializer<>(EventStateProgressionEventAggregation.class));
     }
 
 
