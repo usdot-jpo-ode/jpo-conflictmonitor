@@ -62,6 +62,11 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<St
             startTime = Instant.ofEpochMilli(context().currentStreamTimeMs())
                     .minusMillis(parameters.getBufferTimeMs());
         }
+
+        // Ensure excludeGracePeriod is not earlier than startTime
+        if (excludeGracePeriod.isBefore(startTime)) {
+            excludeGracePeriod = startTime;
+        }
         
         var query = MultiVersionedKeyQuery.<String, ProcessedSpat>withKey(record.key())
             .fromTime(startTime.minusMillis(1)) // Add a small buffer to include the exact startTime record

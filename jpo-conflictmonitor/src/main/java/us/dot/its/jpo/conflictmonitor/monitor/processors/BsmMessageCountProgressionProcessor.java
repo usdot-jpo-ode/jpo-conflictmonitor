@@ -64,6 +64,11 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
                     .minusMillis(parameters.getBufferTimeMs());
         }
 
+        // Ensure excludeGracePeriod is not earlier than startTime
+        if (excludeGracePeriod.isBefore(startTime)) {
+            excludeGracePeriod = startTime;
+        }
+
         var query = MultiVersionedKeyQuery.<String, ProcessedBsm<Point>>withKey(record.key())
             .fromTime(startTime.minusMillis(1)) // Add a small buffer to include the exact startTime record
             .toTime(excludeGracePeriod)
@@ -111,7 +116,7 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
                                 BsmMessageCountProgressionEvent event = createEvent(previousState, thisState, i);
                                 context().forward(new Record<>(key, event, state.timestamp()));
                             }
-                        }
+                        } 
                     }
                 }
                 previousState = thisState;
