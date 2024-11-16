@@ -1,7 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.SpatMinimumDataAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithm;
 
 

@@ -519,9 +519,20 @@ aggregation:
   eventTopicMap:
     SpatMinimumDataAggregation: topic.CmSpatMinimumDataEventAggregation
     MapMinimumDataAggregation: topic.CmMapMinimumDataEventAggregation
+    IntersectionReferenceAlignmentAggregation: topic.CmIntersectionReferenceAlignmentEventAggregation
+    SignalGroupAlignmentAggregation: topic.CmSignalGroupAlignmentEventAggregation
+    SignalStateConflictAggregation: topic.CmSignalStateConflictEventAggregation
+    TimeChangeDetailsAggregation: topic.CmSpatTimeChangeDetailsEventAggregation
+    EventStateProgressionAggregation: topic.CmEventStateProgressionEventAggregation
   eventAlgorithmMap:
     SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
     MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm
+    IntersectionReferenceAlignmentAggregation:
+    SignalGroupAlignmentAggregation:
+    SignalStateConflictAggregation:
+    TimeChangeDetailsAggregation:
+    EventStateProgressionAggregation:
+
 
 
 

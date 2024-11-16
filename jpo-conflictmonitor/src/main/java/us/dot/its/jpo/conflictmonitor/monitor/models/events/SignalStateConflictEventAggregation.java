@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
@@ -17,18 +16,17 @@ public class SignalStateConflictEventAggregation
         super("SignalStateConflictAggregation");
     }
 
-    private J2735MovementPhaseState conflictType;
-    private int firstConflictingSignalGroup;
-    private J2735MovementPhaseState firstConflictingSignalState;
-    private int secondConflictingSignalGroup;
-    private J2735MovementPhaseState secondConflictingSignalState;
+    private int conflictingSignalGroupA;
+    private J2735MovementPhaseState eventStateA;
+    private int conflictingSignalGroupB;
+    private J2735MovementPhaseState eventStateB;
+    // TODO Add ingress and egress lane IDs and type attributes per new specification
 
     @Override
     public void update(SignalStateConflictEvent event) {
-        this.conflictType = event.getConflictType();
-        this.firstConflictingSignalGroup = event.getFirstConflictingSignalGroup();
-        this.firstConflictingSignalState = event.getFirstConflictingSignalState();
-        this.secondConflictingSignalGroup = event.getSecondConflictingSignalGroup();
-        this.secondConflictingSignalState = event.getSecondConflictingSignalState();
+        this.conflictingSignalGroupA = event.getFirstConflictingSignalGroup();
+        this.eventStateA = event.getFirstConflictingSignalState();
+        this.conflictingSignalGroupB = event.getSecondConflictingSignalGroup();
+        this.eventStateB = event.getSecondConflictingSignalState();
     }
 }

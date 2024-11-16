@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
@@ -16,18 +15,18 @@ public class TimeChangeDetailsEventAggregation
         super("TimeChangeDetailsAggregation");
     }
 
-    private int signalGroup;
-    private String firstTimeMarkType;
-    private String secondTimeMarkType;
-    private J2735MovementPhaseState firstState;
-    private J2735MovementPhaseState secondState;
+    private int signalGroupID;
+    private String timeMarkTypeA;
+    private String timeMarkTypeB;
+    private J2735MovementPhaseState eventStateA;
+    private J2735MovementPhaseState eventStateB;
 
     @Override
     public void update(TimeChangeDetailsEvent event) {
-        this.signalGroup = event.getSignalGroup();
-        this.firstState = event.getFirstState();
-        this.firstTimeMarkType = event.getFirstTimeMarkType();
-        this.secondState = event.getSecondState();
-        this.secondTimeMarkType = event.getSecondTimeMarkType();
+        this.signalGroupID = event.getSignalGroup();
+        this.eventStateA = event.getFirstState();
+        this.timeMarkTypeA = event.getFirstTimeMarkType();
+        this.eventStateB = event.getSecondState();
+        this.timeMarkTypeB = event.getSecondTimeMarkType();
     }
 }

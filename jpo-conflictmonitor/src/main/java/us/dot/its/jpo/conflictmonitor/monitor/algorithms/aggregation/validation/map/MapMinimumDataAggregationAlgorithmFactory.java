@@ -1,4 +1,4 @@
-package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation;
+package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map;
 
 public interface MapMinimumDataAggregationAlgorithmFactory {
 
