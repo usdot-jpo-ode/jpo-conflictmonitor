@@ -20,6 +20,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class MapMessageCountProgressionProcessor extends ContextualProcessor<String, ProcessedMap<LineString>, String, MapMessageCountProgressionEvent> {
@@ -150,8 +151,9 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Str
             event.setMessageCountB(thisState.getProperties().getMsgIssueRevision());
         }
 
-        event.setTimestampA(previousState.getProperties().getOdeReceivedAt().toString());
-        event.setTimestampB(thisState.getProperties().getOdeReceivedAt().toString());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        event.setTimestampA(previousState.getProperties().getOdeReceivedAt().format(formatter));
+        event.setTimestampB(thisState.getProperties().getOdeReceivedAt().format(formatter));
         event.setRoadRegulatorID(-1);
         event.setIntersectionID(thisState.getProperties().getIntersectionId());
 

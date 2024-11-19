@@ -21,6 +21,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class BsmMessageCountProgressionProcessor<Point> extends ContextualProcessor<String, ProcessedBsm<Point>, String, BsmMessageCountProgressionEvent> {
@@ -159,9 +160,10 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
         BsmMessageCountProgressionEvent event = new BsmMessageCountProgressionEvent();
         event.setMessageType("BSM");
         event.setMessageCountA(previousProperties.getMsgCnt());
-        event.setTimestampA(previousState.getTimeStamp().toString());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        event.setTimestampA(previousState.getTimeStamp().format(formatter));
         event.setMessageCountB(currentProperties.getMsgCnt());
-        event.setTimestampB(thisState.getTimeStamp().toString());
+        event.setTimestampB(thisState.getTimeStamp().format(formatter));
         event.setVehicleId(thisState.getFeatures()[featureIndex].getId());
 
 

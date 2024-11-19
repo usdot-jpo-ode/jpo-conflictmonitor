@@ -20,6 +20,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class SpatMessageCountProgressionProcessor extends ContextualProcessor<String, ProcessedSpat, String, SpatMessageCountProgressionEvent> {
@@ -137,9 +138,10 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<St
         SpatMessageCountProgressionEvent event = new SpatMessageCountProgressionEvent();
         event.setMessageType("SPaT");
         event.setMessageCountA(previousState.getRevision());
-        event.setTimestampA(previousState.getUtcTimeStamp().toString());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        event.setTimestampA(previousState.getUtcTimeStamp().format(formatter));
         event.setMessageCountB(thisState.getRevision());
-        event.setTimestampB(thisState.getUtcTimeStamp().toString());
+        event.setTimestampB(thisState.getUtcTimeStamp().format(formatter));
         event.setIntersectionID(thisState.getIntersectionId());
         event.setRoadRegulatorID(-1);
 
