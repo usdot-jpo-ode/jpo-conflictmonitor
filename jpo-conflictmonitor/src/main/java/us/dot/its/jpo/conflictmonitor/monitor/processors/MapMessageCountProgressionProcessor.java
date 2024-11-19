@@ -152,6 +152,8 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Str
 
         event.setTimestampA(previousState.getProperties().getOdeReceivedAt().toString());
         event.setTimestampB(thisState.getProperties().getOdeReceivedAt().toString());
+        event.setRoadRegulatorID(-1);
+        event.setIntersectionID(thisState.getProperties().getIntersectionId());
 
         return event;
     }
