@@ -123,16 +123,19 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Str
     }
 
     private int calculateHash(ProcessedMap<LineString> map) {
-        ZonedDateTime utcTimeStamp = map.getProperties().getOdeReceivedAt();
+        ZonedDateTime odeReceivedAt = map.getProperties().getOdeReceivedAt();
+        ZonedDateTime utcTimeStamp = map.getProperties().getTimeStamp();
         int revision = map.getProperties().getRevision();
         int msgIssueRevision = map.getProperties().getMsgIssueRevision();
         map.getProperties().setOdeReceivedAt(null);
+        map.getProperties().setTimeStamp(null);
         map.getProperties().setRevision(0);
         map.getProperties().setMsgIssueRevision(0);
 
         int hash = map.hashCode();
 
-        map.getProperties().setOdeReceivedAt(utcTimeStamp);
+        map.getProperties().setOdeReceivedAt(odeReceivedAt);
+        map.getProperties().setTimeStamp(utcTimeStamp);
         map.getProperties().setRevision(revision);
         map.getProperties().setMsgIssueRevision(msgIssueRevision);
 

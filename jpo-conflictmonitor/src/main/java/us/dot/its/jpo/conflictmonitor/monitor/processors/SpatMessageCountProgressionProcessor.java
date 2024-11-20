@@ -123,13 +123,16 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<St
 
         ZonedDateTime utcTimeStamp = spat.getUtcTimeStamp();
         int revision = spat.getRevision();
+        String odeReceivedAt = spat.getOdeReceivedAt();
         spat.setUtcTimeStamp(null);
         spat.setRevision(0);
+        spat.setOdeReceivedAt(null);
 
         int hash = spat.hashCode();
         
         spat.setUtcTimeStamp(utcTimeStamp);
         spat.setRevision(revision);
+        spat.setOdeReceivedAt(odeReceivedAt);
 
         return hash;
     }
