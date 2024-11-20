@@ -15,8 +15,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
+import us.dot.its.jpo.conflictmonitor.monitor.processors.aggregation.EventAggregationProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM;
@@ -45,8 +48,12 @@ public class SpatTimeChangeDetailsTopology
 
         builder.addSource(SPAT_SOURCE, Serdes.String().deserializer(), us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().deserializer(), this.parameters.getSpatInputTopicName());
         builder.addProcessor(SPAT_SEQUENCE_PROCESSOR, new SpatSequenceProcessorSupplier(this.parameters), SPAT_SOURCE);
-        
 
+        // TODO: Redo as DSL topology
+//        builder.addProcessor(
+//                "SpatTimeChangeDetailsAggregationProcessor",
+//                new EventAggregationProcessor<TimeChangeDetailsAggregationKey, TimeChangeDetailsEvent, TimeChangeDetailsEventAggregation>(),
+//                SPAT_SEQUENCE_PROCESSOR);
  
         StoreBuilder<KeyValueStore<String, SpatTimeChangeDetailAggregator>> storeBuilder = Stores.keyValueStoreBuilder(
             Stores.persistentKeyValueStore(parameters.getSpatTimeChangeDetailsStateStoreName()),
