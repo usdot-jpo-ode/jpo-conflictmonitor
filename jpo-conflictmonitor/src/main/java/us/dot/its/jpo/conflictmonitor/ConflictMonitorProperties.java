@@ -15,6 +15,8 @@
  ******************************************************************************/
 package us.dot.its.jpo.conflictmonitor;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -40,8 +42,15 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationAlgorithmInterface;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
@@ -93,6 +102,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
@@ -114,6 +124,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory;
    private String mapMinimumDataAggregationAlgorithm;
    private MapMinimumDataAggregationAlgorithmFactory mapMinimumDataAggregationAlgorithmFactory;
+   private String eventStateProgressionAggregationAlgorithm;
+   private EventStateProgressionAggregationAlgorithmFactory eventStateProgressionAggregationAlgorithmFactory;
+   private String intersectionReferenceAlignmentAggregationAlgorithm;
+   private IntersectionReferenceAlignmentAggregationAlgorithmFactory intersectionReferenceAlignmentAggregationAlgorithmFactory;
+   private String signalGroupAlignmentAggregationAlgorithm;
+   private SignalGroupAlignmentAggregationAlgorithmFactory signalGroupAlignmentAggregationAlgorithmFactory;
+   private String signalStateConflictAggregationAlgorithm;
+   private SignalStateConflictAggregationAlgorithmFactory signalStateConflictAggregationAlgorithmFactory;
+   private String timeChangeDetailsAggregationAlgorithm;
+   private TimeChangeDetailsAggregationAlgorithmFactory timeChangeDetailsAggregationAlgorithmFactory;
+
 
    private MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
    private SpatValidationStreamsAlgorithmFactory spatValidationAlgorithmFactory;
@@ -234,17 +255,37 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    public void setAggregationParameters(AggregationParameters aggregationParameters) {
       this.aggregationParameters = aggregationParameters;
       EventAlgorithmMap algorithmMap = aggregationParameters.getEventAlgorithmMap();
-      final String spatMinimumDataEventType = (new SpatMinimumDataEventAggregation()).getEventType();
-      if (algorithmMap.containsKey(spatMinimumDataEventType)) {
-         this.spatMinimumDataAggregationAlgorithm = algorithmMap.get(spatMinimumDataEventType);
+      this.spatMinimumDataAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SpatMinimumDataEventAggregation.class);
+      this.mapMinimumDataAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, MapMinimumDataEventAggregation.class);
+      this.eventStateProgressionAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, EventStateProgressionEventAggregation.class);
+      this.intersectionReferenceAlignmentAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, IntersectionReferenceAlignmentEventAggregation.class);
+      this.signalGroupAlignmentAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SignalGroupAlignmentEventAggregation.class);
+      this.signalStateConflictAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SignalStateConflictEventAggregation.class);
+      this.timeChangeDetailsAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, TimeChangeDetailsEventAggregation.class);
+   }
+
+   // Get algorithm name from map of event type to algorithm
+   private <TAggEvent extends EventAggregation<?>> String getAlgorithmFromMap(
+                 EventAlgorithmMap algorithmMap,
+                 Class<TAggEvent> aggEventClass) {
+      String eventType = "";
+       try {
+           Constructor<TAggEvent> cons = aggEventClass.getConstructor();
+           eventType = cons.newInstance().getEventType();
+       } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+           logger.error("Exception getting event type", e);
+       }
+      if (algorithmMap.containsKey(eventType)) {
+         return algorithmMap.get(eventType);
       } else {
-         throw new RuntimeException("No algorithm found for " + spatMinimumDataEventType);
-      }
-      final String mapMinimumDataEventType = (new MapMinimumDataEventAggregation()).getEventType();
-      if (algorithmMap.containsKey(mapMinimumDataEventType)) {
-         this.mapMinimumDataAggregationAlgorithm = algorithmMap.get(mapMinimumDataEventType);
-      } else {
-         throw new RuntimeException("No algorithm found for " + mapMinimumDataEventType);
+         throw new RuntimeException("No algorithm found for " + eventType);
       }
    }
 
