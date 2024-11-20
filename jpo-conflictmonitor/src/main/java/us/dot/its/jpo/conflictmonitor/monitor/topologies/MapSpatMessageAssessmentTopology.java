@@ -36,6 +36,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAl
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalStateConflictNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
@@ -201,10 +202,16 @@ public class MapSpatMessageAssessmentTopology
                             return events;
                         });
 
-        intersectionReferenceAlignmentEventStream.to(
-                parameters.getIntersectionReferenceAlignmentEventTopicName(),
-                Produced.with(Serdes.String(),
-                        JsonSerdes.IntersectionReferenceAlignmentEvent()));
+        if (parameters.isAggregateIntersectionReferenceAlignmentEvents()) {
+            // Aggregate Intersection Reference Alignment
+            intersectionReferenceAlignmentAggregationAlgorithm.buildTopology(builder, intersectionReferenceAlignmentEventStream);
+        } else {
+            // Don't aggregate Intersection Reference Alignment
+            intersectionReferenceAlignmentEventStream.to(
+                    parameters.getIntersectionReferenceAlignmentEventTopicName(),
+                    Produced.with(Serdes.String(),
+                            JsonSerdes.IntersectionReferenceAlignmentEvent()));
+        }
 
         KStream<String, IntersectionReferenceAlignmentNotification> notificationEventStream = intersectionReferenceAlignmentEventStream
                 .flatMap(
@@ -247,9 +254,9 @@ public class MapSpatMessageAssessmentTopology
                                 .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
         // Signal Group Alignment Event Check
-        KStream<String, SignalGroupAlignmentEvent> signalGroupAlignmentEventStream = spatJoinedMap.flatMap(
+        KStream<RsuIntersectionKey, SignalGroupAlignmentEvent> signalGroupAlignmentEventStream = spatJoinedMap.flatMap(
                 (key, value) -> {
-                    ArrayList<KeyValue<String, SignalGroupAlignmentEvent>> events = new ArrayList<>();
+                    ArrayList<KeyValue<RsuIntersectionKey, SignalGroupAlignmentEvent>> events = new ArrayList<>();
                     SignalGroupAlignmentEvent event = new SignalGroupAlignmentEvent();
 
                     event.setSource(key.toString());
@@ -286,21 +293,26 @@ public class MapSpatMessageAssessmentTopology
                         event.setMapSignalGroupIds(mapSignalGroups);
                         event.setSpatSignalGroupIds(spatSignalGroups);
                         event.setSource(key.getRsuId());
-                        events.add(new KeyValue<>(key.toString(), event));
+                        events.add(new KeyValue<>(key, event));
                     }
 
                     return events;
                 });
 
-        signalGroupAlignmentEventStream.to(
-                parameters.getSignalGroupAlignmentEventTopicName(),
-                Produced.with(Serdes.String(),
-                        JsonSerdes.SignalGroupAlignmentEvent()));
+        if (parameters.isAggregateSignalGroupAlignmentEvents()) {
+            signalGroupAlignmentAggregationAlgorithm.buildTopology(builder, signalGroupAlignmentEventStream);
+        } else {
+            signalGroupAlignmentEventStream.to(
+                    parameters.getSignalGroupAlignmentEventTopicName(),
+                    Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                            JsonSerdes.SignalGroupAlignmentEvent(),
+                            new IntersectionIdPartitioner<>()));
+        }
 
-        KStream<String, SignalGroupAlignmentNotification> signalGroupNotificationEventStream = signalGroupAlignmentEventStream
+        KStream<RsuIntersectionKey, SignalGroupAlignmentNotification> signalGroupNotificationEventStream = signalGroupAlignmentEventStream
                 .flatMap(
                         (key, value) -> {
-                            List<KeyValue<String, SignalGroupAlignmentNotification>> result = new ArrayList<KeyValue<String, SignalGroupAlignmentNotification>>();
+                            List<KeyValue<RsuIntersectionKey, SignalGroupAlignmentNotification>> result = new ArrayList<>();
 
                             SignalGroupAlignmentNotification notification = new SignalGroupAlignmentNotification();
                             notification.setEvent(value);
@@ -311,29 +323,30 @@ public class MapSpatMessageAssessmentTopology
                             return result;
                         });
 
-        KTable<String, SignalGroupAlignmentNotification> signalGroupNotificationTable = signalGroupNotificationEventStream
-                .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalGroupAlignmentNotification()))
+        KTable<RsuIntersectionKey, SignalGroupAlignmentNotification> signalGroupNotificationTable = signalGroupNotificationEventStream
+                .groupByKey(Grouped.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), JsonSerdes.SignalGroupAlignmentNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
                             return newValue;
                         },
                         Materialized
-                                .<String, SignalGroupAlignmentNotification, KeyValueStore<Bytes, byte[]>>as(
+                                .<RsuIntersectionKey, SignalGroupAlignmentNotification, KeyValueStore<Bytes, byte[]>>as(
                                         "SignalGroupAlignmentNotification")
-                                .withKeySerde(Serdes.String())
+                                .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                                 .withValueSerde(JsonSerdes.SignalGroupAlignmentNotification()));
 
         signalGroupNotificationTable.toStream().to(
                 parameters.getSignalGroupAlignmentNotificationTopicName(),
-                Produced.with(Serdes.String(),
-                        JsonSerdes.SignalGroupAlignmentNotification()));
+                Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        JsonSerdes.SignalGroupAlignmentNotification(),
+                        new IntersectionIdPartitioner<>()));
 
 
         // Signal State Conflict Event Check
-        KStream<String, SignalStateConflictEvent> signalStateConflictEventStream = spatJoinedMap.flatMap(
+        KStream<RsuIntersectionKey, SignalStateConflictEvent> signalStateConflictEventStream = spatJoinedMap.flatMap(
                 (key, value) -> {
 
-                    ArrayList<KeyValue<String, SignalStateConflictEvent>> events = new ArrayList<>();
+                    ArrayList<KeyValue<RsuIntersectionKey, SignalStateConflictEvent>> events = new ArrayList<>();
 
                     ProcessedMap<LineString> map = value.getMap();
                     ProcessedSpat spat = value.getSpat();
@@ -394,7 +407,7 @@ public class MapSpatMessageAssessmentTopology
                                         event.setConflictType(firstState);
                                     }
 
-                                    events.add(new KeyValue<String, SignalStateConflictEvent>(key.toString(), event));
+                                    events.add(new KeyValue<>(key, event));
 
                                 }
                             }
@@ -404,19 +417,39 @@ public class MapSpatMessageAssessmentTopology
                     return events;
                 });
 
-        signalStateConflictEventStream.to(
-                parameters.getSignalStateConflictEventTopicName(),
-                Produced.with(Serdes.String(),
-                        JsonSerdes.SignalStateConflictEvent()));
+        if (parameters.isAggregateSignalStateConflictEvents()) {
+            // Aggregate Signal State Conflict events
+            var signalStateConflictAggKeyStream
+                    = signalStateConflictEventStream.selectKey((key, value) -> {
+                     var aggKey = new SignalStateConflictAggregationKey();
+                     aggKey.setRsuId(key.getRsuId());
+                     aggKey.setIntersectionId(key.getIntersectionId());
+                     aggKey.setRegion(key.getRegion());
+                     aggKey.setEventStateA(value.getFirstConflictingSignalState());
+                     aggKey.setEventStateB(value.getSecondConflictingSignalState());
+                     aggKey.setConflictingSignalGroupA(value.getFirstConflictingSignalGroup());
+                     aggKey.setConflictingSignalGroupB(value.getSecondConflictingSignalGroup());
+                     return aggKey;
+            });
+            signalStateConflictAggregationAlgorithm.buildTopology(builder, signalStateConflictAggKeyStream);
+        } else {
+            // Don't aggregate Signal State Conflict events
+            signalStateConflictEventStream.to(
+                    parameters.getSignalStateConflictEventTopicName(),
+                    Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                            JsonSerdes.SignalStateConflictEvent(),
+                            new IntersectionIdPartitioner<>()));
+        }
 
         if(parameters.isDebug()){
             signalStateConflictEventStream.print(Printed.toSysOut());
         }
 
-        KStream<String, SignalStateConflictNotification> signalStateConflictNotificationStream = signalStateConflictEventStream
+        KStream<RsuIntersectionKey, SignalStateConflictNotification> signalStateConflictNotificationStream
+                = signalStateConflictEventStream
                 .flatMap(
                         (key, value) -> {
-                            List<KeyValue<String, SignalStateConflictNotification>> result = new ArrayList<KeyValue<String, SignalStateConflictNotification>>();
+                            List<KeyValue<RsuIntersectionKey, SignalStateConflictNotification>> result = new ArrayList<>();
 
                             SignalStateConflictNotification notification = new SignalStateConflictNotification();
                             notification.setEvent(value);
@@ -431,23 +464,26 @@ public class MapSpatMessageAssessmentTopology
             signalStateConflictNotificationStream.print(Printed.toSysOut());
         }
 
-        KTable<String, SignalStateConflictNotification> signalStateConflictNotificationTable = signalStateConflictNotificationStream
-                .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.SignalStateConflictNotification()))
+        KTable<RsuIntersectionKey, SignalStateConflictNotification> signalStateConflictNotificationTable = signalStateConflictNotificationStream
+                .groupByKey(Grouped.with(
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        JsonSerdes.SignalStateConflictNotification()))
                 .reduce(
                         (oldValue, newValue) -> {
                             return newValue;
                         },
                         Materialized
-                                .<String, SignalStateConflictNotification, KeyValueStore<Bytes, byte[]>>as(
+                                .<RsuIntersectionKey, SignalStateConflictNotification, KeyValueStore<Bytes, byte[]>>as(
                                         "SignalStateConflictNotification")
-                                .withKeySerde(Serdes.String())
+                                .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                                 .withValueSerde(JsonSerdes.SignalStateConflictNotification()));
 
 
         signalStateConflictNotificationTable.toStream().to(
                 parameters.getSignalStateConflictNotificationTopicName(),
-                Produced.with(Serdes.String(),
-                        JsonSerdes.SignalStateConflictNotification()));
+                Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        JsonSerdes.SignalStateConflictNotification(),
+                        new IntersectionIdPartitioner<>()));
 
         return builder.build();
 

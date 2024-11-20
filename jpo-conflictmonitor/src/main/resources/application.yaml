@@ -242,6 +242,9 @@ map.spat.message.assessment:
   intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
+  aggregateIntersectionReferenceAlignmentEvents: true
+  aggregateSignalGroupAlignmentEvents: true
+  aggregateSignalStateConflictEvents: true
 
 
 # MAP Time Change Details
