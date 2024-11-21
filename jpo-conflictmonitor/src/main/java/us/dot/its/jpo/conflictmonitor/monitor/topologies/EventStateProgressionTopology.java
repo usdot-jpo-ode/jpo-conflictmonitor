@@ -157,4 +157,6 @@ public class EventStateProgressionTopology
             throw new IllegalArgumentException("Aggregation algorithm must be a Streams algorithm");
         }
     }
+
+
 }

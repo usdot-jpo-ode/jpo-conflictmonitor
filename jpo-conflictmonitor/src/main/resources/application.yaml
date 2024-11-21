@@ -375,6 +375,7 @@ spat.time.change.details:
   spatTimeChangeDetailsStateStoreName: spat-time-change-detail-state-store
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   jitterBufferSize: 50
+  aggregateEvents: true
 
 # SPAT Validation
 spat.validation:
