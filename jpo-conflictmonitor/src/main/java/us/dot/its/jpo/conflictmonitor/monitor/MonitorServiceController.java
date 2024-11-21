@@ -12,6 +12,12 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithm;
@@ -187,48 +193,10 @@ public class MonitorServiceController {
 
             // Spat Time Change Details Assessment
             //Sends Time Change Details Events when the time deltas in spat messages are incorrect
-            final String spatTimeChangeDetails = "spatTimeChangeDetails";
-            final SpatTimeChangeDetailsAlgorithmFactory spatTCDAlgoFactory = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithmFactory();
-            final String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
-            final SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
-            final SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
-            configTopology.registerConfigListeners(spatTimeChangeDetailsParams);
-            if (spatTimeChangeDetailsAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)spatTimeChangeDetailsAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatTimeChangeDetails, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatTimeChangeDetails, healthTopic));
-                algoMap.put(spatTimeChangeDetails, streamsAlgo);
-            }
-            spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
-            spatTimeChangeDetailsAlgo.start();
-
-            
-            
-            
-
-
+            startSpatTimeChangeDetailsAlgorithm();
 
             //Map Spat Alignment Topology
-            final String mapSpatAlignment = "mapSpatAlignment";
-            final MapSpatMessageAssessmentAlgorithmFactory mapSpatAlgoFactory = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithmFactory();
-            final String mapSpatAlgo = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
-            final MapSpatMessageAssessmentAlgorithm mapSpatAlignmentAlgo = mapSpatAlgoFactory.getAlgorithm(mapSpatAlgo);
-            final MapSpatMessageAssessmentParameters mapSpatAlignmentParams = conflictMonitorProps.getMapSpatMessageAssessmentParameters();
-            configTopology.registerConfigListeners(mapSpatAlignmentParams);
-            if (mapSpatAlignmentAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)mapSpatAlignmentAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapSpatAlignment));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapSpatAlignment, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapSpatAlignment, healthTopic));
-                algoMap.put(mapSpatAlignment, streamsAlgo);
-            }
-            mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
-            mapSpatAlignmentAlgo.start();
-
-
+            startMapSpatAlignmentAlgorithm();
 
             //BSM Topology sends a message every time a vehicle drives through the intersection.
             final String bsmEvent = "bsmEvent";
@@ -260,7 +228,7 @@ public class MonitorServiceController {
             messageIngestAlgorithm.setMapIndex(mapIndex);
             messageIngestAlgorithm.setParameters(messageIngestParams);
             // Plugin Spat Transition algorithm
-            final EventStateProgressionAlgorithm spatTransitionAlgorithm = getSpatTransitionAlgorithm();
+            final EventStateProgressionAlgorithm spatTransitionAlgorithm = getEventStateProgressionAlgorithm();
             messageIngestAlgorithm.setEventStateProgressionAlgorithm(spatTransitionAlgorithm);
 
 
@@ -530,7 +498,56 @@ public class MonitorServiceController {
         spatValidationAlgo.start();
     }
 
+    private void startSpatTimeChangeDetailsAlgorithm() {
+        final String spatTimeChangeDetails = "spatTimeChangeDetails";
+        final SpatTimeChangeDetailsAlgorithmFactory spatTCDAlgoFactory = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithmFactory();
+        final String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
+        final SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
+        final SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
+        configTopology.registerConfigListeners(spatTimeChangeDetailsParams);
+        if (spatTimeChangeDetailsAlgo instanceof StreamsTopology) {
+            final var streamsAlgo = (StreamsTopology)spatTimeChangeDetailsAlgo;
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatTimeChangeDetails, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatTimeChangeDetails, healthTopic));
+            algoMap.put(spatTimeChangeDetails, streamsAlgo);
+        }
+        spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
 
+        // Plug in aggregation algorithm
+        final TimeChangeDetailsAggregationAlgorithm aggAlgorithm = getTimeChangeDetailsAggregationAlgorithm();
+        spatTimeChangeDetailsAlgo.setAggregationAlgorithm(aggAlgorithm);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
+        spatTimeChangeDetailsAlgo.start();
+    }
+
+    private void startMapSpatAlignmentAlgorithm() {
+        final String mapSpatAlignment = "mapSpatAlignment";
+        final MapSpatMessageAssessmentAlgorithmFactory mapSpatAlgoFactory = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithmFactory();
+        final String mapSpatAlgo = conflictMonitorProps.getMapSpatMessageAssessmentAlgorithm();
+        final MapSpatMessageAssessmentAlgorithm mapSpatAlignmentAlgo = mapSpatAlgoFactory.getAlgorithm(mapSpatAlgo);
+        final MapSpatMessageAssessmentParameters mapSpatAlignmentParams = conflictMonitorProps.getMapSpatMessageAssessmentParameters();
+        configTopology.registerConfigListeners(mapSpatAlignmentParams);
+        if (mapSpatAlignmentAlgo instanceof StreamsTopology streamsAlgo) {
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapSpatAlignment));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapSpatAlignment, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapSpatAlignment, healthTopic));
+            algoMap.put(mapSpatAlignment, streamsAlgo);
+        }
+        mapSpatAlignmentAlgo.setParameters(mapSpatAlignmentParams);
+
+        // Plug in aggregation algorithms
+        var intersectionAlignAggAlgo = getIntersectionReferenceAlignmentAggregationAlgorithm();
+        var signalGroupAlignAggAlgo = getSignalGroupAlignmentAggregationAlgorithm();
+        var signalStateConflictAggAlgo = getSignalStateConflictAggregationAlgorithm();
+        mapSpatAlignmentAlgo.setIntersectionReferenceAlignmentAggregationAlgorithm(intersectionAlignAggAlgo);
+        mapSpatAlignmentAlgo.setSignalGroupAlignmentAggregationAlgorithm(signalGroupAlignAggAlgo);
+        mapSpatAlignmentAlgo.setSignalStateConflictAggregationAlgorithm(signalStateConflictAggAlgo);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
+        mapSpatAlignmentAlgo.start();
+    }
 
     private MapTimestampDeltaAlgorithm getMapTimestampDeltaAlgorithm() {
         final var factory = conflictMonitorProps.getMapTimestampDeltaAlgorithmFactory();
@@ -568,11 +585,60 @@ public class MonitorServiceController {
         return algorithm;
     }
 
-    private EventStateProgressionAlgorithm getSpatTransitionAlgorithm() {
+    private TimeChangeDetailsAggregationAlgorithm getTimeChangeDetailsAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getTimeChangeDetailsAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getTimeChangeDetailsAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private IntersectionReferenceAlignmentAggregationAlgorithm getIntersectionReferenceAlignmentAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getIntersectionReferenceAlignmentAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getIntersectionReferenceAlignmentAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private SignalGroupAlignmentAggregationAlgorithm getSignalGroupAlignmentAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getSignalGroupAlignmentAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getSignalGroupAlignmentAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private SignalStateConflictAggregationAlgorithm getSignalStateConflictAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getSignalStateConflictAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getSignalStateConflictAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+
+    private EventStateProgressionAlgorithm getEventStateProgressionAlgorithm() {
         final var factory = conflictMonitorProps.getSpatTransitionAlgorithmFactory();
         final String algorithmName = conflictMonitorProps.getSpatTransitionAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
         final var parameters = conflictMonitorProps.getSpatTransitionParameters();
+        algorithm.setParameters(parameters);
+        // Plug in aggregation algo
+        final var aggAlgorithm = getEventStateProgressionAggregationAlgorithm();
+        algorithm.setAggregationAlgorithm(aggAlgorithm);
+        return algorithm;
+    }
+
+    private EventStateProgressionAggregationAlgorithm getEventStateProgressionAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getEventStateProgressionAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getEventStateProgressionAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
         algorithm.setParameters(parameters);
         return algorithm;
     }
