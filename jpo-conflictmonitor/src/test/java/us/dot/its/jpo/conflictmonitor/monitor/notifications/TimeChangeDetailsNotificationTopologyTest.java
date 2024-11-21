@@ -10,7 +10,7 @@ import org.junit.Test;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details.SpatTimeChangeDetailsNotificationTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details.SpatTimeChangeDetailsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +24,7 @@ public class TimeChangeDetailsNotificationTopologyTest {
     @Test
     public void testTopology() {
 
-        SpatTimeChangeDetailsNotificationTopology spatTopology = new SpatTimeChangeDetailsNotificationTopology();
+        SpatTimeChangeDetailsTopology spatTopology = new SpatTimeChangeDetailsTopology();
         SpatTimeChangeDetailsParameters parameters = new SpatTimeChangeDetailsParameters();
 
         parameters.setDebug(false);

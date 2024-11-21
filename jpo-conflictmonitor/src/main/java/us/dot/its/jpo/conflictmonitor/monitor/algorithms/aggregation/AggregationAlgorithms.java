@@ -17,49 +17,49 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.
 public class AggregationAlgorithms {
 
     @Bean
-    FactoryBean<?> spatMinimumDataServiceLocatorFactoryBean() {
+    FactoryBean<?> spatMinimumDataAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SpatMinimumDataAggregationAlgorithmFactory.class);
         return factoryBean;
     }
 
     @Bean
-    FactoryBean<?> mapMinimumDataServiceLocatorFactoryBean() {
+    FactoryBean<?> mapMinimumDataAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(MapMinimumDataAggregationAlgorithmFactory.class);
         return factoryBean;
     }
 
     @Bean
-    FactoryBean<?> eventStateProgressionServiceLocatorFactoryBean() {
+    FactoryBean<?> eventStateProgressionAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(EventStateProgressionAggregationAlgorithmFactory.class);
         return factoryBean;
     }
 
     @Bean
-    FactoryBean<?> intersectionReferenceAlignmentServiceLocatorFactoryBean() {
+    FactoryBean<?> intersectionReferenceAlignmentAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(IntersectionReferenceAlignmentAggregationAlgorithmFactory.class);
         return factoryBean;
     }
 
     @Bean
-    FactoryBean<?> signalGroupAlignmentServiceLocatorFactoryBean() {
+    FactoryBean<?> signalGroupAlignmentAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SignalGroupAlignmentAggregationAlgorithmFactory.class);
         return factoryBean;
     }
 
     @Bean
-    FactoryBean<?> signalStateConflictServiceLocatorFactoryBean() {
+    FactoryBean<?> signalStateConflictAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(SignalStateConflictAggregationAlgorithmFactory.class);
         return factoryBean;
     }
 
     @Bean
-    FactoryBean<?> timeChangeDetailsServiceLocatorFactoryBean() {
+    FactoryBean<?> timeChangeDetailsAggregationServiceLocatorFactoryBean() {
         var factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(TimeChangeDetailsAggregationAlgorithmFactory.class);
         return factoryBean;
