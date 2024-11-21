@@ -290,13 +290,38 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    }
 
    @Autowired
-   public void setSpatMinimumDataAggregationAlgorithmFactory(SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory) {
-      this.spatMinimumDataAggregationAlgorithmFactory = spatMinimumDataAggregationAlgorithmFactory;
+   public void setSpatMinimumDataAggregationAlgorithmFactory(SpatMinimumDataAggregationAlgorithmFactory factory) {
+      this.spatMinimumDataAggregationAlgorithmFactory = factory;
    }
 
    @Autowired
-   public void setMapMinimumDataAggregationAlgorithmFactory(MapMinimumDataAggregationAlgorithmFactory mapMinimumDataAggregationAlgorithmFactory) {
-      this.mapMinimumDataAggregationAlgorithmFactory = mapMinimumDataAggregationAlgorithmFactory;
+   public void setMapMinimumDataAggregationAlgorithmFactory(MapMinimumDataAggregationAlgorithmFactory factory) {
+      this.mapMinimumDataAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setEventStateProgressionAggregationAlgorithmFactory(EventStateProgressionAggregationAlgorithmFactory factory) {
+      this.eventStateProgressionAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setIntersectionReferenceAlignmentAggregationAlgorithmFactory(IntersectionReferenceAlignmentAggregationAlgorithmFactory factory) {
+      this.intersectionReferenceAlignmentAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setSignalGroupAlignmentAggregationAlgorithmFactory(SignalGroupAlignmentAggregationAlgorithmFactory factory) {
+      this.signalGroupAlignmentAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setSignalStateConflictAggregationAlgorithmFactory(SignalStateConflictAggregationAlgorithmFactory factory) {
+      this.signalStateConflictAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setTimeChangeDetailsAggregationAlgorithmFactory(TimeChangeDetailsAggregationAlgorithmFactory factory) {
+      this.timeChangeDetailsAggregationAlgorithmFactory = factory;
    }
 
    @Autowired
