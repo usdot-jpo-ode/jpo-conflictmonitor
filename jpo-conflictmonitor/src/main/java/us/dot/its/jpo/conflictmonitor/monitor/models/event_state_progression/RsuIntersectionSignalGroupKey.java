@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 /**
@@ -10,6 +11,7 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@ToString(callSuper = true)
 public class RsuIntersectionSignalGroupKey extends RsuIntersectionKey {
 
     int signalGroup;

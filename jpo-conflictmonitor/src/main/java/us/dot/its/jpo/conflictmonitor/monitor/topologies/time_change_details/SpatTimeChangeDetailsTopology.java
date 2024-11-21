@@ -49,7 +49,7 @@ public class SpatTimeChangeDetailsTopology
         builder.addStateStore(
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore(parameters.getSpatTimeChangeDetailsStateStoreName()),
-                        Serdes.String(),
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                         JsonSerdes.SpatTimeChangeDetailAggregator()
                 )
         );
@@ -61,7 +61,8 @@ public class SpatTimeChangeDetailsTopology
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat()
                     ))
-                .process(new SpatSequenceProcessorSupplier(parameters));
+                .process(new SpatSequenceProcessorSupplier(parameters),
+                        parameters.getSpatTimeChangeDetailsStateStoreName());
 
         if (parameters.isAggregateEvents()) {
             // Aggregate events

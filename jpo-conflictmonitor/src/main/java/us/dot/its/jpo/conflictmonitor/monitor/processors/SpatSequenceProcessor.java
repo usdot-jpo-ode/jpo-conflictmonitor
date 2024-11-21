@@ -65,6 +65,7 @@ public class SpatSequenceProcessor
         if (agg != null) {
             agg.setMessageBufferSize(this.parameters.getJitterBufferSize());
             SpatTimeChangeDetailPair oldestPair = agg.add(SpatTimeChangeDetail.fromProcessedSpat(inputSpat));
+
             stateStore.put(key, agg);
 
             if(oldestPair != null){
