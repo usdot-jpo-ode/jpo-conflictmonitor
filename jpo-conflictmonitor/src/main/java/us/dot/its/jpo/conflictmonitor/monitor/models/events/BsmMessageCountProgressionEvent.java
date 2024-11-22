@@ -16,7 +16,7 @@ public class BsmMessageCountProgressionEvent extends Event{
     private String timestampA;
     private int messageCountB;
     private String timestampB;
-    private int vehicleId;
+    private String vehicleId;
 
     public BsmMessageCountProgressionEvent(){
         super("BsmMessageCountProgression");
