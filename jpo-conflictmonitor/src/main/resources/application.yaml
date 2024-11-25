@@ -45,6 +45,7 @@ kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 kafka.linger_ms: 50
 
 # Custom kafka properties
+# TODO Remove, use jpo-utils instead
 kafka.topics:
   autoCreateTopics: true  # Override auto-create in test properties
   numPartitions: 1
@@ -188,6 +189,27 @@ kafka.topics:
       retentionMs: 300000
     - name: topic.CmEventStateProgressionNotification
       cleanupPolicy: compact
+    - name: topic.CmSpatMinimumDataEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapMinimumDataEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmIntersectionReferenceAlignmentEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalGroupAlignmentEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateConflictEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatTimeChangeDetailsEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmEventStateProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
     
 
 
