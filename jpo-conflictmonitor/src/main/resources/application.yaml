@@ -539,7 +539,7 @@ event.state.progression:
 
 aggregation:
   debug: true
-  interval: 10
+  interval: 60
   intervalUnits: SECONDS
   checkIntervalMs: 1000
   gracePeriodMs: 500

@@ -28,5 +28,6 @@ public class TimeChangeDetailsEventAggregation
         this.timeMarkTypeA = event.getFirstTimeMarkType();
         this.eventStateB = event.getSecondState();
         this.timeMarkTypeB = event.getSecondTimeMarkType();
+        setNumberOfEvents(getNumberOfEvents() + 1);
     }
 }

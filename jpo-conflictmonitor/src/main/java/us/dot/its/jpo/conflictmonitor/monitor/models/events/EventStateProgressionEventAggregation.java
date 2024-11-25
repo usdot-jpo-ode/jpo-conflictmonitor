@@ -24,5 +24,6 @@ public class EventStateProgressionEventAggregation
         this.signalGroupID = event.getSignalGroupID();
         this.eventStateA = event.getEventStateA();
         this.eventStateB = event.getEventStateB();
+        setNumberOfEvents(getNumberOfEvents() + 1);
      }
 }
