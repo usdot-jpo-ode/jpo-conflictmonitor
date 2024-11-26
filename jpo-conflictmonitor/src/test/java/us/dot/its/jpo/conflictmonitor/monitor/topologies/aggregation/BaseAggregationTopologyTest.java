@@ -32,7 +32,7 @@ public abstract class BaseAggregationTopologyTest<
         TEvent extends Event,
         TAggKey,
         TAggEvent extends EventAggregation<TEvent>,
-        TTopo extends BaseAggregationTopology<TEventKey, TEvent, TAggEvent>> {
+        TTopo extends BaseAggregationTopology<TAggKey, TEvent, TAggEvent>> {
 
     protected final String inputTopicName = "inputEventTopic";
     protected final int numberOfEvents = 9;
@@ -42,6 +42,9 @@ public abstract class BaseAggregationTopologyTest<
     protected final int intervalSeconds = 10;
     protected final int checkIntervalMs = 1000;
 
+    // Start clock at top of hour
+    protected final Instant initialWallClock = Instant.parse("2024-11-25T10:00:00Z");
+
     abstract String outputTopicName();
     abstract Serde<TEventKey> eventKeySerde();
     abstract Serde<TEvent> eventSerde();
@@ -50,13 +53,11 @@ public abstract class BaseAggregationTopologyTest<
     abstract TEventKey createKey();
     abstract TEvent createEvent();
     abstract TTopo createTopology();
+    abstract KStream<TAggKey, TEvent> selectAggKey(KStream<TEventKey, TEvent> instream);
 
     protected List<KeyValue<TAggKey, TAggEvent>> runTestTopology() {
         var streamsConfig = new Properties();
         Topology topology = createTestTopology(createTopology());
-
-        // Start clock at top of hour
-        final var initialWallClock = Instant.parse("2024-11-25T10:00:00Z");
 
         List<KeyValue<TAggKey, TAggEvent>> resultList;
 
@@ -93,8 +94,8 @@ public abstract class BaseAggregationTopologyTest<
     }
 
 
-    // Creates a test topology that just feeds events to the aggregation topology
-    protected Topology createTestTopology(BaseAggregationTopology<TEventKey, TEvent, TAggEvent> aggTopology) {
+    // Creates a test topology, to plug the aggregation topology into, that just feeds events to the aggregation topology
+    protected Topology createTestTopology(BaseAggregationTopology<TAggKey, TEvent, TAggEvent> aggTopology) {
         var parameters = createAggParameters();
 
         aggTopology.setParameters(parameters);
@@ -108,9 +109,13 @@ public abstract class BaseAggregationTopologyTest<
                 )
         );
 
-        aggTopology.buildTopology(builder, eventStream);
+        KStream<TAggKey, TEvent> rekeyedEventStream = selectAggKey(eventStream);
+
+        aggTopology.buildTopology(builder, rekeyedEventStream);
         return builder.build();
     }
+
+
 
     protected AggregationParameters createAggParameters() {
         var aggParams = new AggregationParameters();

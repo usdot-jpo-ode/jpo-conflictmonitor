@@ -3,11 +3,10 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.aggregation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.KeyValue;
-
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
@@ -16,20 +15,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 
 @Slf4j
-public class SpatMinimumDataAggregationTopologyTest
+public class MapMinimumDataAggregationTopologyTest
     extends
         BaseAggregationTopologyTest<
                 RsuIntersectionKey,
-                SpatMinimumDataEvent,
+                MapMinimumDataEvent,
                 RsuIntersectionKey,
-                SpatMinimumDataEventAggregation,
-                SpatMinimumDataAggregationTopology> {
+                MapMinimumDataEventAggregation,
+                MapMinimumDataAggregationTopology>{
 
     @Test
     public void testTopology() {
-        List<KeyValue<RsuIntersectionKey, SpatMinimumDataEventAggregation>> resultList = runTestTopology();
+        List<KeyValue<RsuIntersectionKey, MapMinimumDataEventAggregation>> resultList = runTestTopology();
         assertThat("Should have produced 1 aggregated event", resultList, hasSize(1));
         var result = resultList.getFirst();
         log.info("Agg result: {}", result);
@@ -46,7 +46,7 @@ public class SpatMinimumDataAggregationTopologyTest
 
     @Override
     String outputTopicName() {
-        return "topic.CmSpatMinimumDataEventAggregation";
+        return "topic.CmMapMinimumDataEventAggregation";
     }
 
     @Override
@@ -55,8 +55,8 @@ public class SpatMinimumDataAggregationTopologyTest
     }
 
     @Override
-    Serde<SpatMinimumDataEvent> eventSerde() {
-        return JsonSerdes.SpatMinimumDataEvent();
+    Serde<MapMinimumDataEvent> eventSerde() {
+        return JsonSerdes.MapMinimumDataEvent();
     }
 
     @Override
@@ -65,19 +65,8 @@ public class SpatMinimumDataAggregationTopologyTest
     }
 
     @Override
-    Serde<SpatMinimumDataEventAggregation> aggEventSerde() {
-        return JsonSerdes.SpatMinimumDataEventAggregation();
-    }
-
-    @Override
-    SpatMinimumDataAggregationTopology createTopology() {
-        return new SpatMinimumDataAggregationTopology();
-    }
-
-    @Override
-    KStream<RsuIntersectionKey, SpatMinimumDataEvent> selectAggKey(KStream<RsuIntersectionKey, SpatMinimumDataEvent> instream) {
-        // Same key, pass through
-        return instream;
+    Serde<MapMinimumDataEventAggregation> aggEventSerde() {
+        return JsonSerdes.MapMinimumDataEventAggregation();
     }
 
     @Override
@@ -88,8 +77,8 @@ public class SpatMinimumDataAggregationTopologyTest
     final AtomicInteger elementNum = new AtomicInteger(1);
 
     @Override
-    SpatMinimumDataEvent createEvent() {
-        var event = new SpatMinimumDataEvent();
+    MapMinimumDataEvent createEvent() {
+        var event = new MapMinimumDataEvent();
         event.setSource(rsuId);
         event.setIntersectionID(intersectionId);
         event.setRoadRegulatorID(region);
@@ -98,6 +87,14 @@ public class SpatMinimumDataAggregationTopologyTest
         return event;
     }
 
+    @Override
+    MapMinimumDataAggregationTopology createTopology() {
+        return new MapMinimumDataAggregationTopology();
+    }
 
-
+    @Override
+    KStream<RsuIntersectionKey, MapMinimumDataEvent> selectAggKey(KStream<RsuIntersectionKey, MapMinimumDataEvent> instream) {
+        // Same key, pass through
+        return instream;
+    }
 }
