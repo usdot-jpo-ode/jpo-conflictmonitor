@@ -5,6 +5,11 @@
     </activeProfiles>
     <servers>
         <server>
+            <id>github</id>
+            <username>jpo_conflictmonitor</username>
+            <password>${env.MAVEN_GITHUB_TOKEN}</password>
+        </server>
+        <server>
             <id>github_jpo_ode</id>
             <username>jpo_conflictmonitor</username>
             <password>${env.MAVEN_GITHUB_TOKEN}</password>
@@ -19,6 +24,14 @@
         <profile>
             <id>default</id>
             <repositories>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub JPO Conflict Monitor</name>
+                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/jpo-conflictmonitor</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
                 <repository>
                     <id>github_jpo_ode</id>
                     <name>GitHub JPO ODE</name>
