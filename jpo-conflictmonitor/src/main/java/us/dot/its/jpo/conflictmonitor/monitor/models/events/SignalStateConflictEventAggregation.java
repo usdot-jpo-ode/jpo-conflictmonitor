@@ -28,5 +28,6 @@ public class SignalStateConflictEventAggregation
         this.eventStateA = event.getFirstConflictingSignalState();
         this.conflictingSignalGroupB = event.getSecondConflictingSignalGroup();
         this.eventStateB = event.getSecondConflictingSignalState();
+        setNumberOfEvents(getNumberOfEvents() + 1);
     }
 }
