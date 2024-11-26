@@ -39,6 +39,7 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+        required: false
 
   conflictmonitor-release:
     profiles:
@@ -68,6 +69,7 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+        required: false
 
   deduplicator:
     profiles:
@@ -103,3 +105,4 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+        required: false
