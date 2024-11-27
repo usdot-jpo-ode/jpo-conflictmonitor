@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KStream;
-import org.junit.jupiter.api.Test;
+
+import org.junit.Test;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEventAggregation;
