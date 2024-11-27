@@ -37,9 +37,9 @@ public class EventTopologyTest {
     String signalStateConflictEventTopicName = "topic.CmSignalStateConflictEvents";
     String laneDirectionOfTravelEventTopicName = "topic.CmLaneDirectionOfTravelEvent";
     String connectionOfTravelEventTopicName = "topic.CmConnectionOfTravelEvent";
-    String spatRevisionCounterEventTopicName = "topic.CmSpatRevisionCounterEvents";
-    String mapRevisionCounterEventTopicName = "topic.CmMapRevisionCounterEvents";
-    String bsmRevisionCounterEventTopicName = "topic.CmBsmRevisionCounterEvents";
+    String spatMessageCountProgressionEventTopicName = "topic.CmSpatMessageCountProgressionEvents";
+    String mapMessageCountProgressionEventTopicName = "topic.CmMapMessageCountProgressionEvents";
+    String bsmMessageCountProgressionEventTopicName = "topic.CmBsmMessageCountProgressionEvents";
     String timestampDeltaEventTopicName = "topic.CmTimestampDeltaEvent";
     String spatTransitionEventTopicName = "topic.CmEventStateProgressionEvent";
 
@@ -60,9 +60,9 @@ public class EventTopologyTest {
         parameters.setSignalStateConflictEventTopicName(signalStateConflictEventTopicName);
         parameters.setLaneDirectionOfTravelEventTopicName(laneDirectionOfTravelEventTopicName);
         parameters.setConnectionOfTravelEventTopicName(connectionOfTravelEventTopicName);
-        parameters.setSpatRevisionCounterEventTopicName(spatRevisionCounterEventTopicName);
-        parameters.setMapRevisionCounterEventTopicName(mapRevisionCounterEventTopicName);
-        parameters.setBsmRevisionCounterEventTopicName(bsmRevisionCounterEventTopicName);
+        parameters.setSpatMessageCountProgressionEventTopicName(spatMessageCountProgressionEventTopicName);
+        parameters.setMapMessageCountProgressionEventTopicName(mapMessageCountProgressionEventTopicName);
+        parameters.setBsmMessageCountProgressionEventTopicName(bsmMessageCountProgressionEventTopicName);
         parameters.setTimestampDeltaEventTopicName(timestampDeltaEventTopicName);
         parameters.setEventStateProgressionEventTopicName(spatTransitionEventTopicName);
 
@@ -82,9 +82,9 @@ public class EventTopologyTest {
         SignalStateConflictEvent sscEvent = new SignalStateConflictEvent();
         LaneDirectionOfTravelEvent ldotEvent = new LaneDirectionOfTravelEvent();
         ConnectionOfTravelEvent cotEvent = new ConnectionOfTravelEvent();
-        SpatRevisionCounterEvent srcEvent = new SpatRevisionCounterEvent();
-        MapRevisionCounterEvent mrcEvent = new MapRevisionCounterEvent();
-        BsmRevisionCounterEvent brcEvent = new BsmRevisionCounterEvent();
+        SpatMessageCountProgressionEvent srcEvent = new SpatMessageCountProgressionEvent();
+        MapMessageCountProgressionEvent mrcEvent = new MapMessageCountProgressionEvent();
+        BsmMessageCountProgressionEvent brcEvent = new BsmMessageCountProgressionEvent();
         MapTimestampDeltaEvent mapTimestampDeltaEvent = new MapTimestampDeltaEvent();
         SpatTimestampDeltaEvent spatTimestampDeltaEvent = new SpatTimestampDeltaEvent();
         EventStateProgressionEvent spatTransitionEvent = new EventStateProgressionEvent();
@@ -169,26 +169,26 @@ public class EventTopologyTest {
 
             inputConnectionOfTravel.pipeInput("12109", cotEvent);
             
-            TestInputTopic<String, SpatRevisionCounterEvent> inputSpatRevisionCounterEvent = driver.createInputTopic(
-                spatRevisionCounterEventTopicName, 
+            TestInputTopic<String, SpatMessageCountProgressionEvent> inputSpatMessageCountProgressionEvent = driver.createInputTopic(
+                spatMessageCountProgressionEventTopicName, 
                 Serdes.String().serializer(), 
-                JsonSerdes.SpatRevisionCounterEvent().serializer());
+                JsonSerdes.SpatMessageCountProgressionEvent().serializer());
 
-            inputSpatRevisionCounterEvent.pipeInput("12109", srcEvent);
+            inputSpatMessageCountProgressionEvent.pipeInput("12109", srcEvent);
 
-            TestInputTopic<String, MapRevisionCounterEvent> inputMapRevisionCounterEvent = driver.createInputTopic(
-                mapRevisionCounterEventTopicName, 
+            TestInputTopic<String, MapMessageCountProgressionEvent> inputMapMessageCountProgressionEvent = driver.createInputTopic(
+                mapMessageCountProgressionEventTopicName, 
                 Serdes.String().serializer(), 
-                JsonSerdes.MapRevisionCounterEvent().serializer());
+                JsonSerdes.MapMessageCountProgressionEvent().serializer());
 
-            inputMapRevisionCounterEvent.pipeInput("12109", mrcEvent);
+            inputMapMessageCountProgressionEvent.pipeInput("12109", mrcEvent);
 
-            TestInputTopic<String, BsmRevisionCounterEvent> inputBsmRevisionCounterEvent = driver.createInputTopic(
-                bsmRevisionCounterEventTopicName, 
+            TestInputTopic<String, BsmMessageCountProgressionEvent> inputBsmMessageCountProgressionEvent = driver.createInputTopic(
+                bsmMessageCountProgressionEventTopicName, 
                 Serdes.String().serializer(), 
-                JsonSerdes.BsmRevisionCounterEvent().serializer());
+                JsonSerdes.BsmMessageCountProgressionEvent().serializer());
 
-            inputBsmRevisionCounterEvent.pipeInput("12109", brcEvent);
+            inputBsmMessageCountProgressionEvent.pipeInput("12109", brcEvent);
 
             TestInputTopic<String, Event> inputTimestampDeltaEvent = driver.createInputTopic(
                     timestampDeltaEventTopicName,
@@ -254,14 +254,14 @@ public class EventTopologyTest {
                 else if(type.equals("ConnectionOfTravel")){
                     assertEquals((ConnectionOfTravelEvent) event, cotEvent);
                 }
-                else if(type.equals("SpatRevisionCounter")){
-                    assertEquals((SpatRevisionCounterEvent) event, srcEvent);
+                else if(type.equals("SpatMessageCountProgression")){
+                    assertEquals((SpatMessageCountProgressionEvent) event, srcEvent);
                 }
-                else if(type.equals("MapRevisionCounter")){
-                    assertEquals((MapRevisionCounterEvent) event, mrcEvent);
+                else if(type.equals("MapMessageCountProgression")){
+                    assertEquals((MapMessageCountProgressionEvent) event, mrcEvent);
                 }
-                else if(type.equals("BsmRevisionCounter")){
-                    assertEquals((BsmRevisionCounterEvent) event, brcEvent);
+                else if(type.equals("BsmMessageCountProgression")){
+                    assertEquals((BsmMessageCountProgressionEvent) event, brcEvent);
                 }
                 else if (type.equals("MapTimestampDelta")) {
                     assertEquals(event, mapTimestampDeltaEvent);

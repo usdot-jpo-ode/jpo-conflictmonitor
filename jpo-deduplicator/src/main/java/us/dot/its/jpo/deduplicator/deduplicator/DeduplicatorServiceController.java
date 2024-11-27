@@ -21,6 +21,7 @@ import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopolo
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.OdeRawEncodedTimDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedMapWktDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.ProcessedSpatDeduplicatorTopology;
 
 @Controller
 @DependsOn("createKafkaTopics")
@@ -83,6 +84,14 @@ public class DeduplicatorServiceController {
                     props.createStreamProperties("OdeRawEncodedTimDeduplicator")
                 );
                 odeRawEncodedTimDeduplicatorTopology.start();
+            }
+
+            if(props.isEnableProcessedSpatDeduplication()){
+                ProcessedSpatDeduplicatorTopology processedSpatDeduplicatorTopology = new ProcessedSpatDeduplicatorTopology(
+                    props,
+                    props.createStreamProperties("ProcessedSpatDeduplicator")
+                );
+                processedSpatDeduplicatorTopology.start();
             }
 
             if(props.isEnableOdeBsmDeduplication()){

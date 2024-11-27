@@ -165,13 +165,13 @@ kafka.topics:
     - name: topic.CmStopLinePassageNotification
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmMapRevisionCounterEvents
+    - name: topic.CmMapMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmSpatRevisionCounterEvents
+    - name: topic.CmSpatMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmBsmRevisionCounterEvents
+    - name: topic.CmBsmMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
     - name: topic.CmTimestampDeltaEvent
@@ -338,9 +338,9 @@ event:
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
   connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
-  spatRevisionCounterEventTopicName: topic.CmSpatRevisionCounterEvents
-  mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
-  bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
+  spatMessageCountProgressionEventTopicName: topic.CmSpatMessageCountProgressionEvents
+  mapMessageCountProgressionEventTopicName: topic.CmMapMessageCountProgressionEvents
+  bsmMessageCountProgressionEventTopicName: topic.CmBsmMessageCountProgressionEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
   eventStateProgressionEventTopicName: topic.CmEventStateProgressionEvent
 
@@ -443,27 +443,39 @@ message.ingest:
   mapStoreName: ProcessedMapWindowStore
   mapSpatialIndexStoreName: MapSpatialIndexStore
 
-# MAP Revision Counter
-map.revision.counter:
-  algorithm: defaultMapRevisionCounterAlgorithm
+# MAP Message Count Progression
+map.message.count.progression:
+  algorithm: defaultMapMessageCountProgressionAlgorithm
   debug: false
   mapInputTopicName: topic.ProcessedMap
-  mapRevisionEventOutputTopicName: topic.CmMapRevisionCounterEvents
+  mapMessageCountProgressionEventOutputTopicName: topic.CmMapMessageCountProgressionEvents
+  processedMapStateStoreName: processedMapStateStore
+  latestMapStateStoreName: latestMapStateStore
+  bufferTimeMs: 5000
+  bufferGracePeriodMs: 800
 
-# SPAT Revision Counter
-spat.revision.counter:
-  algorithm: defaultSpatRevisionCounterAlgorithm
+# SPAT Message Count Progression
+spat.message.count.progression:
+  algorithm: defaultSpatMessageCountProgressionAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
-  spatRevisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
+  spatMessageCountProgressionEventOutputTopicName: topic.CmSpatMessageCountProgressionEvents
+  processedSpatStateStoreName: processedSpatStateStore
+  latestSpatStateStoreName: latestSpatStateStore
+  bufferTimeMs: 500
+  bufferGracePeriodMs: 50
 
-# BSM Revision Counter
-bsm.revision.counter:
-  algorithm: defaultBsmRevisionCounterAlgorithm
+# BSM Message Count Progression
+bsm.message.count.progression:
+  algorithm: defaultBsmMessageCountProgressionAlgorithm
   debug: false
-  bsmInputTopicName: topic.CmBsmJsonRepartition
-  bsmRevisionEventOutputTopicName: topic.CmBsmRevisionCounterEvents
-
+  bsmInputTopicName: topic.ProcessedBsm
+  bsmMessageCountProgressionEventOutputTopicName: topic.CmBsmMessageCountProgressionEvents
+  processedBsmStateStoreName: processedBsmStateStore
+  latestBsmStateStoreName: latestBsmStateStore
+  bufferTimeMs: 500
+  bufferGracePeriodMs: 50
+  
 # Config parameters
 config:
   defaultStateStore: default-config

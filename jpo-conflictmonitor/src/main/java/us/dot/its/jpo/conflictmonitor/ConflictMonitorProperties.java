@@ -74,12 +74,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
@@ -204,17 +204,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
 
-   private MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory;
-   private String mapRevisionCounterAlgorithm;
-   private MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters;
+   private MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgorithmFactory;
+   private String mapMessageCountProgressionAlgorithm;
+   private MapMessageCountProgressionParameters mapMessageCountProgressionAlgorithmParameters;
 
-   private SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory;
-   private String spatRevisionCounterAlgorithm;
-   private SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters;
+   private SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgorithmFactory;
+   private String spatMessageCountProgressionAlgorithm;
+   private SpatMessageCountProgressionParameters spatMessageCountProgressionAlgorithmParameters;
 
-   private BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
-   private String bsmRevisionCounterAlgorithm;
-   private BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters;
+   private BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgorithmFactory;
+   private String bsmMessageCountProgressionAlgorithm;
+   private BsmMessageCountProgressionParameters bsmMessageCountProgressionAlgorithmParameters;
 
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
@@ -682,51 +682,51 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
 
    @Autowired
-   public void setMapRevisionCounterAlgorithmFactory(MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory) {
-      this.mapRevisionCounterAlgorithmFactory = mapRevisionCounterAlgorithmFactory;
+   public void setMapMessageCountProgressionAlgorithmFactory(MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgorithmFactory) {
+      this.mapMessageCountProgressionAlgorithmFactory = mapMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${map.revision.counter.algorithm}")
-   public void setMapRevisionCorrectionAlgorithm(String mapRevisionCounterAlgorithm) {
-      this.mapRevisionCounterAlgorithm = mapRevisionCounterAlgorithm;
-   }
-
-   @Autowired
-   public void setMapRevisionCounterAlgorithmParameters(MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters) {
-      this.mapRevisionCounterAlgorithmParameters = mapRevisionCounterAlgorithmParameters;
-   }
-
-
-
-   @Autowired
-   public void setSpatRevisionCounterAlgorithmFactory(SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory) {
-      this.spatRevisionCounterAlgorithmFactory = spatRevisionCounterAlgorithmFactory;
-   }
-
-   @Value("${spat.revision.counter.algorithm}")
-   public void setSpatRevisionCorrectionAlgorithm(String spatRevisionCounterAlgorithm) {
-      this.spatRevisionCounterAlgorithm = spatRevisionCounterAlgorithm;
+   @Value("${map.message.count.progression.algorithm}")
+   public void setMapRevisionCorrectionAlgorithm(String mapMessageCountProgressionAlgorithm) {
+      this.mapMessageCountProgressionAlgorithm = mapMessageCountProgressionAlgorithm;
    }
 
    @Autowired
-   public void setSpatRevisionCounterAlgorithmParameters(SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters) {
-      this.spatRevisionCounterAlgorithmParameters = spatRevisionCounterAlgorithmParameters;
+   public void setMapMessageCountProgressionAlgorithmParameters(MapMessageCountProgressionParameters mapMessageCountProgressionAlgorithmParameters) {
+      this.mapMessageCountProgressionAlgorithmParameters = mapMessageCountProgressionAlgorithmParameters;
+   }
+
+
+
+   @Autowired
+   public void setSpatMessageCountProgressionAlgorithmFactory(SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgorithmFactory) {
+      this.spatMessageCountProgressionAlgorithmFactory = spatMessageCountProgressionAlgorithmFactory;
+   }
+
+   @Value("${spat.message.count.progression.algorithm}")
+   public void setSpatRevisionCorrectionAlgorithm(String spatMessageCountProgressionAlgorithm) {
+      this.spatMessageCountProgressionAlgorithm = spatMessageCountProgressionAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatMessageCountProgressionAlgorithmParameters(SpatMessageCountProgressionParameters spatMessageCountProgressionAlgorithmParameters) {
+      this.spatMessageCountProgressionAlgorithmParameters = spatMessageCountProgressionAlgorithmParameters;
    }
 
 
    @Autowired
-   public void setBsmRevisionCounterAlgorithmFactory(BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory) {
-      this.bsmRevisionCounterAlgorithmFactory = bsmRevisionCounterAlgorithmFactory;
+   public void setBsmMessageCountProgressionAlgorithmFactory(BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgorithmFactory) {
+      this.bsmMessageCountProgressionAlgorithmFactory = bsmMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${bsm.revision.counter.algorithm}")
-   public void setBsmRevisionCorrectionAlgorithm(String bsmRevisionCounterAlgorithm) {
-      this.bsmRevisionCounterAlgorithm = bsmRevisionCounterAlgorithm;
+   @Value("${bsm.message.count.progression.algorithm}")
+   public void setBsmRevisionCorrectionAlgorithm(String bsmMessageCountProgressionAlgorithm) {
+      this.bsmMessageCountProgressionAlgorithm = bsmMessageCountProgressionAlgorithm;
    }
 
    @Autowired
-   public void setBsmRevisionCounterAlgorithmParameters(BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters) {
-      this.bsmRevisionCounterAlgorithmParameters = bsmRevisionCounterAlgorithmParameters;
+   public void setBsmMessageCountProgressionAlgorithmParameters(BsmMessageCountProgressionParameters bsmMessageCountProgressionAlgorithmParameters) {
+      this.bsmMessageCountProgressionAlgorithmParameters = bsmMessageCountProgressionAlgorithmParameters;
    }
 
 
@@ -989,7 +989,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Enable Compression
       streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
-      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getLingerMs());
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");

@@ -31,6 +31,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapMessageCountProgressionEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatMessageCountProgressionEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmMessageCountProgressionEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapBoundingBox;
@@ -136,22 +140,22 @@ public class JsonSerdes {
             new JsonDeserializer<>(TimeChangeDetailsEvent.class));
     }
 
-    public static Serde<MapRevisionCounterEvent> MapRevisionCounterEvent() {
+    public static Serde<MapMessageCountProgressionEvent> MapMessageCountProgressionEvent() {
         return Serdes.serdeFrom(
-            new JsonSerializer<MapRevisionCounterEvent>(),
-            new JsonDeserializer<>(MapRevisionCounterEvent.class));
+            new JsonSerializer<MapMessageCountProgressionEvent>(),
+            new JsonDeserializer<>(MapMessageCountProgressionEvent.class));
     }
 
-    public static Serde<SpatRevisionCounterEvent> SpatRevisionCounterEvent() {
+    public static Serde<SpatMessageCountProgressionEvent> SpatMessageCountProgressionEvent() {
         return Serdes.serdeFrom(
-            new JsonSerializer<SpatRevisionCounterEvent>(),
-            new JsonDeserializer<>(SpatRevisionCounterEvent.class));
+            new JsonSerializer<SpatMessageCountProgressionEvent>(),
+            new JsonDeserializer<>(SpatMessageCountProgressionEvent.class));
     }
 
-    public static Serde<BsmRevisionCounterEvent> BsmRevisionCounterEvent() {
+    public static Serde<BsmMessageCountProgressionEvent> BsmMessageCountProgressionEvent() {
         return Serdes.serdeFrom(
-            new JsonSerializer<BsmRevisionCounterEvent>(),
-            new JsonDeserializer<>(BsmRevisionCounterEvent.class));
+            new JsonSerializer<BsmMessageCountProgressionEvent>(),
+            new JsonDeserializer<>(BsmMessageCountProgressionEvent.class));
     }
 
 
