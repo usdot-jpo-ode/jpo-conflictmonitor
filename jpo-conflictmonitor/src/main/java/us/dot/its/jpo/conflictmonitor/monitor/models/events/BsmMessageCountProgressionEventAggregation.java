@@ -1,5 +1,12 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class BsmMessageCountProgressionEventAggregation
     extends EventAggregation<BsmMessageCountProgressionEvent>{
 
@@ -9,7 +16,8 @@ public class BsmMessageCountProgressionEventAggregation
     }
 
     private String messageType;
-    private String vehicleId;
+    private String dataFrame;
+    private String change;
 
     @Override
     public void update(BsmMessageCountProgressionEvent event) {
