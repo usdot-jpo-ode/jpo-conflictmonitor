@@ -124,7 +124,7 @@ public class EventStateProgressionTopology
                         return aggKey;
 
                     })
-                    // Use same partitioner, IntertsectionIdPartitioner, so that repartition on new key will
+                    // Use same partitioner, IntersectionIdPartitioner, so that repartition on new key will
                     // not actually change the partitions of any items
                     .repartition(
                         Repartitioned.with(

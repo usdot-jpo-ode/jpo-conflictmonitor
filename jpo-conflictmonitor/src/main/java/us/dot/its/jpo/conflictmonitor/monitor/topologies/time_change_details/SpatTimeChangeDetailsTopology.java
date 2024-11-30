@@ -21,6 +21,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spa
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,7 @@ public class SpatTimeChangeDetailsTopology
         if (parameters.isAggregateEvents()) {
             // Aggregate events
 
+            // New key includes all fields to aggregate on
             var timeChangeEventAggKeyStream = timeChangeEventStream.selectKey((key, value) -> {
                 var aggKey = new TimeChangeDetailsAggregationKey();
                 aggKey.setRsuId(key.getRsuId());
@@ -78,7 +80,13 @@ public class SpatTimeChangeDetailsTopology
                 aggKey.setTimeMarkTypeA(value.getFirstTimeMarkType());
                 aggKey.setTimeMarkTypeB(value.getSecondTimeMarkType());
                 return aggKey;
-            });
+            })
+            // Use same partitioner, IntersectionIdPartitioner, so that repartition on new key will
+            // not actually change the partitions of any items
+            .repartition(
+                    Repartitioned.with(JsonSerdes.TimeChangeDetailsAggregationKey(),
+                            JsonSerdes.TimeChangeDetailsEvent())
+                            .withStreamPartitioner(new IntersectionIdPartitioner<>()));
             aggregationAlgorithm.buildTopology(builder, timeChangeEventAggKeyStream);
         } else {
             // Don't aggregate events

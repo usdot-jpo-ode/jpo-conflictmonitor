@@ -5,14 +5,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.Joined;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Printed;
-import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -419,6 +412,7 @@ public class MapSpatMessageAssessmentTopology
 
         if (parameters.isAggregateSignalStateConflictEvents()) {
             // Aggregate Signal State Conflict events
+            // New key includes all fields to aggregate on
             var signalStateConflictAggKeyStream
                     = signalStateConflictEventStream.selectKey((key, value) -> {
                      var aggKey = new SignalStateConflictAggregationKey();
@@ -430,7 +424,14 @@ public class MapSpatMessageAssessmentTopology
                      aggKey.setConflictingSignalGroupA(value.getFirstConflictingSignalGroup());
                      aggKey.setConflictingSignalGroupB(value.getSecondConflictingSignalGroup());
                      return aggKey;
-            });
+            })
+            // Use same partitioner so that repartition on new key will
+            // not actually change the partitions of any items
+            .repartition(
+                    Repartitioned.with(JsonSerdes.SignalStateConflictAggregationKey(),
+                            JsonSerdes.SignalStateConflictEvent())
+                            .withStreamPartitioner(new IntersectionIdPartitioner<>()));
+
             signalStateConflictAggregationAlgorithm.buildTopology(builder, signalStateConflictAggKeyStream);
         } else {
             // Don't aggregate Signal State Conflict events
