@@ -11,6 +11,8 @@ import lombok.Setter;
 @Generated
 public class SpatMessageCountProgressionEvent extends Event{
 
+    private String source;
+
     private String messageType;
     private int messageCountA;
     private String timestampA;

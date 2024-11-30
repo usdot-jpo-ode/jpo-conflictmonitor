@@ -8,4 +8,7 @@ public class AggregationConstants {
     public static final String DEFAULT_SIGNAL_GROUP_ALIGNMENT_AGGREGATION_ALGORITHM = "defaultSignalGroupAlignmentAggregationAlgorithm";
     public static final String DEFAULT_SIGNAL_STATE_CONFLICT_AGGREGATION_ALGORITHM = "defaultSignalStateConflictAggregationAlgorithm";
     public static final String DEFAULT_TIME_CHANGE_DETAILS_AGGREGATION_ALGORITHM = "defaultTimeChangeDetailsAggregationAlgorithm";
+    public static final String DEFAULT_BSM_MESSAGE_COUNT_PROGRESSION_AGGREGATION_ALGORITHM = "defaultBsmMessageCountProgressionAggregationAlgorithm";
+    public static final String DEFAULT_SPAT_MESSAGE_COUNT_PROGRESSION_AGGREGATION_ALGORITHM = "defaultSpatMessageCountProgressionAggregationAlgorithm";
+    public static final String DEFAULT_MAP_MESSAGE_COUNT_PROGRESSION_AGGREGATION_ALGORITHM = "defaultMapMessageCountProgressionAggregationAlgorithm";
 }

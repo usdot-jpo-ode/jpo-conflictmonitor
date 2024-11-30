@@ -563,6 +563,9 @@ aggregation:
     SignalStateConflictAggregation: topic.CmSignalStateConflictEventAggregation
     TimeChangeDetailsAggregation: topic.CmSpatTimeChangeDetailsEventAggregation
     EventStateProgressionAggregation: topic.CmEventStateProgressionEventAggregation
+    BsmMessageCountProgressionAggregation: topic.CmBsmMessageCountProgressionEventAggregation
+    MapMessageCountProgressionAggregation: topic.CmMapMessageCountProgressionEventAggregation
+    SpatMessageCountProgressionAggregation: topic.CmSpatMessageCountProgressionEventAggregation
   eventAlgorithmMap:
     SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
     MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm
@@ -571,6 +574,9 @@ aggregation:
     SignalStateConflictAggregation: defaultSignalStateConflictAggregationAlgorithm
     TimeChangeDetailsAggregation: defaultTimeChangeDetailsAggregationAlgorithm
     EventStateProgressionAggregation: defaultEventStateProgressionAggregationAlgorithm
+    BsmMessageCountProgressionAggregation: defaultBsmMessageCountProgressionAggregationAlgorithm
+    MapMessageCountProgressionAggregation: defaultMapMessageCountProgressionAggregationAlgorithm
+    SpatMessageCountProgressionAggregation: defaultSpatMessageCountProgressionAggregationAlgorithm
 
 
 

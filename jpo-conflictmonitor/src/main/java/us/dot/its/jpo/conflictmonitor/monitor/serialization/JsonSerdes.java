@@ -3,8 +3,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.serialization;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.VehicleEvent;
@@ -488,6 +491,42 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
                 new JsonSerializer<TimeChangeDetailsEventAggregation>(),
                 new JsonDeserializer<>(TimeChangeDetailsEventAggregation.class));
+    }
+
+    public static Serde<BsmMessageCountProgressionEventAggregation> BsmMessageCountProgressionEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(BsmMessageCountProgressionEventAggregation.class));
+    }
+
+    public static Serde<BsmMessageCountProgressionAggregationKey> BsmMessageCountProgressionAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(BsmMessageCountProgressionAggregationKey.class));
+    }
+
+    public static Serde<MapMessageCountProgressionEventAggregation> MapMessageCountProgressionEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(MapMessageCountProgressionEventAggregation.class));
+    }
+
+    public static Serde<MapMessageCountProgressionAggregationKey> MapMessageCountProgressionAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(MapMessageCountProgressionAggregationKey.class));
+    }
+
+    public static Serde<SpatMessageCountProgressionEventAggregation> SpatMessageCountProgressionEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(SpatMessageCountProgressionEventAggregation.class));
+    }
+
+    public static Serde<SpatMessageCountProgressionAggregationKey> SpatMessageCountProgressionAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(SpatMessageCountProgressionAggregationKey.class));
     }
 
 }
