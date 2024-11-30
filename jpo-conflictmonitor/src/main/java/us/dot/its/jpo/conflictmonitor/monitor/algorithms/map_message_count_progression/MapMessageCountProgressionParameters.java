@@ -54,4 +54,9 @@ public class MapMessageCountProgressionParameters {
         units = UnitsEnum.MILLISECONDS,
         updateType = READ_ONLY)
     volatile int bufferGracePeriodMs;
+
+    @ConfigData(key = "map.message.count.progression.aggregateEvents",
+        description = "Whether to aggregate events",
+        updateType = READ_ONLY)
+    boolean aggregateEvents;
 }

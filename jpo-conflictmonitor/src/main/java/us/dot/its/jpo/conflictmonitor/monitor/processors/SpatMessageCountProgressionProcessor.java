@@ -12,10 +12,10 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.VersionedKeyValueStore;
 import org.apache.kafka.streams.state.VersionedRecord;
 import org.apache.kafka.streams.state.VersionedRecordIterator;
-import org.springframework.beans.factory.annotation.Value;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SpatMessageCountProgressionEvent;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import java.time.Instant;
@@ -23,10 +23,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
-public class SpatMessageCountProgressionProcessor extends ContextualProcessor<String, ProcessedSpat, String, SpatMessageCountProgressionEvent> {
+public class SpatMessageCountProgressionProcessor extends ContextualProcessor<RsuIntersectionKey, ProcessedSpat, RsuIntersectionKey, SpatMessageCountProgressionEvent> {
 
-    private VersionedKeyValueStore<String, ProcessedSpat> stateStore;
-    private KeyValueStore<String, ProcessedSpat> lastProcessedStateStore;
+    private VersionedKeyValueStore<RsuIntersectionKey, ProcessedSpat> stateStore;
+    private KeyValueStore<RsuIntersectionKey, ProcessedSpat> lastProcessedStateStore;
     private final SpatMessageCountProgressionParameters parameters;
 
     public SpatMessageCountProgressionProcessor(SpatMessageCountProgressionParameters parameters) {
@@ -34,15 +34,15 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<St
     }
 
     @Override
-    public void init(ProcessorContext<String, SpatMessageCountProgressionEvent> context) {
+    public void init(ProcessorContext<RsuIntersectionKey, SpatMessageCountProgressionEvent> context) {
         super.init(context);
         stateStore = context.getStateStore(parameters.getProcessedSpatStateStoreName());
         lastProcessedStateStore = context.getStateStore(parameters.getLatestSpatStateStoreName());
     }
 
     @Override
-    public void process(Record<String, ProcessedSpat> record) {
-        String key = record.key();
+    public void process(Record<RsuIntersectionKey, ProcessedSpat> record) {
+        RsuIntersectionKey key = record.key();
         ProcessedSpat value = record.value();
         long timestamp = record.timestamp();
     
@@ -69,7 +69,7 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<St
             excludeGracePeriod = startTime;
         }
         
-        var query = MultiVersionedKeyQuery.<String, ProcessedSpat>withKey(record.key())
+        var query = MultiVersionedKeyQuery.<RsuIntersectionKey, ProcessedSpat>withKey(record.key())
             .fromTime(startTime.minusMillis(1)) // Add a small buffer to include the exact startTime record
             .toTime(excludeGracePeriod)
             .withAscendingTimestamps();
@@ -146,8 +146,8 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<St
         event.setMessageCountB(thisState.getRevision());
         event.setTimestampB(thisState.getUtcTimeStamp().format(formatter));
         event.setIntersectionID(thisState.getIntersectionId());
-        event.setRoadRegulatorID(-1);
-
+        event.setRoadRegulatorID(thisState.getRegion());
+        event.setSource(thisState.getOriginIp());
         return event;
     }
 

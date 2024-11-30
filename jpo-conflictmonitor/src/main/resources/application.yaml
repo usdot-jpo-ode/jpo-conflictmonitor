@@ -453,6 +453,7 @@ map.message.count.progression:
   latestMapStateStoreName: latestMapStateStore
   bufferTimeMs: 5000
   bufferGracePeriodMs: 800
+  aggregateEvents: true
 
 # SPAT Message Count Progression
 spat.message.count.progression:
@@ -464,6 +465,7 @@ spat.message.count.progression:
   latestSpatStateStoreName: latestSpatStateStore
   bufferTimeMs: 500
   bufferGracePeriodMs: 50
+  aggregateEvents: true
 
 # BSM Message Count Progression
 bsm.message.count.progression:
@@ -475,6 +477,7 @@ bsm.message.count.progression:
   latestBsmStateStoreName: latestBsmStateStore
   bufferTimeMs: 500
   bufferGracePeriodMs: 50
+  aggregateEvents: true
   
 # Config parameters
 config:

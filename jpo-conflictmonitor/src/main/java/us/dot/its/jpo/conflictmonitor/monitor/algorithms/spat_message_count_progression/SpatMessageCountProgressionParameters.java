@@ -55,4 +55,8 @@ public class SpatMessageCountProgressionParameters {
         updateType = READ_ONLY)
     volatile int bufferGracePeriodMs;
 
+    @ConfigData(key = "spat.message.count.progression.aggregateEvents",
+        description = "Whether to aggregate events",
+        updateType = READ_ONLY)
+    boolean aggregateEvents;
 }

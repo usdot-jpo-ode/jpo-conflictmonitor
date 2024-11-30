@@ -15,6 +15,7 @@ import org.apache.kafka.streams.state.VersionedRecordIterator;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.MapMessageCountProgressionEvent;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 
@@ -23,10 +24,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
-public class MapMessageCountProgressionProcessor extends ContextualProcessor<String, ProcessedMap<LineString>, String, MapMessageCountProgressionEvent> {
+public class MapMessageCountProgressionProcessor extends ContextualProcessor<RsuIntersectionKey, ProcessedMap<LineString>, RsuIntersectionKey, MapMessageCountProgressionEvent> {
 
-    private VersionedKeyValueStore<String, ProcessedMap<LineString>> stateStore;
-    private KeyValueStore<String, ProcessedMap<LineString>> lastProcessedStateStore;
+    private VersionedKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> stateStore;
+    private KeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> lastProcessedStateStore;
     private final MapMessageCountProgressionParameters parameters;
 
     public MapMessageCountProgressionProcessor(MapMessageCountProgressionParameters parameters) {
@@ -34,15 +35,15 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Str
     }
 
     @Override
-    public void init(ProcessorContext<String, MapMessageCountProgressionEvent> context) {
+    public void init(ProcessorContext<RsuIntersectionKey, MapMessageCountProgressionEvent> context) {
         super.init(context);
         stateStore = context.getStateStore(parameters.getProcessedMapStateStoreName());
         lastProcessedStateStore = context.getStateStore(parameters.getLatestMapStateStoreName());
     }
 
     @Override
-    public void process(Record<String, ProcessedMap<LineString>> record) {
-        String key = record.key();
+    public void process(Record<RsuIntersectionKey, ProcessedMap<LineString>> record) {
+        RsuIntersectionKey key = record.key();
         ProcessedMap<LineString> value = record.value();
         long timestamp = record.timestamp();
 
@@ -69,7 +70,7 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Str
             excludeGracePeriod = startTime;
         }
 
-        var query = MultiVersionedKeyQuery.<String, ProcessedMap<LineString>>withKey(record.key())
+        var query = MultiVersionedKeyQuery.<RsuIntersectionKey, ProcessedMap<LineString>>withKey(record.key())
                 .fromTime(startTime.minusMillis(1)) // Add a small buffer to include the exact startTime record
                 .toTime(excludeGracePeriod)
                 .withAscendingTimestamps();
@@ -157,9 +158,9 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Str
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         event.setTimestampA(previousState.getProperties().getOdeReceivedAt().format(formatter));
         event.setTimestampB(thisState.getProperties().getOdeReceivedAt().format(formatter));
-        event.setRoadRegulatorID(-1);
+        event.setRoadRegulatorID(thisState.getProperties().getRegion());
         event.setIntersectionID(thisState.getProperties().getIntersectionId());
-
+        event.setSource(thisState.getProperties().getOriginIp());
         return event;
     }
 
