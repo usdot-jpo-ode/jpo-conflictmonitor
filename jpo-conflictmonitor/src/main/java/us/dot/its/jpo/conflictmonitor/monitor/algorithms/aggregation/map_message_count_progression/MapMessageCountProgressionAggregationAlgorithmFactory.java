@@ -1,4 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression;
 
 public interface MapMessageCountProgressionAggregationAlgorithmFactory {
+    MapMessageCountProgressionAggregationAlgorithm getAlgorithm(String algorithmName);
 }

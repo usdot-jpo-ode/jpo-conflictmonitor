@@ -6,6 +6,7 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Repartitioned;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -110,16 +111,26 @@ public class EventStateProgressionTopology
 
         if (parameters.isAggregateEvents()) {
             // Aggregate events
-            var signalGroupStatesAggKey = signalGroupStates.selectKey((key, value) -> {
-                var aggKey = new EventStateProgressionAggregationKey();
-                aggKey.setRsuId(key.getRsuId());
-                aggKey.setIntersectionId(key.getIntersectionId());
-                aggKey.setRegion(key.getRegion());
-                aggKey.setSignalGroup(value.getSignalGroupID());
-                aggKey.setEventStateA(value.getEventStateA());
-                aggKey.setEventStateB(value.getEventStateB());
-                return aggKey;
-            });
+            // New key includes all fields to aggregate on
+            var signalGroupStatesAggKey =
+                    signalGroupStates.selectKey((key, value) -> {
+                        var aggKey = new EventStateProgressionAggregationKey();
+                        aggKey.setRsuId(key.getRsuId());
+                        aggKey.setIntersectionId(key.getIntersectionId());
+                        aggKey.setRegion(key.getRegion());
+                        aggKey.setSignalGroup(value.getSignalGroupID());
+                        aggKey.setEventStateA(value.getEventStateA());
+                        aggKey.setEventStateB(value.getEventStateB());
+                        return aggKey;
+
+                    })
+                    // Use same partitioner, IntertsectionIdPartitioner, so that repartition on new key will
+                    // not actually change the partitions of any items
+                    .repartition(
+                        Repartitioned.with(
+                                        JsonSerdes.EventStateProgressionAggregationKey(),
+                                        JsonSerdes.EventStateProgressionEvent())
+                                .withStreamPartitioner(new IntersectionIdPartitioner<>()));
             aggregationAlgorithm.buildTopology(builder, signalGroupStatesAggKey);
         } else {
             // Don't aggregate events
