@@ -12,11 +12,14 @@ import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
 import us.dot.its.jpo.conflictmonitor.StateChangeHandler;
 import us.dot.its.jpo.conflictmonitor.StreamsExceptionHandler;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithm;
@@ -364,60 +367,14 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(connectionofTravelAssessmentAlgo::stop));
             connectionofTravelAssessmentAlgo.start();
 
-
             //Map Message Count Progression Topology
-            final String mapMessageCountProgression = "mapMessageCountProgression";
-            final MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgoFactory = conflictMonitorProps.getMapMessageCountProgressionAlgorithmFactory();
-            final String mapMessageCountProgressionAlgorithm = conflictMonitorProps.getMapMessageCountProgressionAlgorithm();
-            final MapMessageCountProgressionAlgorithm mapMessageCountProgressionAlgo = mapMessageCountProgressionAlgoFactory.getAlgorithm(mapMessageCountProgressionAlgorithm);
-            final MapMessageCountProgressionParameters mapMessageCountProgressionParams = conflictMonitorProps.getMapMessageCountProgressionAlgorithmParameters();
-            configTopology.registerConfigListeners(mapMessageCountProgressionParams);
-            if (mapMessageCountProgressionAlgo instanceof StreamsTopology) {     
-                final var streamsAlgo = (StreamsTopology)mapMessageCountProgressionAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapMessageCountProgression));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapMessageCountProgression, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapMessageCountProgression, healthTopic));
-                algoMap.put(mapMessageCountProgression, streamsAlgo);
-            }
-            mapMessageCountProgressionAlgo.setParameters(mapMessageCountProgressionParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(mapMessageCountProgressionAlgo::stop));
-            mapMessageCountProgressionAlgo.start();
+            startMapMessageCountProgressionAlgorithm();
 
             //Spat Message Count Progression Topology
-            final String spatMessageCountProgression = "spatMessageCountProgression";
-            final SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgoFactory = conflictMonitorProps.getSpatMessageCountProgressionAlgorithmFactory();
-            final String spatMessageCountProgressionAlgorithm = conflictMonitorProps.getSpatMessageCountProgressionAlgorithm();
-            final SpatMessageCountProgressionAlgorithm spatMessageCountProgressionAlgo = spatMessageCountProgressionAlgoFactory.getAlgorithm(spatMessageCountProgressionAlgorithm);
-            final SpatMessageCountProgressionParameters spatMessageCountProgressionParams = conflictMonitorProps.getSpatMessageCountProgressionAlgorithmParameters();
-            configTopology.registerConfigListeners(spatMessageCountProgressionParams);
-            if (spatMessageCountProgressionAlgo instanceof StreamsTopology) {     
-                final var streamsAlgo = (StreamsTopology)spatMessageCountProgressionAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatMessageCountProgression));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatMessageCountProgression, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatMessageCountProgression, healthTopic));
-                algoMap.put(spatMessageCountProgression, streamsAlgo);
-            }
-            spatMessageCountProgressionAlgo.setParameters(spatMessageCountProgressionParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(spatMessageCountProgressionAlgo::stop));
-            spatMessageCountProgressionAlgo.start();
+            startSpatMessageCountProgressionAlgorithm();
             
             //Bsm Message Count Progression Topology
-            final String bsmMessageCountProgression = "bsmMessageCountProgression";
-            final BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgoFactory = conflictMonitorProps.getBsmMessageCountProgressionAlgorithmFactory();
-            final String bsmMessageCountProgressionAlgorithm = conflictMonitorProps.getBsmMessageCountProgressionAlgorithm();
-            final BsmMessageCountProgressionAlgorithm bsmMessageCountProgressionAlgo = bsmMessageCountProgressionAlgoFactory.getAlgorithm(bsmMessageCountProgressionAlgorithm);
-            final BsmMessageCountProgressionParameters bsmMessageCountProgressionParams = conflictMonitorProps.getBsmMessageCountProgressionAlgorithmParameters();
-            configTopology.registerConfigListeners(bsmMessageCountProgressionParams);
-            if (bsmMessageCountProgressionAlgo instanceof StreamsTopology) {     
-                final var streamsAlgo = (StreamsTopology)bsmMessageCountProgressionAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmMessageCountProgression));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmMessageCountProgression, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmMessageCountProgression, healthTopic));
-                algoMap.put(bsmMessageCountProgression, streamsAlgo);
-            }
-            bsmMessageCountProgressionAlgo.setParameters(bsmMessageCountProgressionParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(bsmMessageCountProgressionAlgo::stop));
-            bsmMessageCountProgressionAlgo.start();
+            startBsmMessageCountProgressionAlgorithm();
 
             // Combined Event Topology
             final String event = "event";
@@ -549,6 +506,78 @@ public class MonitorServiceController {
         mapSpatAlignmentAlgo.start();
     }
 
+    private void startMapMessageCountProgressionAlgorithm() {
+        final String mapMessageCountProgression = "mapMessageCountProgression";
+        final MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgoFactory = conflictMonitorProps.getMapMessageCountProgressionAlgorithmFactory();
+        final String mapMessageCountProgressionAlgorithm = conflictMonitorProps.getMapMessageCountProgressionAlgorithm();
+        final MapMessageCountProgressionAlgorithm mapMessageCountProgressionAlgo = mapMessageCountProgressionAlgoFactory.getAlgorithm(mapMessageCountProgressionAlgorithm);
+        final MapMessageCountProgressionParameters mapMessageCountProgressionParams = conflictMonitorProps.getMapMessageCountProgressionAlgorithmParameters();
+        configTopology.registerConfigListeners(mapMessageCountProgressionParams);
+        if (mapMessageCountProgressionAlgo instanceof StreamsTopology) {
+            final var streamsAlgo = (StreamsTopology)mapMessageCountProgressionAlgo;
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(mapMessageCountProgression));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, mapMessageCountProgression, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, mapMessageCountProgression, healthTopic));
+            algoMap.put(mapMessageCountProgression, streamsAlgo);
+        }
+        mapMessageCountProgressionAlgo.setParameters(mapMessageCountProgressionParams);
+
+        // Plug in aggregation algorithm
+        var aggregationAlgorithm = getMapMessageCountProgressionAggregationAlgorithm();
+        mapMessageCountProgressionAlgo.setAggregationAlgorithm(aggregationAlgorithm);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(mapMessageCountProgressionAlgo::stop));
+        mapMessageCountProgressionAlgo.start();
+    }
+
+    private void startSpatMessageCountProgressionAlgorithm() {
+        final String spatMessageCountProgression = "spatMessageCountProgression";
+        final SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgoFactory = conflictMonitorProps.getSpatMessageCountProgressionAlgorithmFactory();
+        final String spatMessageCountProgressionAlgorithm = conflictMonitorProps.getSpatMessageCountProgressionAlgorithm();
+        final SpatMessageCountProgressionAlgorithm spatMessageCountProgressionAlgo = spatMessageCountProgressionAlgoFactory.getAlgorithm(spatMessageCountProgressionAlgorithm);
+        final SpatMessageCountProgressionParameters spatMessageCountProgressionParams = conflictMonitorProps.getSpatMessageCountProgressionAlgorithmParameters();
+        configTopology.registerConfigListeners(spatMessageCountProgressionParams);
+        if (spatMessageCountProgressionAlgo instanceof StreamsTopology) {
+            final var streamsAlgo = (StreamsTopology)spatMessageCountProgressionAlgo;
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatMessageCountProgression));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatMessageCountProgression, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatMessageCountProgression, healthTopic));
+            algoMap.put(spatMessageCountProgression, streamsAlgo);
+        }
+        spatMessageCountProgressionAlgo.setParameters(spatMessageCountProgressionParams);
+
+        // Plug in aggregation algorithm
+        var aggregationAlgorithm = getSpatMessageCountProgressionAggregationAlgorithm();
+        spatMessageCountProgressionAlgo.setAggregationAlgorithm(aggregationAlgorithm);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(spatMessageCountProgressionAlgo::stop));
+        spatMessageCountProgressionAlgo.start();
+    }
+
+    private void startBsmMessageCountProgressionAlgorithm() {
+        final String bsmMessageCountProgression = "bsmMessageCountProgression";
+        final BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgoFactory = conflictMonitorProps.getBsmMessageCountProgressionAlgorithmFactory();
+        final String bsmMessageCountProgressionAlgorithm = conflictMonitorProps.getBsmMessageCountProgressionAlgorithm();
+        final BsmMessageCountProgressionAlgorithm bsmMessageCountProgressionAlgo = bsmMessageCountProgressionAlgoFactory.getAlgorithm(bsmMessageCountProgressionAlgorithm);
+        final BsmMessageCountProgressionParameters bsmMessageCountProgressionParams = conflictMonitorProps.getBsmMessageCountProgressionAlgorithmParameters();
+        configTopology.registerConfigListeners(bsmMessageCountProgressionParams);
+        if (bsmMessageCountProgressionAlgo instanceof StreamsTopology) {
+            final var streamsAlgo = (StreamsTopology)bsmMessageCountProgressionAlgo;
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(bsmMessageCountProgression));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, bsmMessageCountProgression, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, bsmMessageCountProgression, healthTopic));
+            algoMap.put(bsmMessageCountProgression, streamsAlgo);
+        }
+        bsmMessageCountProgressionAlgo.setParameters(bsmMessageCountProgressionParams);
+
+        // Plug in aggregation algorithm
+        var aggregationAlgorithm = getBsmMessageCountProgressionAggregationAlgorithm();
+        bsmMessageCountProgressionAlgo.setAggregationAlgorithm(aggregationAlgorithm);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(bsmMessageCountProgressionAlgo::stop));
+        bsmMessageCountProgressionAlgo.start();
+    }
+
     private MapTimestampDeltaAlgorithm getMapTimestampDeltaAlgorithm() {
         final var factory = conflictMonitorProps.getMapTimestampDeltaAlgorithmFactory();
         final String algorithmName = conflictMonitorProps.getMapTimestampDeltaAlgorithm();
@@ -637,6 +666,33 @@ public class MonitorServiceController {
     private EventStateProgressionAggregationAlgorithm getEventStateProgressionAggregationAlgorithm() {
         final var factory = conflictMonitorProps.getEventStateProgressionAggregationAlgorithmFactory();
         final String algorithmName = conflictMonitorProps.getEventStateProgressionAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private MapMessageCountProgressionAggregationAlgorithm getMapMessageCountProgressionAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getMapMessageCountProgressionAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getMapMessageCountProgressionAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private SpatMessageCountProgressionAggregationAlgorithm getSpatMessageCountProgressionAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getSpatMessageCountProgressionAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getSpatMessageCountProgressionAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private BsmMessageCountProgressionAggregationAlgorithm getBsmMessageCountProgressionAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getBsmMessageCountProgressionAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getBsmMessageCountProgressionAggregationAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
         final var parameters = conflictMonitorProps.getAggregationParameters();
         algorithm.setParameters(parameters);
