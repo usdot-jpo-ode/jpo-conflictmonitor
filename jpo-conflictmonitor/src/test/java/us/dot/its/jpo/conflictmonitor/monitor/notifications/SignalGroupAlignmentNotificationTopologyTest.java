@@ -2562,9 +2562,9 @@ public class SignalGroupAlignmentNotificationTopologyTest {
                     Serdes.String().serializer());
 
 
-            TestOutputTopic<String, SignalGroupAlignmentNotification> outputNotificationTopic = driver.createOutputTopic(
+            TestOutputTopic<RsuIntersectionKey, SignalGroupAlignmentNotification> outputNotificationTopic = driver.createOutputTopic(
                 kafkaTopicSignalGroupAlignmentNotificationTopicName,
-                    Serdes.String().deserializer(),
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(),
                     JsonSerdes.SignalGroupAlignmentNotification().deserializer());
 
 
@@ -2578,12 +2578,12 @@ public class SignalGroupAlignmentNotificationTopologyTest {
             
 
 
-            List<KeyValue<String, SignalGroupAlignmentNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
+            List<KeyValue<RsuIntersectionKey, SignalGroupAlignmentNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
             assertEquals(1, notificationResults.size());
             
-            KeyValue<String, SignalGroupAlignmentNotification> notificationKeyValue = notificationResults.get(0);
+            KeyValue<RsuIntersectionKey, SignalGroupAlignmentNotification> notificationKeyValue = notificationResults.get(0);
 
-            assertEquals(mapSpatKey.toString(), notificationKeyValue.key);
+            assertEquals(mapSpatKey, notificationKeyValue.key);
 
             SignalGroupAlignmentNotification notification = notificationKeyValue.value;
 
@@ -2649,9 +2649,9 @@ public class SignalGroupAlignmentNotificationTopologyTest {
                     Serdes.String().serializer());
 
 
-            TestOutputTopic<String, SignalStateConflictNotification> outputNotificationTopic = driver.createOutputTopic(
+            TestOutputTopic<RsuIntersectionKey, SignalStateConflictNotification> outputNotificationTopic = driver.createOutputTopic(
                 kafkaTopicSignalStateConflictNotificationTopicName,
-                    Serdes.String().deserializer(),
+                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().deserializer(),
                     JsonSerdes.SignalStateConflictNotification().deserializer());
 
 
@@ -2666,16 +2666,16 @@ public class SignalGroupAlignmentNotificationTopologyTest {
             
 
 
-            List<KeyValue<String, SignalStateConflictNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
+            List<KeyValue<RsuIntersectionKey, SignalStateConflictNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
 
 
             
             assertEquals(2, notificationResults.size());
             
-            KeyValue<String, SignalStateConflictNotification> notificationKeyValue = notificationResults.get(0);
+            KeyValue<RsuIntersectionKey, SignalStateConflictNotification> notificationKeyValue = notificationResults.get(0);
 
 
-            assertEquals(mapSpatKey.toString(), notificationKeyValue.key);
+            assertEquals(mapSpatKey, notificationKeyValue.key);
 
             SignalStateConflictNotification notification = notificationKeyValue.value;
 
