@@ -614,6 +614,7 @@ public class MonitorServiceController {
         return algorithm;
     }
 
+
     private TimeChangeDetailsAggregationAlgorithm getTimeChangeDetailsAggregationAlgorithm() {
         final var factory = conflictMonitorProps.getTimeChangeDetailsAggregationAlgorithmFactory();
         final String algorithmName = conflictMonitorProps.getTimeChangeDetailsAggregationAlgorithm();
