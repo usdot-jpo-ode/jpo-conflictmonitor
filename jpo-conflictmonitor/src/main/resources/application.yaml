@@ -517,6 +517,7 @@ event.state.progression:
   debug: true
   outputTopicName: topic.CmEventStateProgressionEvent
   notificationTopicName: topic.CmEventStateProgressionNotification
+  aggNotificationTopicName: topic.CmEventStateProgressionNotificationAggregation
   movementStateStoreName: spatTransitionStateStore
   latestTransitionStoreName: latestTransitionStateStore
   bufferTimeMs: 1000

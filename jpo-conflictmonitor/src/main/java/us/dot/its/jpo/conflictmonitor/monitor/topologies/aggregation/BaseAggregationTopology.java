@@ -27,8 +27,7 @@ public abstract class BaseAggregationTopology<TKey, TEvent extends Event, TAggEv
         AggregationStreamsAlgorithmInterface<TKey, TEvent, TAggEvent> {
 
     @Override
-    public void buildTopology(StreamsBuilder builder, KStream<TKey, TEvent> inputStream) {
-
+    public KStream<TKey, TAggEvent> buildTopology(StreamsBuilder builder, KStream<TKey, TEvent> inputStream) {
 
         final String eventName = eventAggregationType();
 
@@ -65,7 +64,7 @@ public abstract class BaseAggregationTopology<TKey, TEvent extends Event, TAggEv
         builder.addStateStore(eventStoreBuilder);
         builder.addStateStore(keyStoreBuilder);
 
-        inputStream
+        var aggEventStream = inputStream
                 .process(
                         () -> new EventAggregationProcessor<TKey, TEvent, TAggEvent>(
                                 eventStoreName,
@@ -73,14 +72,19 @@ public abstract class BaseAggregationTopology<TKey, TEvent extends Event, TAggEv
                                 parameters,
                                 this::constructEventAggregation,
                                 eventName),
-                        eventStoreName, keyStoreName)
-                .to(eventAggregationTopic,
+                        eventStoreName, keyStoreName);
+
+        aggEventStream.to(eventAggregationTopic,
                         Produced.with(
                                 keySerde(),
                                 eventAggregationSerde(),
                                 eventAggregationPartitioner()));
 
+        // Return the KStream for topologies that produce notifications
+        return aggEventStream;
     }
+
+
 
     @Override
     protected abstract Logger getLogger();

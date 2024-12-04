@@ -21,6 +21,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.EventStatePro
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.EventStateProgressionNotificationAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.EventStateProgressionProcessor;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -131,7 +132,20 @@ public class EventStateProgressionTopology
                                         JsonSerdes.EventStateProgressionAggregationKey(),
                                         JsonSerdes.EventStateProgressionEvent())
                                 .withStreamPartitioner(new IntersectionIdPartitioner<>()));
-            aggregationAlgorithm.buildTopology(builder, signalGroupStatesAggKey);
+            var aggSignalGroupStates = aggregationAlgorithm.buildTopology(builder, signalGroupStatesAggKey);
+
+            // Send aggregatedd notifications
+            aggSignalGroupStates
+                    .mapValues(aggEvent -> {
+                        var aggNotification = new EventStateProgressionNotificationAggregation();
+                        aggNotification.setEventAggregation(aggEvent);
+                        return aggNotification;
+                    }).to(parameters.getAggNotificationTopicName(),
+                                Produced.with(
+                                        JsonSerdes.EventStateProgressionAggregationKey(),
+                                        JsonSerdes.EventStateProgressionNotificationAggregation(),
+                                        new IntersectionIdPartitioner<>()));
+
         } else {
             // Don't aggregate events
             // Send events to topic
@@ -140,21 +154,22 @@ public class EventStateProgressionTopology
                             JsonSerdes.RsuIntersectionSignalGroupKey(),
                             JsonSerdes.EventStateProgressionEvent(),
                             new IntersectionIdPartitioner<>()));
+
+            // Send notifications to topic
+            signalGroupStates
+                    .mapValues(event -> {
+                        var notification = new EventStateProgressionNotification();
+                        notification.setEvent(event);
+                        return notification;
+                    })
+                    .to(parameters.getNotificationTopicName(),
+                            Produced.with(
+                                    JsonSerdes.RsuIntersectionSignalGroupKey(),
+                                    JsonSerdes.EventStateProgressionNotification(),
+                                    new IntersectionIdPartitioner<>()));
         }
 
-        // Send notifications to topic
-        // TODO Aggregate notifications
-        signalGroupStates
-                .mapValues(event -> {
-                    var notification = new EventStateProgressionNotification();
-                    notification.setEvent(event);
-                    return notification;
-                })
-                .to(parameters.getNotificationTopicName(),
-                        Produced.with(
-                                JsonSerdes.RsuIntersectionSignalGroupKey(),
-                                JsonSerdes.EventStateProgressionNotification(),
-                                new IntersectionIdPartitioner<>()));
+
 
 
     }

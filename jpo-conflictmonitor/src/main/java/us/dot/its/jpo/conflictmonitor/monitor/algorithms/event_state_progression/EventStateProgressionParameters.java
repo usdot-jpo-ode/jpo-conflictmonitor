@@ -39,6 +39,11 @@ public class EventStateProgressionParameters {
             updateType = READ_ONLY)
     String notificationTopicName;
 
+    @ConfigData(key = "event.state.progression.aggNotificationTopicName",
+        description = "Topic of aggregated notifications",
+        updateType = READ_ONLY)
+    String aggNotificationTopicName;
+
     @ConfigData(key = "event.state.progression.signalGroupStateStoreName",
             description = "Name of the versioned state store for the spat buffer",
             updateType = READ_ONLY)

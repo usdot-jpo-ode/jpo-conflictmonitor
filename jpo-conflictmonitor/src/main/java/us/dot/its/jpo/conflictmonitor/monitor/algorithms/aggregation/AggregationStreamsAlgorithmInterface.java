@@ -17,7 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
  */
 public interface AggregationStreamsAlgorithmInterface<TKey, TEvent extends Event, TAggEvent extends EventAggregation<TEvent>> {
 
-    void buildTopology(StreamsBuilder builder, KStream<TKey, TEvent> inputStream);
+    KStream<TKey, TAggEvent> buildTopology(StreamsBuilder builder, KStream<TKey, TEvent> inputStream);
 
     Class<TKey> keyClass();
 

@@ -56,7 +56,13 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = SignalStateConflictEventAggregation.class, name = "SignalStateConflictAggregation"),
         @JsonSubTypes.Type(value = TimeChangeDetailsEventAggregation.class, name = "TimeChangeDetailsAggregation"),
         @JsonSubTypes.Type(value = EventStateProgressionEventAggregation.class,
-                name = "EventStateProgressionAggregation")
+                name = "EventStateProgressionAggregation"),
+        @JsonSubTypes.Type(value = BsmMessageCountProgressionEventAggregation.class,
+                name = "BsmMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = SpatMessageCountProgressionEventAggregation.class,
+                name = "SpatMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = MapMessageCountProgressionEventAggregation.class,
+                name = "MapMessageCountProgressionAggregation")
 })
 @Getter
 @Setter

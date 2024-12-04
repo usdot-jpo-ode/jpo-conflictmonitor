@@ -529,4 +529,34 @@ public class JsonSerdes {
                 new JsonDeserializer<>(SpatMessageCountProgressionAggregationKey.class));
     }
 
+    public static Serde<EventStateProgressionNotificationAggregation> EventStateProgressionNotificationAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(EventStateProgressionNotificationAggregation.class));
+    }
+
+    public static Serde<IntersectionReferenceAlignmentNotificationAggregation> IntersectionReferenceAlignmentNotificationAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(IntersectionReferenceAlignmentNotificationAggregation.class));
+    }
+
+    public static Serde<SignalGroupAlignmentNotificationAggregation> SignalGroupAlignmentNotificationAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(SignalGroupAlignmentNotificationAggregation.class));
+    }
+
+    public static Serde<SignalStateConflictNotificationAggregation> SignalStateConflictNotificationAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(SignalStateConflictNotificationAggregation.class));
+    }
+
+    public static Serde<TimeChangeDetailsNotificationAggregation> TimeChangeDetailsNotificationAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(TimeChangeDetailsNotificationAggregation.class);
+        )
+    }
 }
