@@ -556,7 +556,6 @@ public class JsonSerdes {
     public static Serde<TimeChangeDetailsNotificationAggregation> TimeChangeDetailsNotificationAggregation() {
         return Serdes.serdeFrom(
                 new JsonSerializer<>(),
-                new JsonDeserializer<>(TimeChangeDetailsNotificationAggregation.class);
-        )
+                new JsonDeserializer<>(TimeChangeDetailsNotificationAggregation.class));
     }
 }

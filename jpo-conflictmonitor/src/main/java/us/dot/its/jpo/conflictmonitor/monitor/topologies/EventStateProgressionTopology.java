@@ -134,7 +134,7 @@ public class EventStateProgressionTopology
                                 .withStreamPartitioner(new IntersectionIdPartitioner<>()));
             var aggSignalGroupStates = aggregationAlgorithm.buildTopology(builder, signalGroupStatesAggKey);
 
-            // Send aggregatedd notifications
+            // Send aggregated notifications
             aggSignalGroupStates
                     .mapValues(aggEvent -> {
                         var aggNotification = new EventStateProgressionNotificationAggregation();
