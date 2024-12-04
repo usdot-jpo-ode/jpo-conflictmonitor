@@ -28,10 +28,12 @@ public class LaneConnection {
     public LineString calculateConnectingLineString(int numIntermediatePoints){
 
         int egressPointCount = egressLane.getPoints().getNumPoints();
-        Point startPoint = ingressLane.getPoints().getPointN(0);
+        Point startPoint = ingressLane.getOriginPoint();
+        // Point startPoint = ingressLane.getPoints().getPointN(0);
         Point leadInPoint = ingressLane.getPoints().getPointN(1);
 
-        Point endPoint = egressLane.getPoints().getPointN(egressPointCount-1);
+        Point endPoint = egressLane.getDestinationPoint();
+        // Point endPoint = egressLane.getPoints().getPointN(egressPointCount-1);
         Point leadOutPoint = egressLane.getPoints().getPointN(egressPointCount-2);
 
         
@@ -93,6 +95,14 @@ public class LaneConnection {
 
         PackedCoordinateSequence.Double sequence = new PackedCoordinateSequence.Double(connection);
         return new LineString(sequence, this.ingressLane.getGeometryFactory());
+    }
+
+    public boolean isPedestrianConnection(){
+        return this.ingressLane.isPedestrian();
+    }
+
+    public boolean crosses(Lane otherLane){
+        return this.connectingLineString.crosses(otherLane.getPoints());
     }
 
     public boolean crosses(LaneConnection otherConnection){

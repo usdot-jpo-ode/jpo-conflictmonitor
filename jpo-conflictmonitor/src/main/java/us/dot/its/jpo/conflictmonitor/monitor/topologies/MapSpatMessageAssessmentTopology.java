@@ -21,6 +21,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
@@ -42,6 +43,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
+import us.dot.its.jpo.ode.plugin.j2735.J2735LaneTypeAttributes;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.*;
@@ -71,6 +73,11 @@ public class MapSpatMessageAssessmentTopology
                 }
             }
         }
+
+        if(signalGroup == 255){
+            return J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED;
+        }
+
         return null;
     }
 
@@ -91,6 +98,55 @@ public class MapSpatMessageAssessmentTopology
                 b.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                         && !a.equals(J2735MovementPhaseState.STOP_AND_REMAIN);
     }
+
+    private boolean isPedestrian(LaneConnection connection){
+        return mapLaneType(connection.getIngressLane().getLaneType()).equals("pedestrian") || mapLaneType(connection.getEgressLane().getLaneType()).equals("pedestrian");
+    }
+
+    private boolean isPermissiveState(J2735MovementPhaseState state){
+        return state == J2735MovementPhaseState.PERMISSIVE_MOVEMENT_ALLOWED || state == J2735MovementPhaseState.PERMISSIVE_CLEARANCE;
+    }
+    
+    private boolean isProtectedState(J2735MovementPhaseState state){
+        return state == J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED || state == J2735MovementPhaseState.PROTECTED_CLEARANCE;
+    }
+
+    private boolean isActiveState(J2735MovementPhaseState state){
+        return state == J2735MovementPhaseState.PERMISSIVE_CLEARANCE || state == J2735MovementPhaseState.PERMISSIVE_MOVEMENT_ALLOWED || state == J2735MovementPhaseState.PROTECTED_CLEARANCE || state == J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED;
+    }
+
+    private boolean doesLaneLaneConnectionConflict(Lane lane, int laneSignalGroup, LaneConnection connection, ProcessedSpat spat){
+        J2735MovementPhaseState laneState = getSpatEventStateBySignalGroup(spat, laneSignalGroup);
+        J2735MovementPhaseState connectionState = getSpatEventStateBySignalGroup(spat, connection.getSignalGroup());
+
+        if(isActiveState(laneState) && !isPedestrian(connection) && isActiveState(connectionState)){ // Should only apply for designed near side movements
+            return true;
+        }
+
+        return false;
+    }
+
+    public String mapLaneType(J2735LaneTypeAttributes attributes){
+        if(attributes.getVehicle() != null){
+            return "roadway";
+        }else if(attributes.getCrosswalk() != null){
+            return "pedestrian";
+        }else if(attributes.getBikeLane() != null){
+            return "roadway";
+        }else if(attributes.getSidewalk() != null){
+            return "pedestrian";
+        }else if(attributes.getMedian() != null){
+            return "roadway";
+        }else if(attributes.getStriping() != null){
+            return "roadway";
+        }else if(attributes.getTrackedVehicle() != null){
+            return "roadway";
+        }else if(attributes.getParking() != null){
+            return "roadway";
+        }
+        return "Unknown";
+    }
+    
 
     public Topology buildTopology() {
 
@@ -116,8 +172,6 @@ public class MapSpatMessageAssessmentTopology
                 Materialized.with(
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
-
-
 
 
         // For intersection reference alignment, re-key to RSU-only key to test if intersection ID and region match between
@@ -341,12 +395,14 @@ public class MapSpatMessageAssessmentTopology
 
                     Intersection intersection = Intersection.fromProcessedMap(map);
                     ArrayList<LaneConnection> connections = intersection.getLaneConnections();
-
+                    ArrayList<Lane> pedestrianLanes = intersection.getPedestrianLanes();
 
 
                     
                     for (int i = 0; i < connections.size(); i++) {
                         LaneConnection firstConnection = connections.get(i);
+                        
+                        // Compare Lane Connections with one another
                         for (int j = i + 1; j < connections.size(); j++) {
                             LaneConnection secondConnection = connections.get(j);
 
@@ -361,7 +417,8 @@ public class MapSpatMessageAssessmentTopology
                                 continue;
                             }
                             
-                            if (firstConnection.crosses(secondConnection) && firstConnection.getIngressLane() != secondConnection.getIngressLane()) {
+                            // Compare between multiple lane connections
+                            if (!firstConnection.isPedestrianConnection() && !secondConnection.isPedestrianConnection() && firstConnection.crosses(secondConnection) && firstConnection.getIngressLane() != secondConnection.getIngressLane()) {
 
                                 J2735MovementPhaseState firstState = getSpatEventStateBySignalGroup(spat,
                                         firstConnection.getSignalGroup());
@@ -384,6 +441,16 @@ public class MapSpatMessageAssessmentTopology
                                     event.setSecondConflictingSignalState(secondState);
                                     event.setSource(key.toString());
 
+                                    event.setFirstIngressLane(firstConnection.getIngressLane().getId());
+                                    event.setFirstEgressLane(firstConnection.getEgressLane().getId());
+                                    event.setFirstIngressLaneType(firstConnection.getIngressLane().getLaneTypeString());
+                                    event.setFirstEgressLaneType(firstConnection.getEgressLane().getLaneTypeString());
+
+                                    event.setSecondIngressLane(secondConnection.getIngressLane().getId());
+                                    event.setSecondEgressLane(secondConnection.getEgressLane().getId());
+                                    event.setSecondIngressLaneType(secondConnection.getIngressLane().getLaneTypeString());
+                                    event.setSecondEgressLaneType(secondConnection.getEgressLane().getLaneTypeString());
+
                                     if (firstState.equals(J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                                             || firstState.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE)) {
                                         event.setConflictType(secondState);
@@ -393,6 +460,52 @@ public class MapSpatMessageAssessmentTopology
 
                                     events.add(new KeyValue<String, SignalStateConflictEvent>(key.toString(), event));
 
+                                }
+                            }
+                        }
+                    }
+
+                    // Compare Lane Connections to Pedestrian Lanes
+                    for (Lane pedLane : pedestrianLanes) {
+                        Set<Integer> pedLaneSignalGroups = intersection.getSignalGroupsForIngressLane(pedLane);
+                        if(pedLaneSignalGroups.size() > 0){
+                            for(LaneConnection connection : connections){
+                                if(connection.crosses(pedLane)){
+                                    for(Integer pedLaneSignalGroup : pedLaneSignalGroups){
+                                        if(doesLaneLaneConnectionConflict(pedLane, pedLaneSignalGroup, connection, spat)){
+                                            J2735MovementPhaseState laneState = getSpatEventStateBySignalGroup(spat, pedLaneSignalGroup);
+                                            J2735MovementPhaseState connectionState = getSpatEventStateBySignalGroup(spat, connection.getSignalGroup());
+
+                                            SignalStateConflictEvent event = new SignalStateConflictEvent();
+                                            event.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
+                                            event.setRoadRegulatorID(intersection.getRoadRegulatorId());
+                                            event.setIntersectionID(intersection.getIntersectionId());
+                                            event.setFirstConflictingSignalGroup(pedLaneSignalGroup);
+                                            event.setSecondConflictingSignalGroup(connection.getSignalGroup());
+                                            event.setFirstConflictingSignalState(laneState);
+                                            event.setSecondConflictingSignalState(connectionState);
+                                            event.setSource(key.toString());
+
+                                            event.setFirstIngressLane(pedLane.getId());
+                                            event.setFirstEgressLane(pedLane.getId());
+                                            event.setFirstIngressLaneType(mapLaneType(pedLane.getLaneType()));
+                                            event.setFirstEgressLaneType(mapLaneType(pedLane.getLaneType()));
+
+                                            event.setSecondIngressLane(connection.getIngressLane().getId());
+                                            event.setSecondEgressLane(connection.getEgressLane().getId());
+                                            event.setSecondIngressLaneType(mapLaneType(connection.getIngressLane().getLaneType()));
+                                            event.setSecondEgressLaneType(mapLaneType(connection.getEgressLane().getLaneType()));
+
+                                            if (isProtectedState(laneState)) {
+                                                event.setConflictType(connectionState);
+                                            } else {
+                                                event.setConflictType(laneState);
+                                            }
+
+                                            System.out.println("Generating Event" + event);
+                                            events.add(new KeyValue<String, SignalStateConflictEvent>(key.toString(), event));
+                                        }
+                                    }
                                 }
                             }
                         }

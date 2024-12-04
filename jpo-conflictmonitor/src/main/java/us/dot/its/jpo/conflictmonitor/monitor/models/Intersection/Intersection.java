@@ -143,6 +143,8 @@ public class Intersection {
         }
     }
 
+     
+
     public LaneConnection getLaneConnection(Lane ingressLane, Lane egressLane){
         if (ingressLane == null || egressLane == null) {
             return null;
@@ -194,6 +196,22 @@ public class Intersection {
             }
         }
         return connections;
+    }
+
+    public ArrayList<Lane> getPedestrianLanes(){
+        ArrayList<Lane> pedLanes = new ArrayList<>();
+        for(Lane lane: this.ingressLanes){
+            if(lane.isPedestrian()){
+                pedLanes.add(lane);
+            }
+        }
+
+        for(Lane lane: this.egressLanes){
+            if(lane.isPedestrian()){
+                pedLanes.add(lane);
+            }
+        }
+        return pedLanes;
     }
 
 
