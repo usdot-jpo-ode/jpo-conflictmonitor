@@ -53,5 +53,10 @@ public class SpatTimeChangeDetailsParameters {
         description = "Whether to aggregate events",
         updateType = READ_ONLY)
     boolean aggregateEvents;
+
+    @ConfigData(key = "spat.time.change.details.aggNotificationTopicName",
+        description = "The name of the topic to write aggregated notifications to",
+        updateType = READ_ONLY)
+    String aggNotificationTopicName;
     
 }

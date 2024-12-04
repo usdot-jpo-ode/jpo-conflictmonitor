@@ -398,6 +398,7 @@ spat.time.change.details:
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   jitterBufferSize: 50
   aggregateEvents: true
+  aggNotificationTopicName: topic.CmSpatTimeChangeDetailsNotificationAggregation
 
 # SPAT Validation
 spat.validation:

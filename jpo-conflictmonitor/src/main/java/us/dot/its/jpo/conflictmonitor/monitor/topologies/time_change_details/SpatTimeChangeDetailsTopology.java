@@ -18,7 +18,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotificationAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
@@ -87,7 +91,12 @@ public class SpatTimeChangeDetailsTopology
                     Repartitioned.with(JsonSerdes.TimeChangeDetailsAggregationKey(),
                             JsonSerdes.TimeChangeDetailsEvent())
                             .withStreamPartitioner(new IntersectionIdPartitioner<>()));
-            aggregationAlgorithm.buildTopology(builder, timeChangeEventAggKeyStream);
+
+            KStream<TimeChangeDetailsAggregationKey, TimeChangeDetailsEventAggregation> timeChangeEventAggregationStream
+                    = aggregationAlgorithm.buildTopology(builder, timeChangeEventAggKeyStream);
+
+            // Notifications
+            buildNotificationAggregationTopology(timeChangeEventAggregationStream);
         } else {
             // Don't aggregate events
             timeChangeEventStream.to(parameters.getSpatTimeChangeDetailsTopicName(),
@@ -95,12 +104,17 @@ public class SpatTimeChangeDetailsTopology
                             RsuIntersectionSignalGroupKey(),
                             JsonSerdes.TimeChangeDetailsEvent()
                     ));
+
+            // Notifications
+            buildNotificationTopology(timeChangeEventStream);
         }
 
-        // ---------------------------------------------------------------------------------
-        // Notifications
-        // ---------------------------------------------------------------------------------
-        timeChangeEventStream.print(Printed.toSysOut());
+        return builder.build();
+    }
+
+    // Notifications of non-aggregated events
+    private void buildNotificationTopology(KStream<RsuIntersectionSignalGroupKey, TimeChangeDetailsEvent> timeChangeEventStream) {
+        //timeChangeEventStream.print(Printed.toSysOut());
 
         KStream<String, TimeChangeDetailsNotification> timeChangeDetailsNotificationStream = timeChangeEventStream
                 .flatMap(
@@ -121,9 +135,7 @@ public class SpatTimeChangeDetailsTopology
         KTable<String, TimeChangeDetailsNotification> timeChangeDetailsNotificationTable = timeChangeDetailsNotificationStream
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.TimeChangeDetailsNotification()))
                 .reduce(
-                        (oldValue, newValue) -> {
-                            return oldValue;
-                        },
+                        (oldValue, newValue) -> oldValue,
                         Materialized
                                 .<String, TimeChangeDetailsNotification, KeyValueStore<Bytes, byte[]>>as(
                                         "TimeChangeDetailsNotification")
@@ -134,8 +146,27 @@ public class SpatTimeChangeDetailsTopology
                 parameters.getSpatTimeChangeDetailsNotificationTopicName(),
                 Produced.with(Serdes.String(),
                         JsonSerdes.TimeChangeDetailsNotification()));
+    }
 
-        return builder.build();
+    // Notifications for aggregated events
+    private void buildNotificationAggregationTopology(
+            KStream<TimeChangeDetailsAggregationKey, TimeChangeDetailsEventAggregation> timeChangeEventAggregationStream) {
+
+        timeChangeEventAggregationStream
+                .mapValues(aggEvent -> {
+                    var aggNotification = new TimeChangeDetailsNotificationAggregation();
+                    aggNotification.setEventAggregation(aggEvent);
+                    aggNotification.setNotificationText(
+                            "Time Change Details Notification Aggregation, " +
+                                    "generated because corresponding time change details events were generated.");
+                    aggNotification.setNotificationHeading("Time Change Details");
+                    return aggNotification;
+                }).to(parameters.getAggNotificationTopicName(),
+                        Produced.with(
+                            JsonSerdes.TimeChangeDetailsAggregationKey(),
+                                JsonSerdes.TimeChangeDetailsNotificationAggregation(),
+                                new IntersectionIdPartitioner<>()
+                        ));
     }
 
 
