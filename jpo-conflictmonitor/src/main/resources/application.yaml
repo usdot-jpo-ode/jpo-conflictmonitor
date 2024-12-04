@@ -210,7 +210,25 @@ kafka.topics:
     - name: topic.CmEventStateProgressionEventAggregation
       cleanupPolicy: delete
       retentionMs: 300000
-    
+    - name: topic.CmBsmMessageCountProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapMessageCountProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatMessageCountProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmIntersectionReferenceAlignmentNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmSignalGroupAlignmentNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmSignalStateConflictNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmSpatTimeChangeDetailsNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmEventStateProgressionNotificationAggregation
+      cleanupPolicy: compact
 
 
 # Connection of Travel
