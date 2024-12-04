@@ -58,5 +58,6 @@ public class SpatTimeChangeDetailsParameters {
         description = "The name of the topic to write aggregated notifications to",
         updateType = READ_ONLY)
     String aggNotificationTopicName;
-    
+
+
 }

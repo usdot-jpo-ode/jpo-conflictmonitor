@@ -86,6 +86,21 @@ public class MapSpatMessageAssessmentParameters {
         updateType = READ_ONLY)
     boolean aggregateSignalStateConflictEvents;
 
+    @ConfigData(key = "spat.time.change.details.intersectionReferenceAlignmentNotificationAggTopicName",
+            description = "The name of the topic to write intersection reference alignment notifications to",
+            updateType = READ_ONLY)
+    String intersectionReferenceAlignmentNotificationAggTopicName;
+
+    @ConfigData(key = "spat.time.change.details.signalGroupAlignmentNotificationAggTopicName",
+            description = "The name of the topic to write signal group alignment notifications to",
+            updateType = READ_ONLY)
+    String signalGroupAlignmentNotificationAggTopicName;
+
+    @ConfigData(key = "spat.time.change.details.signalStateConflictNotificationAggTopicName",
+            description = "The name of the topic to write signal state conflict notifications to",
+            updateType = READ_ONLY)
+    String signalStateConflictNotificationAggTopicName;
+
 
     @ConfigData(key = "map.spat.message.assessment.concurrentPermissiveList",
         description = "List of pairs of lane connections that are allowed concurrently permissive for an intersection.",

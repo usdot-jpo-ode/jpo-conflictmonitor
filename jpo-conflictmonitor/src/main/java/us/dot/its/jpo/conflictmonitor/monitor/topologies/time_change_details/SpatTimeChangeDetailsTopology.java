@@ -21,6 +21,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spa
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotificationAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
@@ -157,11 +158,20 @@ public class SpatTimeChangeDetailsTopology
                     var aggNotification = new TimeChangeDetailsNotificationAggregation();
                     aggNotification.setEventAggregation(aggEvent);
                     aggNotification.setNotificationText(
-                            "Time Change Details Notification Aggregation, " +
-                                    "generated because corresponding time change details events were generated.");
+                            "Time Change Details Notification, " +
+                                    "generated because one or more corresponding time change details events were generated.");
                     aggNotification.setNotificationHeading("Time Change Details");
                     return aggNotification;
-                }).to(parameters.getAggNotificationTopicName(),
+                })
+                .toTable(
+                        Materialized.<TimeChangeDetailsAggregationKey,
+                                        TimeChangeDetailsNotificationAggregation,
+                                        KeyValueStore<Bytes, byte[]>>as(
+                                                "IntersectionReferenceAlignmentNotificationAggregation")
+                        .withKeySerde(JsonSerdes.TimeChangeDetailsAggregationKey())
+                        .withValueSerde(JsonSerdes.TimeChangeDetailsNotificationAggregation()))
+                .toStream()
+                .to(parameters.getAggNotificationTopicName(),
                         Produced.with(
                             JsonSerdes.TimeChangeDetailsAggregationKey(),
                                 JsonSerdes.TimeChangeDetailsNotificationAggregation(),

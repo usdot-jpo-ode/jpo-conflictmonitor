@@ -5,7 +5,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignment
 public class SignalGroupAlignmentNotificationAggregation
     extends NotificationAggregation<SignalGroupAlignmentEventAggregation>{
 
-    public SignalGroupAlignmentNotificationAggregation(String eventType) {
+    public SignalGroupAlignmentNotificationAggregation() {
         super("SignalGroupAlignmentNotificationAggregation");
     }
 
