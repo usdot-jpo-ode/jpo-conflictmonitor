@@ -47,7 +47,7 @@ kafka.linger_ms: 50
 # Custom kafka properties
 # TODO Remove, use jpo-utils instead
 kafka.topics:
-  autoCreateTopics: true  # Override auto-create in test properties
+  autoCreateTopics: false  # Topic creating disabled, using jpo-utils
   numPartitions: 1
   numReplicas: 1
   createTopics:
