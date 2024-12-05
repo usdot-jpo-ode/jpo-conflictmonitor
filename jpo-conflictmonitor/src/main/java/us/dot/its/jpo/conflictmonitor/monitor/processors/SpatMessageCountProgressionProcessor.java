@@ -145,8 +145,16 @@ public class SpatMessageCountProgressionProcessor extends ContextualProcessor<Rs
         event.setTimestampA(previousState.getUtcTimeStamp().format(formatter));
         event.setMessageCountB(thisState.getRevision());
         event.setTimestampB(thisState.getUtcTimeStamp().format(formatter));
-        event.setIntersectionID(thisState.getIntersectionId());
-        event.setRoadRegulatorID(thisState.getRegion());
+        if (thisState.getIntersectionId() != null) {
+            event.setIntersectionID(thisState.getIntersectionId());
+        } else {
+            event.setIntersectionID(-1);
+        }
+        if (thisState.getRegion() != null) {
+            event.setRoadRegulatorID(thisState.getRegion());
+        } else {
+            event.setRoadRegulatorID(-1);
+        }
         event.setSource(thisState.getOriginIp());
         return event;
     }

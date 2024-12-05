@@ -5,6 +5,12 @@
     </activeProfiles>
     <servers>
         <server>
+            <id>central</id>
+        </server>
+        <server>
+            <id>osgeo</id>
+        </server>
+        <server>
             <id>github</id>
             <username>jpo_conflictmonitor</username>
             <password>${env.MAVEN_GITHUB_TOKEN}</password>

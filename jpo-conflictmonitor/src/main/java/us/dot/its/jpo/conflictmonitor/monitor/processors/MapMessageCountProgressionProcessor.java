@@ -158,8 +158,16 @@ public class MapMessageCountProgressionProcessor extends ContextualProcessor<Rsu
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         event.setTimestampA(previousState.getProperties().getOdeReceivedAt().format(formatter));
         event.setTimestampB(thisState.getProperties().getOdeReceivedAt().format(formatter));
-        event.setRoadRegulatorID(thisState.getProperties().getRegion());
-        event.setIntersectionID(thisState.getProperties().getIntersectionId());
+        if (thisState.getProperties().getRegion() != null) {
+            event.setRoadRegulatorID(thisState.getProperties().getRegion());
+        } else {
+            event.setRoadRegulatorID(-1);
+        }
+        if (thisState.getProperties().getIntersectionId() != null) {
+            event.setIntersectionID(thisState.getProperties().getIntersectionId());
+        } else {
+            event.setIntersectionID(-1);
+        }
         event.setSource(thisState.getProperties().getOriginIp());
         return event;
     }
