@@ -17,6 +17,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
@@ -51,7 +52,7 @@ public class BsmMessageCountProgressionTopology
         builder.addStateStore(
                 Stores.versionedKeyValueStoreBuilder(
                         Stores.persistentVersionedKeyValueStore(processedBsmStateStore, retentionTime),
-                        Serdes.String(),
+                        us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRsuIdKey(),
                         JsonSerdes.ProcessedBsm()
                 )
         );
@@ -59,11 +60,14 @@ public class BsmMessageCountProgressionTopology
         builder.addStateStore(
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore(latestBsmStateStore),
-                        Serdes.String(),
+                        us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRsuIdKey(),
                         JsonSerdes.ProcessedBsm()
                 )
         );
-        KStream<String, ProcessedBsm<Point>> inputStream = builder.stream(parameters.getBsmInputTopicName(), Consumed.with(Serdes.String(), JsonSerdes.ProcessedBsm()));
+        KStream<BsmRsuIdKey, ProcessedBsm<Point>> inputStream = builder.stream(parameters.getBsmInputTopicName(),
+                Consumed.with(
+                        us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRsuIdKey(),
+                        JsonSerdes.ProcessedBsm()));
 
 
         var eventStream = inputStream
@@ -74,7 +78,8 @@ public class BsmMessageCountProgressionTopology
             // Select new key that includes all fields to aggregate on
             var aggKeyStream = eventStream.selectKey((key, value) -> {
                 var aggKey = new BsmMessageCountProgressionAggregationKey();
-                aggKey.setRsuId(key);   // Input key is the RSU ID
+                aggKey.setRsuId(key.getRsuId());
+                aggKey.setBsmId(key.getBsmId());
                 // TODO:
                 //aggKey.setDataFrame(value.getDataFrame());
                 //aggKey.setChange(value.getChange());
@@ -90,8 +95,10 @@ public class BsmMessageCountProgressionTopology
             aggregationAlgorithm.buildTopology(builder, aggKeyStream);
         } else {
             // Don't aggregate events
-            eventStream.to(parameters.getBsmMessageCountProgressionEventOutputTopicName(), Produced.with(Serdes.String(),
-                    us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()));
+            eventStream.to(parameters.getBsmMessageCountProgressionEventOutputTopicName(),
+                    Produced.with(
+                            us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRsuIdKey(),
+                            us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmMessageCountProgressionEvent()));
         }
         return builder.build();
     }
