@@ -7,6 +7,7 @@ server.port: 8082
 
 # Kafka properties
 spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+spring.kafka.producer.properties.max-request.size: 2097152
 
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
@@ -316,7 +317,6 @@ event:
   mapMessageCountProgressionEventTopicName: topic.CmMapMessageCountProgressionEvents
   bsmMessageCountProgressionEventTopicName: topic.CmBsmMessageCountProgressionEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
-  eventStateProgressionEventTopicName: topic.CmEventStateProgressionEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
