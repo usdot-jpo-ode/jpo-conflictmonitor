@@ -6,7 +6,7 @@ version: ^project.version^
 server.port: 8082
 
 # Kafka properties
-spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:localhost}:9092
+spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
@@ -41,6 +41,8 @@ kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
 kafkaTopicCmSignalStateEvent: topic.CmStopLinePassageEvent
 kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 
+# Amount of time to wait to try and increase batching
+kafka.linger_ms: 50
 
 # Custom kafka properties
 kafka.topics:
@@ -162,13 +164,13 @@ kafka.topics:
     - name: topic.CmStopLinePassageNotification
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmMapRevisionCounterEvents
+    - name: topic.CmMapMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmSpatRevisionCounterEvents
+    - name: topic.CmSpatMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmBsmRevisionCounterEvents
+    - name: topic.CmBsmMessageCountProgressionEvents
       cleanupPolicy: compact
       retentionMs: 300000
     - name: topic.CmTimestampDeltaEvent
@@ -176,15 +178,17 @@ kafka.topics:
       retentionMs: 300000
     - name: topic.CmTimestampDeltaNotification
       cleanupPolicy: compact
-    # - name: topic.CmSpatBroadcastRateNotification
-    #   cleanupPolicy: compact
-    # - name: topic.CmMapBroadcastRateNotification
-    #   cleanupPolicy: compact    
+    - name: topic.CmSpatTransitionEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatTransitionNotification
+      cleanupPolicy: compact
+    - name: topic.CmEventStateProgressionEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmEventStateProgressionNotification
+      cleanupPolicy: compact
     
-
-
-
-
 
 
 # Connection of Travel
@@ -281,6 +285,7 @@ notification:
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   timestampDeltaNotificationTopicName: topic.CmTimestampDeltaNotification
+  eventStateProgressionNotificationTopicName: topic.CmEventStateProgressionNotification
 
 assessment:
   algorithm: defaultAssessmentAlgorithm
@@ -307,10 +312,11 @@ event:
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   laneDirectionOfTravelEventTopicName: topic.CmLaneDirectionOfTravelEvent
   connectionOfTravelEventTopicName: topic.CmConnectionOfTravelEvent
-  spatRevisionCounterEventTopicName: topic.CmSpatRevisionCounterEvents
-  mapRevisionCounterEventTopicName: topic.CmMapRevisionCounterEvents
-  bsmRevisionCounterEventTopicName: topic.CmBsmRevisionCounterEvents
+  spatMessageCountProgressionEventTopicName: topic.CmSpatMessageCountProgressionEvents
+  mapMessageCountProgressionEventTopicName: topic.CmMapMessageCountProgressionEvents
+  bsmMessageCountProgressionEventTopicName: topic.CmBsmMessageCountProgressionEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
+  eventStateProgressionEventTopicName: topic.CmEventStateProgressionEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
@@ -408,27 +414,39 @@ message.ingest:
   mapStoreName: ProcessedMapWindowStore
   mapSpatialIndexStoreName: MapSpatialIndexStore
 
-# MAP Revision Counter
-map.revision.counter:
-  algorithm: defaultMapRevisionCounterAlgorithm
+# MAP Message Count Progression
+map.message.count.progression:
+  algorithm: defaultMapMessageCountProgressionAlgorithm
   debug: false
   mapInputTopicName: topic.ProcessedMap
-  mapRevisionEventOutputTopicName: topic.CmMapRevisionCounterEvents
+  mapMessageCountProgressionEventOutputTopicName: topic.CmMapMessageCountProgressionEvents
+  processedMapStateStoreName: processedMapStateStore
+  latestMapStateStoreName: latestMapStateStore
+  bufferTimeMs: 5000
+  bufferGracePeriodMs: 800
 
-# SPAT Revision Counter
-spat.revision.counter:
-  algorithm: defaultSpatRevisionCounterAlgorithm
+# SPAT Message Count Progression
+spat.message.count.progression:
+  algorithm: defaultSpatMessageCountProgressionAlgorithm
   debug: false
   spatInputTopicName: topic.ProcessedSpat
-  spatRevisionEventOutputTopicName: topic.CmSpatRevisionCounterEvents
+  spatMessageCountProgressionEventOutputTopicName: topic.CmSpatMessageCountProgressionEvents
+  processedSpatStateStoreName: processedSpatStateStore
+  latestSpatStateStoreName: latestSpatStateStore
+  bufferTimeMs: 500
+  bufferGracePeriodMs: 50
 
-# BSM Revision Counter
-bsm.revision.counter:
-  algorithm: defaultBsmRevisionCounterAlgorithm
+# BSM Message Count Progression
+bsm.message.count.progression:
+  algorithm: defaultBsmMessageCountProgressionAlgorithm
   debug: false
-  bsmInputTopicName: topic.CmBsmJsonRepartition
-  bsmRevisionEventOutputTopicName: topic.CmBsmRevisionCounterEvents
-
+  bsmInputTopicName: topic.ProcessedBsm
+  bsmMessageCountProgressionEventOutputTopicName: topic.CmBsmMessageCountProgressionEvents
+  processedBsmStateStoreName: processedBsmStateStore
+  latestBsmStateStoreName: latestBsmStateStore
+  bufferTimeMs: 500
+  bufferGracePeriodMs: 50
+  
 # Config parameters
 config:
   defaultStateStore: default-config
@@ -461,5 +479,44 @@ spat.timestamp.delta:
   retentionTimeMinutes: 60
 #  retentionTimeMinutes: 5
   notificationTopicName: topic.CmTimestampDeltaNotification
+
+event.state.progression:
+  algorithm: defaultEventStateProgressionAlgorithm
+  debug: true
+  outputTopicName: topic.CmEventStateProgressionEvent
+  notificationTopicName: topic.CmEventStateProgressionNotification
+  movementStateStoreName: spatTransitionStateStore
+  latestTransitionStoreName: latestTransitionStateStore
+  bufferTimeMs: 1000
+  bufferGracePeriodMs: 100
+  illegalSpatTransitionList:
+    - { stateA: STOP_THEN_PROCEED, stateB: PERMISSIVE_CLEARANCE }
+    - { stateA: STOP_THEN_PROCEED, stateB: PROTECTED_CLEARANCE }
+    - { stateA: STOP_THEN_PROCEED, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: STOP_AND_REMAIN, stateB: PERMISSIVE_CLEARANCE }
+    - { stateA: STOP_AND_REMAIN, stateB: PROTECTED_CLEARANCE }
+    - { stateA: STOP_AND_REMAIN, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: PRE_MOVEMENT, stateB: PERMISSIVE_MOVEMENT_ALLOWED }
+    - { stateA: PRE_MOVEMENT, stateB: PROTECTED_MOVEMENT_ALLOWED }
+    - { stateA: PRE_MOVEMENT, stateB: PERMISSIVE_CLEARANCE }
+    - { stateA: PRE_MOVEMENT, stateB: PROTECTED_CLEARANCE }
+    - { stateA: PRE_MOVEMENT, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: PERMISSIVE_MOVEMENT_ALLOWED, stateB: STOP_THEN_PROCEED }
+    - { stateA: PERMISSIVE_MOVEMENT_ALLOWED, stateB: STOP_AND_REMAIN }  # Permissive green to red
+    - { stateA: PERMISSIVE_MOVEMENT_ALLOWED, stateB: PROTECTED_CLEARANCE }
+    - { stateA: PERMISSIVE_MOVEMENT_ALLOWED, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: PROTECTED_MOVEMENT_ALLOWED, stateB: STOP_THEN_PROCEED }
+    - { stateA: PROTECTED_MOVEMENT_ALLOWED, stateB: STOP_AND_REMAIN }   # Protected green to red
+    - { stateA: PROTECTED_MOVEMENT_ALLOWED, stateB: PERMISSIVE_CLEARANCE }
+    - { stateA: PROTECTED_MOVEMENT_ALLOWED, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: PERMISSIVE_CLEARANCE, stateB: PERMISSIVE_MOVEMENT_ALLOWED }
+    - { stateA: PERMISSIVE_CLEARANCE, stateB: PROTECTED_MOVEMENT_ALLOWED }
+    - { stateA: PERMISSIVE_CLEARANCE, stateB: PROTECTED_CLEARANCE }
+    - { stateA: PERMISSIVE_CLEARANCE, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: PROTECTED_CLEARANCE, stateB: PROTECTED_MOVEMENT_ALLOWED }
+    - { stateA: PROTECTED_CLEARANCE, stateB: PERMISSIVE_CLEARANCE }
+    - { stateA: PROTECTED_CLEARANCE, stateB: CAUTION_CONFLICTING_TRAFFIC }
+    - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_THEN_PROCEED }
+    - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_AND_REMAIN }
 
 

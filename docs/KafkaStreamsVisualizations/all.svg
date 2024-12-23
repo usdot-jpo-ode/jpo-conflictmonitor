@@ -64,15 +64,15 @@
 <path fill="none" stroke="black" d="M6504.78,-719.52C6481.13,-709.78 6451.57,-697.61 6426.86,-687.43"/>
 <polygon fill="black" stroke="black" points="6428.23,-684.21 6417.65,-683.64 6425.56,-690.68 6428.23,-684.21"/>
 </g>
-<!-- bsmRevisionCounter_subtopology_0 -->
+<!-- bsmMessageCountProgression_subtopology_0 -->
 <g id="node6" class="node">
-<title>bsmRevisionCounter_subtopology_0</title>
+<title>bsmMessageCountProgression_subtopology_0</title>
 <polygon fill="none" stroke="black" points="6826.75,-658.54 6826.75,-673.46 6762.6,-684 6671.88,-684 6607.72,-673.46 6607.72,-658.54 6671.88,-648 6762.6,-648 6826.75,-658.54"/>
-<text text-anchor="middle" x="6717.24" y="-662.5" font-family="Arial" font-size="10.00">bsmRevisionCounter subtopology 0</text>
+<text text-anchor="middle" x="6717.24" y="-662.5" font-family="Arial" font-size="10.00">bsmMessageCountProgression subtopology 0</text>
 </g>
-<!-- topic_CmBsmJsonRepartition&#45;&gt;bsmRevisionCounter_subtopology_0 -->
+<!-- topic_CmBsmJsonRepartition&#45;&gt;bsmMessageCountProgression_subtopology_0 -->
 <g id="edge6" class="edge">
-<title>topic_CmBsmJsonRepartition&#45;&gt;bsmRevisionCounter_subtopology_0</title>
+<title>topic_CmBsmJsonRepartition&#45;&gt;bsmMessageCountProgression_subtopology_0</title>
 <path fill="none" stroke="black" d="M6589.7,-719.52C6612.4,-710.17 6640.55,-698.57 6664.63,-688.66"/>
 <polygon fill="black" stroke="black" points="6665.71,-692 6673.62,-684.96 6663.04,-685.53 6665.71,-692"/>
 </g>
@@ -106,34 +106,34 @@
 <path fill="none" stroke="black" d="M6573.3,-577.74C6575.98,-577.14 6578.63,-576.56 6581.24,-576 6647.06,-561.83 6722.11,-547.59 6777.46,-537.44"/>
 <polygon fill="black" stroke="black" points="6777.92,-540.92 6787.13,-535.68 6776.66,-534.03 6777.92,-540.92"/>
 </g>
-<!-- bsmRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
+<!-- bsmMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
 <g id="node7" class="node">
-<title>bsmRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
+<title>bsmMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
 <path fill="none" stroke="black" d="M6843.74,-608.73C6843.74,-610.53 6787.04,-612 6717.24,-612 6647.44,-612 6590.74,-610.53 6590.74,-608.73 6590.74,-608.73 6590.74,-579.27 6590.74,-579.27 6590.74,-577.47 6647.44,-576 6717.24,-576 6787.04,-576 6843.74,-577.47 6843.74,-579.27 6843.74,-579.27 6843.74,-608.73 6843.74,-608.73"/>
 <path fill="none" stroke="black" d="M6843.74,-608.73C6843.74,-606.92 6787.04,-605.45 6717.24,-605.45 6647.44,-605.45 6590.74,-606.92 6590.74,-608.73"/>
 <text text-anchor="middle" x="6717.24" y="-590.5" font-family="Arial" font-size="10.00">KSTREAM&#45;AGGREGATE&#45;STATE&#45;STORE&#45;0000000001</text>
 </g>
-<!-- bsmRevisionCounter_subtopology_0&#45;&gt;bsmRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
+<!-- bsmMessageCountProgression_subtopology_0&#45;&gt;bsmMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
 <g id="edge7" class="edge">
-<title>bsmRevisionCounter_subtopology_0&#45;&gt;bsmRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
+<title>bsmMessageCountProgression_subtopology_0&#45;&gt;bsmMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
 <path fill="none" stroke="black" d="M6711.32,-647.7C6710.57,-640.41 6710.32,-631.73 6710.59,-623.54"/>
 <polygon fill="black" stroke="black" points="6714.08,-623.82 6711.24,-613.61 6707.09,-623.36 6714.08,-623.82"/>
 </g>
-<!-- topic_CmBsmRevisionCounterEvents -->
+<!-- topic_CmBsmMessageCountProgressionEvents -->
 <g id="node8" class="node">
-<title>topic_CmBsmRevisionCounterEvents</title>
+<title>topic_CmBsmMessageCountProgressionEvents</title>
 <polygon fill="none" stroke="black" points="7036.36,-612 6862.11,-612 6862.11,-576 7036.36,-576 7036.36,-612"/>
-<text text-anchor="middle" x="6949.24" y="-590.5" font-family="Arial" font-size="10.00">topic.CmBsmRevisionCounterEvents</text>
+<text text-anchor="middle" x="6949.24" y="-590.5" font-family="Arial" font-size="10.00">topic.CmBsmMessageCountProgressionEvents</text>
 </g>
-<!-- bsmRevisionCounter_subtopology_0&#45;&gt;topic_CmBsmRevisionCounterEvents -->
+<!-- bsmMessageCountProgression_subtopology_0&#45;&gt;topic_CmBsmMessageCountProgressionEvents -->
 <g id="edge9" class="edge">
-<title>bsmRevisionCounter_subtopology_0&#45;&gt;topic_CmBsmRevisionCounterEvents</title>
+<title>bsmMessageCountProgression_subtopology_0&#45;&gt;topic_CmBsmMessageCountProgressionEvents</title>
 <path fill="none" stroke="black" d="M6770.75,-648.85C6803.5,-638.97 6845.71,-626.24 6880.86,-615.63"/>
 <polygon fill="black" stroke="black" points="6881.51,-619.09 6890.07,-612.85 6879.49,-612.39 6881.51,-619.09"/>
 </g>
-<!-- bsmRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;bsmRevisionCounter_subtopology_0 -->
+<!-- bsmMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;bsmMessageCountProgression_subtopology_0 -->
 <g id="edge8" class="edge">
-<title>bsmRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;bsmRevisionCounter_subtopology_0</title>
+<title>bsmMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;bsmMessageCountProgression_subtopology_0</title>
 <path fill="none" stroke="black" d="M6723.13,-612.1C6723.89,-619.37 6724.15,-628.04 6723.89,-636.24"/>
 <polygon fill="black" stroke="black" points="6720.4,-635.98 6723.25,-646.19 6727.38,-636.43 6720.4,-635.98"/>
 </g>
@@ -494,15 +494,15 @@
 <path fill="none" stroke="black" d="M1705.66,-587.97C1583.23,-576.46 1281.15,-548.08 1119.8,-532.92"/>
 <polygon fill="black" stroke="black" points="1120.22,-529.44 1109.94,-531.99 1119.57,-536.41 1120.22,-529.44"/>
 </g>
-<!-- spatRevisionCounter_subtopology_0 -->
+<!-- spatMessageCountProgression_subtopology_0 -->
 <g id="node96" class="node">
-<title>spatRevisionCounter_subtopology_0</title>
+<title>spatMessageCountProgression_subtopology_0</title>
 <polygon fill="none" stroke="black" points="1868.75,-514.54 1868.75,-529.46 1804.6,-540 1713.88,-540 1649.72,-529.46 1649.72,-514.54 1713.88,-504 1804.6,-504 1868.75,-514.54"/>
-<text text-anchor="middle" x="1759.24" y="-518.5" font-family="Arial" font-size="10.00">spatRevisionCounter subtopology 0</text>
+<text text-anchor="middle" x="1759.24" y="-518.5" font-family="Arial" font-size="10.00">spatMessageCountProgression subtopology 0</text>
 </g>
-<!-- topic_ProcessedSpat&#45;&gt;spatRevisionCounter_subtopology_0 -->
+<!-- topic_ProcessedSpat&#45;&gt;spatMessageCountProgression_subtopology_0 -->
 <g id="edge128" class="edge">
-<title>topic_ProcessedSpat&#45;&gt;spatRevisionCounter_subtopology_0</title>
+<title>topic_ProcessedSpat&#45;&gt;spatMessageCountProgression_subtopology_0</title>
 <path fill="none" stroke="black" d="M1759.24,-575.7C1759.24,-568.41 1759.24,-559.73 1759.24,-551.54"/>
 <polygon fill="black" stroke="black" points="1762.74,-551.62 1759.24,-541.62 1755.74,-551.62 1762.74,-551.62"/>
 </g>
@@ -573,15 +573,15 @@
 <path fill="none" stroke="black" d="M4313.76,-575.52C4299.24,-566.6 4281.38,-555.63 4265.74,-546.03"/>
 <polygon fill="black" stroke="black" points="4267.99,-543.3 4257.64,-541.05 4264.33,-549.27 4267.99,-543.3"/>
 </g>
-<!-- mapRevisionCounter_subtopology_0 -->
+<!-- mapMessageCountProgression_subtopology_0 -->
 <g id="node50" class="node">
-<title>mapRevisionCounter_subtopology_0</title>
+<title>mapMessageCountProgression_subtopology_0</title>
 <polygon fill="none" stroke="black" points="4565.75,-514.54 4565.75,-529.46 4501.6,-540 4410.88,-540 4346.72,-529.46 4346.72,-514.54 4410.88,-504 4501.6,-504 4565.75,-514.54"/>
-<text text-anchor="middle" x="4456.24" y="-518.5" font-family="Arial" font-size="10.00">mapRevisionCounter subtopology 0</text>
+<text text-anchor="middle" x="4456.24" y="-518.5" font-family="Arial" font-size="10.00">mapMessageCountProgression subtopology 0</text>
 </g>
-<!-- topic_ProcessedMap&#45;&gt;mapRevisionCounter_subtopology_0 -->
+<!-- topic_ProcessedMap&#45;&gt;mapMessageCountProgression_subtopology_0 -->
 <g id="edge62" class="edge">
-<title>topic_ProcessedMap&#45;&gt;mapRevisionCounter_subtopology_0</title>
+<title>topic_ProcessedMap&#45;&gt;mapMessageCountProgression_subtopology_0</title>
 <path fill="none" stroke="black" d="M4370.71,-575.52C4385.24,-566.6 4403.09,-555.63 4418.73,-546.03"/>
 <polygon fill="black" stroke="black" points="4420.15,-549.27 4426.84,-541.05 4416.48,-543.3 4420.15,-549.27"/>
 </g>
@@ -804,34 +804,34 @@
 <path fill="none" stroke="black" d="M5455.42,-144.95C5452.33,-144.61 5449.26,-144.29 5446.24,-144 5153.75,-116.2 4248.11,-97.95 3953.15,-92.62"/>
 <polygon fill="black" stroke="black" points="3953.23,-89.12 3943.17,-92.44 3953.1,-96.12 3953.23,-89.12"/>
 </g>
-<!-- mapRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
+<!-- mapMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
 <g id="node51" class="node">
-<title>mapRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
+<title>mapMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
 <path fill="none" stroke="black" d="M4575.74,-464.73C4575.74,-466.53 4519.04,-468 4449.24,-468 4379.44,-468 4322.74,-466.53 4322.74,-464.73 4322.74,-464.73 4322.74,-435.27 4322.74,-435.27 4322.74,-433.47 4379.44,-432 4449.24,-432 4519.04,-432 4575.74,-433.47 4575.74,-435.27 4575.74,-435.27 4575.74,-464.73 4575.74,-464.73"/>
 <path fill="none" stroke="black" d="M4575.74,-464.73C4575.74,-462.92 4519.04,-461.45 4449.24,-461.45 4379.44,-461.45 4322.74,-462.92 4322.74,-464.73"/>
 <text text-anchor="middle" x="4449.24" y="-446.5" font-family="Arial" font-size="10.00">KSTREAM&#45;AGGREGATE&#45;STATE&#45;STORE&#45;0000000001</text>
 </g>
-<!-- mapRevisionCounter_subtopology_0&#45;&gt;mapRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
+<!-- mapMessageCountProgression_subtopology_0&#45;&gt;mapMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
 <g id="edge63" class="edge">
-<title>mapRevisionCounter_subtopology_0&#45;&gt;mapRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
+<title>mapMessageCountProgression_subtopology_0&#45;&gt;mapMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
 <path fill="none" stroke="black" d="M4448.59,-503.7C4447.11,-496.41 4446,-487.73 4445.44,-479.54"/>
 <polygon fill="black" stroke="black" points="4448.94,-479.49 4445.1,-469.62 4441.95,-479.73 4448.94,-479.49"/>
 </g>
-<!-- topic_CmMapRevisionCounterEvents -->
+<!-- topic_CmMapMessageCountProgressionEvents -->
 <g id="node52" class="node">
-<title>topic_CmMapRevisionCounterEvents</title>
+<title>topic_CmMapMessageCountProgressionEvents</title>
 <polygon fill="none" stroke="black" points="4766.61,-468 4593.86,-468 4593.86,-432 4766.61,-432 4766.61,-468"/>
-<text text-anchor="middle" x="4680.24" y="-446.5" font-family="Arial" font-size="10.00">topic.CmMapRevisionCounterEvents</text>
+<text text-anchor="middle" x="4680.24" y="-446.5" font-family="Arial" font-size="10.00">topic.CmMapMessageCountProgressionEvents</text>
 </g>
-<!-- mapRevisionCounter_subtopology_0&#45;&gt;topic_CmMapRevisionCounterEvents -->
+<!-- mapMessageCountProgression_subtopology_0&#45;&gt;topic_CmMapMessageCountProgressionEvents -->
 <g id="edge65" class="edge">
-<title>mapRevisionCounter_subtopology_0&#45;&gt;topic_CmMapRevisionCounterEvents</title>
+<title>mapMessageCountProgression_subtopology_0&#45;&gt;topic_CmMapMessageCountProgressionEvents</title>
 <path fill="none" stroke="black" d="M4508.47,-504.68C4539.85,-494.87 4580.08,-482.3 4613.72,-471.79"/>
 <polygon fill="black" stroke="black" points="4614.44,-475.23 4622.95,-468.9 4612.36,-468.55 4614.44,-475.23"/>
 </g>
-<!-- mapRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;mapRevisionCounter_subtopology_0 -->
+<!-- mapMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;mapMessageCountProgression_subtopology_0 -->
 <g id="edge64" class="edge">
-<title>mapRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;mapRevisionCounter_subtopology_0</title>
+<title>mapMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;mapMessageCountProgression_subtopology_0</title>
 <path fill="none" stroke="black" d="M4456.84,-468.1C4458.33,-475.37 4459.45,-484.04 4460.01,-492.24"/>
 <polygon fill="black" stroke="black" points="4456.51,-492.31 4460.37,-502.18 4463.51,-492.07 4456.51,-492.31"/>
 </g>
@@ -1417,34 +1417,34 @@
 <path fill="none" stroke="black" d="M6654.13,-180.1C6654.89,-187.37 6655.15,-196.04 6654.89,-204.24"/>
 <polygon fill="black" stroke="black" points="6651.4,-203.98 6654.25,-214.19 6658.38,-204.43 6651.4,-203.98"/>
 </g>
-<!-- spatRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
+<!-- spatMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
 <g id="node97" class="node">
-<title>spatRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
+<title>spatMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
 <path fill="none" stroke="black" d="M1885.74,-464.73C1885.74,-466.53 1829.04,-468 1759.24,-468 1689.44,-468 1632.74,-466.53 1632.74,-464.73 1632.74,-464.73 1632.74,-435.27 1632.74,-435.27 1632.74,-433.47 1689.44,-432 1759.24,-432 1829.04,-432 1885.74,-433.47 1885.74,-435.27 1885.74,-435.27 1885.74,-464.73 1885.74,-464.73"/>
 <path fill="none" stroke="black" d="M1885.74,-464.73C1885.74,-462.92 1829.04,-461.45 1759.24,-461.45 1689.44,-461.45 1632.74,-462.92 1632.74,-464.73"/>
 <text text-anchor="middle" x="1759.24" y="-446.5" font-family="Arial" font-size="10.00">KSTREAM&#45;AGGREGATE&#45;STATE&#45;STORE&#45;0000000001</text>
 </g>
-<!-- spatRevisionCounter_subtopology_0&#45;&gt;spatRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
+<!-- spatMessageCountProgression_subtopology_0&#45;&gt;spatMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001 -->
 <g id="edge129" class="edge">
-<title>spatRevisionCounter_subtopology_0&#45;&gt;spatRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
+<title>spatMessageCountProgression_subtopology_0&#45;&gt;spatMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001</title>
 <path fill="none" stroke="black" d="M1753.32,-503.7C1752.57,-496.41 1752.32,-487.73 1752.59,-479.54"/>
 <polygon fill="black" stroke="black" points="1756.08,-479.82 1753.24,-469.61 1749.09,-479.36 1756.08,-479.82"/>
 </g>
-<!-- topic_CmSpatRevisionCounterEvents -->
+<!-- topic_CmSpatMessageCountProgressionEvents -->
 <g id="node98" class="node">
-<title>topic_CmSpatRevisionCounterEvents</title>
+<title>topic_CmSpatMessageCountProgressionEvents</title>
 <polygon fill="none" stroke="black" points="2078.36,-468 1904.11,-468 1904.11,-432 2078.36,-432 2078.36,-468"/>
-<text text-anchor="middle" x="1991.24" y="-446.5" font-family="Arial" font-size="10.00">topic.CmSpatRevisionCounterEvents</text>
+<text text-anchor="middle" x="1991.24" y="-446.5" font-family="Arial" font-size="10.00">topic.CmSpatMessageCountProgressionEvents</text>
 </g>
-<!-- spatRevisionCounter_subtopology_0&#45;&gt;topic_CmSpatRevisionCounterEvents -->
+<!-- spatMessageCountProgression_subtopology_0&#45;&gt;topic_CmSpatMessageCountProgressionEvents -->
 <g id="edge131" class="edge">
-<title>spatRevisionCounter_subtopology_0&#45;&gt;topic_CmSpatRevisionCounterEvents</title>
+<title>spatMessageCountProgression_subtopology_0&#45;&gt;topic_CmSpatMessageCountProgressionEvents</title>
 <path fill="none" stroke="black" d="M1812.75,-504.85C1845.5,-494.97 1887.71,-482.24 1922.86,-471.63"/>
 <polygon fill="black" stroke="black" points="1923.51,-475.09 1932.07,-468.85 1921.49,-468.39 1923.51,-475.09"/>
 </g>
-<!-- spatRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;spatRevisionCounter_subtopology_0 -->
+<!-- spatMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;spatMessageCountProgression_subtopology_0 -->
 <g id="edge130" class="edge">
-<title>spatRevisionCounter_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;spatRevisionCounter_subtopology_0</title>
+<title>spatMessageCountProgression_KSTREAM_AGGREGATE_STATE_STORE_0000000001&#45;&gt;spatMessageCountProgression_subtopology_0</title>
 <path fill="none" stroke="black" d="M1765.13,-468.1C1765.89,-475.37 1766.15,-484.04 1765.89,-492.24"/>
 <polygon fill="black" stroke="black" points="1762.4,-491.98 1765.25,-502.19 1769.38,-492.43 1762.4,-491.98"/>
 </g>

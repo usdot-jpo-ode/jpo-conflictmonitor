@@ -6,7 +6,7 @@ version: ^project.version^
 server.port: 8085
 
 # Kafka properties
-spring.kafka.bootstrap-servers: ${KAFKA_BROKER_IP:localhost}:9092
+spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
 log4j.logger.kafka: OFF
@@ -47,8 +47,14 @@ odeBsmMaximumTimeDelta: 10000 # Milliseconds
 odeBsmMaximumPositionDelta: 1 # Meter
 odeBsmAlwaysIncludeAtSpeed: 1 # Meter / Second
 
+# Processed Map Configuration
+kafkaTopicProcessedSpat: topic.ProcessedSpat
+kafkaTopicDeduplicatedProcessedSpat: topic.DeduplicatedProcessedSpat
+enableProcessedSpatDeduplication: true
 
 
+# Amount of time to wait to try and increase batching
+kafka.linger_ms: 50
 
 # Custom kafka properties
 kafka.topics:
@@ -78,6 +84,12 @@ kafka.topics:
       cleanupPolicy: delete
       retentionMs: 300000
     - name: ${kafkaTopicDeduplicatedOdeTimJson}
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: ${kafkaTopicProcessedSpat}
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: ${kafkaTopicDeduplicatedProcessedSpat}
       cleanupPolicy: delete
       retentionMs: 300000
     

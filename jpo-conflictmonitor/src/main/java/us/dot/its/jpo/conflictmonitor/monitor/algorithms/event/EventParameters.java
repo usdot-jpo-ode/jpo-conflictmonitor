@@ -93,25 +93,28 @@ public class EventParameters {
         updateType = READ_ONLY)
     String connectionOfTravelEventTopicName;
 
-    @ConfigData(key = "event.spatRevisionCounterEventTopicName", 
-        description = "The name of the topic to read spat revision counter events from", 
+    @ConfigData(key = "event.spatMessageCountProgressionEventTopicName", 
+        description = "The name of the topic to read spat Message Count Progression events from", 
         updateType = READ_ONLY)
-    String spatRevisionCounterEventTopicName;
+    String spatMessageCountProgressionEventTopicName;
 
-    @ConfigData(key = "event.mapRevisionCounterEventTopicName", 
-        description = "The name of the topic to read map revision counter events from", 
+    @ConfigData(key = "event.mapMessageCountProgressionEventTopicName", 
+        description = "The name of the topic to read map Message Count Progression events from", 
         updateType = READ_ONLY)
-    String mapRevisionCounterEventTopicName;
+    String mapMessageCountProgressionEventTopicName;
     
-    @ConfigData(key = "event.bsmRevisionCounterEventTopicName", 
-        description = "The name of the topic to read bsm revision counter events from", 
+    @ConfigData(key = "event.bsmMessageCountProgressionEventTopicName", 
+        description = "The name of the topic to read bsm Message Count Progression events from", 
         updateType = READ_ONLY)
-    String bsmRevisionCounterEventTopicName;
+    String bsmMessageCountProgressionEventTopicName;
 
     @ConfigData(key = "event.timestampDeltaEventTopicName",
         description = "The name of the topic to read MAP and SPaT Timestamp Delta events from",
         updateType = READ_ONLY)
     String timestampDeltaEventTopicName;
 
-
+    @ConfigData(key = "event.eventStateProgressionEventTopicName",
+            description = "The name of the topic to read Event State Progression events from",
+            updateType = READ_ONLY)
+    String eventStateProgressionEventTopicName;
 }

@@ -61,12 +61,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage_assessment.StopLinePassageAssessmentAlgorithmFactory;
@@ -79,7 +81,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.map.MapTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.spat.SpatTimestampDeltaAlgorithmFactory;
@@ -142,6 +143,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String spatTimeChangeDetailsNotificationAlgorithm;
    private SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters;
 
+   private EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory;
+   private String spatTransitionAlgorithm;
+   private EventStateProgressionParameters spatTransitionParameters;
 
    private MapTimeChangeDetailsAlgorithmFactory mapTimeChangeDetailsAlgorithmFactory;
    private String mapTimeChangeDetailsAlgorithm;
@@ -167,17 +171,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String repartitionAlgorithm;
    private RepartitionParameters repartitionAlgorithmParameters;
 
-   private MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory;
-   private String mapRevisionCounterAlgorithm;
-   private MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters;
+   private MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgorithmFactory;
+   private String mapMessageCountProgressionAlgorithm;
+   private MapMessageCountProgressionParameters mapMessageCountProgressionAlgorithmParameters;
 
-   private SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory;
-   private String spatRevisionCounterAlgorithm;
-   private SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters;
+   private SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgorithmFactory;
+   private String spatMessageCountProgressionAlgorithm;
+   private SpatMessageCountProgressionParameters spatMessageCountProgressionAlgorithmParameters;
 
-   private BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
-   private String bsmRevisionCounterAlgorithm;
-   private BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters;
+   private BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgorithmFactory;
+   private String bsmMessageCountProgressionAlgorithm;
+   private BsmMessageCountProgressionParameters bsmMessageCountProgressionAlgorithmParameters;
 
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
@@ -191,6 +195,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private boolean confluentCloudEnabled = false;
    private String confluentKey = null;
    private String confluentSecret = null;
+
+   private int lingerMs = 0;
 
 
    
@@ -418,7 +424,20 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatTimeChangeDetailsParameters = spatTimeChangeDetailsParameters;
    }
 
-   
+   @Autowired
+   public void setSpatTransitionAlgorithmFactory(EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory) {
+      this.spatTransitionAlgorithmFactory = spatTransitionAlgorithmFactory;
+   }
+
+   @Value("${event.state.progression.algorithm}")
+   public void setSpatTransitionAlgorithm(String spatTransitionAlgorithm) {
+      this.spatTransitionAlgorithm = spatTransitionAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatTransitionParameters(EventStateProgressionParameters spatTransitionParameters) {
+      this.spatTransitionParameters = spatTransitionParameters;
+   }
 
 
    @Autowired
@@ -555,51 +574,51 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
 
    @Autowired
-   public void setMapRevisionCounterAlgorithmFactory(MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory) {
-      this.mapRevisionCounterAlgorithmFactory = mapRevisionCounterAlgorithmFactory;
+   public void setMapMessageCountProgressionAlgorithmFactory(MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgorithmFactory) {
+      this.mapMessageCountProgressionAlgorithmFactory = mapMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${map.revision.counter.algorithm}")
-   public void setMapRevisionCorrectionAlgorithm(String mapRevisionCounterAlgorithm) {
-      this.mapRevisionCounterAlgorithm = mapRevisionCounterAlgorithm;
-   }
-
-   @Autowired
-   public void setMapRevisionCounterAlgorithmParameters(MapRevisionCounterParameters mapRevisionCounterAlgorithmParameters) {
-      this.mapRevisionCounterAlgorithmParameters = mapRevisionCounterAlgorithmParameters;
-   }
-
-
-
-   @Autowired
-   public void setSpatRevisionCounterAlgorithmFactory(SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory) {
-      this.spatRevisionCounterAlgorithmFactory = spatRevisionCounterAlgorithmFactory;
-   }
-
-   @Value("${spat.revision.counter.algorithm}")
-   public void setSpatRevisionCorrectionAlgorithm(String spatRevisionCounterAlgorithm) {
-      this.spatRevisionCounterAlgorithm = spatRevisionCounterAlgorithm;
+   @Value("${map.message.count.progression.algorithm}")
+   public void setMapRevisionCorrectionAlgorithm(String mapMessageCountProgressionAlgorithm) {
+      this.mapMessageCountProgressionAlgorithm = mapMessageCountProgressionAlgorithm;
    }
 
    @Autowired
-   public void setSpatRevisionCounterAlgorithmParameters(SpatRevisionCounterParameters spatRevisionCounterAlgorithmParameters) {
-      this.spatRevisionCounterAlgorithmParameters = spatRevisionCounterAlgorithmParameters;
+   public void setMapMessageCountProgressionAlgorithmParameters(MapMessageCountProgressionParameters mapMessageCountProgressionAlgorithmParameters) {
+      this.mapMessageCountProgressionAlgorithmParameters = mapMessageCountProgressionAlgorithmParameters;
+   }
+
+
+
+   @Autowired
+   public void setSpatMessageCountProgressionAlgorithmFactory(SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgorithmFactory) {
+      this.spatMessageCountProgressionAlgorithmFactory = spatMessageCountProgressionAlgorithmFactory;
+   }
+
+   @Value("${spat.message.count.progression.algorithm}")
+   public void setSpatRevisionCorrectionAlgorithm(String spatMessageCountProgressionAlgorithm) {
+      this.spatMessageCountProgressionAlgorithm = spatMessageCountProgressionAlgorithm;
+   }
+
+   @Autowired
+   public void setSpatMessageCountProgressionAlgorithmParameters(SpatMessageCountProgressionParameters spatMessageCountProgressionAlgorithmParameters) {
+      this.spatMessageCountProgressionAlgorithmParameters = spatMessageCountProgressionAlgorithmParameters;
    }
 
 
    @Autowired
-   public void setBsmRevisionCounterAlgorithmFactory(BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory) {
-      this.bsmRevisionCounterAlgorithmFactory = bsmRevisionCounterAlgorithmFactory;
+   public void setBsmMessageCountProgressionAlgorithmFactory(BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgorithmFactory) {
+      this.bsmMessageCountProgressionAlgorithmFactory = bsmMessageCountProgressionAlgorithmFactory;
    }
 
-   @Value("${bsm.revision.counter.algorithm}")
-   public void setBsmRevisionCorrectionAlgorithm(String bsmRevisionCounterAlgorithm) {
-      this.bsmRevisionCounterAlgorithm = bsmRevisionCounterAlgorithm;
+   @Value("${bsm.message.count.progression.algorithm}")
+   public void setBsmRevisionCorrectionAlgorithm(String bsmMessageCountProgressionAlgorithm) {
+      this.bsmMessageCountProgressionAlgorithm = bsmMessageCountProgressionAlgorithm;
    }
 
    @Autowired
-   public void setBsmRevisionCounterAlgorithmParameters(BsmRevisionCounterParameters bsmRevisionCounterAlgorithmParameters) {
-      this.bsmRevisionCounterAlgorithmParameters = bsmRevisionCounterAlgorithmParameters;
+   public void setBsmMessageCountProgressionAlgorithmParameters(BsmMessageCountProgressionParameters bsmMessageCountProgressionAlgorithmParameters) {
+      this.bsmMessageCountProgressionAlgorithmParameters = bsmMessageCountProgressionAlgorithmParameters;
    }
 
 
@@ -669,6 +688,15 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.messageIngestParameters = messageIngestParameters;
    }
 
+   @Value("${kafka.linger_ms}")
+   public void setKafkaLingerMs(int lingerMs) {
+      this.lingerMs = lingerMs;
+   }
+
+   public int getKafkaLingerMs() {
+      return lingerMs;
+   }
+
 
    /*
     * General Properties
@@ -693,9 +721,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Setter(AccessLevel.NONE)
    private String kafkaBrokerIP = null;
 
-
-   @Setter(AccessLevel.NONE)
-   private String dbHostIP = null;
+   // No longer need a mongo DB connection for this service
+   // @Setter(AccessLevel.NONE)
+   // private String dbHostIP = null;
 
 
 
@@ -753,30 +781,30 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       logger.info("Host ID: {}", hostId);
       EventLogger.logger.info("Initializing services on host {}", hostId);
 
-      if(dbHostIP == null){
-         String dbHost = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
+      // No longer need a mongo DB connection for this service
+      // if(dbHostIP == null){
+      //    String dbHost = CommonUtils.getEnvironmentVariable("MONGO_IP");
 
-         if(dbHost == null){
-            logger.warn(
-                  "DB Host IP not defined, Defaulting to localhost.");
-            dbHost = "localhost";
-         }
-         dbHostIP = dbHost;
-      }
+      //    if(dbHost == null){
+      //       logger.warn(
+      //             "DB Host IP not defined, Defaulting to localhost.");
+      //       dbHost = "localhost";
+      //    }
+      //    dbHostIP = dbHost;
+      // }
 
       if (kafkaBrokers == null) {
 
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("KAFKA_BROKER_IP");
+         String kafkaBrokers = CommonUtils.getEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
 
-         logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BROKER_IP => {}", kafkaBrokers);
+         logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BOOTSTRAP_SERVERS => {}", kafkaBrokers);
 
-         if (kafkaBroker == null) {
+         if (kafkaBrokers == null) {
             logger.warn(
-                  "Neither ode.kafkaBrokers ode property nor KAFKA_BROKER_IP environment variable are defined. Defaulting to localhost.");
-            kafkaBroker = "localhost";
+                  "Neither ode.kafkaBrokers ode property nor KAFKA_BOOTSTRAP_SERVERS environment variable are defined. Defaulting to localhost:9092");
+            kafkaBrokers = "localhost:9092";
          }
 
-         kafkaBrokers = kafkaBroker + ":" + DEFAULT_KAFKA_PORT;
       }
 
       String kafkaType = CommonUtils.getEnvironmentVariable("KAFKA_TYPE");
@@ -793,13 +821,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String kafkaBroker = CommonUtils.getEnvironmentVariable("DB_HOST_IP");
-         if (kafkaBroker == null) {
-            kafkaBroker = "localhost";
+         String tempConnectURL = CommonUtils.getEnvironmentVariable("CONNECT_URL");
+         if (tempConnectURL == null) {
+            tempConnectURL = String.format("http://%s:%s", "localhost", DEFAULT_CONNECT_PORT);
          }
-         // dockerHostIP = dockerIp;
-         kafkaBrokerIP = kafkaBroker;
-         connectURL = String.format("http://%s:%s", kafkaBroker, DEFAULT_CONNECT_PORT);
+         connectURL = tempConnectURL;
       }
 
       // List<String> asList = Arrays.asList(this.getKafkaTopicsDisabled());
@@ -851,7 +877,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       streamProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, FIVE_MINUTES_MS);
 
       // Disable batching
-      streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+      // streamProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
+
+      // Enable Compression
+      streamProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
+      streamProps.put(ProducerConfig.LINGER_MS_CONFIG, getKafkaLingerMs());
 
       if (confluentCloudEnabled) {
          streamProps.put("ssl.endpoint.identification.algorithm", "https");
