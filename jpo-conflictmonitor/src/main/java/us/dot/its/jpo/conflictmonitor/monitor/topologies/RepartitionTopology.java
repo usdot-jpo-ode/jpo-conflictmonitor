@@ -22,6 +22,8 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionConstants.DEFAULT_REPARTITION_ALGORITHM;
 
+// TODO Remove this, don't need to repartition when using ProcessedBsm
+@Deprecated(forRemoval = true)
 @Component(DEFAULT_REPARTITION_ALGORITHM)
 public class RepartitionTopology
         extends BaseStreamsTopology<RepartitionParameters>

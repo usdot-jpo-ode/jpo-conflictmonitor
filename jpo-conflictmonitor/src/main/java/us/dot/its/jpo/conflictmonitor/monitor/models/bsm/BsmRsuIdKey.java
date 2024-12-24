@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 
+// TODO Remove, use geojsonconverter RsuLogKey instead
+@Deprecated(forRemoval = true)
 @EqualsAndHashCode
 @Getter
 @Setter
