@@ -169,11 +169,6 @@ A GitHub token is required to pull artifacts from GitHub repositories. This is r
             <username>jpo_conflictmonitor</username>
             <password>ghp_token-string-value</password>
         </server>
-        <server>
-            <id>github_jpo_geojsonconverter</id>
-            <username>jpo_conflictmonitor</username>
-            <password>ghp_token-string-value</password>
-        </server>
     </servers>
     <profiles>
         <profile>
@@ -182,15 +177,7 @@ A GitHub token is required to pull artifacts from GitHub repositories. This is r
                 <repository>
                     <id>github_jpo_ode</id>
                     <name>GitHub JPO ODE</name>
-                    <url>https://maven.pkg.github.com/usdot-jpo-ode/jpo-ode</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>github_jpo_geojsonconverter</id>
-                    <name>GitHub JPO GeojsonConverter</name>
-                    <url>https://maven.pkg.github.com/usdot-jpo-ode/jpo-geojsonconverter</url>
+                    <url>https://maven.pkg.github.com/usdot-jpo-ode/*</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
