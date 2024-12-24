@@ -10,6 +10,7 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
+// TODO Use ProcessedBsm
 @Getter
 @Setter
 @EqualsAndHashCode

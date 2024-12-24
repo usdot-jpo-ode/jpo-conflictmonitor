@@ -52,6 +52,7 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventConstants.*;
 
+// TODO Use ProcessedBsm
 @Component(DEFAULT_INTERSECTION_EVENT_ALGORITHM)
 public class IntersectionEventTopology
     extends BaseStreamsTopology<Void>
@@ -230,7 +231,7 @@ public class IntersectionEventTopology
 
 
 
-
+    // TODO Use ProcessedBsm
     private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore,
                                                       Instant start, Instant end, BsmIntersectionIdKey key){
         logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, key: {}", start, end, key);

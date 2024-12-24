@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO Receive ProcessedBsm
 public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmData, BsmIntersectionIdKey, Object> {
 
 

@@ -30,6 +30,7 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventConstants.DEFAULT_BSM_EVENT_ALGORITHM;
 
+// TODO Receive ProcessedBsm
 @Component(DEFAULT_BSM_EVENT_ALGORITHM)
 public class BsmEventTopology
         extends BaseStreamsTopology<BsmEventParameters>
