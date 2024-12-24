@@ -267,12 +267,12 @@ map.validation:
 
 
 
-# BSM Repartition
-repartition:
-  algorithm: defaultRepartitionAlgorithm
-  debug: false
-  bsmInputTopicName: topic.OdeBsmJson
-  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
+## BSM Repartition
+#repartition:
+#  algorithm: defaultRepartitionAlgorithm
+#  debug: false
+#  bsmInputTopicName: topic.OdeBsmJson
+#  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
 
 notification:
   algorithm: defaultNotificationAlgorithm

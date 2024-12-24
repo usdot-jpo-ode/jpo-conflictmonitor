@@ -43,9 +43,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
@@ -127,24 +124,6 @@ public class MonitorServiceController {
             Runtime.getRuntime().addShutdownHook(new Thread(configTopology::stop));
             configTopology.setKafkaTemplate(kafkaTemplate);
             configTopology.start();
-
-
-            final String repartition = "repartition";
-            final RepartitionAlgorithmFactory repartitionAlgoFactory = conflictMonitorProps.getRepartitionAlgorithmFactory();
-            final String repAlgo = conflictMonitorProps.getRepartitionAlgorithm();
-            final RepartitionAlgorithm repartitionAlgo = repartitionAlgoFactory.getAlgorithm(repAlgo);
-            final RepartitionParameters repartitionParams = conflictMonitorProps.getRepartitionAlgorithmParameters();
-            configTopology.registerConfigListeners(repartitionParams);
-            if (repartitionAlgo instanceof StreamsTopology) {     
-                final var streamsAlgo = (StreamsTopology)repartitionAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(repartition));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, repartition, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, repartition, healthTopic));
-                algoMap.put(repartition, streamsAlgo);
-            }
-            repartitionAlgo.setParameters(repartitionParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(repartitionAlgo::stop));
-            repartitionAlgo.start();
 
 
             final String notification = "notification";
