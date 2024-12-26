@@ -46,13 +46,14 @@ import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
+
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventConstants.*;
 
-// TODO Use ProcessedBsm
+
 @Component(DEFAULT_INTERSECTION_EVENT_ALGORITHM)
 public class IntersectionEventTopology
     extends BaseStreamsTopology<Void>
@@ -168,7 +169,7 @@ public class IntersectionEventTopology
     }
 
     @Override
-    public ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> getBsmWindowStore() {
+    public ReadOnlyWindowStore<BsmIntersectionIdKey, ProcessedBsm<Point>> getBsmWindowStore() {
         return ((MessageIngestStreamsAlgorithm)messageIngestAlgorithm).getBsmWindowStore(streams);
     }
 
@@ -232,7 +233,7 @@ public class IntersectionEventTopology
 
 
     // TODO Use ProcessedBsm
-    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, OdeBsmData> bsmWindowStore,
+    private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, ProcessedBsm<Point>> bsmWindowStore,
                                                       Instant start, Instant end, BsmIntersectionIdKey key){
         logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, key: {}", start, end, key);
         final String rsuId = key.getRsuId();
@@ -246,19 +247,19 @@ public class IntersectionEventTopology
         long startMillis = start.toEpochMilli();
         long endMillis = end.toEpochMilli();
 
-        KeyValueIterator<Windowed<BsmIntersectionIdKey>, OdeBsmData> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
+        KeyValueIterator<Windowed<BsmIntersectionIdKey>, ProcessedBsm<Point>> bsmRange = bsmWindowStore.fetchAll(timeFrom, timeTo);
 
         BsmAggregator agg = new BsmAggregator();
 
         while(bsmRange.hasNext()){
-            KeyValue<Windowed<BsmIntersectionIdKey>, OdeBsmData> next = bsmRange.next();
+            KeyValue<Windowed<BsmIntersectionIdKey>, ProcessedBsm<Point>> next = bsmRange.next();
             Windowed<BsmIntersectionIdKey> storedWindowedKey = next.key;
             BsmIntersectionIdKey storedKey = storedWindowedKey.key();
             String storedVehicleId = storedKey.getBsmId();
             String storedRsuId = storedKey.getRsuId();
             int storedIntersectionId = storedKey.getIntersectionId();
             int storedRegion = storedKey.getRegion();
-            OdeBsmData storedBsm = next.value;
+            ProcessedBsm<Point> storedBsm = next.value;
             long ts = BsmTimestampExtractor.getBsmTimestamp(next.value);
 
             // Filter by timestamp and Vehicle ID.

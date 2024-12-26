@@ -90,6 +90,15 @@ public class BsmUtils {
         return Optional.of(vehicleHeading);
     }
 
+    public static Optional<Double> getHeading(ProcessedBsm<?> processedBsm) {
+        Optional<BsmProperties> optProps = getProperties(processedBsm);
+        if (optProps.isEmpty()) return Optional.empty();
+        BsmProperties coreData = optProps.get();
+        if (coreData.getHeading() == null) return Optional.empty();
+        double vehicleHeading = coreData.getHeading().doubleValue();
+        return Optional.of(vehicleHeading);
+    }
+
     public static Optional<J2735Bsm> getJ2735Bsm(OdeBsmData bsm) {
         if (bsm == null) return Optional.empty();
         if (bsm.getPayload() == null) return Optional.empty();
@@ -117,11 +126,28 @@ public class BsmUtils {
         return Optional.of(speedMPH);
     }
 
+    public static Optional<Double> getSpeedMPH(ProcessedBsm<?> processedBsm) {
+        Optional<BsmProperties> optProps = getProperties(processedBsm);
+        if (optProps.isEmpty()) return Optional.empty();
+        BsmProperties props = optProps.get();
+        if (props.getSpeed() == null) return Optional.empty();
+        double speedMetersPerSecond = props.getSpeed().doubleValue();
+        double speedMPH = speedMetersPerSecond * 2.23694; // convert m/s to mph
+        return Optional.of(speedMPH);
+    }
+
     public static String getVehicleId(OdeBsmData bsm) {
         Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);
         if (optionalCoreData.isEmpty()) return "";
         J2735BsmCoreData coreData = optionalCoreData.get();
         return coreData.getId();
+    }
+
+    public static String getVehicleId(ProcessedBsm<?> processedBsm) {
+        Optional<BsmProperties> optProps = getProperties(processedBsm);
+        if (optProps.isEmpty()) return "";
+        BsmProperties props = optProps.get();
+        return props.getId();
     }
 
     public static String getRsuIp(OdeBsmData bsm) {

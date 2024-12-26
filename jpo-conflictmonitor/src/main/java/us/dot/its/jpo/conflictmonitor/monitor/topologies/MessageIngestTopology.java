@@ -43,6 +43,7 @@ import java.time.Duration;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageIngestConstants.DEFAULT_MESSAGE_INGEST_ALGORITHM;
 
+// TODO Use ProcessedBsm
 @Component(DEFAULT_MESSAGE_INGEST_ALGORITHM)
 public class MessageIngestTopology
         extends BaseStreamsBuilder<MessageIngestParameters>

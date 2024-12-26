@@ -1,7 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.Comparator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,18 +9,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 
 public class BsmAggregator {
 
-
     @Getter
     @Setter
-    private ArrayList<OdeBsmData> bsms = new ArrayList<OdeBsmData>();
+    private ArrayList<ProcessedBsm<Point>> bsms = new ArrayList<>();
 
-    private Comparator<OdeBsmData> bsmComparator = new Comparator<OdeBsmData>() {
+    private Comparator<ProcessedBsm<Point>> bsmComparator = new Comparator<>() {
         @Override
-        public int compare(OdeBsmData bsm1, OdeBsmData bsm2) {
+        public int compare(ProcessedBsm<Point> bsm1, ProcessedBsm<Point> bsm2) {
             long t1 = BsmTimestampExtractor.getBsmTimestamp(bsm1);
             long t2 = BsmTimestampExtractor.getBsmTimestamp(bsm2);
             if (t2 < t1) {
@@ -34,21 +34,21 @@ public class BsmAggregator {
     };
 
     
-    public BsmAggregator add(OdeBsmData newBsm) {
+    public BsmAggregator add(ProcessedBsm<Point> newBsm) {
         bsms.add(newBsm);
         return this;
     }
 
     public void sort(){
-        Collections.sort(this.bsms, bsmComparator);
+        this.bsms.sort(bsmComparator);
     }
 
-    public BsmAggregator addWithoutDeletion(OdeBsmData newBsm){
+    public BsmAggregator addWithoutDeletion(ProcessedBsm<Point> newBsm){
         bsms.add(newBsm);
         return this;
     }
 
-    public BsmAggregator subtract(OdeBsmData newBsm){
+    public BsmAggregator subtract(ProcessedBsm<Point> newBsm){
         return this;
     }
 
