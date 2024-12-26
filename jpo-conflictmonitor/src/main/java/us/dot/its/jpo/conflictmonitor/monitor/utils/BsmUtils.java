@@ -2,6 +2,10 @@ package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.CoordinateXY;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmFeature;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.model.OdeBsmMetadata;
 import us.dot.its.jpo.ode.model.OdeBsmPayload;
@@ -15,6 +19,56 @@ import java.util.Optional;
 
 @Slf4j
 public class BsmUtils {
+
+
+
+    public static CoordinateXY getPosition(ProcessedBsm<Point> processedBsm) {
+        CoordinateXY position = new CoordinateXY();
+        Optional<Point> optionalPoint = getGeometry(processedBsm);
+        if (optionalPoint.isEmpty()) return position;
+        Point point = optionalPoint.get();
+        double[] coordinates = point.getCoordinates();
+        if (coordinates == null || coordinates.length < 2) return position;
+        position.setX(coordinates[0]);
+        position.setY(coordinates[1]);
+        return position;
+    }
+
+    public static Optional<BsmFeature<?>> getFeature(ProcessedBsm<?> processedBsm) {
+        if (processedBsm == null) return Optional.empty();
+        if (processedBsm.getFeatures() == null || processedBsm.getFeatures().length < 1) return Optional.empty();
+        return Optional.of(processedBsm.getFeatures()[0]);
+    }
+
+    /**
+     * Get geometry
+     * @param processedBsm The ProcessedBsm
+     * @return The Point geometry, or empty if geometry is not a geojson Point.
+     */
+    public static Optional<Point> getGeometry(ProcessedBsm<?> processedBsm) {
+        Optional<BsmFeature<?>> optionalFeature = getFeature(processedBsm);
+        if (optionalFeature.isEmpty()) return Optional.empty();
+        BsmFeature<?> feature = optionalFeature.get();
+        Object geom = feature.getGeometry();
+        if (geom == null) return Optional.empty();
+        if (geom instanceof Point point) {
+            return Optional.of(point);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<BsmProperties> getProperties(ProcessedBsm<?> processedBsm) {
+        Optional<BsmFeature<?>> optFeature = getFeature(processedBsm);
+        if (optFeature.isEmpty()) return Optional.empty();
+        BsmFeature<?> feature = optFeature.get();
+        BsmProperties properties = feature.getProperties();
+        if (properties == null) return Optional.empty();
+        return Optional.of(properties);
+    }
+
+
+
     public static CoordinateXY getPosition(OdeBsmData bsm) {
         CoordinateXY position = new CoordinateXY();
         Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);

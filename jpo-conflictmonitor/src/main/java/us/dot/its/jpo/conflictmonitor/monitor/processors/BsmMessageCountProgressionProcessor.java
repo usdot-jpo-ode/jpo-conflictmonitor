@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-// TODO Receive ProcessedBsm
+// TODO Use RsuLogKey
 @Slf4j
 public class BsmMessageCountProgressionProcessor<Point> extends ContextualProcessor<String, ProcessedBsm<Point>, String, BsmMessageCountProgressionEvent> {
 

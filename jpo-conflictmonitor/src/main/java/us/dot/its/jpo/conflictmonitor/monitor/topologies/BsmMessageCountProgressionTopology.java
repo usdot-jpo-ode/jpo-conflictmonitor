@@ -22,7 +22,7 @@ import java.time.Duration;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionConstants.DEFAULT_BSM_MESSAGE_COUNT_PROGRESSION_ALGORITHM;
 
-// TODO Receive ProcessedBsm
+// TODO Use RsuLogKey
 @Component(DEFAULT_BSM_MESSAGE_COUNT_PROGRESSION_ALGORITHM)
 @Slf4j
 public class BsmMessageCountProgressionTopology

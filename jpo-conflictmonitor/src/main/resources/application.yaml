@@ -393,7 +393,7 @@ intersection.reference.alignment.notification:
 # BSM Events
 bsm.event:
   algorithm: defaultBsmEventAlgorithm
-  inputTopic: topic.CmBsmJsonRepartition
+  inputTopic: topic.ProcessedBsm
   outputTopic: topic.CmBsmEvents
   bsmIntersectionOutputTopic: topic.CmBsmIntersection
   stateStoreName: bsm-event-state-store

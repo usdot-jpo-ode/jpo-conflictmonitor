@@ -1,24 +1,21 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 
-import lombok.*;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-
-// TODO Use ProcessedBsm
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
 @Generated
 public class BsmEvent {
-    private OdeBsmData startingBsm;
-    private OdeBsmData endingBsm;
+    private ProcessedBsm<Point> startingBsm;
+    private ProcessedBsm<Point> endingBsm;
     private Long startingBsmTimestamp;
     private Long endingBsmTimestamp;
     private String wktPath;
@@ -28,16 +25,17 @@ public class BsmEvent {
 
     /**
      * Timestamp to use with wall clock punctuator
+     * TODO Remove/use TopologyTestDriver support
      */
     private long wallClockTimestamp;
 
     public BsmEvent() {}
 
-    public BsmEvent(OdeBsmData startingBsm){
+    public BsmEvent(ProcessedBsm<Point> startingBsm){
         this.startingBsm = startingBsm;
     }
 
-    public BsmEvent(OdeBsmData startingBsm, OdeBsmData endingBsm){
+    public BsmEvent(ProcessedBsm<Point> startingBsm, ProcessedBsm<Point> endingBsm){
         this.startingBsm = startingBsm;
         this.endingBsm = endingBsm;
     }

@@ -15,6 +15,7 @@ import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 public class BsmIntersectionIdKey extends RsuIntersectionKey {
 
     String bsmId;
+    // TODO Add log file
 
     public BsmIntersectionIdKey() {}
 
