@@ -1,10 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.intersection;
 
 import org.junit.Test;
-import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.IntersectionLine;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
@@ -12,9 +10,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class VehiclePathTest {
 
@@ -69,8 +65,8 @@ public class VehiclePathTest {
 
 
     private BsmAggregator getBsms() {
-        final var startBsm = BsmTestUtils.bsmWithPosition(Instant.ofEpochMilli(startMillis), bsmId, startLon, startLat, elevation);
-        final var endBsm = BsmTestUtils.bsmWithPosition(Instant.ofEpochMilli(endMillis), bsmId, endLon, endLat, elevation);
+        final var startBsm = BsmTestUtils.processedBsmWithPosition(Instant.ofEpochMilli(startMillis), bsmId, startLon, startLat, elevation);
+        final var endBsm = BsmTestUtils.processedBsmWithPosition(Instant.ofEpochMilli(endMillis), bsmId, endLon, endLat, elevation);
         var bsmAggregator = new BsmAggregator();
         bsmAggregator.add(startBsm);
         bsmAggregator.add(endBsm);

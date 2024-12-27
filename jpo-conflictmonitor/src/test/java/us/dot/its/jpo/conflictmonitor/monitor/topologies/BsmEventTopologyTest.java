@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
+import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
@@ -32,6 +33,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils.bsmAtInstant;
+import static us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils.processedBsmAtInstant;
 
 public class BsmEventTopologyTest {
 
@@ -84,24 +86,28 @@ public class BsmEventTopologyTest {
             id1.setBsmId("BSMID1");
             for (var currentInstant : instants) {
                 logger.info("Send BSM at {}", currentInstant);
-                ProcessedBsm<Point> bsm = bsmAtInstant(currentInstant, id1.getBsmId());
+                ProcessedBsm<Point> bsm = processedBsmAtInstant(currentInstant, id1.getBsmId());
                 inputTopic.pipeInput(id1, bsm, currentInstant);
             }
 
             // Simulate a long enough period of no BSMs followed by a different BSM ID to advance stream time
             final Instant newBsm = startTime.plusSeconds(15);
-            final BsmRsuIdKey id2 = new BsmRsuIdKey(rsuId, "BSMID2");
-            OdeBsmData gapBsm = bsmAtInstant(newBsm, id2.getBsmId());
+            final RsuLogKey id2 = new RsuLogKey();
+            id2.setRsuId(rsuId);
+            id2.setBsmId("BSMID2");
+            ProcessedBsm<Point> gapBsm = processedBsmAtInstant(newBsm, id2.getBsmId());
             inputTopic.pipeInput(id2, gapBsm, newBsm);
 
             // Include an invalid BSM for validation coverage
-            OdeBsmData invalidBsm = bsmAtInstant(startTime, id2.getBsmId());
-            ((J2735Bsm)invalidBsm.getPayload().getData()).getCoreData().setPosition(null);
+            ProcessedBsm<Point> invalidBsm = processedBsmAtInstant(startTime, id2.getBsmId());
+            var validationMessage = new ProcessedValidationMessage();
+            validationMessage.setMessage("Invalid BSM");
+            invalidBsm.setValidationMessages(List.of(validationMessage));
             inputTopic.pipeInput(id2, invalidBsm, startTime);
 
             // Include a BSM with an earlier timestamp than the previous BSM for validation coverage
             final Instant oldTime = startTime.minusSeconds(100);
-            OdeBsmData oldBsm = bsmAtInstant(oldTime, id2.getBsmId());
+            ProcessedBsm<Point> oldBsm = processedBsmAtInstant(oldTime, id2.getBsmId());
             inputTopic.pipeInput(id2, oldBsm, oldTime);
 
             var output = outputTopic.readKeyValuesToList();
