@@ -11,12 +11,18 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
+
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
@@ -60,25 +66,25 @@ public class BsmEventTopologyTest {
 
         Topology topology = bsmEventTopology.buildTopology();
         try (TopologyTestDriver driver = new TopologyTestDriver(topology, streamsConfig)) {
-            
+
             var inputTopic = driver.createInputTopic(inputTopicName,
-                JsonSerdes.BsmRsuIdKey().serializer(),
-                JsonSerdes.OdeBsm().serializer());
+                    new JsonSerializer<RsuLogKey>(),
+                    new JsonSerializer<ProcessedBsm<Point>>());
 
             var outputTopic = driver.createOutputTopic(outputTopicName,
-                JsonSerdes.BsmIntersectionIdKey().deserializer(),
-                JsonSerdes.BsmEvent().deserializer()
-            );
-
+                new JsonDeserializer<>(BsmIntersectionIdKey.class),
+                new JsonDeserializer<>(BsmEvent.class));
 
             final Instant startTime = Instant.ofEpochMilli(1674356320000L);
             final int periodMillis = 100;
             final int totalTimeSeconds = 1;
             List<Instant> instants = TopologyTestUtils.getInstantsExclusive(startTime, periodMillis, totalTimeSeconds);
-            final BsmRsuIdKey id1 = new BsmRsuIdKey(rsuId, "BSMID1");
+            final RsuLogKey id1 = new RsuLogKey();
+            id1.setRsuId(rsuId);
+            id1.setBsmId("BSMID1");
             for (var currentInstant : instants) {
                 logger.info("Send BSM at {}", currentInstant);
-                OdeBsmData bsm = bsmAtInstant(currentInstant, id1.getBsmId());
+                ProcessedBsm<Point> bsm = bsmAtInstant(currentInstant, id1.getBsmId());
                 inputTopic.pipeInput(id1, bsm, currentInstant);
             }
 
