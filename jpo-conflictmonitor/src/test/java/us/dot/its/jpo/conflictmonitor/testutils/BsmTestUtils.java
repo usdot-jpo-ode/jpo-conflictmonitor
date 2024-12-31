@@ -111,6 +111,7 @@ public class BsmTestUtils {
         final ProcessedBsm<Point> bsm = new ProcessedBsm<>(List.of(feature).toArray(new BsmFeature[0]));
         bsm.setOriginIp("127.0.0.1");
         bsm.setTimeStamp(ZonedDateTime.parse("2020-01-01T00:00:00.000Z"));
+        bsm.setOdeReceivedAt("2020-01-01T00:00:25.123Z");
         return bsm;
     }
 }
