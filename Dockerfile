@@ -55,5 +55,7 @@ ENTRYPOINT ["java", \
     "-Dcom.sun.management.jmxremote.rmi.port=10090", \
     "-Djava.rmi.server.hostname=localhost", \
     "-Dlogback.configurationFile=/home/logback.xml", \
-	"-jar", \
+    "-Xmx128M", \
+    "-Xms16M", \
+    "-jar", \
 	"/home/jpo-conflictmonitor.jar"]
