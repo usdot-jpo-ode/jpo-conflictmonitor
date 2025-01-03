@@ -855,6 +855,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       // Reduce cache buffering per topology to 1MB
       streamProps.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 1 * 1024 * 1024L);
+      // Optionally, to disable caching:
       //streamProps.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 0);
 
       // Decrease default commit interval. Default for 'at least once' mode of 30000ms
