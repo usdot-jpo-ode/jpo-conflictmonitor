@@ -900,7 +900,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
          }
      }
 
-      // Configure RocksDB
+      // Configure RocksDB memory usage
       streamProps.put(StreamsConfig.ROCKSDB_CONFIG_SETTER_CLASS_CONFIG, BoundedMemoryRocksDBConfig.class);
 
       return streamProps;

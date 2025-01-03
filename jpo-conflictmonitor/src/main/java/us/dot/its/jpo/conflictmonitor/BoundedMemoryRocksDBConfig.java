@@ -11,9 +11,26 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-// Refs:
-// https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
-// https://docs.confluent.io/platform/current/streams/developer-guide/config-streams.html#rocksdb-config-setter
+
+/**
+ * Bounded memory configuration for RocksDB for all topologies.
+ * <p>References:
+ * <ul>
+ *     <li><a href="https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb">Confluent: RocksDB Memory Management</a></li>
+ *     <li><a href="https://docs.confluent.io/platform/current/streams/developer-guide/config-streams.html#rocksdb-config-setter">Confluent: RocksDB Config Setter</a></li>
+ * </ul></p>
+ * <p>Configured using environment variables:
+ * <dl>
+ *     <dt>ROCKSDB_TOTAL_OFF_HEAP_MEMORY</dt><dd>Total block cache size</dd>
+ *     <dt>ROCKSDB_INDEX_FILTER_BLOCK_RATIO</dt><dd>Fraction of the block cache to use for high priority blocks (index
+ *     and filter blocks).</dd>
+ *     <dt>ROCKSDB_TOTAL_MEMTABLE_MEMORY</dt><dd>Write buffer size, include in block cache</dd>
+ *     <dt>ROCKSDB_BLOCK_SIZE</dt><dd>{@link org.rocksdb.BlockBasedTableConfig#blockSize()}, Default 4KB</dd>
+ *     <dt>ROCKSDB_N_MEMTABLES</dt><dd>{@link org.rocksdb.Options#maxWriteBufferNumber()}, Default 2</dd>
+ *     <dt>ROCKSDB_MEMTABLE_SIZE</dt><dd>{@link org.rocksdb.Options#writeBufferSize()}, Default 64MB</dd>
+ * </dl>
+ * </p>
+ */
 @Slf4j
 public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
 
@@ -28,18 +45,26 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
     private final static int N_MEMTABLES;
 
     // WriteBufferSize: Default 64MB
-    public final static long MEMTABLE_SIZE;
+    private final static long MEMTABLE_SIZE;
+
+    private final static long KB = 1024L;
+    private final static long MB = KB * KB;
 
     static {
         RocksDB.loadLibrary();
 
         // Initialize properties from env variables
-        TOTAL_OFF_HEAP_MEMORY = getEnvLong("ROCKSDB_TOTAL_OFF_HEAP_MEMORY", 128 * 1024L * 1024L);
+        TOTAL_OFF_HEAP_MEMORY = getEnvLong("ROCKSDB_TOTAL_OFF_HEAP_MEMORY", 128 * MB);
         INDEX_FILTER_BLOCK_RATIO = getEnvDouble("ROCKSDB_INDEX_FILTER_BLOCK_RATIO", 0.1);
-        TOTAL_MEMTABLE_MEMORY = getEnvLong("ROCKSDB_TOTAL_MEMTABLE_MEMORY", 64 * 1024L * 1024L);
-        BLOCK_SIZE = getEnvLong("ROCKSDB_BLOCK_SIZE", 4 * 1024L);
+        TOTAL_MEMTABLE_MEMORY = getEnvLong("ROCKSDB_TOTAL_MEMTABLE_MEMORY", 64 * MB);
+        BLOCK_SIZE = getEnvLong("ROCKSDB_BLOCK_SIZE", 4 * KB);
         N_MEMTABLES = getEnvInt("ROCKSDB_N_MEMTABLES", 2);
-        MEMTABLE_SIZE = getEnvLong("ROCKSDB_MEMTABLE_SIZE", 16 * 1024L * 1024L);
+        MEMTABLE_SIZE = getEnvLong("ROCKSDB_MEMTABLE_SIZE", 16 * MB);
+
+        log.info("Initialized BoundedMemoryRocksDBConfig.  TOTAL_OFF_HEAP_MEMORY = {}, INDEX_FILTER_BLOCK_RATIO = {}," +
+                " TOTAL_MEMTABLE_MEMORY = {}, BLOCK_SIZE = {}, N_MEMTABLES = {}, MEMTABLE_SIZE = {}",
+                TOTAL_OFF_HEAP_MEMORY, INDEX_FILTER_BLOCK_RATIO, TOTAL_MEMTABLE_MEMORY, BLOCK_SIZE, N_MEMTABLES,
+                MEMTABLE_SIZE);
     }
 
 
@@ -77,7 +102,6 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
 
         options.setTableFormatConfig(tableConfig);
 
-        log.info("Rocksdb set table config: {}, options: {}", tableConfig, options);
     }
 
     @Override
@@ -86,11 +110,8 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
     }
 
     private static long getEnvLong(String name, long defaultValue) {
-        String strValue = System.getenv(name);
-        if (strValue == null) {
-            log.warn("Env variable {} is not set, using default value of {}", name, defaultValue);
-            return defaultValue;
-        }
+        String strValue = getEnvString(name);
+        if (strValue == null) return defaultValue;
         try {
             return Long.parseLong(strValue);
         } catch (NumberFormatException nfe) {
@@ -100,11 +121,8 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
     }
 
     private static int getEnvInt(String name, int defaultValue) {
-        String strValue = System.getenv(name);
-        if (strValue == null) {
-            log.warn("Env variable {} is not set, using default value of {}", name, defaultValue);
-            return defaultValue;
-        }
+        String strValue = getEnvString(name);
+        if (strValue == null) return defaultValue;
         try {
             return Integer.parseInt(strValue);
         } catch (NumberFormatException nfe) {
@@ -114,11 +132,8 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
     }
 
     private static double getEnvDouble(String name, double defaultValue) {
-        String strValue = System.getenv(name);
-        if (strValue == null) {
-            log.warn("Env variable {} is not set, using default value of {}", name, defaultValue);
-            return defaultValue;
-        }
+        String strValue = getEnvString(name);
+        if (strValue == null) return defaultValue;
         try {
             return Double.parseDouble(strValue);
         } catch (NumberFormatException nfe) {
@@ -126,4 +141,14 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
             return defaultValue;
         }
     }
+
+    private static String getEnvString(String name) {
+        String strValue = System.getenv(name);
+        if (strValue == null) {
+            log.warn("Env variable {} is not set", name);
+        }
+        return strValue;
+    }
+
+
 }
