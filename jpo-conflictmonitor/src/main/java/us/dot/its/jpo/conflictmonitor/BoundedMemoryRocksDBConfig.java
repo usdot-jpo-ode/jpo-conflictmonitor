@@ -6,6 +6,8 @@ import org.rocksdb.BlockBasedTableConfig;
 import org.rocksdb.CompressionType;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -15,18 +17,31 @@ import java.util.Map;
 @Slf4j
 public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
 
-    public static final long TOTAL_OFF_HEAP_MEMORY = 128 * 1024L;
-    public static final double INDEX_FILTER_BLOCK_RATIO = 0.1;
-    public static final long TOTAL_MEMTABLE_MEMORY = 64 * 1024L;
-    public static final long BLOCK_SIZE = 16 * 1024L; // Default 4K
-    public static final int N_MEMTABLES = 4;
+    private final static long TOTAL_OFF_HEAP_MEMORY;
+    private final static double INDEX_FILTER_BLOCK_RATIO;
+    private final static long TOTAL_MEMTABLE_MEMORY;
 
-    // Default 64MB
-    public static final long MEMTABLE_SIZE = BLOCK_SIZE * N_MEMTABLES;
+    // Block size: Default 4K
+    private final static long BLOCK_SIZE;
+
+    // MaxWriteBufferNumber: Default 2
+    private final static int N_MEMTABLES;
+
+    // WriteBufferSize: Default 64MB
+    public final static long MEMTABLE_SIZE;
 
     static {
         RocksDB.loadLibrary();
+
+        // Initialize properties from env variables
+        TOTAL_OFF_HEAP_MEMORY = getEnvLong("ROCKSDB_TOTAL_OFF_HEAP_MEMORY", 128 * 1024L * 1024L);
+        INDEX_FILTER_BLOCK_RATIO = getEnvDouble("ROCKSDB_INDEX_FILTER_BLOCK_RATIO", 0.1);
+        TOTAL_MEMTABLE_MEMORY = getEnvLong("ROCKSDB_TOTAL_MEMTABLE_MEMORY", 64 * 1024L * 1024L);
+        BLOCK_SIZE = getEnvLong("ROCKSDB_BLOCK_SIZE", 4 * 1024L);
+        N_MEMTABLES = getEnvInt("ROCKSDB_N_MEMTABLES", 2);
+        MEMTABLE_SIZE = getEnvLong("ROCKSDB_MEMTABLE_SIZE", 16 * 1024L * 1024L);
     }
+
 
     // See #1 below
     private static final org.rocksdb.Cache cache
@@ -68,5 +83,47 @@ public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {
     @Override
     public void close(final String storeName, final Options options) {
         // Cache and WriteBufferManager should not be closed here, as the same objects are shared by every store instance.
+    }
+
+    private static long getEnvLong(String name, long defaultValue) {
+        String strValue = System.getenv(name);
+        if (strValue == null) {
+            log.warn("Env variable {} is not set, using default value of {}", name, defaultValue);
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(strValue);
+        } catch (NumberFormatException nfe) {
+            log.error("Error parsing env variable to long {}, {}", name, strValue, nfe);
+            return defaultValue;
+        }
+    }
+
+    private static int getEnvInt(String name, int defaultValue) {
+        String strValue = System.getenv(name);
+        if (strValue == null) {
+            log.warn("Env variable {} is not set, using default value of {}", name, defaultValue);
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(strValue);
+        } catch (NumberFormatException nfe) {
+            log.error("Error parsing env variable to long {}, {}", name, strValue, nfe);
+            return defaultValue;
+        }
+    }
+
+    private static double getEnvDouble(String name, double defaultValue) {
+        String strValue = System.getenv(name);
+        if (strValue == null) {
+            log.warn("Env variable {} is not set, using default value of {}", name, defaultValue);
+            return defaultValue;
+        }
+        try {
+            return Double.parseDouble(strValue);
+        } catch (NumberFormatException nfe) {
+            log.error("Error parsing env variable to long {}, {}", name, strValue, nfe);
+            return defaultValue;
+        }
     }
 }
