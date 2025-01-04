@@ -31,8 +31,8 @@ COPY --from=builder /home/jpo-conflictmonitor/target/jpo-conflictmonitor.jar /ho
 
 # Use jemalloc for RocksDB per Confluent recommendation:
 # https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb
-RUN amazon-linux-extras install -y epel
-RUN yum install -y jemalloc-devel
+RUN amazon-linux-extras install -y epel && \
+     yum install -y jemalloc-devel
 ENV LD_PRELOAD="/usr/lib64/libjemalloc.so"
 
 # Entrypoint for prod: JMX not exposed.
