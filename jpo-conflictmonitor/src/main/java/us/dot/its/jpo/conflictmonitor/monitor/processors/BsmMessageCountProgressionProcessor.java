@@ -169,7 +169,6 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
             event.setVehicleId(thisState.getFeatures()[featureIndex].getId().toString());
         }
 
-
         return event;
     }
 
