@@ -15,14 +15,22 @@ services:
         MAVEN_GITHUB_TOKEN: ${MAVEN_GITHUB_TOKEN:?error}
         MAVEN_GITHUB_ORG: ${MAVEN_GITHUB_ORG:?error}
     image: jpo-conflictmonitor:latest
+    privileged: false  # Set true to allow writing to /proc/sys/vm/drop_caches
     restart: ${RESTART_POLICY}
     ports:
       - "8082:8082"
+      - "10090:10090" # JMX
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP:?error}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
       CONNECT_URL: ${CONNECT_URL:?error}
       spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
+      ROCKSDB_TOTAL_OFF_HEAP_MEMORY: ${ROCKSDB_TOTAL_OFF_HEAP_MEMORY:?error}
+      ROCKSDB_INDEX_FILTER_BLOCK_RATIO: ${ROCKSDB_INDEX_FILTER_BLOCK_RATIO:?error}
+      ROCKSDB_TOTAL_MEMTABLE_MEMORY: ${ROCKSDB_TOTAL_MEMTABLE_MEMORY:?error}
+      ROCKSDB_BLOCK_SIZE: ${ROCKSDB_BLOCK_SIZE:?error}
+      ROCKSDB_N_MEMTABLES: ${ROCKSDB_N_MEMTABLES:?error}
+      ROCKSDB_MEMTABLE_SIZE: ${ROCKSDB_MEMTABLE_SIZE:?error}
     healthcheck:
       test: ["CMD", "java", "-version"]
       interval: 10s
@@ -35,7 +43,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 3G
+          memory: 1G
     depends_on:
       kafka:
         condition: service_healthy
@@ -53,6 +61,12 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
       CONNECT_URL: ${CONNECT_URL:?error}
       spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
+      ROCKSDB_TOTAL_OFF_HEAP_MEMORY: ${ROCKSDB_TOTAL_OFF_HEAP_MEMORY:?error}
+      ROCKSDB_INDEX_FILTER_BLOCK_RATIO: ${ROCKSDB_INDEX_FILTER_BLOCK_RATIO:?error}
+      ROCKSDB_TOTAL_MEMTABLE_MEMORY: ${ROCKSDB_TOTAL_MEMTABLE_MEMORY:?error}
+      ROCKSDB_BLOCK_SIZE: ${ROCKSDB_BLOCK_SIZE:?error}
+      ROCKSDB_N_MEMTABLES: ${ROCKSDB_N_MEMTABLES:?error}
+      ROCKSDB_MEMTABLE_SIZE: ${ROCKSDB_MEMTABLE_SIZE:?error}
     healthcheck:
       test: ["CMD", "java", "-version"]
       interval: 10s
@@ -71,38 +85,3 @@ services:
         condition: service_healthy
         required: false
 
-  deduplicator:
-    profiles:
-      - all
-      - cm_full
-      - cm_base
-      - deduplicator
-    build:
-      context: .
-      dockerfile: Dedup_Dockerfile
-      args:
-        MAVEN_GITHUB_TOKEN: ${MAVEN_GITHUB_TOKEN:?error}
-        MAVEN_GITHUB_ORG: ${MAVEN_GITHUB_ORG:?error}
-    image: jpo-deduplicator:latest
-    restart: ${RESTART_POLICY}
-    environment:
-      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:?error}
-      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:?error}
-    healthcheck:
-      test: ["CMD", "java", "-version"]
-      interval: 10s
-      timeout: 10s
-      retries: 20
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "5"
-    deploy:
-      resources:
-        limits:
-          memory: 3G
-    depends_on:
-      kafka:
-        condition: service_healthy
-        required: false
