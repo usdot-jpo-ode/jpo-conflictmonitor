@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.CoordinateXY;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -34,11 +33,7 @@ public class BsmUtils {
         return position;
     }
 
-    public static Optional<BsmFeature<?>> getFeature(ProcessedBsm<?> processedBsm) {
-        if (processedBsm == null) return Optional.empty();
-        if (processedBsm.getFeatures() == null || processedBsm.getFeatures().length < 1) return Optional.empty();
-        return Optional.of(processedBsm.getFeatures()[0]);
-    }
+
 
     /**
      * Get geometry
@@ -46,10 +41,7 @@ public class BsmUtils {
      * @return The Point geometry, or empty if geometry is not a geojson Point.
      */
     public static Optional<Point> getGeometry(ProcessedBsm<?> processedBsm) {
-        Optional<BsmFeature<?>> optionalFeature = getFeature(processedBsm);
-        if (optionalFeature.isEmpty()) return Optional.empty();
-        BsmFeature<?> feature = optionalFeature.get();
-        Object geom = feature.getGeometry();
+        Object geom = processedBsm.getGeometry();
         if (geom == null) return Optional.empty();
         if (geom instanceof Point point) {
             return Optional.of(point);
@@ -59,10 +51,7 @@ public class BsmUtils {
     }
 
     public static Optional<BsmProperties> getProperties(ProcessedBsm<?> processedBsm) {
-        Optional<BsmFeature<?>> optFeature = getFeature(processedBsm);
-        if (optFeature.isEmpty()) return Optional.empty();
-        BsmFeature<?> feature = optFeature.get();
-        BsmProperties properties = feature.getProperties();
+        BsmProperties properties = processedBsm.getProperties();
         if (properties == null) return Optional.empty();
         return Optional.of(properties);
     }

@@ -16,7 +16,6 @@ import org.apache.kafka.streams.state.VersionedRecordIterator;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmMessageCountProgressionEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 
 import java.time.Instant;
@@ -59,7 +58,7 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
         ProcessedBsm<Point> lastProcessedBsm = lastProcessedStateStore.get(key);
         Instant startTime;
         if (lastProcessedBsm != null) {
-            startTime = lastProcessedBsm.getTimeStamp().toInstant();
+            startTime = lastProcessedBsm.getProperties().getTimeStamp().toInstant();
         } else {
             // No transitions yet, base start time on time window
             startTime = Instant.ofEpochMilli(context().currentStreamTimeMs())
@@ -91,34 +90,29 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
                 recordCount++;
 
                 // Skip records older than the last processed state
-                if (lastProcessedBsm != null && thisState.getTimeStamp().isBefore(lastProcessedBsm.getTimeStamp())) {
+                if (lastProcessedBsm != null && thisState.getProperties().getTimeStamp().isBefore(lastProcessedBsm.getProperties().getTimeStamp())) {
                     continue;
                 }
 
                 if (previousState != null) {
-                    long timeDifference = thisState.getTimeStamp().toInstant().toEpochMilli() - previousState.getTimeStamp().toInstant().toEpochMilli();
+                    long timeDifference = thisState.getProperties().getTimeStamp().toInstant().toEpochMilli() - previousState.getProperties().getTimeStamp().toInstant().toEpochMilli();
 
                     if (timeDifference < parameters.getBufferTimeMs()) {
                         int previousHash = calculateHash(previousState);
                         int currentHash = calculateHash(thisState);
 
-                        BsmFeature<Point>[] previousFeatures = previousState.getFeatures();
-                        BsmFeature<Point>[] currentFeatures = thisState.getFeatures();
+                        BsmProperties previousProperties = previousState.getProperties();
+                        BsmProperties currentProperties = thisState.getProperties();
 
-                        for (int i = 0; i < Math.min(previousFeatures.length, currentFeatures.length); i++) {
-                            BsmProperties previousProperties = previousFeatures[i].getProperties();
-                            BsmProperties currentProperties = currentFeatures[i].getProperties();
+                        int previousMessageCount = previousProperties.getMsgCnt();
+                        int currentMessageCount = currentProperties.getMsgCnt();
 
-                            int previousMessageCount = previousProperties.getMsgCnt();
-                            int currentMessageCount = currentProperties.getMsgCnt();
-
-                            if (previousHash == currentHash && previousMessageCount == currentMessageCount); // No change
-                            else if (previousHash != currentHash && (previousMessageCount + 1) % 128 == currentMessageCount); // changed with valid increment, including wrap-around from 127 to 0
-                            else {
-                                BsmMessageCountProgressionEvent event = createEvent(previousState, thisState, i);
-                                context().forward(new Record<>(key, event, state.timestamp()));
-                            }
-                        } 
+                        if (previousHash == currentHash && previousMessageCount == currentMessageCount); // No change
+                        else if (previousHash != currentHash && (previousMessageCount + 1) % 128 == currentMessageCount); // changed with valid increment, including wrap-around from 127 to 0
+                        else {
+                            BsmMessageCountProgressionEvent event = createEvent(previousState, thisState, i);
+                            context().forward(new Record<>(key, event, state.timestamp()));
+                        }
                     }
                 }
                 previousState = thisState;
@@ -131,26 +125,21 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
     }
 
     private int calculateHash(ProcessedBsm<Point> bsmData) {
-        ZonedDateTime timeStamp = bsmData.getTimeStamp();
-        String odeReceivedAt = bsmData.getOdeReceivedAt();
-        bsmData.setTimeStamp(null);
-        bsmData.setOdeReceivedAt(null);
-        BsmFeature<Point>[] features = bsmData.getFeatures();
-        int[] originalMsgCnts = new int[features.length];
-        // Save original msgCnt values and set them to 0
-        for (int i = 0; i < features.length; i++) {
-            originalMsgCnts[i] = features[i].getProperties().getMsgCnt();
-            features[i].getProperties().setMsgCnt(0);
-        }
+        final ZonedDateTime timeStamp = bsmData.getProperties().getTimeStamp();
+        final String odeReceivedAt = bsmData.getProperties().getOdeReceivedAt();
+        bsmData.getProperties().setTimeStamp(null);
+        bsmData.getProperties().setOdeReceivedAt(null);
+
+        // Save original msgCnt value and set them to 0
+        final int originalMsgCnt = bsmData.getProperties().getMsgCnt();
+        bsmData.getProperties().setMsgCnt(0);
 
         int hash = bsmData.hashCode();
     
         // Restore original msgCnt values
-        for (int i = 0; i < features.length; i++) {
-            features[i].getProperties().setMsgCnt(originalMsgCnts[i]);
-        }    
-        bsmData.setTimeStamp(timeStamp);
-        bsmData.setOdeReceivedAt(odeReceivedAt);
+        bsmData.getProperties().setMsgCnt(originalMsgCnt);
+        bsmData.getProperties().setTimeStamp(timeStamp);
+        bsmData.getProperties().setOdeReceivedAt(odeReceivedAt);
         return hash;
     }
 

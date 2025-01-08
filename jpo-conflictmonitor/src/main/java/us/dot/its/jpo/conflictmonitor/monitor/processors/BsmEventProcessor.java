@@ -27,14 +27,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathTransformPair;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
-
-import us.dot.its.jpo.ode.model.OdeBsmMetadata;
-import us.dot.its.jpo.ode.model.OdeBsmPayload;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -313,25 +307,7 @@ public class BsmEventProcessor
             return false;
         }
 
-        if (bsm.getFeatures() == null) {
-            logger.error("BSM missing features {}", bsm);
-            return false;
-        }
-
-        BsmFeature<?>[] features = bsm.getFeatures();
-        if (features.length == 0) {
-            logger.error("BSM features.length = 0 {}", bsm);
-            return false;
-        }
-        if (features.length > 1) {
-            logger.error("ProcessedBsm has more than one point, {}", bsm);
-            return false;
-        }
-
-        BsmFeature<?> feature = features[0];
-
-
-        if (feature.getGeometry() instanceof us.dot.its.jpo.geojsonconverter.pojos.geojson.Point pointGeom) {
+        if (bsm.getGeometry() instanceof us.dot.its.jpo.geojsonconverter.pojos.geojson.Point pointGeom) {
             double[] coords = pointGeom.getCoordinates();
             if (coords == null) {
                 logger.error("BSM coordinates missing {}", bsm);
@@ -343,11 +319,11 @@ public class BsmEventProcessor
             }
         } else {
             logger.error("ProcessedBsm geometry is not us.dot.its.jpo.geojsonconverter.pojos.geojson.Point, {}",
-                    feature.getGeometry());
+                    bsm.getGeometry());
             return false;
         }
 
-        BsmProperties props = feature.getProperties();
+        BsmProperties props = bsm.getProperties();
 
         if(props.getId() == null){
             logger.error("BSM id missing {}", bsm);
@@ -369,17 +345,17 @@ public class BsmEventProcessor
             return false;
         }
 
-        if(bsm.getLogName() == null && bsm.getOriginIp() == null){
+        if(props.getLogName() == null && props.getOriginIp() == null){
             logger.error("BSM source (log name or origin IP) missing {}", bsm);
             return false;
         }
 
-        if (bsm.getTimeStamp() == null){
+        if (props.getTimeStamp() == null){
             logger.error("BSM timestamp missing {}", bsm);
             return false;
         }
 
-        if (bsm.getOdeReceivedAt() == null) {
+        if (props.getOdeReceivedAt() == null) {
             logger.error("BSM odeReceivedAt missing {}", bsm);
             return false;
         }
