@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.BaseMinimumDataEvent;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
 
@@ -25,7 +25,7 @@ public abstract class BaseValidationTopology<TParams>
     
     protected void populateMinDataEvent(
             RsuIntersectionKey key,
-            MinimumDataEvent minDataEvent,
+            BaseMinimumDataEvent minDataEvent,
             List<ProcessedValidationMessage> valMsgList,
             int rollingPeriodSeconds,
             long timestamp) {

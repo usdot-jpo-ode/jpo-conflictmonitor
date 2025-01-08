@@ -14,6 +14,7 @@ import org.apache.kafka.streams.state.VersionedRecord;
 import org.apache.kafka.streams.state.VersionedRecordIterator;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.BsmMessageCountProgressionEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmFeature;
@@ -24,10 +25,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
-public class BsmMessageCountProgressionProcessor<Point> extends ContextualProcessor<String, ProcessedBsm<Point>, String, BsmMessageCountProgressionEvent> {
+public class BsmMessageCountProgressionProcessor<Point> extends ContextualProcessor<BsmRsuIdKey, ProcessedBsm<Point>, BsmRsuIdKey, BsmMessageCountProgressionEvent> {
 
-    private VersionedKeyValueStore<String, ProcessedBsm<Point>> stateStore;
-    private KeyValueStore<String, ProcessedBsm<Point>> lastProcessedStateStore;
+    private VersionedKeyValueStore<BsmRsuIdKey, ProcessedBsm<Point>> stateStore;
+    private KeyValueStore<BsmRsuIdKey, ProcessedBsm<Point>> lastProcessedStateStore;
     private final BsmMessageCountProgressionParameters parameters;
 
     public BsmMessageCountProgressionProcessor(BsmMessageCountProgressionParameters parameters) {
@@ -35,15 +36,15 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
     }
 
     @Override
-    public void init(ProcessorContext<String, BsmMessageCountProgressionEvent> context) {
+    public void init(ProcessorContext<BsmRsuIdKey, BsmMessageCountProgressionEvent> context) {
         super.init(context);
         stateStore = context.getStateStore(parameters.getProcessedBsmStateStoreName());
         lastProcessedStateStore = context.getStateStore(parameters.getLatestBsmStateStoreName());
     }
 
     @Override
-    public void process(Record<String, ProcessedBsm<Point>> record) {
-        String key = record.key();
+    public void process(Record<BsmRsuIdKey, ProcessedBsm<Point>> record) {
+        BsmRsuIdKey key = record.key();
         ProcessedBsm<Point> value = record.value();
         long timestamp = record.timestamp();
 
@@ -70,7 +71,7 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
             excludeGracePeriod = startTime;
         }
 
-        var query = MultiVersionedKeyQuery.<String, ProcessedBsm<Point>>withKey(record.key())
+        var query = MultiVersionedKeyQuery.<BsmRsuIdKey, ProcessedBsm<Point>>withKey(record.key())
             .fromTime(startTime.minusMillis(1)) // Add a small buffer to include the exact startTime record
             .toTime(excludeGracePeriod)
             .withAscendingTimestamps();
@@ -164,7 +165,9 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
         event.setTimestampA(previousState.getTimeStamp().format(formatter));
         event.setMessageCountB(currentProperties.getMsgCnt());
         event.setTimestampB(thisState.getTimeStamp().format(formatter));
-        event.setVehicleId(thisState.getFeatures()[featureIndex].getId().toString());
+        if (thisState.getFeatures()[featureIndex].getId() != null) {
+            event.setVehicleId(thisState.getFeatures()[featureIndex].getId().toString());
+        }
 
         return event;
     }

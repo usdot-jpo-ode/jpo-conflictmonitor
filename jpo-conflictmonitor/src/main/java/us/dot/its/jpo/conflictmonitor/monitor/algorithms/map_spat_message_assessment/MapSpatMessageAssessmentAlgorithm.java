@@ -1,8 +1,17 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
 
-public interface MapSpatMessageAssessmentAlgorithm extends Algorithm<MapSpatMessageAssessmentParameters>{}
+public interface MapSpatMessageAssessmentAlgorithm extends Algorithm<MapSpatMessageAssessmentParameters>{
+
+    void setIntersectionReferenceAlignmentAggregationAlgorithm(IntersectionReferenceAlignmentAggregationAlgorithm intersectionReferenceAlignmentAggregationAlgorithm);
+    void setSignalGroupAlignmentAggregationAlgorithm(SignalGroupAlignmentAggregationAlgorithm signalGroupAlignmentAggregationAlgorithm);
+    void setSignalStateConflictAggregationAlgorithm(SignalStateConflictAggregationAlgorithm signalStateConflictAggregationAlgorithm);
+
+}
 
 
 

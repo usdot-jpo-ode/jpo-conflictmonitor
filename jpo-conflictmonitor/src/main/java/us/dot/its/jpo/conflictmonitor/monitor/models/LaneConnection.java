@@ -200,14 +200,14 @@ public class LaneConnection {
     }
 
     public LineString laneToLineString(J2735GenericLane lane) {
-        List<J2735NodeXY> nodes = lane.getNodeList().getNodes().getNodes();
+        J2735NodeXY[] nodes = lane.getNodeList().getNodes();
 
-        Coordinate[] coordList = new Coordinate[nodes.size()];
-        for (int i = 0; i < nodes.size(); i++) {
-            if (nodes.get(i).getDelta().getNodeLatLon() != null) {
+        Coordinate[] coordList = new Coordinate[nodes.length];
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i].getDelta().getNodeLatLon() != null) {
                 System.out.println("Reference Point Moved");
             }
-            J2735NodeOffsetPointXY nodeOffset = nodes.get(i).getDelta();
+            J2735NodeOffsetPointXY nodeOffset = nodes[i].getDelta();
             J2735Node_XY nodeXY = getNodeXY(nodeOffset);
             if (nodeXY == null) {
                 continue;

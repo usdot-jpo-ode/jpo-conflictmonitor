@@ -71,6 +71,36 @@ public class MapSpatMessageAssessmentParameters {
         updateType = READ_ONLY)
     String signalStateConflictNotificationTopicName;
 
+    @ConfigData(key = "map.spat.message.assessment.aggregateIntersectionReferenceAlignmentEvents",
+        description = "Whether to aggregate Intersection Reference Alignment Events",
+        updateType = READ_ONLY)
+    boolean aggregateIntersectionReferenceAlignmentEvents;
+
+    @ConfigData(key = "map.spat.message.assessment.aggregateSignalGroupAlignmentEvents",
+        description = "Whether to aggregate Signal Group Alignment Events",
+        updateType = READ_ONLY)
+    boolean aggregateSignalGroupAlignmentEvents;
+
+    @ConfigData(key = "map.spat.message.assessment.aggregateSignalStateConflictEvents",
+        description = "Whether to aggregate Signal State Conflict Events",
+        updateType = READ_ONLY)
+    boolean aggregateSignalStateConflictEvents;
+
+    @ConfigData(key = "spat.time.change.details.intersectionReferenceAlignmentNotificationAggTopicName",
+            description = "The name of the topic to write intersection reference alignment notifications to",
+            updateType = READ_ONLY)
+    String intersectionReferenceAlignmentNotificationAggTopicName;
+
+    @ConfigData(key = "spat.time.change.details.signalGroupAlignmentNotificationAggTopicName",
+            description = "The name of the topic to write signal group alignment notifications to",
+            updateType = READ_ONLY)
+    String signalGroupAlignmentNotificationAggTopicName;
+
+    @ConfigData(key = "spat.time.change.details.signalStateConflictNotificationAggTopicName",
+            description = "The name of the topic to write signal state conflict notifications to",
+            updateType = READ_ONLY)
+    String signalStateConflictNotificationAggTopicName;
+
 
     @ConfigData(key = "map.spat.message.assessment.concurrentPermissiveList",
         description = "List of pairs of lane connections that are allowed concurrently permissive for an intersection.",

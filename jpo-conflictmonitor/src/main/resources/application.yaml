@@ -7,6 +7,7 @@ server.port: 8082
 
 # Kafka properties
 spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+spring.kafka.producer.properties.max-request.size: 2097152
 
 logging.level.org.apache.kafka: INFO
 logging.level: INFO
@@ -45,8 +46,9 @@ kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 kafka.linger_ms: 50
 
 # Custom kafka properties
+# TODO Remove, use jpo-utils instead
 kafka.topics:
-  autoCreateTopics: true  # Override auto-create in test properties
+  autoCreateTopics: false  # Topic creating disabled, using jpo-utils
   numPartitions: 1
   numReplicas: 1
   createTopics:
@@ -188,7 +190,46 @@ kafka.topics:
       retentionMs: 300000
     - name: topic.CmEventStateProgressionNotification
       cleanupPolicy: compact
-    
+    - name: topic.CmSpatMinimumDataEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapMinimumDataEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmIntersectionReferenceAlignmentEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalGroupAlignmentEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSignalStateConflictEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatTimeChangeDetailsEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmEventStateProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmBsmMessageCountProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmMapMessageCountProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmSpatMessageCountProgressionEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmIntersectionReferenceAlignmentNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmSignalGroupAlignmentNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmSignalStateConflictNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmSpatTimeChangeDetailsNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmEventStateProgressionNotificationAggregation
+      cleanupPolicy: compact
 
 
 # Connection of Travel
@@ -240,8 +281,14 @@ map.spat.message.assessment:
   intersectionReferenceAlignmentEventTopicName: topic.CmIntersectionReferenceAlignmentEvents
   signalStateConflictEventTopicName: topic.CmSignalStateConflictEvents
   intersectionReferenceAlignmentNotificationTopicName: topic.CmIntersectionReferenceAlignmentNotification
+  intersectionReferenceAlignmentNotificationAggTopicName: topic.CmIntersectionReferenceAlignmentNotificationAggregation
   signalGroupAlignmentNotificationTopicName: topic.CmSignalGroupAlignmentNotification
+  signalGroupAlignmentNotificationAggTopicName: topic.CmSignalGroupAlignmentNotificationAggregation
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
+  signalStateConflictNotificationAggTopicName: topic.CmSignalStateConflictNotificationAggregation
+  aggregateIntersectionReferenceAlignmentEvents: true
+  aggregateSignalGroupAlignmentEvents: true
+  aggregateSignalStateConflictEvents: true
 
 
 # MAP Time Change Details
@@ -264,6 +311,7 @@ map.validation:
   lowerBound: 9
   upperBound: 11
   debug: false
+  aggregateMinimumDataEvents: true
 
 
 
@@ -316,7 +364,6 @@ event:
   mapMessageCountProgressionEventTopicName: topic.CmMapMessageCountProgressionEvents
   bsmMessageCountProgressionEventTopicName: topic.CmBsmMessageCountProgressionEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
-  eventStateProgressionEventTopicName: topic.CmEventStateProgressionEvent
 
 # Signal State Event Assessment
 stop.line.passage.assessment:
@@ -371,6 +418,8 @@ spat.time.change.details:
   spatTimeChangeDetailsStateStoreName: spat-time-change-detail-state-store
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   jitterBufferSize: 50
+  aggregateEvents: true
+  aggNotificationTopicName: topic.CmSpatTimeChangeDetailsNotificationAggregation
 
 # SPAT Validation
 spat.validation:
@@ -384,6 +433,8 @@ spat.validation:
   lowerBound: 90
   upperBound: 110
   debug: false
+  aggregateMinimumDataEvents: true
+
 
 # Intersection Reference Alignment Notification
 intersection.reference.alignment.notification:
@@ -424,6 +475,7 @@ map.message.count.progression:
   latestMapStateStoreName: latestMapStateStore
   bufferTimeMs: 5000
   bufferGracePeriodMs: 800
+  aggregateEvents: true
 
 # SPAT Message Count Progression
 spat.message.count.progression:
@@ -435,6 +487,7 @@ spat.message.count.progression:
   latestSpatStateStoreName: latestSpatStateStore
   bufferTimeMs: 500
   bufferGracePeriodMs: 50
+  aggregateEvents: true
 
 # BSM Message Count Progression
 bsm.message.count.progression:
@@ -446,6 +499,7 @@ bsm.message.count.progression:
   latestBsmStateStoreName: latestBsmStateStore
   bufferTimeMs: 500
   bufferGracePeriodMs: 50
+  aggregateEvents: true
   
 # Config parameters
 config:
@@ -485,10 +539,12 @@ event.state.progression:
   debug: true
   outputTopicName: topic.CmEventStateProgressionEvent
   notificationTopicName: topic.CmEventStateProgressionNotification
+  aggNotificationTopicName: topic.CmEventStateProgressionNotificationAggregation
   movementStateStoreName: spatTransitionStateStore
   latestTransitionStoreName: latestTransitionStateStore
   bufferTimeMs: 1000
   bufferGracePeriodMs: 100
+  aggregateEvents: true
   illegalSpatTransitionList:
     - { stateA: STOP_THEN_PROCEED, stateB: PERMISSIVE_CLEARANCE }
     - { stateA: STOP_THEN_PROCEED, stateB: PROTECTED_CLEARANCE }
@@ -518,5 +574,39 @@ event.state.progression:
     - { stateA: PROTECTED_CLEARANCE, stateB: CAUTION_CONFLICTING_TRAFFIC }
     - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_THEN_PROCEED }
     - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_AND_REMAIN }
+
+aggregation:
+  debug: true
+  interval: 60
+  intervalUnits: SECONDS
+  checkIntervalMs: 1000
+  gracePeriodMs: 500
+  eventTopicMap:
+    SpatMinimumDataAggregation: topic.CmSpatMinimumDataEventAggregation
+    MapMinimumDataAggregation: topic.CmMapMinimumDataEventAggregation
+    IntersectionReferenceAlignmentAggregation: topic.CmIntersectionReferenceAlignmentEventAggregation
+    SignalGroupAlignmentAggregation: topic.CmSignalGroupAlignmentEventAggregation
+    SignalStateConflictAggregation: topic.CmSignalStateConflictEventAggregation
+    TimeChangeDetailsAggregation: topic.CmSpatTimeChangeDetailsEventAggregation
+    EventStateProgressionAggregation: topic.CmEventStateProgressionEventAggregation
+    BsmMessageCountProgressionAggregation: topic.CmBsmMessageCountProgressionEventAggregation
+    MapMessageCountProgressionAggregation: topic.CmMapMessageCountProgressionEventAggregation
+    SpatMessageCountProgressionAggregation: topic.CmSpatMessageCountProgressionEventAggregation
+  eventAlgorithmMap:
+    SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
+    MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm
+    IntersectionReferenceAlignmentAggregation: defaultIntersectionReferenceAlignmentAggregationAlgorithm
+    SignalGroupAlignmentAggregation: defaultSignalGroupAlignmentAggregationAlgorithm
+    SignalStateConflictAggregation: defaultSignalStateConflictAggregationAlgorithm
+    TimeChangeDetailsAggregation: defaultTimeChangeDetailsAggregationAlgorithm
+    EventStateProgressionAggregation: defaultEventStateProgressionAggregationAlgorithm
+    BsmMessageCountProgressionAggregation: defaultBsmMessageCountProgressionAggregationAlgorithm
+    MapMessageCountProgressionAggregation: defaultMapMessageCountProgressionAggregationAlgorithm
+    SpatMessageCountProgressionAggregation: defaultSpatMessageCountProgressionAggregationAlgorithm
+
+
+
+
+
 
 

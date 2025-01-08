@@ -11,10 +11,10 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735IntersectionGeometry;
 import us.dot.its.jpo.ode.plugin.j2735.J2735LaneList;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeListXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeOffsetPointXY;
-import us.dot.its.jpo.ode.plugin.j2735.J2735NodeSetXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Node_XY;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
+import us.dot.its.jpo.ode.plugin.j2735.J2735NodeXY;
 
 /**
  * Helper methods to generate lane test data.
@@ -26,8 +26,9 @@ public class LaneTestUtil {
         lane.setLaneID(laneId);
         var nodeList = new J2735NodeListXY();
         lane.setNodeList(nodeList);
-        var nodeSet = new J2735NodeSetXY();
-        nodeList.setNodes(nodeSet);
+        
+        J2735NodeXY[] nodes = new J2735NodeXY[offsets.length];
+        int index = 0;
         for (double[] point : offsets) {
             var node = new J2735NodeXY();
             var delta = new J2735NodeOffsetPointXY();
@@ -36,8 +37,12 @@ public class LaneTestUtil {
             nodeXY.setY(BigDecimal.valueOf(point[1]));
             delta.setNodeXY1(nodeXY);
             node.setDelta(delta);
-            nodeSet.getNodes().add(node);
+            nodes[index] = node;
+            index +=1;
         }
+
+        nodeList.setNodes(nodes);
+        
         return lane;
     }
 

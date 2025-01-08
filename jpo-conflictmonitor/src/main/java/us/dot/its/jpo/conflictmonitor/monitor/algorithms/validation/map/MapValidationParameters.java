@@ -76,6 +76,11 @@ public class MapValidationParameters {
         updateType = INTERSECTION)
     volatile boolean debug;
 
+    @ConfigData(key = "map.validation.aggregateEvents",
+            description = "Whether to aggregate output minimum data events, or to send each individual event",
+            updateType = READ_ONLY)
+    boolean aggregateMinimumDataEvents;
+
     //
     // Maps for parameters that can be customized at the intersection level
     //

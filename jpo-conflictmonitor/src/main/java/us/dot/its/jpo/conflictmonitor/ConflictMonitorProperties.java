@@ -15,6 +15,8 @@
  ******************************************************************************/
 package us.dot.its.jpo.conflictmonitor;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -40,6 +42,20 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationAlgorithmInterface;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.ConnectionOfTravelAlgorithmFactory;
@@ -89,6 +105,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.ode.eventlog.EventLogger;
 import us.dot.its.jpo.ode.util.CommonUtils;
 
@@ -102,6 +121,28 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    @Setter(AccessLevel.NONE)
    private Environment env;
+
+   private AggregationParameters aggregationParameters;
+   private String spatMinimumDataAggregationAlgorithm;
+   private SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory;
+   private String mapMinimumDataAggregationAlgorithm;
+   private MapMinimumDataAggregationAlgorithmFactory mapMinimumDataAggregationAlgorithmFactory;
+   private String eventStateProgressionAggregationAlgorithm;
+   private EventStateProgressionAggregationAlgorithmFactory eventStateProgressionAggregationAlgorithmFactory;
+   private String intersectionReferenceAlignmentAggregationAlgorithm;
+   private IntersectionReferenceAlignmentAggregationAlgorithmFactory intersectionReferenceAlignmentAggregationAlgorithmFactory;
+   private String signalGroupAlignmentAggregationAlgorithm;
+   private SignalGroupAlignmentAggregationAlgorithmFactory signalGroupAlignmentAggregationAlgorithmFactory;
+   private String signalStateConflictAggregationAlgorithm;
+   private SignalStateConflictAggregationAlgorithmFactory signalStateConflictAggregationAlgorithmFactory;
+   private String timeChangeDetailsAggregationAlgorithm;
+   private TimeChangeDetailsAggregationAlgorithmFactory timeChangeDetailsAggregationAlgorithmFactory;
+   private String bsmMessageCountProgressionAggregationAlgorithm;
+   private BsmMessageCountProgressionAggregationAlgorithmFactory bsmMessageCountProgressionAggregationAlgorithmFactory;
+   private String mapMessageCountProgressionAggregationAlgorithm;
+   private MapMessageCountProgressionAggregationAlgorithmFactory mapMessageCountProgressionAggregationAlgorithmFactory;
+   private String spatMessageCountProgressionAggregationAlgorithm;
+   private SpatMessageCountProgressionAggregationAlgorithmFactory spatMessageCountProgressionAggregationAlgorithmFactory;
 
    private MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
    private SpatValidationStreamsAlgorithmFactory spatValidationAlgorithmFactory;
@@ -117,7 +158,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String spatTimestampDeltaAlgorithm;
    private SpatTimestampDeltaParameters spatTimestampDeltaParameters;
    private SpatTimestampDeltaAlgorithmFactory spatTimestampDeltaAlgorithmFactory;
-  
+
    private LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
    private String laneDirectionOfTravelAlgorithm;
    private LaneDirectionOfTravelParameters laneDirectionOfTravelParameters;
@@ -215,6 +256,102 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
    private MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
    private MessageIngestParameters messageIngestParameters;
+
+
+
+   @Autowired
+   public void setAggregationParameters(AggregationParameters aggregationParameters) {
+      this.aggregationParameters = aggregationParameters;
+      EventAlgorithmMap algorithmMap = aggregationParameters.getEventAlgorithmMap();
+      this.spatMinimumDataAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SpatMinimumDataEventAggregation.class);
+      this.mapMinimumDataAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, MapMinimumDataEventAggregation.class);
+      this.eventStateProgressionAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, EventStateProgressionEventAggregation.class);
+      this.intersectionReferenceAlignmentAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, IntersectionReferenceAlignmentEventAggregation.class);
+      this.signalGroupAlignmentAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SignalGroupAlignmentEventAggregation.class);
+      this.signalStateConflictAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SignalStateConflictEventAggregation.class);
+      this.timeChangeDetailsAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, TimeChangeDetailsEventAggregation.class);
+      this.bsmMessageCountProgressionAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, BsmMessageCountProgressionEventAggregation.class);
+      this.mapMessageCountProgressionAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, MapMessageCountProgressionEventAggregation.class);
+      this.spatMessageCountProgressionAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, SpatMessageCountProgressionEventAggregation.class);
+   }
+
+   // Get algorithm name from map of event type to algorithm
+   private <TAggEvent extends EventAggregation<?>> String getAlgorithmFromMap(
+                 EventAlgorithmMap algorithmMap,
+                 Class<TAggEvent> aggEventClass) {
+      String eventType = "";
+       try {
+           Constructor<TAggEvent> cons = aggEventClass.getConstructor();
+           eventType = cons.newInstance().getEventType();
+       } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+           logger.error("Exception getting event type", e);
+       }
+      if (algorithmMap.containsKey(eventType)) {
+         return algorithmMap.get(eventType);
+      } else {
+         throw new RuntimeException("No algorithm found for " + eventType);
+      }
+   }
+
+   @Autowired
+   public void setSpatMinimumDataAggregationAlgorithmFactory(SpatMinimumDataAggregationAlgorithmFactory factory) {
+      this.spatMinimumDataAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setMapMinimumDataAggregationAlgorithmFactory(MapMinimumDataAggregationAlgorithmFactory factory) {
+      this.mapMinimumDataAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setEventStateProgressionAggregationAlgorithmFactory(EventStateProgressionAggregationAlgorithmFactory factory) {
+      this.eventStateProgressionAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setIntersectionReferenceAlignmentAggregationAlgorithmFactory(IntersectionReferenceAlignmentAggregationAlgorithmFactory factory) {
+      this.intersectionReferenceAlignmentAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setSignalGroupAlignmentAggregationAlgorithmFactory(SignalGroupAlignmentAggregationAlgorithmFactory factory) {
+      this.signalGroupAlignmentAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setSignalStateConflictAggregationAlgorithmFactory(SignalStateConflictAggregationAlgorithmFactory factory) {
+      this.signalStateConflictAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setTimeChangeDetailsAggregationAlgorithmFactory(TimeChangeDetailsAggregationAlgorithmFactory factory) {
+      this.timeChangeDetailsAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setBsmMessageCountProgressionAggregationAlgorithmFactory(BsmMessageCountProgressionAggregationAlgorithmFactory factory) {
+      this.bsmMessageCountProgressionAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setMapMessageCountProgressionAggregationAlgorithmFactory(MapMessageCountProgressionAggregationAlgorithmFactory factory) {
+      this.mapMessageCountProgressionAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setSpatMessageCountProgressionAggregationAlgorithmFactory(SpatMessageCountProgressionAggregationAlgorithmFactory factory) {
+      this.spatMessageCountProgressionAggregationAlgorithmFactory = factory;
+   }
 
    @Autowired
    public void setIntersectionEventAlgorithmFactory(IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory) {
