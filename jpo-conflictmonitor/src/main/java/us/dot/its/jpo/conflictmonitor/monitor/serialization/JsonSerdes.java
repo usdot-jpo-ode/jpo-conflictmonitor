@@ -53,15 +53,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rat
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
-import us.dot.its.jpo.ode.model.OdeBsmData;
+
 
 public class JsonSerdes {
-   
-    public static Serde<OdeBsmData> OdeBsm() {
-        return Serdes.serdeFrom(
-            new JsonSerializer<OdeBsmData>(), 
-            new JsonDeserializer<>(OdeBsmData.class));
-    }
 
     public static Serde<BsmAggregator> BsmDataAggregator() {
         return Serdes.serdeFrom(

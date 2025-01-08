@@ -65,9 +65,9 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
 
         for(int i =0; i < pathPoints.getNumPoints(); i++){
             Point pathPoint = pathPoints.getPointN(i);
-            // OdeBsmData bsm = path.getBsms().getBsms().get(i);
+
             for(LaneSegment segment: segments){
-                if(segment.getPolygon().contains(pathPoint)){// && ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getSpeed().doubleValue() > this.parameters.getMinimumSpeedThreshold()){
+                if(segment.getPolygon().contains(pathPoint)){
                     
                     // Add BSM to existing list if available, otherwise create a new list to store the BSM
                     if(segmentBsmMap.get(segment) != null){

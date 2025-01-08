@@ -156,7 +156,7 @@ public class VehiclePath {
      * Find the BSMs that are in the ingress lane and within the upstream search distance
      * @param lane - The ingress lane to search
      * @param upstreamSearchDistanceFeet - The upstream distance along the lane to search
-     * @return List<OdeBsmData>
+     * @return List<ProcessedBsm>
      */
     public List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>>
     findBsmsInIngressLane(Lane lane, final double upstreamSearchDistanceFeet) {

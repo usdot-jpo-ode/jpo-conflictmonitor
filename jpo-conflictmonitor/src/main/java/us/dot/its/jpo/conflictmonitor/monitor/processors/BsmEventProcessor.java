@@ -117,7 +117,7 @@ public class BsmEventProcessor
                     int intersectionId = ir.getIntersectionId();
                     int region = ir.getRegion();
                     var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region, key.getLogId());
-                    //var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
+
                     var intersectionRecord = inputRecord.withKey(bsmIntersectionIdKey);
                     context().forward(intersectionRecord, BsmEventTopology.PARTITIONED_BSM_SINK);
                 }
