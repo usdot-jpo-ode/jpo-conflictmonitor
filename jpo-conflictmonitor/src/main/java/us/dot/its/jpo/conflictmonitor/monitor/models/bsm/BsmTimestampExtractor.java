@@ -25,7 +25,7 @@ public class BsmTimestampExtractor implements TimestampExtractor {
 
     public static long getBsmTimestamp(ProcessedBsm<?> bsm){
         try{
-            ZonedDateTime time = ZonedDateTime.parse(bsm.getOdeReceivedAt(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
+            ZonedDateTime time = ZonedDateTime.parse(bsm.getProperties().getOdeReceivedAt(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
             BsmProperties properties = BsmUtils.getProperties(bsm).orElseThrow();
             final int secMark = properties.getSecMark();
             final ZonedDateTime refTime = getRefTime(secMark, time);

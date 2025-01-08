@@ -16,7 +16,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.testutils.TopologyTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedValidationMessage;
@@ -24,15 +23,12 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 
 import java.time.Instant;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils.bsmAtInstant;
 import static us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils.processedBsmAtInstant;
 
 public class BsmEventTopologyTest {
@@ -102,7 +98,7 @@ public class BsmEventTopologyTest {
             ProcessedBsm<Point> invalidBsm = processedBsmAtInstant(startTime, id2.getBsmId());
             var validationMessage = new ProcessedValidationMessage();
             validationMessage.setMessage("Invalid BSM");
-            invalidBsm.setValidationMessages(List.of(validationMessage));
+            invalidBsm.getProperties().setValidationMessages(List.of(validationMessage));
             inputTopic.pipeInput(id2, invalidBsm, startTime);
 
             // Include a BSM with an earlier timestamp than the previous BSM for validation coverage
@@ -112,7 +108,7 @@ public class BsmEventTopologyTest {
 
             var output = outputTopic.readKeyValuesToList();
             assertThat(output, hasSize(1));
-            var outputItem = output.iterator().next();
+            var outputItem = output.getFirst();
             logger.info("BSM Event: {}", outputItem);
             BsmIntersectionIdKey key = outputItem.key;
             assertThat(key.getBsmId(), endsWith(id1.getBsmId()));

@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.testutils;
 
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.ode.model.OdeBsmData;
@@ -14,7 +13,6 @@ import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * Utilities to create BSM test data
@@ -46,9 +44,9 @@ public class BsmTestUtils {
         var bsm = validProcessedBsm();
         ZonedDateTime zdt = instant.atZone(ZoneOffset.UTC);
         var strDateTime = DateTimeFormatter.ISO_DATE_TIME.format(zdt);
-        bsm.setOdeReceivedAt(strDateTime);
-        bsm.setTimeStamp(zdt);
-        BsmProperties props = bsm.getFeatures()[0].getProperties();
+        bsm.getProperties().setOdeReceivedAt(strDateTime);
+        bsm.getProperties().setTimeStamp(zdt);
+        BsmProperties props = bsm.getProperties();
         props.setSecMark(milliOfMinute(instant));
         props.setId(id);
         return bsm;
@@ -67,7 +65,7 @@ public class BsmTestUtils {
 
     public static ProcessedBsm<Point> processedBsmWithPosition(Instant instant, String id, double longitude, double latitude, double elevation) {
         var bsm = processedBsmAtInstant(instant, id);
-        var coords = bsm.getFeatures()[0].getGeometry().getCoordinates();
+        var coords = bsm.getGeometry().getCoordinates();
         coords[0] = longitude;
         coords[1] = latitude;
         return bsm;
@@ -107,11 +105,9 @@ public class BsmTestUtils {
         properties.setSecMark(1000);
         properties.setSpeed(BigDecimal.valueOf(50));
         properties.setHeading(BigDecimal.valueOf(90));
-        final BsmFeature<Point> feature = new BsmFeature<Point>(null, geometry, properties);
-        final ProcessedBsm<Point> bsm = new ProcessedBsm<>(List.of(feature).toArray(new BsmFeature[0]));
-        bsm.setOriginIp("127.0.0.1");
-        bsm.setTimeStamp(ZonedDateTime.parse("2020-01-01T00:00:00.000Z"));
-        bsm.setOdeReceivedAt("2020-01-01T00:00:25.123Z");
-        return bsm;
+        properties.setOriginIp("127.0.0.1");
+        properties.setTimeStamp(ZonedDateTime.parse("2020-01-01T00:00:00.000Z"));
+        properties.setOdeReceivedAt("2020-01-01T00:00:25.123Z");
+        return new ProcessedBsm<>(null, geometry, properties);
     }
 }

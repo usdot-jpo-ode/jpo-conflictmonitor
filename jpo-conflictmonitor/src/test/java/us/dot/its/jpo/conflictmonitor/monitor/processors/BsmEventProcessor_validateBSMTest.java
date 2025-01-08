@@ -45,7 +45,7 @@ public class BsmEventProcessor_validateBSMTest {
 
         bsms.add(new Object[] {"null BSM", null, false});
 
-        final ProcessedBsm<Point> emptyBsm = new ProcessedBsm<Point>(null);
+        final ProcessedBsm<Point> emptyBsm = new ProcessedBsm<Point>(null, null, null);
         bsms.add(new Object[] {"empty BSM", emptyBsm, false});
 
 
@@ -53,33 +53,33 @@ public class BsmEventProcessor_validateBSMTest {
         bsms.add(new Object[] {"Valid BSM", validBsm, true});
 
         final ProcessedBsm<Point> bsmWithNullId = validProcessedBsm();
-        bsmWithNullId.getFeatures()[0].getProperties().setId(null);
+        bsmWithNullId.getProperties().setId(null);
         bsms.add(new Object[] {"BSM with null id", bsmWithNullId, false});
 
         final ProcessedBsm<Point> bsmWithNullSecMark = validProcessedBsm();
-        bsmWithNullSecMark.getFeatures()[0].getProperties().setSecMark(null);
+        bsmWithNullSecMark.getProperties().setSecMark(null);
         bsms.add(new Object[] {"BSM with null secMark", bsmWithNullSecMark, false});
 
         final ProcessedBsm<Point> bsmWithNullSpeed = validProcessedBsm();
-        bsmWithNullSpeed.getFeatures()[0].getProperties().setSpeed(null);
+        bsmWithNullSpeed.getProperties().setSpeed(null);
         bsms.add(new Object[] {"BSM with null speed", bsmWithNullSpeed, false});
 
         final ProcessedBsm<Point> bsmWithNullHeading = validProcessedBsm();
-        bsmWithNullHeading.getFeatures()[0].getProperties().setHeading(null);
+        bsmWithNullHeading.getProperties().setHeading(null);
         bsms.add(new Object[] {"BSM with null heading", bsmWithNullHeading, false});
 
         final ProcessedBsm<Point> bsmWithNullSource = validProcessedBsm();
-        bsmWithNullSource.setOriginIp(null);
-        bsmWithNullSource.setLogName(null);
+        bsmWithNullSource.getProperties().setOriginIp(null);
+        bsmWithNullSource.getProperties().setLogName(null);
         bsms.add(new Object[] {"BSM with null source", bsmWithNullSource, false});
 
 
         final ProcessedBsm<Point> bsmWithNullRecordGeneratedAt = validProcessedBsm();
-        bsmWithNullRecordGeneratedAt.setTimeStamp(null);
+        bsmWithNullRecordGeneratedAt.getProperties().setTimeStamp(null);
         bsms.add(new Object[] {"BSM with null recordGeneratedAt", bsmWithNullRecordGeneratedAt, false});
 
         final ProcessedBsm<Point> bsmWithNullOdeReceivedAt = validProcessedBsm();
-        bsmWithNullOdeReceivedAt.setOdeReceivedAt(null);
+        bsmWithNullOdeReceivedAt.getProperties().setOdeReceivedAt(null);
         bsms.add(new Object[] {"BSM with null odeReceivedAt", bsmWithNullOdeReceivedAt, false});
 
 
