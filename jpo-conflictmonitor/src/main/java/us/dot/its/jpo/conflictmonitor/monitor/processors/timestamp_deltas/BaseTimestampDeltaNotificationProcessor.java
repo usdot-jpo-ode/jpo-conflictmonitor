@@ -65,7 +65,7 @@ public abstract class BaseTimestampDeltaNotificationProcessor<TEvent extends Bas
             keyStore = context.getStateStore(keyStoreName);
             punctuatorCancellationToken = context.schedule(retentionTime, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
         } catch (Exception e) {
-            getLogger().error("Error initializing MapTimestampDeltaNotificationProcessor");
+            getLogger().error("Error initializing MapTimestampDeltaNotificationProcessor", e);
         }
     }
 

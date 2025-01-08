@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data;
 
 import java.util.List;
 
-import lombok.Data;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,9 +14,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @Generated
-public abstract class MinimumDataEvent extends Event  {
+public abstract class BaseMinimumDataEvent extends Event  {
 
-    public MinimumDataEvent(String eventType) {
+    public BaseMinimumDataEvent(String eventType) {
         super(eventType);
     }
     

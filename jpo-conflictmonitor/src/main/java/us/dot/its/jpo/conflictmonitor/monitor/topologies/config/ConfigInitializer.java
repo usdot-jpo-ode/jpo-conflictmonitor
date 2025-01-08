@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.AlgorithmParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventTopicMap;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
@@ -15,6 +17,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Pha
 
 
 import java.lang.reflect.Field;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 @Component
 @Profile("!test")
@@ -118,11 +122,37 @@ public class ConfigInitializer {
             }
             setConfigProps(config, updatable, PhaseStateTransitionList.class);
             return config;
-        } else {
-            var config = new DefaultConfig<Integer>();
-            config.setValue((Integer)propValue);
-            setConfigProps(config, updatable, Integer.class);
+        } else if (EventTopicMap.class.equals(type)) {
+            var config = new DefaultConfig<EventTopicMap>();
+            if (propValue != null) {
+                config.setValue((EventTopicMap) propValue);
+            } else {
+                config.setValue(new EventTopicMap());
+            }
+            setConfigProps(config, updatable, EventTopicMap.class);
             return config;
+        } else if (EventAlgorithmMap.class.equals(type)) {
+            var config = new DefaultConfig<EventAlgorithmMap>();
+            if (propValue != null) {
+                config.setValue((EventAlgorithmMap) propValue);
+            } else {
+                config.setValue(new EventAlgorithmMap());
+            }
+            setConfigProps(config, updatable, EventAlgorithmMap.class);
+            return config;
+        } else if (ChronoUnit.class.equals(type)) {
+            var config = new DefaultConfig<ChronoUnit>();
+            config.setValue((ChronoUnit)propValue);
+            setConfigProps(config, updatable, ChronoUnit.class);
+            return config;
+        } else {
+            String errMsg = String.format("Unknown type %s in parameters class", type);
+            logger.error(errMsg);
+            throw new RuntimeException(errMsg);
+//            var config = new DefaultConfig<Integer>();
+//            config.setValue((Integer)propValue);
+//            setConfigProps(config, updatable, Integer.class);
+//            return config;
         }
     }
 
