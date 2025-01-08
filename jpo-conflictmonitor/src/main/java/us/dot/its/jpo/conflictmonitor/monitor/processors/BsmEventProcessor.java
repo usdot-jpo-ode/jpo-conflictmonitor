@@ -116,7 +116,7 @@ public class BsmEventProcessor
                 for (IntersectionRegion ir : newIntersections) {
                     int intersectionId = ir.getIntersectionId();
                     int region = ir.getRegion();
-                    var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region);
+                    var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region, key.getLogId());
                     //var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
                     var intersectionRecord = inputRecord.withKey(bsmIntersectionIdKey);
                     context().forward(intersectionRecord, BsmEventTopology.PARTITIONED_BSM_SINK);
@@ -251,13 +251,13 @@ public class BsmEventProcessor
         BsmEvent event = getNewEvent(value, timestamp, true);
         event.setWktMapBoundingBox(map.getBoundingPolygonWkt());
         event.setIntersectionID(map.getIntersectionId());
-        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), map.getIntersectionId(), map.getRegion());
+        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), map.getIntersectionId(), map.getRegion(), key.getLogId());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
     private void newEvent(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value, RsuLogKey key, long timestamp) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, false);
-        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), 0);
+        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), -1, key.getLogId());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 

@@ -39,7 +39,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
+//import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import java.time.Duration;
 
@@ -73,8 +73,6 @@ public class MessageIngestTopology
     @Override
     public void buildTopology(StreamsBuilder builder) {
 
-
-        
         /*
          * 
          * 
@@ -82,28 +80,23 @@ public class MessageIngestTopology
          * 
          */
 
-
         //BSM Input Stream
         // Ingest only BSMs within the intersection bounding box
-        KStream<BsmIntersectionIdKey, OdeBsmData> bsmJsonStream =
+        KStream<BsmIntersectionIdKey, ProcessedBsm<Point>> bsmJsonStream =
             builder.stream(
                 parameters.getBsmTopic(), 
                 Consumed.with(
-                    JsonSerdes.BsmIntersectionIdKey(),
-                    JsonSerdes.OdeBsm())
+                                JsonSerdes.BsmIntersectionIdKey(),
+                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedBsm())
                     .withTimestampExtractor(new BsmTimestampExtractor())
                 );
 
-
-        
-
         //Group up all of the BSM's based upon the new ID.
-        KGroupedStream<BsmIntersectionIdKey, OdeBsmData> bsmKeyGroup =
-                bsmJsonStream.groupByKey(Grouped.with(JsonSerdes.BsmIntersectionIdKey(), JsonSerdes.OdeBsm()));
-
-
-
-
+        KGroupedStream<BsmIntersectionIdKey, ProcessedBsm<Point>> bsmKeyGroup =
+                bsmJsonStream.groupByKey(
+                        Grouped.with(
+                                JsonSerdes.BsmIntersectionIdKey(),
+                                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedBsm()));
 
         //Take the BSM's and Materialize them into a Temporal Time window. The length of the time window shouldn't matter much
         //but enables kafka to temporally query the records later. If there are duplicate keys, the more recent value is taken.
@@ -113,9 +106,9 @@ public class MessageIngestTopology
                 System.out.println("Overwriting BSM");
                 return newValue;
             },
-            Materialized.<BsmIntersectionIdKey, OdeBsmData, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
+            Materialized.<BsmIntersectionIdKey, ProcessedBsm<Point>, WindowStore<Bytes, byte[]>>as(parameters.getBsmStoreName())
                     .withKeySerde(JsonSerdes.BsmIntersectionIdKey())
-                    .withValueSerde(JsonSerdes.OdeBsm())
+                    .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedBsm())
                     .withCachingDisabled()
                     // .withLoggingEnabled(loggingConfig)
                     .withLoggingDisabled()

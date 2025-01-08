@@ -26,6 +26,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLine
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 import us.dot.its.jpo.conflictmonitor.testutils.SpatTestUtils;
@@ -82,12 +83,9 @@ public class IntersectionEventTopologyTest {
 
     final long startMillis = 1682615309868L;
     final long endMillis = 1682615347488L;
-    final RsuLogKey bsmId = new RsuLogKey();
+    final BsmIntersectionIdKey bsmId = new BsmIntersectionIdKey("A0A0A0", "127.0.0.1", 1000, 25, "log");
 
-    public IntersectionEventTopologyTest() {
-        bsmId.setRsuId("127.0.0.1");
-        bsmId.setBsmId("A0A0A0");
-    }
+
 
     @Test
     public void testIntersectionEventTopology() {
@@ -97,10 +95,11 @@ public class IntersectionEventTopologyTest {
 
         final var startBsm = BsmTestUtils.processedBsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId.getBsmId());
         final var endBsm = BsmTestUtils.processedBsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId.getBsmId());
-        final KeyValue<Windowed<String>, ProcessedBsm<Point>> kvStartBsm
-                = new KeyValue<>(new Windowed<>(bsmId.getBsmId(), new TimeWindow(startMillis, startMillis + 30000)), startBsm);
-        final KeyValue<Windowed<String>, ProcessedBsm<Point>> kvEndBsm
-                = new KeyValue<>(new Windowed<>(bsmId.getBsmId(), new TimeWindow(startMillis, startMillis + 30000)), endBsm);
+
+        final KeyValue<Windowed<BsmIntersectionIdKey>, ProcessedBsm<Point>> kvStartBsm
+                = new KeyValue<>(new Windowed<BsmIntersectionIdKey>(bsmId, new TimeWindow(startMillis, startMillis + 30000)), startBsm);
+        final KeyValue<Windowed<BsmIntersectionIdKey>, ProcessedBsm<Point>> kvEndBsm
+                = new KeyValue<>(new Windowed<>(bsmId, new TimeWindow(startMillis, startMillis + 30000)), endBsm);
 
         final int intersectionId = 1;
         final ProcessedSpat spat = SpatTestUtils.validSpat(intersectionId);
@@ -147,7 +146,7 @@ public class IntersectionEventTopologyTest {
 
             var bsmInputTopic = driver.createInputTopic(
                     bsmEventTopic,
-                    new JsonSerializer<RsuLogKey>(),
+                    new JsonSerializer<BsmIntersectionIdKey>(),
                     new JsonSerializer<BsmEvent>());
             var connectionOfTravelOutputTopic = driver.createOutputTopic(
                     connectionOfTravelTopic,

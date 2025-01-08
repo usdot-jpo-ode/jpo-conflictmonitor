@@ -232,7 +232,6 @@ public class IntersectionEventTopology
 
 
 
-    // TODO Use ProcessedBsm
     private static BsmAggregator getBsmsByTimeVehicle(ReadOnlyWindowStore<BsmIntersectionIdKey, ProcessedBsm<Point>> bsmWindowStore,
                                                       Instant start, Instant end, BsmIntersectionIdKey key){
         logger.info("getBsmsByTimeVehicle: Start: {}, End: {}, key: {}", start, end, key);
