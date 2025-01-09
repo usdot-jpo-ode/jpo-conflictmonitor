@@ -158,7 +158,12 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
         event.setTimestampA(previousState.getProperties().getTimeStamp().format(formatter));
         event.setMessageCountB(currentProperties.getMsgCnt());
         event.setTimestampB(thisState.getProperties().getTimeStamp().format(formatter));
-        event.setVehicleId(thisState.getProperties().getId());
+        if (thisState.getProperties().getId() != null) {
+            event.setVehicleId(thisState.getProperties().getId());
+        }
+        else if (thisState.getId() != null) {
+            event.setVehicleId(thisState.getId().toString());
+        }
 
         return event;
     }
