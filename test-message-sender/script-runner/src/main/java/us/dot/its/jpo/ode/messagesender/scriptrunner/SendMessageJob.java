@@ -1,6 +1,8 @@
 package us.dot.its.jpo.ode.messagesender.scriptrunner;
 
 
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,9 +22,12 @@ public class SendMessageJob implements Runnable {
     String message;
     String rsuId;
     Integer intersectionId;
+    String logId;
+    String bsmId;
 
     final String ProcessedMapTopic = "topic.ProcessedMap";
     final String ProcessedSpatTopic = "topic.ProcessedSpat";
+    final String ProcessedBsmTopic = "topic.ProcessedBsm";
 
 
     @Override
@@ -45,6 +50,9 @@ public class SendMessageJob implements Runnable {
                 case "ProcessedSpat":
                     kafkaTemplate.send(ProcessedSpatTopic, partitionForIntersection(intersectionId, ProcessedSpatTopic), getKey(rsuId, intersectionId), message);
                     break;
+                case "ProcessedBsm":
+                    kafkaTemplate.send(ProcessedBsmTopic, partitionForRsuId(rsuId, ProcessedBsmTopic), getBsmKey(rsuId, logId, bsmId), message);
+                    break;
             }
 
         } catch (Exception e) {
@@ -64,11 +72,22 @@ public class SendMessageJob implements Runnable {
         }
     }
 
+    private int partitionForRsuId(String rsuId, String topic) {
+        try (var stringSer = new StringSerializer()) {
+            byte[] partitionBytes = stringSer.serialize(rsuId, topic);
+            int numPartitions = kafkaTemplate.partitionsFor(topic).size();
+            return Utils.toPositive(Utils.murmur2(partitionBytes)) % numPartitions;
+        }
+    }
+
     private String getKey(String rsuId, Integer intersectionId) {
         return String.format("{\"rsuId\": \"%s\", \"intersectionId\": %s, \"region\": -1}", rsuId, intersectionId);
     }
 
-    
+    private String getBsmKey(String rsuId, String logId, String bsmId) {
+        return String.format("""
+                {"rsuId": "%s", "logId": "%s", "bsmId": "%s"}""", rsuId, logId, bsmId);
+    }
 
     
     
