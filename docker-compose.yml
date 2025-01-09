@@ -1,5 +1,5 @@
-#include:
-#  - docker-compose-ode.yml
+include:
+  - docker-compose-ode.yml
 
 services:
   conflictmonitor-build:

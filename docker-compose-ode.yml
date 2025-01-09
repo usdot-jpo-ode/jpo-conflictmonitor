@@ -7,7 +7,7 @@ services:
       - all
       - cm_full
       - ode_geojsonconverter
-    image: usdotjpoode/geojsonconverter:latest
+    image: usdotjpoode/geojsonconverter:2.0.0
     restart: ${RESTART_POLICY}
     deploy:
       resources:
@@ -36,7 +36,7 @@ services:
       - all
       - cm_full
       - ode_geojsonconverter
-    image: usdotjpoode/jpo-ode:latest
+    image: usdotjpoode/jpo-ode:4.0.0
     restart: ${RESTART_POLICY}
     deploy:
       resources:
@@ -82,7 +82,7 @@ services:
       - all
       - cm_full
       - ode_geojsonconverter
-    image: usdotjpoode/asn1_codec:latest
+    image: usdotjpoode/asn1_codec:3.0.0
     restart: ${RESTART_POLICY}
     deploy:
       resources:
