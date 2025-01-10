@@ -402,7 +402,7 @@
             if (!BSM_SEND) return;
             const bsm = theBsmList[idx];
             const id = bsm.id;
-            const postDataItem = buildBsmFromTemplate(bsm, selectBsmTemplate(), bsmId, originIp);
+            const postDataItem = buildBsmFromTemplate(bsm, selectBsmTemplate(), bsmId, null);
             sendBsmAsync(postDataItem).then(successCallback, failureCallback);
             if (idx < theBsmList.length - 1) {
                 ++idx;
@@ -461,7 +461,7 @@
             const minuteMillis = dtMinute.getTime();
             const millis = dtMillis - minuteMillis;
             bsmObj.properties.secMark = millis;
-            bsmObj.properties.originIp = originIp;
+            bsmObj.properties.originIp = originIp != null ? originIp : bsm.originIp;
             bsmObj.properties.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
             return bsmObj;
         } else {
