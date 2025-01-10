@@ -576,7 +576,7 @@ event.state.progression:
     - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_AND_REMAIN }
 
 aggregation:
-  debug: true
+  debug: false
   interval: 60
   intervalUnits: SECONDS
   checkIntervalMs: 1000
