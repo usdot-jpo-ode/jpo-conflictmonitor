@@ -157,6 +157,11 @@
     const spatList = [];
 
     let bsmTemplate = ""; /* BSM template string */
+    let processedBsmTemplate = "";
+
+    function selectBsmTemplate() {
+        return useProcessedBsms ? processedBsmTemplate : bsmTemplate;
+    }
 
     // Flag indicates whether the SPAT and spatList contain raw or ProcessedSpats.
     let useProcessedSpats = false;
@@ -287,10 +292,12 @@
 
 
     async function getBsmTemplate() {
-        const bsmTemplateFile = useProcessedBsms ? 'ProcessedBsmTemplate.json' : 'BSMTemplate.json';
-        const response = await fetch(bsmTemplateFile);
+        const response = await fetch('BSMTemplate.json');
         const text = await response.text();
         bsmTemplate = JSON.parse(text);
+        const processedResponse = await fetch('ProcessedBsmTemplate.json');
+        const processedText = await processedResponse.text();
+        processedBsmTemplate = JSON.parse(processedText);
     }
 
 
@@ -395,7 +402,7 @@
             if (!BSM_SEND) return;
             const bsm = theBsmList[idx];
             const id = bsm.id;
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
+            const postDataItem = buildBsmFromTemplate(bsm, selectBsmTemplate(), bsmId, originIp);
             sendBsmAsync(postDataItem).then(successCallback, failureCallback);
             if (idx < theBsmList.length - 1) {
                 ++idx;
@@ -436,10 +443,12 @@
         document.getElementById('bsmControls').style = '';
     }
 
-    function buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp) {
+    function buildBsmFromTemplate(bsm, template, bsmId, originIp) {
         if (useProcessedBsms) {
-            const bsmJson = JSON.stringify(bsmTemplate);
+            const bsmJson = JSON.stringify(template);
             const bsmObj = JSON.parse(bsmJson);
+            console.log("useProcessedBsms: " + useProcessedBsms);
+            console.log(bsmObj);
             bsmObj.properties.id = bsmId;
             bsmObj.properties.msgCnt = bsm.msgCnt;
             bsmObj.properties.speed = bsm.speed;
@@ -889,7 +898,7 @@
         const originIp = getOriginIpForBsm();
 
         for (const bsm of bsmList) {
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
+            const postDataItem = buildBsmFromTemplate(bsm, selectBsmTemplate(), bsmId, originIp);
             ldjson += JSON.stringify(postDataItem) + '\n';
         }
         downloadText('BSMData.jsonl', ldjson);
