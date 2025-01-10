@@ -27,7 +27,7 @@ public class ScriptRunner {
             Pattern.compile("^(?<messageType>BSM|SPAT|MAP|ProcessedMap|ProcessedSpat)(;(?<rsuId>[A-Za-z0-9.]+);(?<intersectionId>\\d+))?,(?<time>\\d+),(?<message>.+)$");
 
     private final static Pattern processedBsmLinePattern =
-            Pattern.compile("^ProcessedBsm;(?<rsuId>[A-Za-z0-9.]+)?;(?<logId>[^;]+)?;(?<bsmId>[A-Fa-f0-9]+?),(?<time>\\d+),(?<message>.+)$");
+            Pattern.compile("^ProcessedBsm;(?<rsuId>[A-Za-z0-9.]+)?;(?<logId>[A-Za-z0-9.]+)?,(?<time>\\d+),(?<message>.+)$");
     
     @Autowired
     ThreadPoolTaskScheduler scheduler;
@@ -76,8 +76,7 @@ public class ScriptRunner {
                 String message = processedBsmMatcher.group("message");
                 String rsuId = processedBsmMatcher.group("rsuId");
                 String logId = processedBsmMatcher.group("logId");
-                String bsmId = processedBsmMatcher.group("bsmId");
-                scheduleMessage(startTime, messageType, timeOffset, message, tempId, rsuId, logId, bsmId);
+                scheduleMessage(startTime, messageType, timeOffset, message, tempId, rsuId, logId);
             } else {
                 // Not a processed bsm, try others
                 Matcher m = linePattern.matcher(line);
@@ -117,7 +116,7 @@ public class ScriptRunner {
 
     private void scheduleMessage(final long startTime, final String messageType,
                                  final long timeOffset, final String message, final String tempId, final String rsuId,
-                                 final String logId, final String bsmId) {
+                                 final String logId) {
         final long sendTime = startTime + timeOffset;
         final Instant sendInstant = Instant.ofEpochMilli(sendTime);
         var job = new SendMessageJob();
@@ -127,7 +126,7 @@ public class ScriptRunner {
         job.setMessage(fillTemplate(sendInstant, message, tempId));
         job.setRsuId(rsuId);
         job.setLogId(logId);
-        job.setBsmId(bsmId);
+        job.setBsmId(tempId);
         scheduler.schedule(job, sendInstant);
         logger.info("Scheduled {} job at {}", messageType, sendTime);
     }

@@ -86,7 +86,7 @@ public class SendMessageJob implements Runnable {
 
     private String getBsmKey(String rsuId, String logId, String bsmId) {
         return String.format("""
-                {"rsuId": "%s", "logId": "%s", "bsmId": "%s"}""", rsuId, logId, bsmId);
+                {"rsuId": "%s", "logId": "%s", "bsmId": "%s"}""", rsuId, logId != null ? logId : "", bsmId);
     }
 
     

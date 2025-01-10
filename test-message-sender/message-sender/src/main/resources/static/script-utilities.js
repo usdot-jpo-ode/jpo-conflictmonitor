@@ -150,10 +150,9 @@ class ScriptUtilities {
         scriptBsm.properties.secMark = this.MILLI_OF_MINUTE;
         scriptBsm.properties.id = this.TEMP_ID;
         const strBsm = JSON.stringify(scriptBsm);
-        return "ProcessedBsm,"
-            + scriptBsm.properties.rsuId + ";"
-            + scriptBsm.properties.logName + ";"
-            + scriptBsm.properties.bsmId + ","
+        return "ProcessedBsm;"
+            + scriptBsm.properties.originIp + ";"
+            + scriptBsm.properties.logName + ","
             + time + ","
             + strBsm;
     }
