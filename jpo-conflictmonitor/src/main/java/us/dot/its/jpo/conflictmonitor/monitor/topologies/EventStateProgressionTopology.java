@@ -6,10 +6,14 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Repartitioned;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
@@ -17,6 +21,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.EventStatePro
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.PhaseStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.EventStateProgressionNotificationAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.EventStateProgressionProcessor;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
@@ -38,6 +43,8 @@ public class EventStateProgressionTopology
     protected Logger getLogger() {
         return log;
     }
+
+    EventStateProgressionAggregationStreamsAlgorithm aggregationAlgorithm;
 
     @Override
     public void buildTopology(StreamsBuilder builder, KStream<RsuIntersectionKey, ProcessedSpat> inputStream) {
@@ -103,26 +110,79 @@ public class EventStateProgressionTopology
                 return event;
             });
 
-        // Send events to topic
-        signalGroupStates.to(parameters.getOutputTopicName(),
-                Produced.with(
-                        JsonSerdes.RsuIntersectionSignalGroupKey(),
-                        JsonSerdes.IllegalSpatTransitionEvent(),
-                        new IntersectionIdPartitioner<>()));
+        if (parameters.isAggregateEvents()) {
+            // Aggregate events
+            // New key includes all fields to aggregate on
+            var signalGroupStatesAggKey =
+                    signalGroupStates.selectKey((key, value) -> {
+                        var aggKey = new EventStateProgressionAggregationKey();
+                        aggKey.setRsuId(key.getRsuId());
+                        aggKey.setIntersectionId(key.getIntersectionId());
+                        aggKey.setRegion(key.getRegion());
+                        aggKey.setSignalGroup(value.getSignalGroupID());
+                        aggKey.setEventStateA(value.getEventStateA());
+                        aggKey.setEventStateB(value.getEventStateB());
+                        return aggKey;
 
-        // Send notifications to topic
-        signalGroupStates
-                .mapValues(event -> {
-                    var notification = new EventStateProgressionNotification();
-                    notification.setEvent(event);
-                    return notification;
-                })
-                .to(parameters.getNotificationTopicName(),
-                        Produced.with(
-                                JsonSerdes.RsuIntersectionSignalGroupKey(),
-                                JsonSerdes.IllegalSpatTransitionNotification(),
-                                new IntersectionIdPartitioner<>()));
+                    })
+                    // Use same partitioner, IntersectionIdPartitioner, so that repartition on new key will
+                    // not actually change the partitions of any items
+                    .repartition(
+                        Repartitioned.with(
+                                        JsonSerdes.EventStateProgressionAggregationKey(),
+                                        JsonSerdes.EventStateProgressionEvent())
+                                .withStreamPartitioner(new IntersectionIdPartitioner<>()));
+            var aggSignalGroupStates = aggregationAlgorithm.buildTopology(builder, signalGroupStatesAggKey);
+
+            // Send aggregated notifications
+            aggSignalGroupStates
+                    .mapValues(aggEvent -> {
+                        var aggNotification = new EventStateProgressionNotificationAggregation();
+                        aggNotification.setEventAggregation(aggEvent);
+                        return aggNotification;
+                    }).to(parameters.getAggNotificationTopicName(),
+                                Produced.with(
+                                        JsonSerdes.EventStateProgressionAggregationKey(),
+                                        JsonSerdes.EventStateProgressionNotificationAggregation(),
+                                        new IntersectionIdPartitioner<>()));
+
+        } else {
+            // Don't aggregate events
+            // Send events to topic
+            signalGroupStates.to(parameters.getOutputTopicName(),
+                    Produced.with(
+                            JsonSerdes.RsuIntersectionSignalGroupKey(),
+                            JsonSerdes.EventStateProgressionEvent(),
+                            new IntersectionIdPartitioner<>()));
+
+            // Send notifications to topic
+            signalGroupStates
+                    .mapValues(event -> {
+                        var notification = new EventStateProgressionNotification();
+                        notification.setEvent(event);
+                        return notification;
+                    })
+                    .to(parameters.getNotificationTopicName(),
+                            Produced.with(
+                                    JsonSerdes.RsuIntersectionSignalGroupKey(),
+                                    JsonSerdes.EventStateProgressionNotification(),
+                                    new IntersectionIdPartitioner<>()));
+        }
+
+
 
 
     }
+
+    @Override
+    public void setAggregationAlgorithm(EventStateProgressionAggregationAlgorithm aggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (aggregationAlgorithm instanceof EventStateProgressionAggregationStreamsAlgorithm) {
+            this.aggregationAlgorithm = (EventStateProgressionAggregationStreamsAlgorithm) aggregationAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Aggregation algorithm must be a Streams algorithm");
+        }
+    }
+
+
 }

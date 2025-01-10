@@ -5,17 +5,13 @@
     </activeProfiles>
     <servers>
         <server>
+            <id>central</id>
+        </server>
+        <server>
+            <id>osgeo</id>
+        </server>
+        <server>
             <id>github</id>
-            <username>jpo_conflictmonitor</username>
-            <password>${env.MAVEN_GITHUB_TOKEN}</password>
-        </server>
-        <server>
-            <id>github_jpo_ode</id>
-            <username>jpo_conflictmonitor</username>
-            <password>${env.MAVEN_GITHUB_TOKEN}</password>
-        </server>
-        <server>
-            <id>github_jpo_geojsonconverter</id>
             <username>jpo_conflictmonitor</username>
             <password>${env.MAVEN_GITHUB_TOKEN}</password>
         </server>
@@ -27,23 +23,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub JPO Conflict Monitor</name>
-                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/jpo-conflictmonitor</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>github_jpo_ode</id>
-                    <name>GitHub JPO ODE</name>
-                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/jpo-ode</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>github_jpo_geojsonconverter</id>
-                    <name>GitHub JPO GeojsonConverter</name>
-                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/jpo-geojsonconverter</url>
+                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/*</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>

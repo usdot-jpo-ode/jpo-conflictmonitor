@@ -54,4 +54,9 @@ public class BsmMessageCountProgressionParameters {
         units = UnitsEnum.MILLISECONDS,
         updateType = READ_ONLY)
     volatile int bufferGracePeriodMs;
+
+    @ConfigData(key = "bsm.message.count.progression.aggregateEvents",
+        description = "Whether to aggregate events",
+        updateType = READ_ONLY)
+    boolean aggregateEvents;
 }

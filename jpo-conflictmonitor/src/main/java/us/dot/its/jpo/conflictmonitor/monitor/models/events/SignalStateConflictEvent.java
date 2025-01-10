@@ -13,6 +13,8 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 @EqualsAndHashCode(callSuper=true)
 @Generated
 public class SignalStateConflictEvent extends Event{
+
+    // TODO rename properties, add ingress and egress lane IDs and type attributes per new specification
     private long timestamp;
     private J2735MovementPhaseState conflictType;
     private int firstConflictingSignalGroup;
