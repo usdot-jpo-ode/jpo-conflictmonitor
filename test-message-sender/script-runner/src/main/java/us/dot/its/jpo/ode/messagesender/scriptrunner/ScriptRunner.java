@@ -27,7 +27,7 @@ public class ScriptRunner {
             Pattern.compile("^(?<messageType>BSM|SPAT|MAP|ProcessedMap|ProcessedSpat)(;(?<rsuId>[A-Za-z0-9.]+);(?<intersectionId>\\d+))?,(?<time>\\d+),(?<message>.+)$");
 
     private final static Pattern processedBsmLinePattern =
-            Pattern.compile("^ProcessedBsm;(?<rsuId>[A-Za-z0-9.]+)?;(?<logId>[A-Za-z0-9.]+)?;(?<bsmId>[A-Fa-f0-9]+?),(?<time>\\d+),(?<message>.+)$");
+            Pattern.compile("^ProcessedBsm;(?<rsuId>[A-Za-z0-9.]+)?;(?<logId>[^;]+)?;(?<bsmId>[A-Fa-f0-9]+?),(?<time>\\d+),(?<message>.+)$");
     
     @Autowired
     ThreadPoolTaskScheduler scheduler;
