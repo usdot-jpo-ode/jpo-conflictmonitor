@@ -1,7 +1,5 @@
 jpo-conflictmonitor/target/**
 jpo-conflictmonitor/bin/**
-jpo-deduplicator/target/**
-jpo-deduplicator/bin/**
 .env
 *.log
 .idea/
