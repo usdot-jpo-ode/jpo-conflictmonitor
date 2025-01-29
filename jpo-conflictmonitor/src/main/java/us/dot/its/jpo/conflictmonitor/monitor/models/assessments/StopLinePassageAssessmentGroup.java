@@ -6,14 +6,36 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 
+/**
+ * Stop Line Passage Assessment groups represent the number of vehicles that pass through the light during each light color.
+ */
 @Getter
 @Setter
 public class StopLinePassageAssessmentGroup {
 
+    /**
+     * The Signal group id in the SPaT message that this assessment corresponds to.
+     */
     private int signalGroup;
+
+    /**
+     * The number of times a vehicle passed through when the light state was dark. 
+     */
     private int darkEvents;
+
+    /**
+     * The number of times a vehicle passed through on a red light.
+     */
     private int redEvents;
+
+    /**
+     * The number of times a vehicle passed through on a yellow light.
+     */
     private int yellowEvents;
+
+    /**
+     * The number of times a vehicle passed through on a green light.
+     */
     private int greenEvents;
     
     @JsonIgnore
