@@ -55,6 +55,9 @@
                     <h3>Uploads</h3>
                     <label for="ulBsms">BSMs</label><input type="file" id="ulBsms" accept=".jsonl,.ndjson,.csv,.txt,.json" onchange="uploadBsms(this);" />
                     <br/>
+                    <label for="btnProcessedBsmUpload">ProcessedBsms</label><input type="file" id="btnProcessedBsmUpload"
+                          accept=".jsonl,.ndjson,.csv,.txt,.json" onchange="uploadProcessedBsms(this);" />
+                    <br/>
                     <label for="ulSpats">SPATs</label><input type="file" id="ulSpats" accept=".jsonl,.ndjson,.csv,.json" onchange="uploadSpats(this);" />
                     <br/>
                     <label for="btnProcessedSpatUpload">ProcessedSpats</label><input type="file" id="btnProcessedSpatUpload" accept=".jsonl,.ndjson,.csv,.json"
@@ -154,10 +157,16 @@
     const spatList = [];
 
     let bsmTemplate = ""; /* BSM template string */
+    let processedBsmTemplate = "";
+
+    function selectBsmTemplate() {
+        return useProcessedBsms ? processedBsmTemplate : bsmTemplate;
+    }
 
     // Flag indicates whether the SPAT and spatList contain raw or ProcessedSpats.
     let useProcessedSpats = false;
     let useProcessedMap = false;
+    let useProcessedBsms = false;
 
 
     const diffSpatEvents = [];
@@ -286,6 +295,9 @@
         const response = await fetch('BSMTemplate.json');
         const text = await response.text();
         bsmTemplate = JSON.parse(text);
+        const processedResponse = await fetch('ProcessedBsmTemplate.json');
+        const processedText = await processedResponse.text();
+        processedBsmTemplate = JSON.parse(processedText);
     }
 
 
@@ -390,7 +402,7 @@
             if (!BSM_SEND) return;
             const bsm = theBsmList[idx];
             const id = bsm.id;
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
+            const postDataItem = buildBsmFromTemplate(bsm, selectBsmTemplate(), bsmId, null);
             sendBsmAsync(postDataItem).then(successCallback, failureCallback);
             if (idx < theBsmList.length - 1) {
                 ++idx;
@@ -431,27 +443,47 @@
         document.getElementById('bsmControls').style = '';
     }
 
-    function buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp) {
-        // Copy via serialization
-        const bsmJson = JSON.stringify(bsmTemplate);
-        const bsmObj = JSON.parse(bsmJson);
-        bsmObj.payload.data.coreData.id = bsmId;
-        bsmObj.payload.data.coreData.msgCnt = bsm.msgCnt;
-        bsmObj.payload.data.coreData.speed = bsm.speed;
-        bsmObj.payload.data.coreData.heading = bsm.heading;
-        bsmObj.payload.data.coreData.position.longitude = bsm.coords[0];
-        bsmObj.payload.data.coreData.position.latitude = bsm.coords[1];
-        const dt = new Date(bsm.timestamp);
-        const dtMillis = dt.getTime();
-        const dtMinute = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), dt.getHours(), dt.getMinutes(), 0, 0);
-        const minuteMillis = dtMinute.getTime();
-        const millis = dtMillis - minuteMillis;
-        bsmObj.payload.data.coreData.secMark = millis;
-        bsmObj.metadata.originIp = originIp;
-
-
-        bsmObj.metadata.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
-        return bsmObj;
+    function buildBsmFromTemplate(bsm, template, bsmId, originIp) {
+        if (useProcessedBsms) {
+            const bsmJson = JSON.stringify(template);
+            const bsmObj = JSON.parse(bsmJson);
+            console.log("useProcessedBsms: " + useProcessedBsms);
+            console.log(bsmObj);
+            bsmObj.properties.id = bsmId;
+            bsmObj.properties.msgCnt = bsm.msgCnt;
+            bsmObj.properties.speed = bsm.speed;
+            bsmObj.properties.heading = bsm.heading;
+            bsmObj.geometry.coordinates[0] = bsm.coords[0];
+            bsmObj.geometry.coordinates[1] = bsm.coords[1];
+            const dt = new Date(bsm.timestamp);
+            const dtMillis = dt.getTime();
+            const dtMinute = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), dt.getHours(), dt.getMinutes(), 0, 0);
+            const minuteMillis = dtMinute.getTime();
+            const millis = dtMillis - minuteMillis;
+            bsmObj.properties.secMark = millis;
+            bsmObj.properties.originIp = originIp != null ? originIp : bsm.originIp;
+            bsmObj.properties.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
+            return bsmObj;
+        } else {
+            // Copy via serialization
+            const bsmJson = JSON.stringify(bsmTemplate);
+            const bsmObj = JSON.parse(bsmJson);
+            bsmObj.payload.data.coreData.id = bsmId;
+            bsmObj.payload.data.coreData.msgCnt = bsm.msgCnt;
+            bsmObj.payload.data.coreData.speed = bsm.speed;
+            bsmObj.payload.data.coreData.heading = bsm.heading;
+            bsmObj.payload.data.coreData.position.longitude = bsm.coords[0];
+            bsmObj.payload.data.coreData.position.latitude = bsm.coords[1];
+            const dt = new Date(bsm.timestamp);
+            const dtMillis = dt.getTime();
+            const dtMinute = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), dt.getHours(), dt.getMinutes(), 0, 0);
+            const minuteMillis = dtMinute.getTime();
+            const millis = dtMillis - minuteMillis;
+            bsmObj.payload.data.coreData.secMark = millis;
+            bsmObj.metadata.originIp = originIp;
+            bsmObj.metadata.odeReceivedAt = new Date(bsm.odeReceivedAt).toISOString();
+            return bsmObj;
+        }
     }
 
     function getRandomBsmID() {
@@ -484,9 +516,13 @@
 
     async function sendBsmAsync(postDataItem) {
         if (RECORD_SCRIPT) {
-            script.push(scriptUtil.buildScriptFromBsm(postDataItem));
+            const scriptLine = useProcessedBsms
+                ? scriptUtil.buildScriptFromProcessedBsm(postDataItem)
+                : scriptUtil.buildScriptFromBsm(postDataItem);
+            script.push(scriptLine);
         }
-        const response = await fetch('/kafka/topic.OdeBsmJson', {
+        const bsmTopic = useProcessedBsms ? '/kafka/topic.ProcessedBsm' : '/kafka/topic.OdeBsmJson';
+        return await fetch(bsmTopic, {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -494,7 +530,6 @@
             },
             body: JSON.stringify(postDataItem)
         });
-        return response;
     }
 
 
@@ -524,6 +559,7 @@
 
             file.text().then(text => {
                 // Clear exising bsms
+                useProcessedBsms = false;
                 bsmList.length = 0;
                 const lines = text.split(/\r?\n/);
 
@@ -534,6 +570,47 @@
                         try {
                             const json = JSON.parse(line);
                             var bsm = extractBsmData(json);
+                            bsmList.push(bsm);
+                            addCircleMarker(bsm);
+                        } catch (ex) {
+                            console.error(ex);
+                        }
+                    }
+                }
+
+                console.log("Uploaded " + bsmList.length + " BSMs");
+
+                // Find distinct BSM IDs
+                const idList = bsmList.map((value, idx, arr) => value.id + '');
+                const idSet = new Set();
+                for (const id of idList) {
+                    idSet.add(id);
+                }
+                console.log("idSet");
+                console.log(idSet);
+
+                // Sort by ode ingest time
+                bsmList.sort((a, b) => a.odeReceivedAt - b.odeReceivedAt);
+            });
+        }
+    }
+
+    function uploadProcessedBsms(e) {
+        console.log("uploadProcessedBsms");
+        if (e?.files.length > 0) {
+            let file = e.files[0];
+
+            file.text().then(text => {
+                // Clear exising bsms
+                useProcessedBsms = true;
+                bsmList.length = 0;
+                const lines = text.split(/\r?\n/);
+
+                for (const line of lines) {
+                    if (line) {
+                        try {
+                            const json = JSON.parse(line);
+                            var bsm = extractProcessedBsmData(json);
                             bsmList.push(bsm);
                             addCircleMarker(bsm);
                         } catch (ex) {
@@ -595,6 +672,44 @@
         return bsm;
     }
 
+
+    //
+    // Function: extractProcessedBsmData
+    //
+    // Extracts key data from a ProcessedBsm
+    //
+    // Input: An ODE JSON ProcessedBsm object
+    //
+    // Output: A flat JSON object containing the key useful data from the BSM
+    // including timestamps, coordinates, speed, heading, etc.
+    //
+    function extractProcessedBsmData(json) {
+        const bsmProps = json.properties;
+
+        const dtReceivedAtMillis = Date.parse(bsmProps.odeReceivedAt);
+        const dt = new Date(dtReceivedAtMillis);
+        //console.log(dt);
+        const minuteMillis = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(), dt.getUTCHours(), dt.getUTCMinutes(), 0, 0);
+        //const coreData = json.payload.data.coreData;
+        const secMark = bsmProps.secMark;
+        const millis = minuteMillis + secMark;
+
+        const geometry = json.geometry;
+        const coords = geometry.coordinates;
+        const lon = coords[0];
+        const lat = coords[1];
+
+        const heading = bsmProps.heading;
+        const speed = bsmProps.speed;
+        const id = bsmProps.id + ''; // Cast to string
+        const msgCnt = bsmProps.msgCnt;
+
+        const originIp = bsmProps.originIp;
+
+        const bsm = { odeReceivedAt: dtReceivedAtMillis, timestamp: millis, coords: [lon, lat], heading: heading, speed: speed, id: id, msgCnt: msgCnt, originIp: originIp };
+        //console.log(bsm);
+        return bsm;
+    }
     
 
     function addCircleMarker(bsm) {
@@ -783,7 +898,7 @@
         const originIp = getOriginIpForBsm();
 
         for (const bsm of bsmList) {
-            const postDataItem = buildBsmFromTemplate(bsm, bsmTemplate, bsmId, originIp);
+            const postDataItem = buildBsmFromTemplate(bsm, selectBsmTemplate(), bsmId, originIp);
             ldjson += JSON.stringify(postDataItem) + '\n';
         }
         downloadText('BSMData.jsonl', ldjson);

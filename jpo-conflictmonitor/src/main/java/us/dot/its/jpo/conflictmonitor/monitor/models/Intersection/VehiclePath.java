@@ -10,8 +10,6 @@ import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.linearref.LengthIndexedLine;
-import org.locationtech.jts.linearref.LinearLocation;
-import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.slf4j.Logger;
@@ -20,9 +18,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+
 
 @Getter
 @Setter
@@ -37,8 +34,8 @@ public class VehiclePath {
 
     private Lane ingressLane;
     private Lane egressLane;
-    private OdeBsmData ingressBsm;
-    private OdeBsmData egressBsm;
+    private ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> ingressBsm;
+    private ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> egressBsm;
 
     private double minDistanceFeet;
     private double headingToleranceDegrees;
@@ -63,12 +60,13 @@ public class VehiclePath {
        
         Coordinate[] vehicleCoords = new Coordinate[bsms.getBsms().size()];
         int index =0;
-        for(OdeBsmData bsm : bsms.getBsms()){
+        for(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : bsms.getBsms()){
             
-            OdePosition3D position = ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getPosition();
+            CoordinateXY coords = BsmUtils.getPosition(bsm);
+
             double[] shiftedPosition = CoordinateConversion.longLatToOffsetCM(
-                position.getLongitude().doubleValue(),
-                position.getLatitude().doubleValue(),
+                coords.getX(),
+                coords.getY(),
                 referencePoint.getX(),
                 referencePoint.getY()
             );
@@ -117,14 +115,14 @@ public class VehiclePath {
 
         final double minDistanceCM = CoordinateConversion.feetToCM(minDistanceFeet);
         double minDistance = Double.MAX_VALUE;
-        OdeBsmData matchingBsm = null;
+        ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> matchingBsm = null;
         IntersectionLine bestLine = null;
 
 
         for(IntersectionLine line : lines){
             if(this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)){
                 int index =0;
-                for(OdeBsmData bsm : this.bsms.getBsms()){
+                for(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : this.bsms.getBsms()){
                     Point p = this.pathPoints.getPointN(index);
                     var optionalHeading = BsmUtils.getHeading(bsm);
                     if (optionalHeading.isEmpty()) {
@@ -158,9 +156,10 @@ public class VehiclePath {
      * Find the BSMs that are in the ingress lane and within the upstream search distance
      * @param lane - The ingress lane to search
      * @param upstreamSearchDistanceFeet - The upstream distance along the lane to search
-     * @return List<OdeBsmData>
+     * @return List<ProcessedBsm>
      */
-    public List<OdeBsmData> findBsmsInIngressLane(Lane lane, final double upstreamSearchDistanceFeet) {
+    public List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>>
+    findBsmsInIngressLane(Lane lane, final double upstreamSearchDistanceFeet) {
         final double upstreamSearchDistanceCm = CoordinateConversion.feetToCM(upstreamSearchDistanceFeet);
         final double laneWidthCm = lane.getLaneWidthCm();
         final double halfLaneWidthCm = laneWidthCm / 2.0;
@@ -175,12 +174,10 @@ public class VehiclePath {
         Geometry buffer = BufferOp.bufferOp(upstreamLine, halfLaneWidthCm, bufferParams);
 
         // Find the BSMs that are within the buffer
-        List<OdeBsmData> bsmsInLane = new ArrayList<>();
+        List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> bsmsInLane = new ArrayList<>();
         int index = 0;
-        for (OdeBsmData bsm : this.bsms.getBsms()) {
+        for (ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : this.bsms.getBsms()) {
             Point p = this.pathPoints.getPointN(index);
-
-            
 
             if (buffer.contains(p)) {
                 bsmsInLane.add(bsm);
@@ -201,12 +198,15 @@ public class VehiclePath {
      * @param stopSpeedThresholdMPH
      * @return
      */
-    public List<OdeBsmData> filterStoppedBsms(final List<OdeBsmData> bsmList, final double stopSpeedThresholdMPH) {
+    public List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>>
+    filterStoppedBsms(
+            final List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> bsmList,
+            final double stopSpeedThresholdMPH) {
         List<Integer> stoppedBsmIndices = new ArrayList<>();
 
         // Find indexes of all BSMs below the stop speed threshold
         for (int i = 0; i < bsmList.size(); i++) {
-            OdeBsmData bsm = bsmList.get(i);
+            ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm = bsmList.get(i);
             Optional<Double> optionalSpeed = BsmUtils.getSpeedMPH(bsm);
             
             if (optionalSpeed.isEmpty()) {
@@ -220,7 +220,7 @@ public class VehiclePath {
             }
         }
 
-        List<OdeBsmData> filteredBsmList = new ArrayList<>();
+        List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> filteredBsmList = new ArrayList<>();
 
         // Must be at least 2 BSMs to find stop and start timestamps
         if (stoppedBsmIndices.isEmpty() || stoppedBsmIndices.size() < 2) {

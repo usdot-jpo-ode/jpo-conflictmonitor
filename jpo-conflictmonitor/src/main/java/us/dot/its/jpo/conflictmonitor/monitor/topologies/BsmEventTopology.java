@@ -16,19 +16,20 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStrea
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.BsmEventProcessor;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
-import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionKey;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdPartitioner;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.serialization.deserializers.ProcessedBsmDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventConstants.DEFAULT_BSM_EVENT_ALGORITHM;
+
 
 @Component(DEFAULT_BSM_EVENT_ALGORITHM)
 public class BsmEventTopology
@@ -49,20 +50,12 @@ public class BsmEventTopology
 
         Topology bsmEventBuilder = new Topology();
 
-
-
-
-
-
         bsmEventBuilder.addSource(Topology.AutoOffsetReset.LATEST,
                 BSM_SOURCE,
                 new BsmTimestampExtractor(),
-                new JsonDeserializer<>(BsmRsuIdKey.class),
-                new JsonDeserializer<>(OdeBsmData.class),
+                new JsonDeserializer<>(RsuLogKey.class),
+                new ProcessedBsmDeserializer<>(Point.class),
                 parameters.getInputTopic());
-
-
-
 
         bsmEventBuilder.addProcessor(BSM_PROCESSOR,
                 () -> {
@@ -80,8 +73,8 @@ public class BsmEventTopology
                 PARTITIONED_BSM_SINK,
                 parameters.getBsmIntersectionOutputTopic(),
                 new JsonSerializer<BsmIntersectionIdKey>(),
-                new JsonSerializer<OdeBsmData>(),
-                new IntersectionIdPartitioner<BsmIntersectionIdKey, OdeBsmData>(),
+                new JsonSerializer<ProcessedBsm<Point>>(),
+                new IntersectionIdPartitioner<BsmIntersectionIdKey, ProcessedBsm<Point>>(),
                 BSM_PROCESSOR);
 
         // Output BSM Events
@@ -118,7 +111,7 @@ public class BsmEventTopology
     }
 
 
-
+    // TODO Remove this and refactor tests to use Wall Clock time
     @Setter
     @Getter
     public PunctuationType punctuationType = PunctuationType.WALL_CLOCK_TIME;

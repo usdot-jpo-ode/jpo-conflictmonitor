@@ -1,0 +1,52 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -105.0816123,
+      39.643781400000002
+    ]
+  },
+  "properties": {
+    "schemaVersion": 6,
+    "messageType": "BSM",
+    "odeReceivedAt": "2025-01-07T21:23:42.793Z",
+    "timeStamp": "2025-01-07T21:23:42.793Z",
+    "originIp": "10.11.81.28",
+    "validationMessages": [],
+    "accelSet": {
+      "accelLong": 0,
+      "accelYaw": 0
+    },
+    "accuracy": {
+      "semiMajor": 0,
+      "semiMinor": 0,
+      "orientation": 0
+    },
+    "brakes": {
+      "wheelBrakes": {
+        "leftFront": false,
+        "rightFront": false,
+        "unavailable": true,
+        "leftRear": false,
+        "rightRear": false
+      },
+      "traction": "unavailable",
+      "abs": "off",
+      "scs": "unavailable",
+      "brakeBoost": "unavailable",
+      "auxBrakes": "unavailable"
+    },
+    "heading": 180.5,
+    "id": "86F7EE8B",
+    "msgCnt": 109,
+    "secMark": 42793,
+    "size": {
+      "width": 0,
+      "length": 0
+    },
+    "transmission": "UNAVAILABLE",
+    "speed": 10,
+    "logName": ""
+  }
+}

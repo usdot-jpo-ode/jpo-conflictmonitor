@@ -11,6 +11,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 
+
 @Component(DEFAULT_CONNECTION_OF_TRAVEL_ALGORITHM)
 public class ConnectionOfTravelAnalytics implements ConnectionOfTravelAlgorithm{
     

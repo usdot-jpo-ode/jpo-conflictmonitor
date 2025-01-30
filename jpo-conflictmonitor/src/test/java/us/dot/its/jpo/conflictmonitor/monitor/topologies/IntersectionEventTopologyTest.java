@@ -1,6 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
-import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.Topology;
@@ -25,22 +25,27 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
-import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+
+import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.ConnectionOfTravelEvent;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
 import us.dot.its.jpo.conflictmonitor.testutils.SpatTestUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
+import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
+
 
 import java.time.Instant;
 import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,8 +61,8 @@ public class IntersectionEventTopologyTest {
 
 
     Properties streamsProperties = new Properties();
-    @Mock ReadOnlyWindowStore<BsmRsuIdKey, OdeBsmData> bsmWindowStore;
-    @Mock KeyValueIterator<Windowed<String>, OdeBsmData> bsmWindowStoreIterator;
+    @Mock ReadOnlyWindowStore<RsuLogKey, ProcessedBsm<Point>> bsmWindowStore;
+    @Mock KeyValueIterator<Windowed<String>, ProcessedBsm<Point>> bsmWindowStoreIterator;
     @Mock ReadOnlyWindowStore<RsuIntersectionKey, ProcessedSpat> spatWindowStore;
     @Mock KeyValueIterator<Windowed<String>, ProcessedSpat> spatWindowStoreIterator;
     @Mock ReadOnlyKeyValueStore<RsuIntersectionKey, ProcessedMap<LineString>> mapStore;
@@ -78,7 +83,9 @@ public class IntersectionEventTopologyTest {
 
     final long startMillis = 1682615309868L;
     final long endMillis = 1682615347488L;
-    final BsmRsuIdKey bsmId = new BsmRsuIdKey("127.0.0.1", "A0A0A0");
+    final BsmIntersectionIdKey bsmId = new BsmIntersectionIdKey("A0A0A0", "127.0.0.1", 1000, 25, "log");
+
+
 
     @Test
     public void testIntersectionEventTopology() {
@@ -86,14 +93,18 @@ public class IntersectionEventTopologyTest {
         // Return builder inputs unchanged for embedded topologies
         //when(messageIngestAlgorithm.buildTopology(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        final var startBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId.getBsmId());
-        final var endBsm = BsmTestUtils.bsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId.getBsmId());
-        final KeyValue<Windowed<String>, OdeBsmData> kvStartBsm = new KeyValue<>(new Windowed<>(bsmId.getBsmId(), new TimeWindow(startMillis, startMillis + 30000)), startBsm);
-        final KeyValue<Windowed<String>, OdeBsmData> kvEndBsm = new KeyValue<>(new Windowed<>(bsmId.getBsmId(), new TimeWindow(startMillis, startMillis + 30000)), endBsm);
+        final var startBsm = BsmTestUtils.processedBsmAtInstant(Instant.ofEpochMilli(startMillis), bsmId.getBsmId());
+        final var endBsm = BsmTestUtils.processedBsmAtInstant(Instant.ofEpochMilli(endMillis), bsmId.getBsmId());
+
+        final KeyValue<Windowed<BsmIntersectionIdKey>, ProcessedBsm<Point>> kvStartBsm
+                = new KeyValue<>(new Windowed<BsmIntersectionIdKey>(bsmId, new TimeWindow(startMillis, startMillis + 30000)), startBsm);
+        final KeyValue<Windowed<BsmIntersectionIdKey>, ProcessedBsm<Point>> kvEndBsm
+                = new KeyValue<>(new Windowed<>(bsmId, new TimeWindow(startMillis, startMillis + 30000)), endBsm);
 
         final int intersectionId = 1;
         final ProcessedSpat spat = SpatTestUtils.validSpat(intersectionId);
-        final KeyValue<Windowed<String>, ProcessedSpat> kvSpat = new KeyValue<>(new Windowed<>("1", new TimeWindow(startMillis, startMillis + 30000)), spat);
+        final KeyValue<Windowed<String>, ProcessedSpat> kvSpat
+                = new KeyValue<>(new Windowed<>("1", new TimeWindow(startMillis, startMillis + 30000)), spat);
 
         var conflictMonitorProperties = new ConflictMonitorProperties();
         conflictMonitorProperties.setKafkaTopicCmBsmEvent(bsmEventTopic);
@@ -135,12 +146,12 @@ public class IntersectionEventTopologyTest {
 
             var bsmInputTopic = driver.createInputTopic(
                     bsmEventTopic,
-                    JsonSerdes.BsmRsuIdKey().serializer(),
-                    JsonSerdes.BsmEvent().serializer());
+                    new JsonSerializer<BsmIntersectionIdKey>(),
+                    new JsonSerializer<BsmEvent>());
             var connectionOfTravelOutputTopic = driver.createOutputTopic(
                     connectionOfTravelTopic,
-                    Serdes.String().deserializer(),
-                    JsonSerdes.ConnectionOfTravelEvent().deserializer());
+                    new StringDeserializer(),
+                    new JsonDeserializer<>(ConnectionOfTravelEvent.class));
             BsmEvent event = new BsmEvent();
 
             event.setStartingBsm(startBsm);

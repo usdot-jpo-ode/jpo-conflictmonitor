@@ -5,6 +5,7 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_o
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
@@ -18,10 +19,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneSegment;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.LaneDirectionOfTravelEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathFunctions;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 
 @Component(DEFAULT_LANE_DIRECTION_OF_TRAVEL_ALGORITHM)
 public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgorithm{
@@ -64,9 +65,9 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
 
         for(int i =0; i < pathPoints.getNumPoints(); i++){
             Point pathPoint = pathPoints.getPointN(i);
-            // OdeBsmData bsm = path.getBsms().getBsms().get(i);
+
             for(LaneSegment segment: segments){
-                if(segment.getPolygon().contains(pathPoint)){// && ((J2735Bsm)bsm.getPayload().getData()).getCoreData().getSpeed().doubleValue() > this.parameters.getMinimumSpeedThreshold()){
+                if(segment.getPolygon().contains(pathPoint)){
                     
                     // Add BSM to existing list if available, otherwise create a new list to store the BSM
                     if(segmentBsmMap.get(segment) != null){
@@ -102,12 +103,16 @@ public class LaneDirectionOfTravelAnalytics implements LaneDirectionOfTravelAlgo
 
             if(bsmIndecies.size() > this.parameters.getMinimumPointsPerSegment()){
                 for(Integer index : bsmIndecies){
-                    OdeBsmData bsm = path.getBsms().getBsms().get(index);
+                    ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm = path.getBsms().getBsms().get(index);
                     Point pathPoint = path.getPathPoints().getPointN(index);
                     double distance = pathPoint.distance(segment.getCenterLine());
                     
-
-                    headings.add(((J2735Bsm)bsm.getPayload().getData()).getCoreData().getHeading().doubleValue());
+                    Optional<Double> optHeading = BsmUtils.getHeading(bsm);
+                    if (optHeading.isPresent()) {
+                        headings.add(optHeading.get());
+                    } else {
+                        headings.add(null);
+                    }
                     offsetDistances.add(distance);
                     times.add(BsmTimestampExtractor.getBsmTimestamp(bsm));
                     
