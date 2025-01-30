@@ -67,6 +67,9 @@ services:
       DATA_SIGNING_ENABLED_RSU: false
       DATA_SIGNING_ENABLED_SDW: false
       ODE_KAFKA_BROKERS: ${DOCKER_HOST_IP}:9092
+      KAFKA_LINGER_MS: 1
+      KAFKA_BATCH_SIZE: 16384
+      KAFKA_RETRIES: 0
     depends_on:
       kafka:
         condition: service_healthy
