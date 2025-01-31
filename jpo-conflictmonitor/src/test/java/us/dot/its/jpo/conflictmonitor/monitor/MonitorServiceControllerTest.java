@@ -324,9 +324,9 @@ public class MonitorServiceControllerTest {
         when(conflictMonitorProperties.getSpatMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
         when(spatMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMessageCountProgressionAggregationAlgorithm);
 
-        when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAggregationAlgorithmFactory);
-        when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
-        when(bsmMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAggregationAlgorithm);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAggregationAlgorithmFactory);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
+        // when(bsmMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAggregationAlgorithm);
 
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithmFactory()).thenReturn(spatTimeChangeDetailsAlgorithmFactory);
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithm()).thenReturn(defaultAlgo);
@@ -407,10 +407,10 @@ public class MonitorServiceControllerTest {
         when(spatMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMessageCountProgressionAlgorithm);
         when(conflictMonitorProperties.getSpatMessageCountProgressionAlgorithmParameters()).thenReturn(spatMessageCountProgressionParameters);
 
-        when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAlgorithmFactory);
-        when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
-        when(bsmMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAlgorithm);
-        when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmParameters()).thenReturn(bsmMessageCountProgressionParameters);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAlgorithmFactory);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
+        // when(bsmMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAlgorithm);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmParameters()).thenReturn(bsmMessageCountProgressionParameters);
 
         when(conflictMonitorProperties.getEventAlgorithmFactory()).thenReturn(eventAlgorithmFactory);
         when(conflictMonitorProperties.getEventAlgorithm()).thenReturn(defaultAlgo);
