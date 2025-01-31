@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <activeProfiles>
+        <activeProfile>default</activeProfile>
+    </activeProfiles>
+    <servers>
+        <server>
+            <id>central</id>
+        </server>
+        <server>
+            <id>osgeo</id>
+        </server>
+        <server>
+            <id>github</id>
+            <username>jpo_conflictmonitor</username>
+            <password>${env.MAVEN_GITHUB_TOKEN}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <repositories>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub JPO Conflict Monitor</name>
+                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/*</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+</settings>

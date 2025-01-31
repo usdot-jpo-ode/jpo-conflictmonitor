@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.MapBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.broadcast_rate.SpatBroadcastRateEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -39,11 +41,28 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = SpatMinimumDataEvent.class, name = "SpatMinimumData"),
         @JsonSubTypes.Type(value = MapBroadcastRateEvent.class, name = "MapBroadcastRate"),
         @JsonSubTypes.Type(value = SpatBroadcastRateEvent.class, name = "SpatBroadcastRate"),
-        @JsonSubTypes.Type(value = MapRevisionCounterEvent.class, name = "MapRevisionCounter"),
-        @JsonSubTypes.Type(value = SpatRevisionCounterEvent.class, name = "SpatRevisionCounter"),
-        @JsonSubTypes.Type(value = BsmRevisionCounterEvent.class, name = "BsmRevisionCounter"),
+        @JsonSubTypes.Type(value = MapMessageCountProgressionEvent.class, name = "MapMessageCountProgression"),
+        @JsonSubTypes.Type(value = SpatMessageCountProgressionEvent.class, name = "SpatMessageCountProgression"),
+        @JsonSubTypes.Type(value = BsmMessageCountProgressionEvent.class, name = "BsmMessageCountProgression"),
         @JsonSubTypes.Type(value = MapTimestampDeltaEvent.class, name = "MapTimestampDelta"),
-        @JsonSubTypes.Type(value = SpatTimestampDeltaEvent.class, name = "SpatTimestampDelta")
+        @JsonSubTypes.Type(value = SpatTimestampDeltaEvent.class, name = "SpatTimestampDelta"),
+        @JsonSubTypes.Type(value = EventStateProgressionEvent.class, name = "EventStateProgression"),
+        @JsonSubTypes.Type(value = SpatMinimumDataEventAggregation.class, name = "SpatMinimumDataAggregation"),
+        @JsonSubTypes.Type(value = MapMinimumDataEventAggregation.class, name = "MapMinimumDataAggregation"),
+        @JsonSubTypes.Type(value = IntersectionReferenceAlignmentEventAggregation.class,
+                name = "IntersectionReferenceAlignmentAggregation"),
+        @JsonSubTypes.Type(value = SignalGroupAlignmentEventAggregation.class,
+                name = "SignalGroupAlignmentAggregation"),
+        @JsonSubTypes.Type(value = SignalStateConflictEventAggregation.class, name = "SignalStateConflictAggregation"),
+        @JsonSubTypes.Type(value = TimeChangeDetailsEventAggregation.class, name = "TimeChangeDetailsAggregation"),
+        @JsonSubTypes.Type(value = EventStateProgressionEventAggregation.class,
+                name = "EventStateProgressionAggregation"),
+        @JsonSubTypes.Type(value = BsmMessageCountProgressionEventAggregation.class,
+                name = "BsmMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = SpatMessageCountProgressionEventAggregation.class,
+                name = "SpatMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = MapMessageCountProgressionEventAggregation.class,
+                name = "MapMessageCountProgressionAggregation")
 })
 @Getter
 @Setter
@@ -56,8 +75,8 @@ public abstract class Event {
     private long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     private String eventType;
 
-    private int intersectionID;
-    private int roadRegulatorID;
+    private int intersectionID = -1;
+    private int roadRegulatorID = -1;
     
 
     public Event(String eventType){

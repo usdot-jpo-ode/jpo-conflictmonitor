@@ -12,6 +12,8 @@ import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.timestamp_delta.map.MapTimestampDeltaStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
@@ -50,6 +52,7 @@ public class MapValidationTopology
     private static final String LATEST_TIMESTAMP_STORE = "latest-timestamp-store";
 
     MapTimestampDeltaStreamsAlgorithm timestampDeltaAlgorithm;
+    MapMinimumDataAggregationStreamsAlgorithm minimumDataAggregationAlgorithm;
 
     @Override
     public MapTimestampDeltaAlgorithm getTimestampDeltaAlgorithm() {
@@ -63,6 +66,16 @@ public class MapValidationTopology
             this.timestampDeltaAlgorithm = timestampDeltaStreamsAlgorithm;
         } else {
             throw new IllegalArgumentException("algorithm is not an instance of MapTimestampDeltaStreamsAlgorithm");
+        }
+    }
+
+    @Override
+    public void setMinimumDataAggregationAlgorithm(MapMinimumDataAggregationAlgorithm minimumDataAggregationAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (minimumDataAggregationAlgorithm instanceof MapMinimumDataAggregationStreamsAlgorithm streamsAlgorithm) {
+            this.minimumDataAggregationAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Algorithm is not an instance of MapMinimumDataAggregationStreamsAlgorithm");
         }
     }
 
@@ -120,14 +133,21 @@ public class MapValidationTopology
                 logger.info("MAP Min Data Event for intersection {}", intersectionKey);
             }
         });
-       
-            
-        minDataStream.to(parameters.getMinimumDataTopicName(),
-            Produced.with(
-                us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(), 
-                JsonSerdes.MapMinimumDataEvent(), 
-                new IntersectionIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
-        );
+
+        // If aggregation is enabled, don't send individual events to the topic
+        // This is a read-only flag, so the subtopology for the unchosen option is not constructed at all
+        if (parameters.isAggregateMinimumDataEvents()) {
+            // Aggregate
+            minimumDataAggregationAlgorithm.buildTopology(builder, minDataStream);
+        } else {
+            // Don't aggregate
+            minDataStream.to(parameters.getMinimumDataTopicName(),
+                    Produced.with(
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                            JsonSerdes.MapMinimumDataEvent(),
+                            new IntersectionIdPartitioner<RsuIntersectionKey, MapMinimumDataEvent>())
+            );
+        }
 
 
 

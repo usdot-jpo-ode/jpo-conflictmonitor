@@ -6,11 +6,30 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.kafka.core.KafkaTemplate;
 
+
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 import us.dot.its.jpo.conflictmonitor.ConflictMonitorProperties;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.*;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.spat.SpatMinimumDataAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_event.BsmEventStreamsAlgorithm;
@@ -21,6 +40,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel.Co
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.connection_of_travel_assessment.ConnectionOfTravelAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event.EventParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.intersection_event.IntersectionEventStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.lane_direction_of_travel.LaneDirectionOfTravelAlgorithm;
@@ -41,6 +63,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.Notificati
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
@@ -68,21 +93,20 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_revision_counter.MapRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_revision_counter.SpatRevisionCounterParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_revision_counter.BsmRevisionCounterParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.map.MapIndex;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigInitializer;
 import us.dot.its.jpo.conflictmonitor.monitor.topologies.config.ConfigTopology;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  * Unit test for {@link MonitorServiceController}
@@ -122,6 +146,29 @@ public class MonitorServiceControllerTest {
     @Mock SpatTimestampDeltaStreamsAlgorithm spatTimestampDeltaStreamsAlgorithm;
     SpatTimestampDeltaParameters spatTimestampDeltaParameters = new SpatTimestampDeltaParameters();
 
+    AggregationParameters aggregationParameters = new AggregationParameters();
+    @Mock EventStateProgressionAggregationAlgorithmFactory eventStateProgressionAggregationAlgorithmFactory;
+    @Mock EventStateProgressionAggregationAlgorithm eventStateProgressionAggregationAlgorithm;
+    @Mock SpatMinimumDataAggregationAlgorithmFactory spatMinimumDataAggregationAlgorithmFactory;
+    @Mock SpatMinimumDataAggregationAlgorithm spatMinimumDataAggregationAlgorithm;
+    @Mock MapMinimumDataAggregationAlgorithmFactory mapMinimumDataAggregationAlgorithmFactory;
+    @Mock MapMinimumDataAggregationAlgorithm mapMinimumDataAggregationAlgorithm;
+    @Mock TimeChangeDetailsAggregationAlgorithmFactory timeChangeDetailsAggregationAlgorithmFactory;
+    @Mock TimeChangeDetailsAggregationAlgorithm timeChangeDetailsAggregationAlgorithm;
+    @Mock IntersectionReferenceAlignmentAggregationAlgorithmFactory intersectionReferenceAlignmentAggregationAlgorithmFactory;
+    @Mock IntersectionReferenceAlignmentAggregationAlgorithm intersectionReferenceAlignmentAggregationAlgorithm;
+    @Mock SignalGroupAlignmentAggregationAlgorithmFactory signalGroupAlignmentAggregationAlgorithmFactory;
+    @Mock SignalGroupAlignmentAggregationAlgorithm signalGroupAlignmentAggregationAlgorithm;
+    @Mock SignalStateConflictAggregationAlgorithmFactory signalStateConflictAggregationAlgorithmFactory;
+    @Mock SignalStateConflictAggregationAlgorithm signalStateConflictAggregationAlgorithm;
+    @Mock MapMessageCountProgressionAggregationAlgorithmFactory mapMessageCountProgressionAggregationAlgorithmFactory;
+    @Mock MapMessageCountProgressionAggregationAlgorithm mapMessageCountProgressionAggregationAlgorithm;
+    @Mock SpatMessageCountProgressionAggregationAlgorithmFactory spatMessageCountProgressionAggregationAlgorithmFactory;
+    @Mock SpatMessageCountProgressionAggregationAlgorithm spatMessageCountProgressionAggregationAlgorithm;
+    @Mock BsmMessageCountProgressionAggregationAlgorithmFactory bsmMessageCountProgressionAggregationAlgorithmFactory;
+    @Mock BsmMessageCountProgressionAggregationAlgorithm bsmMessageCountProgressionAggregationAlgorithm;
+
+
     @Mock SpatTimeChangeDetailsAlgorithmFactory spatTimeChangeDetailsAlgorithmFactory;
     @Mock SpatTimeChangeDetailsStreamsAlgorithm spatTimeChangeDetailsAlgorithm;
     SpatTimeChangeDetailsParameters spatTimeChangeDetailsParameters = new SpatTimeChangeDetailsParameters();
@@ -137,6 +184,12 @@ public class MonitorServiceControllerTest {
     @Mock MessageIngestAlgorithmFactory messageIngestAlgorithmFactory;
     @Mock MessageIngestStreamsAlgorithm messageIngestAlgorithm;
     MessageIngestParameters messageIngestParameters = new MessageIngestParameters();
+
+    @Mock
+    EventStateProgressionAlgorithmFactory spatTransitionAlgorithmFactory;
+    @Mock
+    EventStateProgressionStreamsAlgorithm spatTransitionAlgorithm;
+    EventStateProgressionParameters spatTransitionParameters = new EventStateProgressionParameters();
 
     @Mock LaneDirectionOfTravelAlgorithmFactory laneDirectionOfTravelAlgorithmFactory;
     @Mock LaneDirectionOfTravelAlgorithm laneDirectionOfTravelAlgorithm;
@@ -177,17 +230,24 @@ public class MonitorServiceControllerTest {
     @Mock StopLineStopAssessmentStreamsAlgorithm stopLineStopAssessmentAlgorithm;
     StopLineStopAssessmentParameters stopLineStopAssessmentParameters = new StopLineStopAssessmentParameters();
 
-    @Mock SpatRevisionCounterAlgorithmFactory spatRevisionCounterAlgorithmFactory;
-    @Mock SpatRevisionCounterAlgorithm spatRevisionCounterAlgorithm;
-    SpatRevisionCounterParameters spatRevisionCounterParameters = new SpatRevisionCounterParameters();
+    @Mock SpatMessageCountProgressionAlgorithmFactory spatMessageCountProgressionAlgorithmFactory;
+    @Mock SpatMessageCountProgressionAlgorithm spatMessageCountProgressionAlgorithm;
+    SpatMessageCountProgressionParameters spatMessageCountProgressionParameters = new SpatMessageCountProgressionParameters();
 
-    @Mock MapRevisionCounterAlgorithmFactory mapRevisionCounterAlgorithmFactory;
-    @Mock MapRevisionCounterAlgorithm mapRevisionCounterAlgorithm;
-    MapRevisionCounterParameters mapRevisionCounterParameters = new MapRevisionCounterParameters();
+    @Mock MapMessageCountProgressionAlgorithmFactory mapMessageCountProgressionAlgorithmFactory;
+    @Mock MapMessageCountProgressionAlgorithm mapMessageCountProgressionAlgorithm;
+    MapMessageCountProgressionParameters mapMessageCountProgressionParameters = new MapMessageCountProgressionParameters();
 
-    @Mock BsmRevisionCounterAlgorithmFactory bsmRevisionCounterAlgorithmFactory;
-    @Mock BsmRevisionCounterAlgorithm bsmRevisionCounterAlgorithm;
-    BsmRevisionCounterParameters bsmRevisionCounterParameters = new BsmRevisionCounterParameters();
+    @Mock BsmMessageCountProgressionAlgorithmFactory bsmMessageCountProgressionAlgorithmFactory;
+    @Mock BsmMessageCountProgressionAlgorithm bsmMessageCountProgressionAlgorithm;
+    BsmMessageCountProgressionParameters bsmMessageCountProgressionParameters = new BsmMessageCountProgressionParameters();
+
+    @Mock
+    EventAlgorithmFactory eventAlgorithmFactory;
+    @Mock
+    EventAlgorithm eventAlgorithm;
+    @Mock
+    EventParameters eventParameters;
 
     MapIndex mapIndex = new MapIndex();
     
@@ -226,6 +286,48 @@ public class MonitorServiceControllerTest {
         when(spatTimestampDeltaAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTimestampDeltaStreamsAlgorithm);
         when(conflictMonitorProperties.getSpatTimestampDeltaParameters()).thenReturn(spatTimestampDeltaParameters);
 
+        when(conflictMonitorProperties.getAggregationParameters()).thenReturn(aggregationParameters);
+
+        when(conflictMonitorProperties.getEventStateProgressionAggregationAlgorithmFactory()).thenReturn(eventStateProgressionAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getEventStateProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(eventStateProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(eventStateProgressionAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getSpatMinimumDataAggregationAlgorithmFactory()).thenReturn(spatMinimumDataAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatMinimumDataAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(spatMinimumDataAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMinimumDataAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getMapMinimumDataAggregationAlgorithmFactory()).thenReturn(mapMinimumDataAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getMapMinimumDataAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(mapMinimumDataAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapMinimumDataAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getTimeChangeDetailsAggregationAlgorithmFactory()).thenReturn(timeChangeDetailsAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getTimeChangeDetailsAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(timeChangeDetailsAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(timeChangeDetailsAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getIntersectionReferenceAlignmentAggregationAlgorithmFactory()).thenReturn(intersectionReferenceAlignmentAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getIntersectionReferenceAlignmentAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(intersectionReferenceAlignmentAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(intersectionReferenceAlignmentAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getSignalGroupAlignmentAggregationAlgorithmFactory()).thenReturn(signalGroupAlignmentAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getSignalGroupAlignmentAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(signalGroupAlignmentAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(signalGroupAlignmentAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getSignalStateConflictAggregationAlgorithmFactory()).thenReturn(signalStateConflictAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getSignalStateConflictAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(signalStateConflictAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(signalStateConflictAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getMapMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(mapMessageCountProgressionAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getMapMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(mapMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapMessageCountProgressionAggregationAlgorithm);
+
+        when(conflictMonitorProperties.getSpatMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(spatMessageCountProgressionAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(spatMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMessageCountProgressionAggregationAlgorithm);
+
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAggregationAlgorithmFactory);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
+        // when(bsmMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAggregationAlgorithm);
+
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithmFactory()).thenReturn(spatTimeChangeDetailsAlgorithmFactory);
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithm()).thenReturn(defaultAlgo);
         when(spatTimeChangeDetailsAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTimeChangeDetailsAlgorithm);
@@ -245,6 +347,11 @@ public class MonitorServiceControllerTest {
         messageIngestParameters.setAlgorithm(defaultAlgo);
         when(messageIngestAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(messageIngestAlgorithm);
         when(conflictMonitorProperties.getMessageIngestParameters()).thenReturn(messageIngestParameters);
+
+        when (conflictMonitorProperties.getSpatTransitionAlgorithmFactory()).thenReturn(spatTransitionAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatTransitionAlgorithm()).thenReturn(defaultAlgo);
+        when(spatTransitionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatTransitionAlgorithm);
+        when(conflictMonitorProperties.getSpatTransitionParameters()).thenReturn(spatTransitionParameters);
 
         when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithmFactory()).thenReturn(laneDirectionOfTravelAlgorithmFactory);
         when(conflictMonitorProperties.getLaneDirectionOfTravelAlgorithm()).thenReturn(defaultAlgo);
@@ -290,15 +397,25 @@ public class MonitorServiceControllerTest {
         when(stopLineStopAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(stopLineStopAssessmentAlgorithm);
         when(conflictMonitorProperties.getStopLineStopAssessmentAlgorithmParameters()).thenReturn(stopLineStopAssessmentParameters);
 
-        when(conflictMonitorProperties.getMapRevisionCounterAlgorithmFactory()).thenReturn(mapRevisionCounterAlgorithmFactory);
-        when(conflictMonitorProperties.getMapRevisionCounterAlgorithm()).thenReturn(defaultAlgo);
-        when(mapRevisionCounterAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapRevisionCounterAlgorithm);
-        when(conflictMonitorProperties.getMapRevisionCounterAlgorithmParameters()).thenReturn(mapRevisionCounterParameters);
+        when(conflictMonitorProperties.getMapMessageCountProgressionAlgorithmFactory()).thenReturn(mapMessageCountProgressionAlgorithmFactory);
+        when(conflictMonitorProperties.getMapMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
+        when(mapMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(mapMessageCountProgressionAlgorithm);
+        when(conflictMonitorProperties.getMapMessageCountProgressionAlgorithmParameters()).thenReturn(mapMessageCountProgressionParameters);
 
-        when(conflictMonitorProperties.getSpatRevisionCounterAlgorithmFactory()).thenReturn(spatRevisionCounterAlgorithmFactory);
-        when(conflictMonitorProperties.getSpatRevisionCounterAlgorithm()).thenReturn(defaultAlgo);
-        when(spatRevisionCounterAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatRevisionCounterAlgorithm);
-        when(conflictMonitorProperties.getSpatRevisionCounterAlgorithmParameters()).thenReturn(spatRevisionCounterParameters);
+        when(conflictMonitorProperties.getSpatMessageCountProgressionAlgorithmFactory()).thenReturn(spatMessageCountProgressionAlgorithmFactory);
+        when(conflictMonitorProperties.getSpatMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
+        when(spatMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMessageCountProgressionAlgorithm);
+        when(conflictMonitorProperties.getSpatMessageCountProgressionAlgorithmParameters()).thenReturn(spatMessageCountProgressionParameters);
+
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAlgorithmFactory);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
+        // when(bsmMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAlgorithm);
+        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmParameters()).thenReturn(bsmMessageCountProgressionParameters);
+
+        when(conflictMonitorProperties.getEventAlgorithmFactory()).thenReturn(eventAlgorithmFactory);
+        when(conflictMonitorProperties.getEventAlgorithm()).thenReturn(defaultAlgo);
+        when(eventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(eventAlgorithm);
+        when(conflictMonitorProperties.getEventParameters()).thenReturn(eventParameters);
 
         var monitorServiceController = new MonitorServiceController(
                 conflictMonitorProperties,
@@ -323,8 +440,8 @@ public class MonitorServiceControllerTest {
         verify(laneDirectionOfTravelAssessmentAlgorithm, times(1)).start();
         verify(connectionOfTravelAssessmentAlgorithm, times(1)).start();
         verify(stopLineStopAssessmentAlgorithm, times(1)).start();
-        verify(mapRevisionCounterAlgorithm, times(1)).start();
-        verify(spatRevisionCounterAlgorithm, times(1)).start();
+        verify(mapMessageCountProgressionAlgorithm, times(1)).start();
+        verify(spatMessageCountProgressionAlgorithm, times(1)).start();
     }
     
 }
