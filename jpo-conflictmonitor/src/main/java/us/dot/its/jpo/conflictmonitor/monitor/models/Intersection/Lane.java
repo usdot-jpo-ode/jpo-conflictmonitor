@@ -14,6 +14,7 @@ import org.locationtech.jts.io.WKTWriter;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapNode;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
+import us.dot.its.jpo.ode.plugin.j2735.J2735LaneTypeAttributes;
 
 
 
@@ -27,6 +28,8 @@ public class Lane {
     
     private int laneWidthCm;
     private int region;
+
+    private J2735LaneTypeAttributes type;
 
     public static Lane fromGeoJsonFeature(MapFeature<us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString> feature, Coordinate referencePoint, int laneWidthCm){
         
@@ -63,6 +66,7 @@ public class Lane {
             lanePoints = lanePoints.reverse();
         }
 
+        lane.type = feature.getProperties().getLaneType();
 
 
         lane.setPoints(lanePoints);
@@ -90,6 +94,52 @@ public class Lane {
         return laneSegments;
     }
 
+    public boolean isPedestrian(){
+        return getLaneTypeString().equals("pedestrian");
+    }
+
+    public String getLaneTypeString(){
+        if(type == null){
+            return "Unknown";
+        }
+        
+        if(type.getVehicle() != null){
+            return "roadway";
+        }else if(type.getCrosswalk() != null){
+            return "pedestrian";
+        }else if(type.getBikeLane() != null){
+            return "roadway";
+        }else if(type.getSidewalk() != null){
+            return "pedestrian";
+        }else if(type.getMedian() != null){
+            return "roadway";
+        }else if(type.getStriping() != null){
+            return "roadway";
+        }else if(type.getTrackedVehicle() != null){
+            return "roadway";
+        }else if(type.getParking() != null){
+            return "roadway";
+        }
+        return "Unknown";
+    }
+
+    public Point getOriginPoint(){
+        if(this.ingress){
+            return this.getPoints().getPointN(0);
+        }else{
+            LineString points = this.getPoints();
+            return points.getPointN(points.getNumPoints() -1);
+        }
+    }
+
+    public Point getDestinationPoint(){
+        if(!this.ingress){
+            return this.getPoints().getPointN(0);
+        }else{
+            LineString points = this.getPoints();
+            return points.getPointN(points.getNumPoints() -1);
+        }
+    }
 
     public int getId() {
         return id;
@@ -137,6 +187,14 @@ public class Lane {
 
     public void setRegion(int region) {
         this.region = region;
+    }
+
+    public J2735LaneTypeAttributes getLaneType() {
+        return type;
+    }
+
+    public void setLaneType(J2735LaneTypeAttributes type) {
+        this.type = type;
     }
 
     public String getLaneAsWkt() {

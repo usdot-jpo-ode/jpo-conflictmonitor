@@ -6,14 +6,10 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 import lombok.Generated;
 import us.dot.its.jpo.conflictmonitor.monitor.models.IntersectionRegion;
-import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanes;
-import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigMap;
-
-import java.util.List;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUtil.getIntersectionValue;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;

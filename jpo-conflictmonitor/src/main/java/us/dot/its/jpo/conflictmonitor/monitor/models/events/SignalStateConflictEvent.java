@@ -22,6 +22,16 @@ public class SignalStateConflictEvent extends Event{
     private int secondConflictingSignalGroup;
     private J2735MovementPhaseState secondConflictingSignalState;
     private String source;
+    private int firstIngressLane;
+    private String firstIngressLaneType;
+    private int firstEgressLane;
+    private String firstEgressLaneType;
+    private int secondIngressLane;
+    private String secondIngressLaneType;
+    private int secondEgressLane;
+    private String secondEgressLaneType;
+
+
 
     public SignalStateConflictEvent(){
         super("SignalStateConflict");
