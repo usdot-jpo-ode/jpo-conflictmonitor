@@ -1,13 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.*;
-import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.ode.model.OdeBsmData;
 
 @Getter
@@ -30,12 +23,25 @@ public class BsmEvent {
      */
     private long wallClockTimestamp;
 
+
+    /** 
+     * Creates a new BsmEvent Object;
+     */
     public BsmEvent() {}
 
+    /** 
+     * Creates a new BsmEvent object with the supplied starting BSM. This is typically used when a BSM event is in progress, and the final BSM has not yet been received.
+     * @param startingBsm The first BSM included in this event
+     */
     public BsmEvent(OdeBsmData startingBsm){
         this.startingBsm = startingBsm;
     }
 
+    /** 
+     * Creates a new BsmEvent object with the supplied starting and ending BSMs. 
+     * @param startingBsm The first BSM included in this event
+     * @param endingBSM The last BSM included in this event
+     */
     public BsmEvent(OdeBsmData startingBsm, OdeBsmData endingBsm){
         this.startingBsm = startingBsm;
         this.endingBsm = endingBsm;
