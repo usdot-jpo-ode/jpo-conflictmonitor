@@ -286,9 +286,9 @@ map.spat.message.assessment:
   signalGroupAlignmentNotificationAggTopicName: topic.CmSignalGroupAlignmentNotificationAggregation
   signalStateConflictNotificationTopicName: topic.CmSignalStateConflictNotification
   signalStateConflictNotificationAggTopicName: topic.CmSignalStateConflictNotificationAggregation
-  aggregateIntersectionReferenceAlignmentEvents: true
-  aggregateSignalGroupAlignmentEvents: true
-  aggregateSignalStateConflictEvents: true
+  aggregateIntersectionReferenceAlignmentEvents: ${ENABLE_AGGREGATE_INTERSECTION_REFERENCE_ALIGNMENT_EVENTS:false}
+  aggregateSignalGroupAlignmentEvents: ${ENABLE_AGGREGATE_SIGNAL_GROUP_ALIGNMENT_EVENTS:false}
+  aggregateSignalStateConflictEvents: ${ENABLE_AGGREGATE_SIGNAL_STATE_CONFLICT_EVENTS:false}
 
 
 # MAP Time Change Details
@@ -311,7 +311,7 @@ map.validation:
   lowerBound: 9
   upperBound: 11
   debug: false
-  aggregateMinimumDataEvents: true
+  aggregateMinimumDataEvents: ${ENABLE_AGGREGATE_MAP_MINIMUM_DATA_EVENTS:false}
 
 
 
@@ -418,7 +418,7 @@ spat.time.change.details:
   spatTimeChangeDetailsStateStoreName: spat-time-change-detail-state-store
   spatTimeChangeDetailsNotificationTopicName: topic.CmSpatTimeChangeDetailsNotification
   jitterBufferSize: 50
-  aggregateEvents: true
+  aggregateEvents: ${ENABLE_AGGREGATE_SPAT_TIME_CHANGE_DETAILS_EVENTS:false}
   aggNotificationTopicName: topic.CmSpatTimeChangeDetailsNotificationAggregation
 
 # SPAT Validation
@@ -433,7 +433,7 @@ spat.validation:
   lowerBound: 90
   upperBound: 110
   debug: false
-  aggregateMinimumDataEvents: true
+  aggregateMinimumDataEvents: ${ENABLE_AGGREGATE_SPAT_MINIMUM_DATA_EVENTS:false}
 
 
 # Intersection Reference Alignment Notification
@@ -475,7 +475,7 @@ map.message.count.progression:
   latestMapStateStoreName: latestMapStateStore
   bufferTimeMs: 5000
   bufferGracePeriodMs: 800
-  aggregateEvents: true
+  aggregateEvents: ${ENABLE_AGGREGATE_MAP_MESSAGE_COUNT_PROGRESSION:false}
 
 # SPAT Message Count Progression
 spat.message.count.progression:
@@ -487,7 +487,7 @@ spat.message.count.progression:
   latestSpatStateStoreName: latestSpatStateStore
   bufferTimeMs: 500
   bufferGracePeriodMs: 50
-  aggregateEvents: true
+  aggregateEvents: ${ENABLE_AGGREGATE_SPAT_MESSAGE_COUNT_PROGRESSION:false}
 
 # BSM Message Count Progression
 bsm.message.count.progression:
@@ -499,7 +499,7 @@ bsm.message.count.progression:
   latestBsmStateStoreName: latestBsmStateStore
   bufferTimeMs: 500
   bufferGracePeriodMs: 50
-  aggregateEvents: true
+  aggregateEvents: ${ENABLE_AGGREGATE_BSM_MESSAGE_COUNT_PROGRESSION:false}
   
 # Config parameters
 config:
@@ -544,7 +544,7 @@ event.state.progression:
   latestTransitionStoreName: latestTransitionStateStore
   bufferTimeMs: 1000
   bufferGracePeriodMs: 100
-  aggregateEvents: true
+  aggregateEvents: ${ENABLE_AGGREGATE_EVENT_STATE_PROGRESSION:false}
   illegalSpatTransitionList:
     - { stateA: STOP_THEN_PROCEED, stateB: PERMISSIVE_CLEARANCE }
     - { stateA: STOP_THEN_PROCEED, stateB: PROTECTED_CLEARANCE }
