@@ -374,7 +374,7 @@ public class MonitorServiceController {
             startSpatMessageCountProgressionAlgorithm();
             
             //Bsm Message Count Progression Topology
-            // startBsmMessageCountProgressionAlgorithm(); // Disabled until ProcessedBSMs get fully integrated
+            startBsmMessageCountProgressionAlgorithm(); 
 
             // Combined Event Topology
             final String event = "event";
