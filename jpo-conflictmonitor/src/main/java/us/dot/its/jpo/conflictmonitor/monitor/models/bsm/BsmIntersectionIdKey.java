@@ -16,8 +16,15 @@ public class BsmIntersectionIdKey extends RsuIntersectionKey {
 
     String bsmId;
 
+    /** 
+     * Creates a new Empty BsmIntersectionIdKey
+     */
     public BsmIntersectionIdKey() {}
 
+    /** 
+     * @param bsmid the BSM to add to the aggregation
+     * @return BsmAggregator returns this instance of the BSMAggregator
+     */
     public BsmIntersectionIdKey(String bsmId, String rsuId, int intersectionId) {
         super(rsuId, intersectionId);
         this.bsmId = bsmId;
