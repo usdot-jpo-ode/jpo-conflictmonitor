@@ -66,8 +66,6 @@ public class StopLinePassageAssessmentTopology
             return agg;
         };
 
-        signalStateEvents.print(Printed.toSysOut());
-
         Aggregator<String, StopLinePassageEvent, StopLinePassageAggregator> signalStateEventAggregator =
             (key, value, aggregate)-> {
                 return aggregate.add(value);
@@ -168,7 +166,6 @@ public class StopLinePassageAssessmentTopology
             }
         );
 
-        notificationEventStream.print(Printed.toSysOut());
                 
         KTable<String, StopLinePassageNotification> stopLinePassageNotificationTable = 
             notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageNotification()))
