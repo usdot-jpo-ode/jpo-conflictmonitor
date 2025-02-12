@@ -1,6 +1,12 @@
 ## JPO Conflict Monitor Release Notes
 
-## Version 1.3.0
+## Version 2.0.1
+Hotfix for 2025 Q1 CIMMS Release
+This fix adds a check to the ProgressionEvents preventing an issue where queries are run with invalid start and end query parameters.
+  - Removes extraneous print statements
+  - Adds time check to ProgressionEvents
+
+## Version 2.0.0
 
 ### **Summary**
 The forth release for the jpo-conflictmonitor, version 1.3.0

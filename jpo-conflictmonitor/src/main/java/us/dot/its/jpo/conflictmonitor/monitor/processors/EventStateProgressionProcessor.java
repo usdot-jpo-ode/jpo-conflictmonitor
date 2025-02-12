@@ -68,49 +68,54 @@ public class EventStateProgressionProcessor
             startTime = Instant.ofEpochMilli(context().currentStreamTimeMs())
                     .minusMillis(parameters.getBufferTimeMs());
         }
-        var query =
+
+        // Verify that the exclude grace period is after the start time of the query
+        if(excludeGracePeriod.compareTo(startTime) > 0){
+            var query =
                     MultiVersionedKeyQuery.<RsuIntersectionSignalGroupKey, SpatMovementState>withKey(record.key())
                             .fromTime(startTime)
                             .toTime(excludeGracePeriod)
                             .withAscendingTimestamps();
 
 
-        QueryResult<VersionedRecordIterator<SpatMovementState>> result =
-                stateStore.query(query,
-                        PositionBound.unbounded(),
-                        new QueryConfig(false));
+            QueryResult<VersionedRecordIterator<SpatMovementState>> result =
+                    stateStore.query(query,
+                            PositionBound.unbounded(),
+                            new QueryConfig(false));
 
-        if (result.isSuccess()) {
+            if (result.isSuccess()) {
 
-            // Identify transitions, and forward transition messages
-            VersionedRecordIterator<SpatMovementState> iterator = result.getResult();
-            SpatMovementState previousState = null;
+                // Identify transitions, and forward transition messages
+                VersionedRecordIterator<SpatMovementState> iterator = result.getResult();
+                SpatMovementState previousState = null;
 
-            while (iterator.hasNext()) {
-                final VersionedRecord<SpatMovementState> state = iterator.next();
-                final SpatMovementState thisState = state.value();
-                if (previousState != null && previousState.getPhaseState() != thisState.getPhaseState()) {
+                while (iterator.hasNext()) {
+                    final VersionedRecord<SpatMovementState> state = iterator.next();
+                    final SpatMovementState thisState = state.value();
+                    if (previousState != null && previousState.getPhaseState() != thisState.getPhaseState()) {
 
-                    if (parameters.isDebug()) {
-                        log.info("transition detected at timestamp {} -> {}, signal group {}, {} -> {}",
-                                previousState.getUtcTimeStamp(),state.timestamp(),
-                                record.key().getSignalGroup(), previousState.getPhaseState(), thisState.getPhaseState());
+                        if (parameters.isDebug()) {
+                            log.info("transition detected at timestamp {} -> {}, signal group {}, {} -> {}",
+                                    previousState.getUtcTimeStamp(),state.timestamp(),
+                                    record.key().getSignalGroup(), previousState.getPhaseState(), thisState.getPhaseState());
+                        }
+
+                        latestTransitionStore.put(record.key(), record.timestamp());
+
+                        // Transition detected,
+                        context().forward(record
+                                .withTimestamp(state.timestamp())
+                                .withValue(new SpatMovementStateTransition(previousState, thisState)));
+
                     }
-
-                    latestTransitionStore.put(record.key(), record.timestamp());
-
-                    // Transition detected,
-                    context().forward(record
-                            .withTimestamp(state.timestamp())
-                            .withValue(new SpatMovementStateTransition(previousState, thisState)));
-
+                    previousState = thisState;
                 }
-                previousState = thisState;
+            } else {
+                log.error("Failed to query state store: {}", result.getFailureMessage());
             }
-        } else {
-            log.error("Failed to query state store: {}", result.getFailureMessage());
+        }else{
+            log.warn("Skipping Query for Event State Progression Processor because start time " + startTime + " did not happen before end time: " + excludeGracePeriod);
         }
-
     }
 
     @Override
