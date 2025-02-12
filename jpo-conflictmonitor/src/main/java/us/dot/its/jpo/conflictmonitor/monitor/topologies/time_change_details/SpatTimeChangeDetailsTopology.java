@@ -131,7 +131,6 @@ public class SpatTimeChangeDetailsTopology
                             return result;
                         });
 
-        timeChangeDetailsNotificationStream.print(Printed.toSysOut());
 
         KTable<String, TimeChangeDetailsNotification> timeChangeDetailsNotificationTable = timeChangeDetailsNotificationStream
                 .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.TimeChangeDetailsNotification()))
