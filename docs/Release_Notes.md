@@ -1,6 +1,12 @@
 ## JPO Conflict Monitor Release Notes
 
-## Version 1.3.0
+## Version 2.0.1
+Hotfix for 2025 Q1 CIMMS Release
+This fix adds a check to the ProgressionEvents preventing an issue where queries are run with invalid start and end query parameters.
+  - Removes extraneous print statements
+  - Adds time check to ProgressionEvents
+
+## Version 2.0.0
 
 ### **Summary**
 The forth release for the jpo-conflictmonitor, version 1.3.0
@@ -8,16 +14,11 @@ The forth release for the jpo-conflictmonitor, version 1.3.0
 - Added Checks for SPaT and Map Broadcast rate when broadcast rate is 0
 - Switched SPaT Index to use UtcTimestamps
 - Updated Intersection Reference Alignment events to key by RSU
-- Added Message deduplicators for the following data sources
-    - Processed Map
-    - Processed Map WKT
-    - MAP
-    - TIM
-- Updated Kafka Connect to use Deduplicated Sources
 - Switched Conflict Monitor to Amazon Corretto Build images to retain packages required by Kafka
 - Updated CmBsmEvents to include intersection Ids
 - Added additional data sources to Kafka Connect and Index creation scripts
 - Added Configuration to Manage MongoDB volumes and collection sizes
+- Removed Deduplicator and moved it to a new repository
 - Bug Fixes
 
 

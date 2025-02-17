@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -69,6 +68,7 @@ public class BsmMessageCountProgressionTopology
                         us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRsuIdKey(),
                         JsonSerdes.ProcessedBsm()));
 
+        // inputStream.print(Printed.toSysOut());
 
         var eventStream = inputStream
             .process(() -> new BsmMessageCountProgressionProcessor<>(parameters), processedBsmStateStore, latestBsmStateStore);
