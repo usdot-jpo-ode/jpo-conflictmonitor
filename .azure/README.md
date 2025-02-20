@@ -30,10 +30,13 @@ The pipeline automatically triggers when:
 1. **Copy Files**
    - Copies project files to the artifact staging directory
    - Excludes certain files/directories by default:
-     - `.git` directories
      - `docs` directories
      - Markdown (`.md`) files
      - `test-message-sender` directory
+     - `jpo-utils` directory
+     - `samples` directory
+     - `.github` directory
+     - `.vscode` directory
 
 2. **Publish Artifact**
    - Creates an artifact named 'jpo-conflictmonitor'
