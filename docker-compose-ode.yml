@@ -7,6 +7,7 @@ services:
       - all
       - cm_full
       - ode_geojsonconverter
+      - geojsonconverter
     image: usdotjpoode/geojsonconverter:latest
     restart: ${RESTART_POLICY}
     deploy:
@@ -36,6 +37,7 @@ services:
       - all
       - cm_full
       - ode_geojsonconverter
+      - ode
     image: usdotjpoode/jpo-ode:latest
     restart: ${RESTART_POLICY}
     deploy:
@@ -90,6 +92,7 @@ services:
       - all
       - cm_full
       - ode_geojsonconverter
+      - adm
     image: usdotjpoode/asn1_codec:latest
     restart: ${RESTART_POLICY}
     deploy:
