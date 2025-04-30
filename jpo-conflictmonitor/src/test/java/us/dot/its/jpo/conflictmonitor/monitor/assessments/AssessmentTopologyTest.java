@@ -23,7 +23,7 @@ import java.util.List;
 public class AssessmentTopologyTest {
     String laneDirectionOfTravelAssessmentTopicName = "topic.CmLaneDirectionOfTravelAssessment";
     String connectionOfTravelAssessmentTopicName = "topic.CmConnectionOfTravelAssessment";
-    String signalStateEventAssessmentTopicName = "topic.CmSignalStateEventAssessment";
+    String stopLinePassageAssessmentTopicName = "topic.CmStopLinePassageAssessment";
     String assessmentOutputTopicName = "topic.CmAssessment";
 
 
@@ -34,7 +34,7 @@ public class AssessmentTopologyTest {
         AssessmentParameters parameters = new AssessmentParameters();
         parameters.setConnectionOfTravelAssessmentTopicName(connectionOfTravelAssessmentTopicName);
         parameters.setLaneDirectionOfTravelAssessmentTopicName(laneDirectionOfTravelAssessmentTopicName);
-        parameters.setSignalStateEventAssessmentTopicName(signalStateEventAssessmentTopicName);
+        parameters.setStopLinePassageAssessmentTopicName(stopLinePassageAssessmentTopicName);
         parameters.setAssessmentOutputTopicName(assessmentOutputTopicName);
         parameters.setDebug(false);
         
@@ -46,7 +46,7 @@ public class AssessmentTopologyTest {
 
         ConnectionOfTravelAssessment cotAssessment = new ConnectionOfTravelAssessment();
         LaneDirectionOfTravelAssessment ldotAssessment = new LaneDirectionOfTravelAssessment();
-        StopLinePassageAssessment sseaAssessment = new StopLinePassageAssessment();
+        StopLinePassageAssessment slpAssessment = new StopLinePassageAssessment();
 
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
@@ -65,31 +65,22 @@ public class AssessmentTopologyTest {
 
             inputLaneDirectionOfTravel.pipeInput("12109", ldotAssessment);
 
-            TestInputTopic<String, StopLinePassageAssessment> inputSignalStateEvent = driver.createInputTopic(
+            TestInputTopic<String, StopLinePassageAssessment> inputStopLinePassageEvent = driver.createInputTopic(
                 laneDirectionOfTravelAssessmentTopicName, 
                 Serdes.String().serializer(), 
                 JsonSerdes.StopLinePassageAssessment().serializer());
 
-            inputSignalStateEvent.pipeInput("12109", sseaAssessment);
-
-            
-
-            
-
-            
+                inputStopLinePassageEvent.pipeInput("12109", slpAssessment);
 
             TestOutputTopic<String, Assessment> outputAssessmentTopic = driver.createOutputTopic(
                 assessmentOutputTopicName, 
                 Serdes.String().deserializer(), 
                 JsonSerdes.Assessment().deserializer());
-            
 
             List<KeyValue<String, Assessment>> assessmentResults = outputAssessmentTopic.readKeyValuesToList();
 
-            
-            
             assertEquals(4, assessmentResults.size());
- 
+
             for(KeyValue<String, Assessment> assessmentKeyValue: assessmentResults){
                 assertEquals("12109", assessmentKeyValue.key);
                 Assessment assessment = assessmentKeyValue.value;
@@ -97,8 +88,8 @@ public class AssessmentTopologyTest {
                 if(type.equals("ConnectionOfTravel")){
                     assertEquals((ConnectionOfTravelAssessment) assessment, cotAssessment);
                 }
-                else if(type.equals("SignalStateEvent")){
-                    assertEquals((StopLinePassageAssessment) assessment, sseaAssessment);
+                else if(type.equals("StopLinePassage")){
+                    assertEquals((StopLinePassageAssessment) assessment, slpAssessment);
                 }
                 else if(type.equals("LaneDirectionOfTravel")){
                     assertEquals((LaneDirectionOfTravelAssessment) assessment, ldotAssessment);

@@ -65,7 +65,7 @@ Enhancements in this release:
 
 - Ability to detect OBU's passing through an intersection and create events
 - Ability to create the following events: SpatBroadcastRate, MapBroadcastRate, SpatMinimumdata, MapMinimumData, ConnectionOfTravel, IntersectionReferenceAlignmentEvents, LaneDirectionOfTravelEvents, SignalGroupAlignmentEvents, SignalStateConflictEvents, SigtnalStateStopEvents, TimeChangeDetailsEvents
-- Ability to create the following assessments: ConnectionOfTravelAssessment, LaneDirectionOfTravelAssessments, SignalStateAssessmentGroup, SignalStateEventAssessments
+- Ability to create the following assessments: ConnectionOfTravelAssessment, LaneDirectionOfTravelAssessments, SignalStateAssessmentGroup, StopLinePassageAssessments
 - Ability to create the following Notifications: ConnectionOfTravelNotification, IntersectionReferenceAlignmentNotification, LaneDirectionOfTravelNotification, SignalGroupAlignmentNotification, SignalStateConflictNotification, TimeChangeDetailsNotification
 - Topic configuration system build upon mongoDB for configuration state store
 - Initial Commit: Adding Codebase for ingesting data, generating events, assessments and notifications.

@@ -22,7 +22,7 @@ The following document provides additional information about database collection
 |CmSignalGroupAlignmentNotification|Conflict Monitor| [CmSignalGroupAlignmentNotification](#cmsignalgroupalignmentnotification)  |
 |CmSignalStateConflictEvents|Conflict Monitor| [CmSignalStateConflictEvents](#cmsignalstateconflictevents)  |
 |CmSignalStateConflictNotification|Conflict Monitor| [CmSignalStateConflictNotification](#cmsignalstateconflictnotification)  |
-|CmSignalStateEventAssessment|Conflict Monitor| [CmSignalStateEventAssessment](#cmsignalstateeventassessment)  |
+|CmStopLinePassageAssessment|Conflict Monitor| [CmStopLinePassageAssessment](#cmstoplinepassageassessment)  |
 |CmSpatBroadcastRateEvents|Conflict Monitor| [CmSpatBroadcastRateEvents](#cmspatbroadcastrateevents)  |
 |CmSpatMinimumDataEvents|Conflict Monitor| [CmSpatMinimumDataEvents](#cmspatminimumdataevents)  |
 |CmSpatTimeChangeDetailsEvent|Conflict Monitor| [CmSpatTimeChangeDetailsEvent](#cmspattimechangedetailsevent)  |
@@ -858,7 +858,7 @@ No Sample Record Available Yet.
   }
 ]
 ```
-## CmSignalStateEventAssessment
+## CmStopLinePassageAssessment
 ### Indexes
 ```javascript
 [
@@ -882,11 +882,11 @@ No Sample Record Available Yet.
   {
     _id: ObjectId('66230740d6ab450d2cc0c23f'),
     assessmentGeneratedAt: ISODate('2024-04-20T00:07:28.665Z'),
-    assessmentType: 'SignalStateEvent',
+    assessmentType: 'StopLinePassageEvent',
     roadRegulatorID: Long('-1'),
     intersectionID: Long('1234'),
     source: '{"rsuId":"192.168.0.1","intersectionId":1234,"region":0}',
-    signalStateEventAssessmentGroup: [
+    stopLinePassageAssessmentGroup: [
       {
         darkEvents: Long('0'),
         greenEvents: Long('1'),
