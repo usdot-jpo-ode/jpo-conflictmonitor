@@ -42,8 +42,6 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationAlgorithmInterface;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationAlgorithmFactory;
@@ -192,9 +190,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String mapTimeChangeDetailsAlgorithm;
    private MapTimeChangeDetailsParameters mapTimeChangeDetailsParameters;
 
-   private StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
-   private String signalStateEventAssessmentAlgorithm;
-   private StopLinePassageAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+   private StopLinePassageAssessmentAlgorithmFactory stopLinePassageAssessmentAlgorithmFactory;
+   private String stopLinePassageAssessmentAlgorithm;
+   private StopLinePassageAssessmentParameters stopLinePassageAssessmentAlgorithmParameters;
 
    private StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory;
    private String stopLineStopAssessmentAlgorithm;
@@ -601,24 +599,24 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
 
    @Autowired
-   public void setSignalStateEventAssessmentAlgorithmFactory(
-         StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory) {
-      this.signalStateEventAssessmentAlgorithmFactory = signalStateEventAssessmentAlgorithmFactory;
+   public void setStopLinePassageAssessmentAlgorithmFactory(
+         StopLinePassageAssessmentAlgorithmFactory stopLinePassageAssessmentAlgorithmFactory) {
+      this.stopLinePassageAssessmentAlgorithmFactory = stopLinePassageAssessmentAlgorithmFactory;
    }
 
  
 
    @Value("${stop.line.passage.assessment.algorithm}")
-   public void setSignalStateEventAssessmentAlgorithm(String signalStateEventAssessmentAlgorithm) {
-      this.signalStateEventAssessmentAlgorithm = signalStateEventAssessmentAlgorithm;
+   public void setStopLinePassageAssessmentAlgorithm(String stopLinePassageAssessmentAlgorithm) {
+      this.stopLinePassageAssessmentAlgorithm = stopLinePassageAssessmentAlgorithm;
    }
 
 
 
    @Autowired
-   public void setSignalStateEventAssessmentAlgorithmParameters(
-      StopLinePassageAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
-      this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
+   public void setStopLinePassageAssessmentAlgorithmParameters(
+      StopLinePassageAssessmentParameters stopLinePassageAssessmentAlgorithmParameters) {
+      this.stopLinePassageAssessmentAlgorithmParameters = stopLinePassageAssessmentAlgorithmParameters;
    }
 
    @Autowired
@@ -889,7 +887,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    //Vehicle Events
    private String kafkaTopicCmLaneDirectionOfTravelEvent;
    private String kafkaTopicCmConnectionOfTravelEvent;
-   private String kafkaTopicCmSignalStateEvent;
+   private String kafkaTopicCmStopLinePassageEvent;
    private String kafakTopicCmVehicleStopEvent; 
 
    @Setter(AccessLevel.NONE)

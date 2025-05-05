@@ -549,7 +549,7 @@ public class IntersectionEventTopology
         );
 
         stopLinePassageEventStream.to(
-            conflictMonitorProps.getKafkaTopicCmSignalStateEvent(), 
+            conflictMonitorProps.getKafkaTopicCmStopLinePassageEvent(), 
             Produced.with(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                     JsonSerdes.StopLinePassageEvent(),
                     new IntersectionIdPartitioner<RsuIntersectionKey, StopLinePassageEvent>())
