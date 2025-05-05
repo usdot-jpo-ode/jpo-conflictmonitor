@@ -47,8 +47,8 @@ ENTRYPOINT ["java", \
     "-XX:MinMetaspaceFreeRatio=50", \
     "-XX:MaxMetaspaceFreeRatio=80", \
     "-XX:+ExplicitGCInvokesConcurrent", \
-    "-XX:InitialRAMPercentage=5.0", \
-    "-XX:MaxRAMPercentage=50.0", \
+    "-XX:InitialRAMPercentage=50.0", \
+    "-XX:MaxRAMPercentage=90.0", \
 	"-jar", \
 	"/home/jpo-conflictmonitor.jar"]
 

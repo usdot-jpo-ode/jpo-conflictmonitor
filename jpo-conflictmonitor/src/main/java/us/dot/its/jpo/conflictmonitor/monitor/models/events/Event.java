@@ -62,7 +62,8 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = SpatMessageCountProgressionEventAggregation.class,
                 name = "SpatMessageCountProgressionAggregation"),
         @JsonSubTypes.Type(value = MapMessageCountProgressionEventAggregation.class,
-                name = "MapMessageCountProgressionAggregation")
+                name = "MapMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = VehicleMisbehaviorEvent.class, name = "VehicleMisbehavior")
 })
 @Getter
 @Setter

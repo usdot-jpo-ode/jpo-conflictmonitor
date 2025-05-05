@@ -143,8 +143,6 @@ public class ConnectionOfTravelAssessmentTopology
                 return result;
             }
         );
-
-        notificationEventStream.print(Printed.toSysOut());
                 
         KTable<String, ConnectionOfTravelNotification> connectionNotificationTable = 
             notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.ConnectionOfTravelNotification()))

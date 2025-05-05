@@ -8,9 +8,14 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
 
+/*
+ * This class has been deprecated and should no longer be used. Use StopLinePassageAssessmentGroup instead.
+ */
+
 @Getter
 @Setter
 @Generated
+@Deprecated
 public class SignalStateAssessmentGroup {
     private int signalGroup;
     private int redEvents;

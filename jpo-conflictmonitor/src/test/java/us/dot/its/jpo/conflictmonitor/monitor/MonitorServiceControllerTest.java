@@ -412,10 +412,10 @@ public class MonitorServiceControllerTest {
         when(bsmMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAlgorithm);
         when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmParameters()).thenReturn(bsmMessageCountProgressionParameters);
 
-        when(conflictMonitorProperties.getEventAlgorithmFactory()).thenReturn(eventAlgorithmFactory);
-        when(conflictMonitorProperties.getEventAlgorithm()).thenReturn(defaultAlgo);
-        when(eventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(eventAlgorithm);
-        when(conflictMonitorProperties.getEventParameters()).thenReturn(eventParameters);
+        // when(conflictMonitorProperties.getEventAlgorithmFactory()).thenReturn(eventAlgorithmFactory);
+        // when(conflictMonitorProperties.getEventAlgorithm()).thenReturn(defaultAlgo);
+        // when(eventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(eventAlgorithm);
+        // when(conflictMonitorProperties.getEventParameters()).thenReturn(eventParameters);
 
         var monitorServiceController = new MonitorServiceController(
                 conflictMonitorProperties,

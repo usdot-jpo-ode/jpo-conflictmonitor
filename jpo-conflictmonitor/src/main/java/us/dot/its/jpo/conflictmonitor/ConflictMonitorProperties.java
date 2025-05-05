@@ -105,6 +105,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValid
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.vehicle_misbehavior.VehicleMisbehaviorAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.vehicle_misbehavior.VehicleMisbehaviorAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.vehicle_misbehavior.VehicleMisbehaviorParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
@@ -231,6 +234,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private EventAlgorithmFactory eventAlgorithmFactory;
    private String eventAlgorithm;
    private EventParameters eventParameters;
+
+   private VehicleMisbehaviorAlgorithmFactory vehicleMisbehaviorAlgorithmFactory;
+   private String vehicleMisbehaviorAlgorithm;
+   private VehicleMisbehaviorParameters vehicleMisbehaviorParameters;
 
    // Confluent Properties
    private boolean confluentCloudEnabled = false;
@@ -798,6 +805,17 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Autowired
    public void setEventAlgorithmFactory(EventAlgorithmFactory factory) {
       this.eventAlgorithmFactory = factory;
+   }
+
+   @Autowired
+   public void setBsmMisbehaviorParameters(VehicleMisbehaviorParameters vehicleMisbehaviorParameters) {
+      this.vehicleMisbehaviorParameters = vehicleMisbehaviorParameters;
+      this.vehicleMisbehaviorAlgorithm = vehicleMisbehaviorParameters.getAlgorithm();
+   }
+
+   @Autowired
+   public void setVehicleMisbehaviorAlgorithmFactory(VehicleMisbehaviorAlgorithmFactory factory) {
+      this.vehicleMisbehaviorAlgorithmFactory = factory;
    }
 
    public Boolean getConfluentCloudStatus() {

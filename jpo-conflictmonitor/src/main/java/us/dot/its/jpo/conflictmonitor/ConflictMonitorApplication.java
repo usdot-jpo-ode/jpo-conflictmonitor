@@ -58,7 +58,4 @@ public class ConflictMonitorApplication {
       return args -> {
       };
    }
-
-   
-
 }

@@ -119,8 +119,6 @@ kafka.topics:
     - name: topic.CmKafkaStateChangeEvents
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmAppHealthNotification
-      cleanupPolicy: compact
     - name: topic.CmSpatTimeChangeDetailsNotification
       cleanupPolicy: compact
     - name: topic.CmSignalStateConflictNotification
@@ -229,6 +227,8 @@ kafka.topics:
     - name: topic.CmSpatTimeChangeDetailsNotificationAggregation
       cleanupPolicy: compact
     - name: topic.CmEventStateProgressionNotificationAggregation
+      cleanupPolicy: compact
+    - name: topic.CmVehicleMisbehaviorEvents
       cleanupPolicy: compact
 
 
@@ -533,6 +533,16 @@ spat.timestamp.delta:
   retentionTimeMinutes: 60
 #  retentionTimeMinutes: 5
   notificationTopicName: topic.CmTimestampDeltaNotification
+
+vehicle.misbehavior:
+  algorithm: defaultVehicleMisbehaviorAlgorithm
+  debug: false
+  acceleration_range: 10
+  speed_range: 10
+  yaw_rate_range: 10
+  processedBsmStateStoreName: processedBsmVehicleMisbehaviorStateStore
+  bsmInputTopicName: topic.ProcessedBsm
+  vehicleMisbehaviorEventOutputTopicName: topic.CmVehicleMisbehaviorEvents
 
 event.state.progression:
   algorithm: defaultEventStateProgressionAlgorithm
