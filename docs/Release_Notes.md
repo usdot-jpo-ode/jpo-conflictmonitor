@@ -1,4 +1,12 @@
 ## JPO Conflict Monitor Release Notes
+## Version 2.1.0
+
+### **Summary**
+The 2025 Q2 Release of the Conflict Monitor Platform
+- Renamed SignalStateEvent to StopLinePassageEvent
+- Renamed SignalStateStopEvent to StopLineStopEvent
+- Misc bug fixes
+
 
 ## Version 2.0.1
 Hotfix for 2025 Q1 CIMMS Release
