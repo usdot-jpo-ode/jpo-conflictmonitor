@@ -30,20 +30,40 @@ public class VehicleMisbehaviorParameters {
         updateType = DEFAULT)
     boolean debug;
 
-    @ConfigData(key = "vehicle.misbehavior.acceleration_range", 
-        description = "Threshold for generating an event due to an unrealistic change in acceleration. Measured in Feet per second squared.", 
+    @ConfigData(key = "vehicle.misbehavior.acceleration_range.lateral", 
+        description = "Threshold for generating an event due to an unrealistic acceleration. Measured in Feet per second squared.", 
         updateType = DEFAULT)
-    int accelerationRange;
+    double accelerationRangeLateral;
+
+    @ConfigData(key = "vehicle.misbehavior.acceleration_range.longitudinal", 
+        description = "Threshold for generating an event due to an unrealistic acceleration. Measured in Feet per second squared.", 
+        updateType = DEFAULT)
+    double accelerationRangeLongitudinal;
+
+    @ConfigData(key = "vehicle.misbehavior.acceleration_range.vertical", 
+        description = "Threshold for generating an event due to an unrealistic acceleration. Measured in Feet per second squared.", 
+        updateType = DEFAULT)
+    double accelerationRangeVertical;
 
     @ConfigData(key = "vehicle.misbehavior.speed_range", 
         description = "Threshold for generating an event do to unrealistic speed. Measured in Miles Per Hour.", 
         updateType = DEFAULT)
-    int speedRange;
+    double speedRange;
 
     @ConfigData(key = "vehicle.misbehavior.yaw_rate_range", 
         description = "Threshold for generating an event do to unrealistic change in heading. Measured in Degrees per second", 
         updateType = DEFAULT)
-    int yawRateRange;
+    double yawRateRange;
+
+    @ConfigData(key = "vehicle.misbehavior.allowable_max_speed", 
+        description = "Maximum allowable Speed. Measured in Miles per Hour", 
+        updateType = DEFAULT)
+    double allowableMaxSpeed;
+
+    @ConfigData(key = "vehicle.misbehavior.allowable_max_heading_delta", 
+        description = "Maximum allowable change in heading. Measured in Degrees per second", 
+        updateType = DEFAULT)
+    double allowableMaxHeadingDelta;
 
     @ConfigData(key = "vehicle.misbehavior.processedBsmStateStoreName",
         description = "Name of the versioned state store for the jitter buffer",

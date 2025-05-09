@@ -25,7 +25,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.MisbehaviorAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.TimeAcceleration;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
@@ -567,14 +566,7 @@ public class JsonSerdes {
             new JsonDeserializer<>(VehicleMisbehaviorEvent.class)
         );
     }
-
-    public static Serde<TimeAcceleration> TimeAcceleration() {
-        return Serdes.serdeFrom(
-            new JsonSerializer<TimeAcceleration>(),
-            new JsonDeserializer<>(TimeAcceleration.class)
-        );
-    }
-
+    
     public static Serde<MisbehaviorAggregator> MisbehaviorAggregator() {
         return Serdes.serdeFrom(
             new JsonSerializer<MisbehaviorAggregator>(),

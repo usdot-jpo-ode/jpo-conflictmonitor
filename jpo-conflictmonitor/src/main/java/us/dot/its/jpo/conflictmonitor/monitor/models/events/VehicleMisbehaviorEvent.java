@@ -16,7 +16,7 @@ import lombok.Setter;
 public class VehicleMisbehaviorEvent extends Event{
 
     public VehicleMisbehaviorEvent() {
-        super("VehicleMisbehaviorEvent");
+        super("VehicleMisbehavior");
     }
 
     String source;
@@ -61,11 +61,20 @@ public class VehicleMisbehaviorEvent extends Event{
      */
     double reportedAccelerationVert;
 
+    /**
+     * Configurable range for generating a misbehavior event due to unrealistic lateral accelerations. Reported in Ft / second / second.
+     */
+    double accelerationRangeLat;
 
     /**
-     * Configurable range for generating a misbehavior event due to unrealistic accelerations. Reported in Ft / second / second.
+     * Configurable range for generating a misbehavior event due to unrealistic longitudinal accelerations. Reported in Ft / second / second.
      */
-    double accelerationRange;
+    double accelerationRangeLon;
+
+    /**
+     * Configurable range for generating a misbehavior event due to unrealistic vertical accelerations. Reported in Ft / second / second.
+     */
+    double accelerationRangeVert;
 
     /**
      * The current heading of the vehicle, expressed in degrees from north.
