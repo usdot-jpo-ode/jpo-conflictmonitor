@@ -44,7 +44,7 @@ public class VehicleMisbehaviorEvent extends Event{
     /**
      * The yaw rate of the vehicle, representing the heading change rate, expressed in degrees / second.
      */
-    double yawRate;
+    double reportedYawRate;
 
     /**
      * The acceleration of the vehicle in the lateral direction. Reported in Ft / second / second.
@@ -89,7 +89,7 @@ public class VehicleMisbehaviorEvent extends Event{
     /**
      *  Heading calculated by changes in the vehicles position from two consecutive BSM's reported in degrees
      */
-    double calculatedHeading;
+    double calculatedYawRate;
 
     
 }

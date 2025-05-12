@@ -65,7 +65,7 @@ public class VehicleMisbehaviorTopology
                 (key, value, aggregate) -> aggregate.add(value),
                 Materialized.with(us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.BsmRsuIdKey(), JsonSerdes.MisbehaviorAggregator()));
 
-        inputStream.print(Printed.toSysOut());
+        // inputStream.print(Printed.toSysOut());
 
 
         KStream<BsmRsuIdKey, VehicleMisbehaviorEvent> vehicleMisbehaviorEventsStream = accelerations
@@ -73,21 +73,22 @@ public class VehicleMisbehaviorTopology
             .flatMap((key, value)->{
                 List<KeyValue<BsmRsuIdKey, VehicleMisbehaviorEvent>> result = new ArrayList<>();
 
-                if( (value.getNumEvents() >=2 && (Math.abs(value.getAverageLateralAcceleration()) > parameters.getAccelerationRangeLateral() ||
-                    Math.abs(value.getAverageLongitudinalAcceleration()) > parameters.getAccelerationRangeLongitudinal() ||
-                    Math.abs(value.getAverageVerticalAcceleration()) > parameters.getAccelerationRangeVertical() ||
-                    Math.abs(value.getCalculatedSpeed() - value.getVehicleSpeed()) > parameters.getSpeedRange() ||
-                    Math.abs(value.getCalculatedYawRate() - value.getYawRate()) > parameters.getYawRateRange())) ||
+                if( (value.getNumEvents() >=2 && (
+                        Math.abs(value.getCalculatedSpeed() - value.getVehicleSpeed()) > parameters.getSpeedRange() ||
+                        Math.abs(value.getCalculatedYawRate() - value.getYawRate()) > parameters.getYawRateRange())
+                    ) ||
                     Math.abs(value.getVehicleSpeed()) > parameters.getAllowableMaxSpeed() ||
-                    Math.abs(value.getHeading()) > parameters.getAllowableMaxHeadingDelta()
-                    ){
+                    Math.abs(value.getYawRate()) > parameters.getAllowableMaxHeadingDelta()||
+                    Math.abs(value.getAverageLateralAcceleration()) > parameters.getAccelerationRangeLateral() ||
+                    Math.abs(value.getAverageLongitudinalAcceleration()) > parameters.getAccelerationRangeLongitudinal() ||
+                    Math.abs(value.getAverageVerticalAcceleration()) > parameters.getAccelerationRangeVertical()){
                     
                     VehicleMisbehaviorEvent event = new VehicleMisbehaviorEvent();
                     event.setSource(key.toString());
                     event.setTimeStamp(value.getLastRecordTime());
                     event.setVehicleID(value.getVehicleId());
                     
-                    event.setYawRate(value.getYawRate());
+                    event.setReportedYawRate(value.getYawRate());
                     event.setReportedSpeed(value.getVehicleSpeed());
                     event.setReportedAccelerationLat(value.getAverageLateralAcceleration());
                     event.setReportedAccelerationLon(value.getAverageLongitudinalAcceleration());
@@ -98,15 +99,11 @@ public class VehicleMisbehaviorTopology
                     event.setAccelerationRangeLon(parameters.getAccelerationRangeLongitudinal());
                     event.setAccelerationRangeVert(parameters.getAccelerationRangeVertical());
 
-                    event.setCalculatedHeading(value.getCalculatedYawRate());
+                    event.setCalculatedYawRate(value.getCalculatedYawRate());
                     event.setCalculatedSpeed(value.getCalculatedSpeed());
-
-                    System.out.println(event);
 
                     result.add(new KeyValue<BsmRsuIdKey, VehicleMisbehaviorEvent>(key.key(), event));
                 }
-
-                
 
                 return result;
             }

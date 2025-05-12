@@ -24,12 +24,26 @@ public class VehicleMisbehaviorTopologyTest {
     String noEventBsm1 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.000Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
     String noEventBsm2 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.823Z\",\"timeStamp\":\"2025-04-14T17:27:01.100Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
     
-    // Group 2 Speed Event should be generated because vehicle is moving too fast.
+    // Group 2 Vehicle Misbehavior Event should be generated because vehicle is moving too fast.
     String speedEventBsm1 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.000Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":253,\"transmission\":\"FORWARDGEARS\"}}";
+
+    // Group 3 Vehicle Misbehavior Event should be generated because the calculated and actual speeds do not match.
+    String mismatchedSpeedEventBsm1 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.000Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":25,\"transmission\":\"FORWARDGEARS\"}}";
+    String mismatchedSpeedEventBsm2 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.823Z\",\"timeStamp\":\"2025-04-14T17:27:01.100Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":25,\"transmission\":\"FORWARDGEARS\"}}";
+
+    // Group 4 Vehicle Misbehavior Event should be generated because the Yaw Rate is too high. 
+    String headingEventBsm1 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.000Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":690},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
+  
+    // Group 5 Vehicle Misbehavior Event should be generated because Heading of Vehicle does not match the calculated yaw rate
+    String mismatchedHeadingEventBsm1 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.000Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
+    String mismatchedHeadingEventBsm2 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.823Z\",\"timeStamp\":\"2025-04-14T17:27:01.100Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":25,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
     
-    
-    
-    String processedBsm3 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.823Z\",\"timeStamp\":\"2025-04-14T17:27:01.200Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":8.54,\"transmission\":\"FORWARDGEARS\"}}";
+    // Group 6 Vehicle Misbehavior Event should be generated because accelerations are too high.
+    String accelerationEventBsm1 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.000Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":50,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
+    String accelerationEventBsm2 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.100Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":50,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
+    String accelerationEventBsm3 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.723Z\",\"timeStamp\":\"2025-04-14T17:27:01.200Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":50,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":0,\"transmission\":\"FORWARDGEARS\"}}";
+
+    // String processedBsm3 = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-111.6919827,40.2972862]},\"properties\":{\"schemaVersion\":6,\"messageType\":\"BSM\",\"odeReceivedAt\":\"2025-04-14T17:27:07.823Z\",\"timeStamp\":\"2025-04-14T17:27:01.200Z\",\"originIp\":\"10.164.6.18\",\"validationMessages\":[{\"message\":\"$.metadata.schemaVersion: must be a constant value 8\",\"jsonPath\":\"$.metadata.schemaVersion\",\"schemaPath\":\"#/properties/metadata/properties/schemaVersion/const\"},{\"message\":\"$.metadata.asn1: is missing but it is required\",\"jsonPath\":\"$.metadata\",\"schemaPath\":\"#/properties/metadata/required\"}],\"accelSet\":{\"accelLat\":2001,\"accelLong\":2001,\"accelVert\":-127,\"accelYaw\":0},\"accuracy\":{\"semiMajor\":2,\"semiMinor\":2,\"orientation\":44.49530799},\"angle\":10.5,\"brakes\":{\"wheelBrakes\":{\"leftFront\":false,\"rightFront\":false,\"unavailable\":true,\"leftRear\":false,\"rightRear\":false},\"traction\":\"on\",\"abs\":\"on\",\"scs\":\"on\",\"brakeBoost\":\"off\",\"auxBrakes\":\"unavailable\"},\"heading\":21.2,\"id\":\"6F2875C1\",\"msgCnt\":115,\"secMark\":7723,\"size\":{\"width\":230,\"length\":500},\"speed\":8.54,\"transmission\":\"FORWARDGEARS\"}}";
 
 
     // String bsmKey = "{\"rsuId\":\"10.164.6.18\",\"logId\":\"\",\"bsmId\":\"492A23D0\"}";
@@ -95,6 +109,36 @@ public class VehicleMisbehaviorTopologyTest {
     }
 
     @Test
+    public void testMismatchedSpeedEventGeneration() {
+
+        Topology topology = getTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
+
+            var inputProcessedBsmTopic = driver.createInputTopic(
+                bsmInputTopicName,
+                    JsonSerdes.BsmRsuIdKey().serializer(),
+                    Serdes.String().serializer()
+            );
+
+            var outputEventTopic = driver.createOutputTopic(
+                    outputEventTopicName,
+                    JsonSerdes.BsmRsuIdKey().deserializer(),
+                    JsonSerdes.VehicleMisbehaviorEvent().deserializer()
+            );
+            
+            inputProcessedBsmTopic.pipeInput(key, mismatchedSpeedEventBsm1);
+            inputProcessedBsmTopic.pipeInput(key, mismatchedSpeedEventBsm2);
+
+            final var eventResults = outputEventTopic.readKeyValuesToList();
+            assertEquals(1, eventResults.size());
+            final var eventResult = eventResults.getFirst();
+            assertEquals(Math.round(eventResult.value.getCalculatedSpeed()), 0);
+            assertEquals(Math.round(eventResult.value.getReportedSpeed()), 16);
+        }
+    }
+
+    @Test
     public void testSpeedEventGeneration() {
 
         Topology topology = getTopology();
@@ -112,11 +156,6 @@ public class VehicleMisbehaviorTopologyTest {
                     JsonSerdes.BsmRsuIdKey().deserializer(),
                     JsonSerdes.VehicleMisbehaviorEvent().deserializer()
             );
-
-            
-
-            // ProcessedBsm<Point> bsm1 = objectMapper.readValue(processedBsm1, bsmType);
-            // ProcessedBsm<Point> bsm2 = objectMapper.readValue(processedBsm2, bsmType);
             
             inputProcessedBsmTopic.pipeInput(key, speedEventBsm1);
 
@@ -124,70 +163,151 @@ public class VehicleMisbehaviorTopologyTest {
             assertEquals(1, eventResults.size());
             final var eventResult = eventResults.getFirst();
             assertEquals(Math.round(eventResult.value.getReportedSpeed()), 157);
-            // final var resultKey = eventResult.key;
-            // final var resultValue = eventResult.value;
-            // System.out.printf("result eventKey: %s, eventValue: %s%n", resultKey, resultValue);
-            // assertEquals(rsuId, resultKey.getRsuId());
-            // assertEquals(intersectionId, resultKey.getIntersectionId());
-            // assertEquals(region, resultKey.getRegion());
-            // assertEquals(signalGroup, resultKey.getSignalGroup());
-
-            // assertEquals(timeMark1, resultValue.getFirstConflictingTimemark());
-            // assertEquals(timeMark2, resultValue.getSecondConflictingTimemark());
-
-
-            // List<KeyValue<String, TimeChangeDetailsNotification>> notificationResults = outputNotificationTopic.readKeyValuesToList();
-            // assertEquals(1, notificationResults.size());
-
-            // KeyValue<String, TimeChangeDetailsNotification> notificationKeyValue = notificationResults.getFirst();
-
-            // assertNotNull(notificationKeyValue.key);
-
-
-            // TimeChangeDetailsNotification notification = notificationKeyValue.value;
-
-            // assertEquals("TimeChangeDetailsNotification", notification.getNotificationType());
-
-            // assertEquals("Time Change Details Notification, generated because corresponding time change details event was generated.", notification.getNotificationText());
-
-            // assertEquals("Time Change Details", notification.getNotificationHeading());
 
         }
     }
 
-    // private ProcessedSpat spat(
-    //         final long utcTimestamp,
-    //         final int region,
-    //         final int intersectionId,
-    //         final int signalGroup,
-    //         final J2735MovementPhaseState phaseState,
-    //         final long minEndTime) {
+    @Test
+    public void testMismatchedHeadingEventGeneration() {
 
-    //     final var spat1 = new ProcessedSpat();
-    //     spat1.setUtcTimeStamp(zdt(utcTimestamp));
-    //     spat1.setRegion(region);
-    //     spat1.setIntersectionId(intersectionId);
+        Topology topology = getTopology();
 
-    //     final var state1 = new MovementState();
-    //     state1.setSignalGroup(signalGroup);
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
 
-    //     final var event1 = new MovementEvent();
-    //     event1.setEventState(phaseState);
+            var inputProcessedBsmTopic = driver.createInputTopic(
+                bsmInputTopicName,
+                    JsonSerdes.BsmRsuIdKey().serializer(),
+                    Serdes.String().serializer()
+            );
 
-    //     final var timing1 = new TimingChangeDetails();
-    //     timing1.setMinEndTime(zdt(minEndTime));
-    //     event1.setTiming(timing1);
+            var outputEventTopic = driver.createOutputTopic(
+                    outputEventTopicName,
+                    JsonSerdes.BsmRsuIdKey().deserializer(),
+                    JsonSerdes.VehicleMisbehaviorEvent().deserializer()
+            );
+            
+            inputProcessedBsmTopic.pipeInput(key, mismatchedHeadingEventBsm1);
+            inputProcessedBsmTopic.pipeInput(key, mismatchedHeadingEventBsm2);
 
-    //     state1.setStateTimeSpeed(Lists.newArrayList(event1));
+            final var eventResults = outputEventTopic.readKeyValuesToList();
+            assertEquals(1, eventResults.size());
+            final var eventResult = eventResults.getFirst();
+            assertEquals(Math.round(eventResult.value.getReportedYawRate()), 0);
+            assertEquals(Math.round(eventResult.value.getCalculatedYawRate()), 38);
+        }
+    }
 
-    //     spat1.setStates(Lists.newArrayList(state1));
+    @Test
+    public void testHeadingEventGeneration() {
 
-    //     return spat1;
-    // }
+        Topology topology = getTopology();
 
-    // private ZonedDateTime zdt(final long timestamp) {
-    //     return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC);
-    // }
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
+
+            var inputProcessedBsmTopic = driver.createInputTopic(
+                bsmInputTopicName,
+                    JsonSerdes.BsmRsuIdKey().serializer(),
+                    Serdes.String().serializer()
+            );
+
+            var outputEventTopic = driver.createOutputTopic(
+                    outputEventTopicName,
+                    JsonSerdes.BsmRsuIdKey().deserializer(),
+                    JsonSerdes.VehicleMisbehaviorEvent().deserializer()
+            );
+            
+            inputProcessedBsmTopic.pipeInput(key, headingEventBsm1);
+
+            final var eventResults = outputEventTopic.readKeyValuesToList();
+            assertEquals(1, eventResults.size());
+            final var eventResult = eventResults.getFirst();
+            assertEquals(Math.round(eventResult.value.getReportedYawRate()), 690);
+        }
+    }
+
+    @Test
+    public void testAccelerationLatEventGeneration() {
+
+        Topology topology = getTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
+
+            var inputProcessedBsmTopic = driver.createInputTopic(
+                bsmInputTopicName,
+                    JsonSerdes.BsmRsuIdKey().serializer(),
+                    Serdes.String().serializer()
+            );
+
+            var outputEventTopic = driver.createOutputTopic(
+                    outputEventTopicName,
+                    JsonSerdes.BsmRsuIdKey().deserializer(),
+                    JsonSerdes.VehicleMisbehaviorEvent().deserializer()
+            );
+            
+            inputProcessedBsmTopic.pipeInput(key, accelerationEventBsm1);
+
+
+            final var eventResults = outputEventTopic.readKeyValuesToList();
+            assertEquals(1, eventResults.size());
+            assertEquals(Math.round(eventResults.get(0).value.getReportedAccelerationLat()), 164);
+        }
+    }
+
+    @Test
+    public void testAccelerationLonEventGeneration() {
+
+        Topology topology = getTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
+
+            var inputProcessedBsmTopic = driver.createInputTopic(
+                bsmInputTopicName,
+                    JsonSerdes.BsmRsuIdKey().serializer(),
+                    Serdes.String().serializer()
+            );
+
+            var outputEventTopic = driver.createOutputTopic(
+                    outputEventTopicName,
+                    JsonSerdes.BsmRsuIdKey().deserializer(),
+                    JsonSerdes.VehicleMisbehaviorEvent().deserializer()
+            );
+            
+            inputProcessedBsmTopic.pipeInput(key, accelerationEventBsm2);
+
+
+            final var eventResults = outputEventTopic.readKeyValuesToList();
+            assertEquals(1, eventResults.size());
+            assertEquals(Math.round(eventResults.get(0).value.getReportedAccelerationLon()), 164);
+        }
+    }
+
+    @Test
+    public void testAccelerationVertEventGeneration() {
+
+        Topology topology = getTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
+
+            var inputProcessedBsmTopic = driver.createInputTopic(
+                bsmInputTopicName,
+                    JsonSerdes.BsmRsuIdKey().serializer(),
+                    Serdes.String().serializer()
+            );
+
+            var outputEventTopic = driver.createOutputTopic(
+                    outputEventTopicName,
+                    JsonSerdes.BsmRsuIdKey().deserializer(),
+                    JsonSerdes.VehicleMisbehaviorEvent().deserializer()
+            );
+            
+            inputProcessedBsmTopic.pipeInput(key, accelerationEventBsm3);
+
+
+            final var eventResults = outputEventTopic.readKeyValuesToList();
+            assertEquals(1, eventResults.size());
+            assertEquals(Math.round(eventResults.get(0).value.getReportedAccelerationVert()), 164);
+        }
+    }
 }
 
 

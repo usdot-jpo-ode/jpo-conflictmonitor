@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.bsm;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,11 +79,14 @@ public class MisbehaviorAggregator {
             longitude = newLongitude;
         }
 
-
         if(orientation != null){
+
+            double updatedHeading = getVehicleHeading(orientation);
             if(heading != 0 && orientation.doubleValue() != 28800){
-                calculatedYawRate = ((getVehicleHeading(orientation) - heading) / timeDelta) * .0125;
+                calculatedYawRate = (updatedHeading - heading) / timeDelta;// * .0125;
             }
+
+            heading = updatedHeading;
         }
         
         if(speed != null && speed.doubleValue() != 8191){
@@ -105,8 +107,8 @@ public class MisbehaviorAggregator {
             numLongitudinal +=1;
         }
 
-        if(vert != null && vert.doubleValue() != 2001){
-            longitudinalAcceleration += getVehicleAcceleration(vert);
+        if(vert != null && vert.doubleValue() != -127){
+            verticalAcceleration += getVehicleAcceleration(vert);
             numVertical +=1;
         }
 
@@ -115,18 +117,18 @@ public class MisbehaviorAggregator {
         return this;
     }
 
-    public double getAverageLongitudinalAcceleration(){
-        if(numLongitudinal == 0){
-            return 0;
-        }
-        return longitudinalAcceleration / numLongitudinal;
-    }
-
     public double getAverageLateralAcceleration(){
         if(numLateral == 0){
             return 0;
         }
         return lateralAcceleration / numLateral;
+    }
+
+    public double getAverageLongitudinalAcceleration(){
+        if(numLongitudinal == 0){
+            return 0;
+        }
+        return longitudinalAcceleration / numLongitudinal;
     }
 
     public double getAverageVerticalAcceleration(){
