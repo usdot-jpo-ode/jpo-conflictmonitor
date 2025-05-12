@@ -54,7 +54,7 @@ public class EventTopology
             .merge(builder.stream(parameters.getIntersectionReferenceAlignmentEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
             .merge(builder.stream(parameters.getLaneDirectionOfTravelEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
             .merge(builder.stream(parameters.getSignalGroupAlignmentEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
-            .merge(builder.stream(parameters.getSignalStateEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
+            .merge(builder.stream(parameters.getStopLinePassageEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
             .merge(builder.stream(parameters.getSignalStateConflictEventTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
             .merge(builder.stream(parameters.getSpatTimeChangeDetailsTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))
             .merge(builder.stream(parameters.getMapMinimumDataTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Event())))

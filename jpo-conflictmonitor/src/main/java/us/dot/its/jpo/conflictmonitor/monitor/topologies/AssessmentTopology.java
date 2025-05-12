@@ -42,7 +42,7 @@ public class AssessmentTopology
         KStream<String, Assessment> cotStream = builder.stream(parameters.getConnectionOfTravelAssessmentTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Assessment()));
         KStream<String, Assessment> allAssessments = cotStream
             .merge(builder.stream(parameters.getLaneDirectionOfTravelAssessmentTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Assessment())))
-            .merge(builder.stream(parameters.getSignalStateEventAssessmentTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Assessment())))
+            .merge(builder.stream(parameters.getStopLinePassageAssessmentTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Assessment())))
             .merge(builder.stream(parameters.getConnectionOfTravelAssessmentTopicName(), Consumed.with(Serdes.String(), JsonSerdes.Assessment())));        
 
         allAssessments.to(parameters.getAssessmentOutputTopicName(), Produced.with(Serdes.String(), JsonSerdes.Assessment()));

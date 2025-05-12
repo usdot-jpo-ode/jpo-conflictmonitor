@@ -39,7 +39,7 @@ kafkaTopicProcessedMap: topic.ProcessedMap
 #Vehicle Events
 kafkaTopicCmLaneDirectionOfTravelEvent: topic.CmLaneDirectionOfTravelEvent
 kafkaTopicCmConnectionOfTravelEvent: topic.CmConnectionOfTravelEvent
-kafkaTopicCmSignalStateEvent: topic.CmStopLinePassageEvent
+kafkaTopicCmStopLinePassageEvent: topic.CmStopLinePassageEvent
 kafakTopicCmVehicleStopEvent: topic.CmStopLineStopEvent
 
 # Amount of time to wait to try and increase batching
@@ -109,7 +109,7 @@ kafka.topics:
     - name: topic.OdeBsmJson
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmSignalStateEventAssessment
+    - name: topic.CmStopLinePassageAssessment
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmLaneDirectionOfTravelNotification
@@ -160,7 +160,7 @@ kafka.topics:
     - name: topic.CmStopLineStopNotification
       cleanupPolicy: compact
       retentionMs: 300000
-    - name: topic.CmSignalStateEventAssessment
+    - name: topic.CmStopLinePassageAssessment
       cleanupPolicy: compact
       retentionMs: 300000
     - name: topic.CmStopLinePassageNotification
@@ -341,7 +341,7 @@ assessment:
   assessmentOutputTopicName: topic.CmAssessment
   laneDirectionOfTravelAssessmentTopicName: topic.CmLaneDirectionOfTravelAssessment
   connectionOfTravelAssessmentTopicName: topic.CmConnectionOfTravelAssessment
-  signalStateEventAssessmentTopicName: topic.CmSignalStateEventAssessment
+  stopLinePassageAssessmentTopicName: topic.CmStopLinePassageAssessment
 
 event:
   algorithm: defaultEventAlgorithm
@@ -349,7 +349,7 @@ event:
 #  enabled: true
   debug: false
   eventOutputTopicName: topic.CmEvent
-  signalStateEventTopicName: topic.CmStopLinePassageEvent
+  stopLinePassageEventTopicName: topic.CmStopLinePassageEvent
   spatTimeChangeDetailsTopicName: topic.CmSpatTimeChangeDetailsEvent
   spatBroadcastRateTopicName: topic.CmSpatBroadcastRateEvents
   spatMinimumDataTopicName: topic.CmSpatMinimumDataEvents
@@ -365,12 +365,12 @@ event:
   bsmMessageCountProgressionEventTopicName: topic.CmBsmMessageCountProgressionEvents
   timestampDeltaEventTopicName: topic.CmTimestampDeltaEvent
 
-# Signal State Event Assessment
+# Stop Line Passage Assessment
 stop.line.passage.assessment:
   algorithm: defaultStopLinePassageAssessmentAlgorithm
   debug: false
   stopLinePassageEventTopicName: topic.CmStopLinePassageEvent
-  stopLinePassageAssessmentOutputTopicName: topic.CmSignalStateEventAssessment
+  stopLinePassageAssessmentOutputTopicName: topic.CmStopLinePassageAssessment
   lookBackPeriodDays: 1
   lookBackPeriodGraceTimeSeconds: 60
   minimumEventsToNotify: 10

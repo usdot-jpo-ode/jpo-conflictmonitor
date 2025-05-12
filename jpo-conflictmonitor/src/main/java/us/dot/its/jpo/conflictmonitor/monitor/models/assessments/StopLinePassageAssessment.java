@@ -14,34 +14,29 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent
 @Setter
 public class StopLinePassageAssessment extends Assessment{
     private long timestamp;
-    private List<StopLinePassageAssessmentGroup> signalStateEventAssessmentGroup = new ArrayList<>();
+    private List<StopLinePassageAssessmentGroup> stopLinePassageAssessmentGroup = new ArrayList<>();
 
     public StopLinePassageAssessment(){
-        super("SignalStateEvent");
+        super("StopLinePassage");
     }
-
 
 
     @JsonIgnore
     public StopLinePassageAssessment add(StopLinePassageEvent event){
-        if(this.signalStateEventAssessmentGroup == null){
-            signalStateEventAssessmentGroup = new ArrayList<>();
+        if(this.stopLinePassageAssessmentGroup == null){
+            stopLinePassageAssessmentGroup = new ArrayList<>();
         }
-        for(StopLinePassageAssessmentGroup group : this.signalStateEventAssessmentGroup){
+        for(StopLinePassageAssessmentGroup group : this.stopLinePassageAssessmentGroup){
             if(group.getSignalGroup() == event.getSignalGroup()){
-                group.addSignalStateEvent(event);
+                group.addStopLinePassageEvent(event);
                 return this;
             }
         }
         StopLinePassageAssessmentGroup group = new StopLinePassageAssessmentGroup();
         group.setSignalGroup(event.getSignalGroup());
-        group.addSignalStateEvent(event);
-        this.signalStateEventAssessmentGroup.add(group);
+        group.addStopLinePassageEvent(event);
+        this.stopLinePassageAssessmentGroup.add(group);
         return this;
     }
 
-    
-
-
-    
 }

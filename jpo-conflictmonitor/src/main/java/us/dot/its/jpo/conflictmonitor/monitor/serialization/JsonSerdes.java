@@ -179,7 +179,7 @@ public class JsonSerdes {
             new JsonDeserializer<>(StopLinePassageAssessment.class));
     }
 
-    public static Serde<StopLinePassageAggregator> SignalStateEventAggregator() {
+    public static Serde<StopLinePassageAggregator> StopLinePassageAggregator() {
         return Serdes.serdeFrom(
             new JsonSerializer<StopLinePassageAggregator>(),
             new JsonDeserializer<>(StopLinePassageAggregator.class));
