@@ -28,7 +28,7 @@ public class MapIndex {
         return quadtree;
     }
 
-    public void insert(MapBoundingBox map) {
+    public synchronized void insert(MapBoundingBox map) {
         Envelope envelope = removeIfPresent(map);
         quadtree.insert(envelope, map);
     }
@@ -38,6 +38,7 @@ public class MapIndex {
     }
 
     /**
+     * TODO Don't remove/insert if the bbox is identical
      * Remove the item if present and return the Envelope
      * @param map
      * @return {@link Envelope} of the {@link ProcessedMap}
