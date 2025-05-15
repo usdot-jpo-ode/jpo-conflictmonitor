@@ -38,19 +38,19 @@ ENV LD_PRELOAD="/usr/lib64/libjemalloc.so"
 # Entrypoint for prod: JMX not exposed.
 # GC settings similar to Kafka recommendations, see: https://kafka.apache.org/documentation.html#java
 # Set max Java heap usage as percentage of total available memory.
-ENTRYPOINT ["java", \
-	"-Dlogback.configurationFile=/home/logback.xml", \
-    "-XX:+UseG1GC", \
-    "-XX:MaxGCPauseMillis=20", \
-    "-XX:InitiatingHeapOccupancyPercent=35", \
-    "-XX:MetaspaceSize=96m", \
-    "-XX:MinMetaspaceFreeRatio=50", \
-    "-XX:MaxMetaspaceFreeRatio=80", \
-    "-XX:+ExplicitGCInvokesConcurrent", \
-    "-XX:InitialRAMPercentage=5.0", \
-    "-XX:MaxRAMPercentage=50.0", \
-	"-jar", \
-	"/home/jpo-conflictmonitor.jar"]
+#ENTRYPOINT ["java", \
+#	"-Dlogback.configurationFile=/home/logback.xml", \
+#    "-XX:+UseG1GC", \
+#    "-XX:MaxGCPauseMillis=20", \
+#    "-XX:InitiatingHeapOccupancyPercent=35", \
+#    "-XX:MetaspaceSize=96m", \
+#    "-XX:MinMetaspaceFreeRatio=50", \
+#    "-XX:MaxMetaspaceFreeRatio=80", \
+#    "-XX:+ExplicitGCInvokesConcurrent", \
+#    "-XX:InitialRAMPercentage=5.0", \
+#    "-XX:MaxRAMPercentage=50.0", \
+#	"-jar", \
+#	"/home/jpo-conflictmonitor.jar"]
 
 # Entrypoint for testing: enables nonlocal JMX on port 10090
 #ENTRYPOINT ["java", \
@@ -73,3 +73,19 @@ ENTRYPOINT ["java", \
 #    "-XX:MaxRAMPercentage=50.0", \
 #    "-jar", \
 #	"/home/jpo-conflictmonitor.jar"]
+
+# Remote debug entrypoint
+ENTRYPOINT ["java", \
+    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:10090", \
+	"-Dlogback.configurationFile=/home/logback.xml", \
+    "-XX:+UseG1GC", \
+    "-XX:MaxGCPauseMillis=20", \
+    "-XX:InitiatingHeapOccupancyPercent=35", \
+    "-XX:MetaspaceSize=96m", \
+    "-XX:MinMetaspaceFreeRatio=50", \
+    "-XX:MaxMetaspaceFreeRatio=80", \
+    "-XX:+ExplicitGCInvokesConcurrent", \
+    "-XX:InitialRAMPercentage=5.0", \
+    "-XX:MaxRAMPercentage=50.0", \
+	"-jar", \
+	"/home/jpo-conflictmonitor.jar"]

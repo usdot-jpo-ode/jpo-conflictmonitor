@@ -23,6 +23,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -143,7 +144,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
     private Integer getMatchingSignalGroup(Set<Integer> ingressGroups, Set<Integer> egressGroups){
         for(Integer ingressGroupID: ingressGroups){
             for(Integer egressGroupID: egressGroups){
-                if(ingressGroupID == egressGroupID){
+                if(Objects.equals(ingressGroupID, egressGroupID)){
                     return ingressGroupID;
                 }
             }
