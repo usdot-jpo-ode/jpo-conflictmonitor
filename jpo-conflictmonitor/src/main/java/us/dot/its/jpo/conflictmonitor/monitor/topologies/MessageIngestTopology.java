@@ -198,12 +198,13 @@ public class MessageIngestTopology
             ).mapValues(
                     map -> new MapBoundingBox(map)
             ).toStream()
+                // Insert the bbox in the index here to make it available immediately in this instance
+                .peek((key, bbox) -> mapIndex.insert(bbox))
                 .to(parameters.getMapBoundingBoxTopic(),
                         Produced.with(
                                 us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                                 JsonSerdes.MapBoundingBox(),
                                 new IntersectionIdPartitioner<RsuIntersectionKey, MapBoundingBox>()));
-
 
 
         // Read Map Bounding Box Topic into GlobalKTable with spatially indexed state store
