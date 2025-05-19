@@ -106,8 +106,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
-import us.dot.its.jpo.ode.eventlog.EventLogger;
-import us.dot.its.jpo.ode.util.CommonUtils;
 
 @Getter
 @Setter
@@ -914,7 +912,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       }
       hostId = hostname;
       logger.info("Host ID: {}", hostId);
-      EventLogger.logger.info("Initializing services on host {}", hostId);
+      logger.info("Initializing services on host {}", hostId);
 
       // No longer need a mongo DB connection for this service
       // if(dbHostIP == null){
@@ -930,7 +928,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       if (kafkaBrokers == null) {
 
-         String kafkaBrokers = CommonUtils.getEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
+         String kafkaBrokers = getEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
 
          logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BOOTSTRAP_SERVERS => {}", kafkaBrokers);
 
@@ -942,21 +940,21 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       }
 
-      String kafkaType = CommonUtils.getEnvironmentVariable("KAFKA_TYPE");
+      String kafkaType = getEnvironmentVariable("KAFKA_TYPE");
       if (kafkaType != null) {
          confluentCloudEnabled = kafkaType.equals("CONFLUENT");
          if (confluentCloudEnabled) {
                
                System.out.println("Enabling Confluent Cloud Integration");
 
-               confluentKey = CommonUtils.getEnvironmentVariable("CONFLUENT_KEY");
-               confluentSecret = CommonUtils.getEnvironmentVariable("CONFLUENT_SECRET");
+               confluentKey = getEnvironmentVariable("CONFLUENT_KEY");
+               confluentSecret = getEnvironmentVariable("CONFLUENT_SECRET");
          }
       }
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String tempConnectURL = CommonUtils.getEnvironmentVariable("CONNECT_URL");
+         String tempConnectURL = getEnvironmentVariable("CONNECT_URL");
          if (tempConnectURL == null) {
             tempConnectURL = String.format("http://%s:%s", "localhost", DEFAULT_CONNECT_PORT);
          }
@@ -1065,6 +1063,14 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Override
    public void setEnvironment(Environment environment) {
       env = environment;
+   }
+
+   private static String getEnvironmentVariable(String variableName) {
+      String value = System.getenv(variableName);
+      if (value == null || value.equals("")) {
+          System.out.println("Something went wrong retrieving the environment variable " + variableName);
+      }
+      return value;
    }
 
 
