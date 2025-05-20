@@ -51,7 +51,7 @@ public class IntersectionEventTopologyTest {
     final String bsmEventTopic = "topic.CMBsmEvents";
     final String laneDirectionOfTravelTopic = "topic.CmLaneDirectionOfTravelEvent";
     final String connectionOfTravelTopic = "topic.CmConnectionOfTravelEvent";
-    final String signalStateTopic = "topic.CmSignalStateEvent";
+    final String stopLinePassageTopic = "topic.CmStopLinePassageEvent";
     final String signalStopTopic = "topic.CmSignalStopEvent";
 
 
@@ -99,7 +99,7 @@ public class IntersectionEventTopologyTest {
         conflictMonitorProperties.setKafkaTopicCmBsmEvent(bsmEventTopic);
         conflictMonitorProperties.setKafkaTopicCmLaneDirectionOfTravelEvent(laneDirectionOfTravelTopic);
         conflictMonitorProperties.setKafkaTopicCmConnectionOfTravelEvent(connectionOfTravelTopic);
-        conflictMonitorProperties.setKafkaTopicCmSignalStateEvent(signalStateTopic);
+        conflictMonitorProperties.setKafkaTopicCmStopLinePassageEvent(stopLinePassageTopic);
         conflictMonitorProperties.setKafakTopicCmVehicleStopEvent(signalStopTopic);
         var intersectionEventTopology = new IntersectionEventTopology();
         intersectionEventTopology.setConflictMonitorProperties(conflictMonitorProperties);

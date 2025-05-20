@@ -21,8 +21,8 @@ import java.util.List;
 
 
 public class StopLinePassageAssessmentTopologyTest {
-    String kafkaTopicStopLinePassageEvent = "topic.CmSignalStateEvent";
-    String kafkaTopicStopLinePassageAssessment = "topic.CmSignalStateEventAssessment";
+    String kafkaTopicStopLinePassageEvent = "topic.CmStopLinePassageEvent";
+    String kafkaTopicStopLinePassageAssessment = "topic.CmStopLinePassageAssessment";
     String kafkaTopicStopLinePassageNotification = "topic.CmStopLinePassageNotification";
     String stopLinePassageEventKey = "12109";
     String stopLinePassageEvent = "{\"eventGeneratedAt\":1673974273330,\"eventType\":\"StopLinePassage\",\"timestamp\":1655493260761,\"roadRegulatorID\":-1,\"ingressLane\":12,\"egressLane\":5,\"connectionID\":1,\"eventState\":\"STOP_AND_REMAIN\",\"vehicleID\":\"E6A99808\",\"latitude\":-105.091055,\"longitude\":-105.091055,\"heading\":169.4,\"speed\":22.64,\"signalGroup\":6}";
@@ -66,7 +66,7 @@ public class StopLinePassageAssessmentTopologyTest {
 
             StopLinePassageAssessment output = assessmentResults.get(1).value;
 
-            List<StopLinePassageAssessmentGroup> groups = output.getSignalStateEventAssessmentGroup();
+            List<StopLinePassageAssessmentGroup> groups = output.getStopLinePassageAssessmentGroup();
 
             
             assertEquals(groups.size(), 1);
@@ -122,7 +122,7 @@ public class StopLinePassageAssessmentTopologyTest {
 
             StopLinePassageNotification output = notificationResults.get(0).value;
 
-            List<StopLinePassageAssessmentGroup> groups = output.getAssessment().getSignalStateEventAssessmentGroup();
+            List<StopLinePassageAssessmentGroup> groups = output.getAssessment().getStopLinePassageAssessmentGroup();
 
             
             assertEquals(groups.size(), 1);

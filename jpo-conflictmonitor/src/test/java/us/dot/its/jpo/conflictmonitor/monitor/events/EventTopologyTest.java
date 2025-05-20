@@ -26,7 +26,7 @@ import java.util.List;
 
 public class EventTopologyTest {
     String eventOutputTopicName = "topic.CmEvent";
-    String signalStateEventTopicName = "topic.CmSignalStateEvent";
+    String stopLanePassageEventTopicName = "topic.CmStopLinePassageEvent";
     String spatTimeChangeDetailsTopicName = "topic.CmSpatTimeChangeDetailsEvent";
     String spatBroadcastRateTopicName = "topic.CmSpatBroadcastRateEvents";
     String spatMinimumDataTopicName = "topic.CmSpatMinimumDataEvents";
@@ -49,7 +49,7 @@ public class EventTopologyTest {
         EventTopology eventTopology = new EventTopology();
         EventParameters parameters = new EventParameters();
         parameters.setEventOutputTopicName(eventOutputTopicName);
-        parameters.setSignalStateEventTopicName(signalStateEventTopicName);
+        parameters.setStopLinePassageEventTopicName(stopLanePassageEventTopicName);
         parameters.setSpatTimeChangeDetailsTopicName(spatTimeChangeDetailsTopicName);
         parameters.setSpatBroadcastRateTopicName(spatBroadcastRateTopicName);
         parameters.setSpatMinimumDataTopicName(spatMinimumDataTopicName);
@@ -93,7 +93,7 @@ public class EventTopologyTest {
         try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
             
             TestInputTopic<String, StopLinePassageEvent> inputSignalState = driver.createInputTopic(
-                signalStateEventTopicName, 
+                stopLanePassageEventTopicName, 
                 Serdes.String().serializer(),
                 JsonSerdes.StopLinePassageEvent().serializer());
 
