@@ -5,7 +5,9 @@
 The 2025 Q2 Release of the Conflict Monitor Platform
 - Renamed SignalStateEvent to StopLinePassageEvent
 - Renamed SignalStateStopEvent to StopLineStopEvent
+- Added environment variables to support specifying which release images to pull
 - Misc bug fixes
+
 
 
 ## Version 2.0.1
