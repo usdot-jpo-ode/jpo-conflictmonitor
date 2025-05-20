@@ -8,7 +8,7 @@ services:
       - cm_full
       - ode_geojsonconverter
       - geojsonconverter
-    image: usdotjpoode/geojsonconverter:latest
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/geojsonconverter:${DOCKERHUB_RELEASE:-2025-q2}
     restart: ${RESTART_POLICY}
     deploy:
       resources:
@@ -38,7 +38,7 @@ services:
       - cm_full
       - ode_geojsonconverter
       - ode
-    image: usdotjpoode/jpo-ode:latest
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/jpo-ode:${DOCKERHUB_RELEASE:-2025-q2}
     restart: ${RESTART_POLICY}
     deploy:
       resources:
@@ -100,7 +100,7 @@ services:
       - cm_full
       - ode_geojsonconverter
       - adm
-    image: usdotjpoode/asn1_codec:latest
+    image: ${DOCKERHUB_HOST:-usdotjpoode}/asn1_codec:${DOCKERHUB_RELEASE:-2025-q2}
     restart: ${RESTART_POLICY}
     deploy:
       resources:
