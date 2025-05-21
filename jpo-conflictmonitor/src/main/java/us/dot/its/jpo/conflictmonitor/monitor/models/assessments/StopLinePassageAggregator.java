@@ -58,7 +58,7 @@ public class StopLinePassageAggregator {
 
         StopLinePassageAssessment assessment = new StopLinePassageAssessment();
         ArrayList<StopLinePassageAssessmentGroup> assessmentGroups = new ArrayList<>();
-        HashMap<Integer,StopLinePassageAssessmentGroup> signalGroupLookup = new HashMap<>(); // laneId, Segment Index
+        HashMap<Integer,StopLinePassageAssessmentGroup> slpaGroupLookup = new HashMap<>(); // laneId, Segment Index
 
         int intersectionID = -1;
         int roadRegulatorID = -1;
@@ -66,20 +66,20 @@ public class StopLinePassageAggregator {
         for(StopLinePassageEvent event : this.events){
             intersectionID = event.getIntersectionID();
             roadRegulatorID = event.getRoadRegulatorID();
-            StopLinePassageAssessmentGroup signalGroup = signalGroupLookup.get(event.getSignalGroup());
-            if(signalGroup == null){
-                signalGroup = new StopLinePassageAssessmentGroup();
-                assessmentGroups.add(signalGroup);
-                signalGroupLookup.put(event.getSignalGroup(),signalGroup);
-                signalGroup.setSignalGroup(event.getSignalGroup());
+            StopLinePassageAssessmentGroup stopLinePassageAssessmentGroup = slpaGroupLookup.get(event.getSignalGroup());
+            if(stopLinePassageAssessmentGroup == null){
+                stopLinePassageAssessmentGroup = new StopLinePassageAssessmentGroup();
+                assessmentGroups.add(stopLinePassageAssessmentGroup);
+                slpaGroupLookup.put(event.getSignalGroup(),stopLinePassageAssessmentGroup);
+                stopLinePassageAssessmentGroup.setSignalGroup(event.getSignalGroup());
             }
-            signalGroup.addSignalStateEvent(event);
+            stopLinePassageAssessmentGroup.addStopLinePassageEvent(event);
             
         }
         
         assessment.setIntersectionID(intersectionID);
         assessment.setRoadRegulatorID(roadRegulatorID);
-        assessment.setSignalStateEventAssessmentGroup(assessmentGroups);
+        assessment.setStopLinePassageAssessmentGroup(assessmentGroups);
         assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
 
         return assessment;
