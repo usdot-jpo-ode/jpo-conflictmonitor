@@ -3,7 +3,9 @@ name: "DockerHub Build and Push"
 on:
   push:
     branches:
-      - "fix_ci"
+      - "develop"
+      - "master"
+      - "release/*"
 jobs:
   dockerhub-jpo-conflictmonitor:
     runs-on: ubuntu-latest
