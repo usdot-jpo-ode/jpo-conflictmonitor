@@ -605,7 +605,8 @@ aggregation:
     SpatMessageCountProgressionAggregation: defaultSpatMessageCountProgressionAggregationAlgorithm
 
 
-
+revocable.enabled.lane.alignment:
+  debug: true
 
 
 
