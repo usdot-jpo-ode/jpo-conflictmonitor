@@ -4,7 +4,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.Aggregation
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.RevocableEnabledLaneAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.RevocableEnabledLaneAlignmentEventAggregation;
 
-public interface RevocableEnabledLaneAlignmentAggregationAlgolrithm
+public interface RevocableEnabledLaneAlignmentAggregationAlgorithm
     extends AggregationAlgorithmInterface<
             RevocableEnabledLaneAlignmentEvent,
             RevocableEnabledLaneAlignmentEventAggregation> {

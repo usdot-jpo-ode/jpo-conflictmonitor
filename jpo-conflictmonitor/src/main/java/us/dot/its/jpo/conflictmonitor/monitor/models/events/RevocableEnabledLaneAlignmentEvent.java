@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
 import us.dot.its.jpo.ode.plugin.j2735.J2735LaneTypeAttributes;
+import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,5 +33,9 @@ public class RevocableEnabledLaneAlignmentEvent extends Event {
      */
     Set<Integer> enabledLaneList;
 
+    /**
+     * Movement Phase State from the SPAT message
+     */
+    J2735MovementPhaseState eventState;
 
 }

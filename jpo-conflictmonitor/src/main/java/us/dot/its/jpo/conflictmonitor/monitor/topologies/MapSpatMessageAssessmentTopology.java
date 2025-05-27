@@ -14,6 +14,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.*;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
@@ -49,6 +51,7 @@ public class MapSpatMessageAssessmentTopology
     private IntersectionReferenceAlignmentAggregationStreamsAlgorithm intersectionReferenceAlignmentAggregationAlgorithm;
     private SignalGroupAlignmentAggregationStreamsAlgorithm signalGroupAlignmentAggregationAlgorithm;
     private SignalStateConflictAggregationStreamsAlgorithm signalStateConflictAggregationAlgorithm;
+    private RevocableEnabledLaneAlignmentStreamsAlgorithm revocableEnabledLaneAlignmentAlgorithm;
 
     @Override
     protected Logger getLogger() {
@@ -212,8 +215,8 @@ public class MapSpatMessageAssessmentTopology
 
 
 
-        // Join Spats with MAP KTable, RsuIntersectionKey for the Signal Group Alignment check which presume
-        // that the Spat and Map are from the same intersection
+        // Join Spats with MAP KTable on RsuIntersectionKey for the Signal Group Alignment check, and Revocable
+        // Enabled Lane Alignment check, which presume that the Spat and Map are from the same intersection
         KStream<RsuIntersectionKey, SpatMap> spatJoinedMap = processedSpatStream
                 .join(mapKTable, (spat, map) -> new SpatMap(spat, map),
                         Joined.<RsuIntersectionKey, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined")
@@ -361,6 +364,9 @@ public class MapSpatMessageAssessmentTopology
 
                     return events;
                 });
+
+        // Revocable Enabled Lane Alignment Algorithm uses the joined Spat/Map stream
+        revocableEnabledLaneAlignmentAlgorithm.buildTopology(builder, spatJoinedMap);
 
         if (parameters.isAggregateSignalStateConflictEvents()) {
             // Aggregate Signal State Conflict events
@@ -643,6 +649,16 @@ public class MapSpatMessageAssessmentTopology
             this.signalStateConflictAggregationAlgorithm = streamsAlgorithm;
         } else {
             throw new IllegalArgumentException("Signal State Conflict Aggregation algorithm must be a Streams algorithm");
+        }
+    }
+
+    @Override
+    public void setRevocableEnabledLaneAlignmentAlgorithm(RevocableEnabledLaneAlignmentAlgorithm revocableEnabledLaneAlignmentAlgorithm) {
+        // Enforce the algorithm being a Streamws algorithm
+        if (revocableEnabledLaneAlignmentAlgorithm instanceof RevocableEnabledLaneAlignmentStreamsAlgorithm streamsAlgorithm) {
+            this.revocableEnabledLaneAlignmentAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Revocable Enabled Lane Alignment Algorithm must be a Streams algorithm");
         }
     }
 }
