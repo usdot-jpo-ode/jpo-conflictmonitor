@@ -607,6 +607,8 @@ aggregation:
 
 revocable.enabled.lane.alignment:
   debug: true
+  aggregateEvents: false
+  outputTopicName: topic.CmRevocableEnabledLaneAlignment
 
 
 

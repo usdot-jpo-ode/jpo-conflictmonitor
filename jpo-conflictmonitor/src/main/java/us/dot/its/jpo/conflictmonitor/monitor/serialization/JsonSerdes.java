@@ -7,6 +7,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationKey;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
@@ -557,5 +558,23 @@ public class JsonSerdes {
         return Serdes.serdeFrom(
                 new JsonSerializer<>(),
                 new JsonDeserializer<>(TimeChangeDetailsNotificationAggregation.class));
+    }
+
+    public static Serde<RevocableEnabledLaneAlignmentEvent> RevocableEnabledLaneAlignmentEvent() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(RevocableEnabledLaneAlignmentEvent.class));
+    }
+
+    public static Serde<RevocableEnabledLaneAlignmentEventAggregation> RevocableEnabledLaneAlignmentEventAggregation() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(RevocableEnabledLaneAlignmentEventAggregation.class));
+    }
+
+    public static Serde<RevocableEnabledLaneAlignmentAggregationKey> RevocableEnabledLaneAlignmentAggregationKey() {
+        return Serdes.serdeFrom(
+                new JsonSerializer<>(),
+                new JsonDeserializer<>(RevocableEnabledLaneAlignmentAggregationKey.class));
     }
 }

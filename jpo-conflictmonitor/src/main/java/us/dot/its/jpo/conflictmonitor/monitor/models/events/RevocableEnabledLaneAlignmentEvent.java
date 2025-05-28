@@ -1,11 +1,19 @@
 package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
 import us.dot.its.jpo.ode.plugin.j2735.J2735LaneTypeAttributes;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.Map;
 import java.util.Set;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@Generated
 public class RevocableEnabledLaneAlignmentEvent extends Event {
 
     public RevocableEnabledLaneAlignmentEvent() {
@@ -16,26 +24,23 @@ public class RevocableEnabledLaneAlignmentEvent extends Event {
     private long timestamp;
 
     /**
-     * Map of LaneID to DE_LaneTypeAttributes, including only lanes with
-     * the 'revocable' bit set.
+     * Map of LaneID to DE_LaneTypeAttributes, including all lanes, revocable or not
      */
-    Map<Integer, J2735LaneTypeAttributes> laneTypeAttributes;
+    private Map<Integer, J2735LaneTypeAttributes> laneTypeAttributes;
 
     /**
      * Set of LanIDs with the 'revocable' bit set in the MAP message.
      */
-    Set<Integer> revocableLaneList() {
-        return (laneTypeAttributes == null) ? Set.of() : laneTypeAttributes.keySet();
-    }
+    private Set<Integer> revocableLaneList;
 
     /**
      * Set of enabled Lane IDs from the SPAT message.
      */
-    Set<Integer> enabledLaneList;
+    private Set<Integer> enabledLaneList;
 
     /**
      * Movement Phase State from the SPAT message
      */
-    J2735MovementPhaseState eventState;
+    private J2735MovementPhaseState eventState;
 
 }

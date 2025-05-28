@@ -24,4 +24,9 @@ public class RevocableEnabledLaneAlignmentParameters {
         description = "Whether to aggregate events",
         updateType = READ_ONLY)
     boolean aggregateEvents;
+
+    @ConfigData(key = "revocable.enabled.lane.alignment.outputTopicName",
+        description = "Output topic for events",
+        updateType = READ_ONLY)
+    String outputTopicName;
 }

@@ -3,7 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.utils;
 import lombok.extern.slf4j.Slf4j;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.BaseFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.*;
-import us.dot.its.jpo.ode.plugin.j2735.J2735LaneTypeAttributes;
+import us.dot.its.jpo.ode.plugin.j2735.*;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -67,5 +67,26 @@ public class ProcessedMapUtils {
                         && properties.getLaneType() != null)
                 .collect(Collectors.toUnmodifiableMap(MapProperties::getLaneId, MapProperties::getLaneType));
     }
+
+    public static boolean isRevocableBitSet(J2735LaneTypeAttributes laneTypeAttributes) {
+        J2735BitString bitString = laneTypeAttributes.getBikeLane();
+        if (bitString != null) return bitString.get(J2735LaneAttributesBike.bikeRevocableLane.name());
+        bitString = laneTypeAttributes.getCrosswalk();
+        if (bitString != null) return bitString.get(J2735LaneAttributesCrosswalk.crosswalkRevocableLane.name());
+        bitString = laneTypeAttributes.getMedian();
+        if (bitString != null) return bitString.get(J2735LaneAttributesBarrier.medianRevocableLane.name());
+        bitString = laneTypeAttributes.getParking();
+        if (bitString != null) return bitString.get(J2735LaneAttributesParking.parkingRevocableLane.name());
+        bitString = laneTypeAttributes.getSidewalk();
+        if (bitString != null) return bitString.get(J2735LaneAttributesSidewalk.sidewalkRevocableLane.name());
+        bitString = laneTypeAttributes.getStriping();
+        if (bitString != null) return bitString.get(J2735LaneAttributesStriping.stripeToConnectingLanesRevocableLane.name());
+        bitString = laneTypeAttributes.getTrackedVehicle();
+        if (bitString != null) return bitString.get(J2735LaneAttributesTrackedVehicle.specRevocableLane.name());
+        bitString = laneTypeAttributes.getVehicle();
+        if (bitString != null) return bitString.get(J2735LaneAttributesVehicle.isVehicleRevocableLane.name());
+        return false;
+    }
+
 
 }
