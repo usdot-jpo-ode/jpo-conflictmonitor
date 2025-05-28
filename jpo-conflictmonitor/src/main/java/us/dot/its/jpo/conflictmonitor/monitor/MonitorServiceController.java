@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_me
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithm;
@@ -58,6 +59,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
@@ -502,6 +504,10 @@ public class MonitorServiceController {
         mapSpatAlignmentAlgo.setSignalGroupAlignmentAggregationAlgorithm(signalGroupAlignAggAlgo);
         mapSpatAlignmentAlgo.setSignalStateConflictAggregationAlgorithm(signalStateConflictAggAlgo);
 
+        // Plug in Revocable Enabled Lane Alignment algorithm
+        var revocableEnabledLaneAlignmentAlgo = getRevocableEnabledLaneAlignmentAlgorithm();
+        mapSpatAlignmentAlgo.setRevocableEnabledLaneAlignmentAlgorithm(revocableEnabledLaneAlignmentAlgo);
+
         Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
         mapSpatAlignmentAlgo.start();
     }
@@ -694,6 +700,27 @@ public class MonitorServiceController {
     private BsmMessageCountProgressionAggregationAlgorithm getBsmMessageCountProgressionAggregationAlgorithm() {
         final var factory = conflictMonitorProps.getBsmMessageCountProgressionAggregationAlgorithmFactory();
         final String algorithmName = conflictMonitorProps.getBsmMessageCountProgressionAggregationAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getAggregationParameters();
+        algorithm.setParameters(parameters);
+        return algorithm;
+    }
+
+    private RevocableEnabledLaneAlignmentAlgorithm getRevocableEnabledLaneAlignmentAlgorithm() {
+        final var factory = conflictMonitorProps.getRevocableEnabledLaneAlignmentAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getRevocableEnabledLaneAlignmentAlgorithm();
+        final var algorithm = factory.getAlgorithm(algorithmName);
+        final var parameters = conflictMonitorProps.getRevocableEnabledLaneAlignmentParameters();
+        algorithm.setParameters(parameters);
+        // Plug in aggregation algorithm
+        final var aggAlgorithm = getRevocableEnabledLaneAlignmentAggregationAlgorithm();
+        algorithm.setAggregationAlgorithm(aggAlgorithm);
+        return algorithm;
+    }
+
+    private RevocableEnabledLaneAlignmentAggregationAlgorithm getRevocableEnabledLaneAlignmentAggregationAlgorithm() {
+        final var factory = conflictMonitorProps.getRevocableEnabledLaneAlignmentAggregationAlgorithmFactory();
+        final String algorithmName = conflictMonitorProps.getRevocableEnabledLaneAlignmentAggregationAlgorithm();
         final var algorithm = factory.getAlgorithm(algorithmName);
         final var parameters = conflictMonitorProps.getAggregationParameters();
         algorithm.setParameters(parameters);

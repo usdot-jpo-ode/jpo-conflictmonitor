@@ -15,10 +15,15 @@ import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.RE
 @ConfigurationProperties(prefix = "revocable.enabled.lane.alignment")
 public class RevocableEnabledLaneAlignmentParameters {
 
+    @ConfigData(key = "revocable.enabled.lane.alignment.algorithm",
+            description = "The algorithm to use",
+            updateType = READ_ONLY)
+    String algorithm;
+
     @ConfigData(key = "revocable.enabled.lane.alignment.debug",
             description = "Whether to log diagnostic information for debugging",
             updateType = DEFAULT)
-    boolean debug;
+    volatile boolean debug;
 
     @ConfigData(key = "revocable.enabled.lane.alignment.aggregateEvents",
         description = "Whether to aggregate events",
@@ -29,4 +34,6 @@ public class RevocableEnabledLaneAlignmentParameters {
         description = "Output topic for events",
         updateType = READ_ONLY)
     String outputTopicName;
+
+
 }

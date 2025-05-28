@@ -50,6 +50,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.validation.map.MapMinimumDataAggregationAlgorithmFactory;
@@ -77,6 +78,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.Repartition
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_message_count_progression.MapMessageCountProgressionParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.spat_message_count_progression.SpatMessageCountProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.bsm_message_count_progression.BsmMessageCountProgressionAlgorithmFactory;
@@ -139,6 +142,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private MapMessageCountProgressionAggregationAlgorithmFactory mapMessageCountProgressionAggregationAlgorithmFactory;
    private String spatMessageCountProgressionAggregationAlgorithm;
    private SpatMessageCountProgressionAggregationAlgorithmFactory spatMessageCountProgressionAggregationAlgorithmFactory;
+   private String revocableEnabledLaneAlignmentAggregationAlgorithm;
+   private RevocableEnabledLaneAlignmentAggregationAlgorithmFactory revocableEnabledLaneAlignmentAggregationAlgorithmFactory;
 
    private MapValidationAlgorithmFactory mapValidationAlgorithmFactory;
    private SpatValidationStreamsAlgorithmFactory spatValidationAlgorithmFactory;
@@ -220,6 +225,10 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String bsmMessageCountProgressionAlgorithm;
    private BsmMessageCountProgressionParameters bsmMessageCountProgressionAlgorithmParameters;
 
+   private RevocableEnabledLaneAlignmentAlgorithmFactory revocableEnabledLaneAlignmentAlgorithmFactory;
+   private String revocableEnabledLaneAlignmentAlgorithm;
+   private RevocableEnabledLaneAlignmentParameters revocableEnabledLaneAlignmentParameters;
+
    private NotificationAlgorithmFactory notificationAlgorithmFactory;
    private String notificationAlgorithm;
    private NotificationParameters notificationAlgorithmParameters;
@@ -279,6 +288,8 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
               = getAlgorithmFromMap(algorithmMap, MapMessageCountProgressionEventAggregation.class);
       this.spatMessageCountProgressionAggregationAlgorithm
               = getAlgorithmFromMap(algorithmMap, SpatMessageCountProgressionEventAggregation.class);
+      this.revocableEnabledLaneAlignmentAggregationAlgorithm
+              = getAlgorithmFromMap(algorithmMap, RevocableEnabledLaneAlignmentEventAggregation.class);
    }
 
    // Get algorithm name from map of event type to algorithm
@@ -350,6 +361,11 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    }
 
    @Autowired
+   public void setRevocableEnabledLaneAlignmentAggregationAlgorithmFactory(RevocableEnabledLaneAlignmentAggregationAlgorithmFactory factory) {
+      this.revocableEnabledLaneAlignmentAggregationAlgorithmFactory = factory;
+   }
+
+   @Autowired
    public void setIntersectionEventAlgorithmFactory(IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory) {
       this.intersectionEventAlgorithmFactory = intersectionEventAlgorithmFactory;
    }
@@ -416,8 +432,16 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       this.spatTimestampDeltaAlgorithmFactory = factory;
    }
 
+   @Autowired
+   public void setRevocableEnabledLaneAlignmentParameters(RevocableEnabledLaneAlignmentParameters revocableEnabledLaneAlignmentParameters) {
+      this.revocableEnabledLaneAlignmentParameters = revocableEnabledLaneAlignmentParameters;
+      this.revocableEnabledLaneAlignmentAlgorithm = revocableEnabledLaneAlignmentParameters.getAlgorithm();
+   }
 
-
+   @Autowired
+   public void setRevocableEnabledLaneAlignmentAlgorithmFactory(RevocableEnabledLaneAlignmentAlgorithmFactory factory) {
+      this.revocableEnabledLaneAlignmentAlgorithmFactory = factory;
+   }
 
    @Autowired
    public void setLaneDirectionOfTravelAlgorithmFactory(

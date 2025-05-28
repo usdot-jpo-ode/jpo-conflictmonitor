@@ -38,6 +38,10 @@ import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enable
 import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.getLaneTypeAttributes;
 import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.isRevocableBitSet;
 
+/**
+ * Revocable/Enabled Lane Alignment Algorithm implementation.
+ * This is a subtopology of {@link MapSpatMessageAssessmentTopology}.
+ */
 @Component(DEFAULT_REVOCABLE_ENABLED_LANE_ALIGNMENT_ALGORITHM)
 @Slf4j
 public class RevocableEnabledLaneAlignmentTopology
