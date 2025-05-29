@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentStreamsAlgorithm;
@@ -122,6 +123,14 @@ public class RevocableEnabledLaneAlignmentTopology
         if (parameters.isAggregateEvents()) {
             // Aggregate events
             // TODO
+            KStream<RevocableEnabledLaneAlignmentAggregationKey, RevocableEnabledLaneAlignmentEvent> aggKeyStream
+                    = eventStream.selectKey((key, value) -> {
+                        var newKey =  new RevocableEnabledLaneAlignmentAggregationKey();
+                        newKey.setRsuId(key.getRsuId());
+                        newKey.setIntersectionId(key.getIntersectionId());
+                        // TODO etc.
+            });
+            aggregationAlgorithm.buildTopology(builder, aggKeyStream);
         } else {
             // Don't aggregate events: send each
             eventStream.to(parameters.getOutputTopicName(),
