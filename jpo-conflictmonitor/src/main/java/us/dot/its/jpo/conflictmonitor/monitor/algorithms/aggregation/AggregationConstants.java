@@ -11,4 +11,5 @@ public class AggregationConstants {
     public static final String DEFAULT_BSM_MESSAGE_COUNT_PROGRESSION_AGGREGATION_ALGORITHM = "defaultBsmMessageCountProgressionAggregationAlgorithm";
     public static final String DEFAULT_SPAT_MESSAGE_COUNT_PROGRESSION_AGGREGATION_ALGORITHM = "defaultSpatMessageCountProgressionAggregationAlgorithm";
     public static final String DEFAULT_MAP_MESSAGE_COUNT_PROGRESSION_AGGREGATION_ALGORITHM = "defaultMapMessageCountProgressionAggregationAlgorithm";
+    public static final String DEFAULT_REVOCABLE_ENABLED_LANE_ALIGNMENT_AGGREGATION_ALGORITHM = "defaultRevocableEnabledLaneAlignmentAggregationAlgorithm";
 }

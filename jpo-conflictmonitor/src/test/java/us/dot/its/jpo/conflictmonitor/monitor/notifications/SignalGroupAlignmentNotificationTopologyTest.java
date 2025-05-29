@@ -1,12 +1,16 @@
 package us.dot.its.jpo.conflictmonitor.monitor.notifications;
 
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.TestInputTopic;
-import org.apache.kafka.streams.TestOutputTopic;
-import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
+import org.mockito.Mock;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.MockRevocableEnabledLaneAlignmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentParameters;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalGroupAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotification;
@@ -2533,6 +2537,9 @@ public class SignalGroupAlignmentNotificationTopologyTest {
         MapSpatMessageAssessmentTopology mapSpat = new MapSpatMessageAssessmentTopology();
         MapSpatMessageAssessmentParameters parameters = new MapSpatMessageAssessmentParameters();
 
+
+
+
         parameters.setDebug(false);
         parameters.setIntersectionReferenceAlignmentEventTopicName(kafkaTopicIntersectionReferenceAlignmentEvents);
         parameters.setIntersectionReferenceAlignmentNotificationTopicName(kafkaTopicIntersectionReferenceAlignmentNotifications);
@@ -2544,6 +2551,8 @@ public class SignalGroupAlignmentNotificationTopologyTest {
         parameters.setSignalStateConflictNotificationTopicName(kafkaTopicSignalStateConflictNotificationTopicName);
 
         mapSpat.setParameters(parameters);
+
+        mapSpat.setRevocableEnabledLaneAlignmentAlgorithm(new MockRevocableEnabledLaneAlignmentStreamsAlgorithm());
 
         Topology topology = mapSpat.buildTopology();
         
@@ -2614,6 +2623,8 @@ public class SignalGroupAlignmentNotificationTopologyTest {
     }
 
 
+
+
     @Test
     public void signalStateConflictNotification() {
 
@@ -2631,6 +2642,8 @@ public class SignalGroupAlignmentNotificationTopologyTest {
         parameters.setSignalStateConflictNotificationTopicName(kafkaTopicSignalStateConflictNotificationTopicName);
 
         mapSpat.setParameters(parameters);
+
+        mapSpat.setRevocableEnabledLaneAlignmentAlgorithm(new MockRevocableEnabledLaneAlignmentStreamsAlgorithm());
 
         Topology topology = mapSpat.buildTopology();
         
@@ -2698,4 +2711,6 @@ public class SignalGroupAlignmentNotificationTopologyTest {
             assertEquals(12109, event.getIntersectionID());            
         }
     }
+
+
 }
