@@ -122,13 +122,15 @@ public class RevocableEnabledLaneAlignmentTopology
 
         if (parameters.isAggregateEvents()) {
             // Aggregate events
-            // TODO
             KStream<RevocableEnabledLaneAlignmentAggregationKey, RevocableEnabledLaneAlignmentEvent> aggKeyStream
                     = eventStream.selectKey((key, value) -> {
                         var newKey =  new RevocableEnabledLaneAlignmentAggregationKey();
                         newKey.setRsuId(key.getRsuId());
                         newKey.setIntersectionId(key.getIntersectionId());
-                        // TODO etc.
+                        newKey.setRevocableLaneList(value.getRevocableLaneList());
+                        newKey.setEnabledLaneList(value.getEnabledLaneList());
+                        newKey.setEventState(value.getEventState());
+                return newKey;
             });
             aggregationAlgorithm.buildTopology(builder, aggKeyStream);
         } else {
