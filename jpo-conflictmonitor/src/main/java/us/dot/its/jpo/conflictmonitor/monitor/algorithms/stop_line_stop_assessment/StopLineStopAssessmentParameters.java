@@ -24,12 +24,12 @@ public class StopLineStopAssessmentParameters {
     boolean debug;
 
     @ConfigData(key = "stop.line.stop.assessment.stopLineStopEventTopicName", 
-        description = "The name of the topic to read Signal State Events from", 
+        description = "The name of the topic to read Stop Line Passage Events from", 
         updateType = READ_ONLY)
     String stopLineStopEventTopicName;
 
     @ConfigData(key = "stop.line.stop.assessment.stopLineStopAssessmentOutputTopicName", 
-        description = "The name of the topic to write Signal State Event Assessments to", 
+        description = "The name of the topic to write Stop Line Passage Event Assessments to", 
         updateType = READ_ONLY)
     String stopLineStopAssessmentOutputTopicName;
 
@@ -39,13 +39,13 @@ public class StopLineStopAssessmentParameters {
     String stopLineStopNotificationOutputTopicName;
 
     @ConfigData(key = "stop.line.stop.assessment.lookBackPeriodDays", 
-        description = "The number of days to look back for Signal State Events", 
+        description = "The number of days to look back for Stop Line Passage Events", 
         units = DAYS,
         updateType = DEFAULT)
     long lookBackPeriodDays;
 
     @ConfigData(key = "stop.line.stop.assessment.lookBackPeriodGraceTimeSeconds", 
-        description = "The look back grace period for Signal State Events", 
+        description = "The look back grace period for Stop Line Passage Events", 
         units = SECONDS,
         updateType = DEFAULT)
     long lookBackPeriodGraceTimeSeconds;

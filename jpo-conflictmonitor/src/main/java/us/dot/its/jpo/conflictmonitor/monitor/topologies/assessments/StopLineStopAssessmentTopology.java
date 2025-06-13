@@ -110,8 +110,6 @@ public class StopLineStopAssessmentTopology
             Produced.with(Serdes.String(),
                     JsonSerdes.StopLineStopAssessment()));
 
-        stopLineStopAssessmentStream.print(Printed.toSysOut());
-
 
         KStream<String, StopLineStopNotification> notificationEventStream = stopLineStopEventAssessmentStream.flatMap(
             (key, value)->{
@@ -143,8 +141,6 @@ public class StopLineStopAssessmentTopology
                 return result;
             }
         );
-
-        notificationEventStream.print(Printed.toSysOut());
                 
         KTable<String, StopLineStopNotification> connectionNotificationTable = 
             notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLineStopNotification()))

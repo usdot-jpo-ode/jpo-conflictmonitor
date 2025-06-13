@@ -38,10 +38,10 @@ public class EventParameters {
     String eventOutputTopicName;
 
 
-    @ConfigData(key = "event.signalStateEventTopicName", 
+    @ConfigData(key = "event.stopLinePassageEventTopicName", 
         description = "The name of the topic to read signal state events from", 
         updateType = READ_ONLY)
-    String signalStateEventTopicName;
+    String stopLinePassageEventTopicName;
 
     @ConfigData(key = "event.spatTimeChangeDetailsTopicName", 
         description = "The name of the topic to read spat time change details events from", 

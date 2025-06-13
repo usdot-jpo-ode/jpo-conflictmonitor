@@ -49,7 +49,7 @@ public class StopLinePassageAssessmentTopology
         var builder = new StreamsBuilder();
 
         // GeoJson Input Spat Stream
-        KStream<String, StopLinePassageEvent> signalStateEvents =
+        KStream<String, StopLinePassageEvent> stopLinePassageEvents =
             builder.stream(
                 parameters.getStopLinePassageEventTopicName(), 
                 Consumed.with(
@@ -58,34 +58,29 @@ public class StopLinePassageAssessmentTopology
                     .withTimestampExtractor(new SignalStateTimestampExtractor())
                 );
 
-        Initializer<StopLinePassageAggregator> signalStateAssessmentInitializer = ()->{
+        Initializer<StopLinePassageAggregator> stopLinePassageAssessmentInitializer = ()->{
             StopLinePassageAggregator agg = new StopLinePassageAggregator();
-            // agg.setMessageDurationDays(parameters.getLookBackPeriodDays());
-
-            // logger.info("Setting up Signal State Event Assessment Topology \n\n\n\n");
             return agg;
         };
 
-        signalStateEvents.print(Printed.toSysOut());
-
-        Aggregator<String, StopLinePassageEvent, StopLinePassageAggregator> signalStateEventAggregator =
+        Aggregator<String, StopLinePassageEvent, StopLinePassageAggregator> stopLinePassageEventAggregator =
             (key, value, aggregate)-> {
                 return aggregate.add(value);
             };
 
 
-        KTable<String, StopLinePassageAggregator> signalStateAssessments = 
-            signalStateEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageEvent()))
+        KTable<String, StopLinePassageAggregator> stopLinePassageAssessments = 
+            stopLinePassageEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageEvent()))
             .aggregate(
-                signalStateAssessmentInitializer,
-                signalStateEventAggregator,
-                Materialized.<String, StopLinePassageAggregator, KeyValueStore<Bytes, byte[]>>as("stopLinePassageAssessments")
+                stopLinePassageAssessmentInitializer,
+                stopLinePassageEventAggregator,
+                Materialized.<String, StopLinePassageAggregator, KeyValueStore<Bytes, byte[]>>as("stopLinePassageEventAssessments")
                     .withKeySerde(Serdes.String())
-                    .withValueSerde(JsonSerdes.SignalStateEventAggregator())
+                    .withValueSerde(JsonSerdes.StopLinePassageAggregator())
             );
 
         // Map the Windowed K Stream back to a Key Value Pair containing the assessment and the generating event.
-        KStream<String, EventAssessment> stopLinePassageEventAssessmentStream = signalStateAssessments.toStream()
+        KStream<String, EventAssessment> stopLinePassageEventAssessmentStream = stopLinePassageAssessments.toStream()
             .map((key, value) -> {
                 EventAssessment eventAssessment = value.getEventAssessmentPair(parameters.getLookBackPeriodDays());
                 eventAssessment.getAssessment().setSource(key);
@@ -122,7 +117,7 @@ public class StopLinePassageAssessmentTopology
         stopLinePassageAssessmentStream.print(Printed.toSysOut());
 
 
-         KStream<String, StopLinePassageNotification> notificationEventStream = stopLinePassageEventAssessmentStream.flatMap(
+        KStream<String, StopLinePassageNotification> notificationEventStream = stopLinePassageEventAssessmentStream.flatMap(
             (key, value)->{
 
 
@@ -131,7 +126,7 @@ public class StopLinePassageAssessmentTopology
                 StopLinePassageEvent event = (StopLinePassageEvent) value.getEvent();
 
 
-                for(StopLinePassageAssessmentGroup group: assessment.getSignalStateEventAssessmentGroup()){
+                for(StopLinePassageAssessmentGroup group: assessment.getStopLinePassageAssessmentGroup()){
                     // Only Send Assessments that match the generating signal group.
                     int eventCount = group.getDarkEvents() + group.getGreenEvents() + group.getYellowEvents() +  group.getRedEvents();
                     if(group.getSignalGroup() == event.getSignalGroup() && eventCount >= parameters.getMinimumEventsToNotify()){;
@@ -168,7 +163,6 @@ public class StopLinePassageAssessmentTopology
             }
         );
 
-        notificationEventStream.print(Printed.toSysOut());
                 
         KTable<String, StopLinePassageNotification> stopLinePassageNotificationTable = 
             notificationEventStream.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.StopLinePassageNotification()))

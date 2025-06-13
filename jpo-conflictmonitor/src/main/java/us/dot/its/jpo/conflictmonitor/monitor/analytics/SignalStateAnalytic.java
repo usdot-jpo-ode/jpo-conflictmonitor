@@ -39,10 +39,4 @@ public class SignalStateAnalytic {
         this.spats = spats;
         this.intersection = intersection;
     }
-
-    public void analyzeSignalStateEvents(){
-        
-    }
-
-    
 }

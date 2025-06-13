@@ -293,23 +293,23 @@ public class MonitorServiceController {
 
 
 
-            // Signal State Event Assessment Topology
-            final String signalStateEventAssessment = "signalStateEventAssessment";
-            final StopLinePassageAssessmentAlgorithmFactory sseaAlgoFactory = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmFactory();
-            final String signalStateEventAssessmentAlgorithm = conflictMonitorProps.getSignalStateEventAssessmentAlgorithm();
-            final StopLinePassageAssessmentAlgorithm signalStateEventAssesmentAlgo = sseaAlgoFactory.getAlgorithm(signalStateEventAssessmentAlgorithm);
-            final StopLinePassageAssessmentParameters signalStateEventAssessmenAlgoParams = conflictMonitorProps.getSignalStateEventAssessmentAlgorithmParameters();
-            configTopology.registerConfigListeners(signalStateEventAssessmenAlgoParams);
-            if (signalStateEventAssesmentAlgo instanceof StreamsTopology) {
-                final var streamsAlgo = (StreamsTopology)signalStateEventAssesmentAlgo;
-                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(signalStateEventAssessment));
-                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, signalStateEventAssessment, stateChangeTopic, healthTopic));
-                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, signalStateEventAssessment, healthTopic));
-                algoMap.put(signalStateEventAssessment, streamsAlgo);
+            // Stop Line Passage Assessment Topology
+            final String stopLinePassageAssessment = "stopLinePassageAssessment";
+            final StopLinePassageAssessmentAlgorithmFactory slpaAlgoFactory = conflictMonitorProps.getStopLinePassageAssessmentAlgorithmFactory();
+            final String stopLinePassageAssessmentAlgorithm = conflictMonitorProps.getStopLinePassageAssessmentAlgorithm();
+            final StopLinePassageAssessmentAlgorithm stopLinePassageAssesmentAlgo = slpaAlgoFactory.getAlgorithm(stopLinePassageAssessmentAlgorithm);
+            final StopLinePassageAssessmentParameters stopLinePassageAssessmenAlgoParams = conflictMonitorProps.getStopLinePassageAssessmentAlgorithmParameters();
+            configTopology.registerConfigListeners(stopLinePassageAssessmenAlgoParams);
+            if (stopLinePassageAssesmentAlgo instanceof StreamsTopology) {
+                final var streamsAlgo = (StreamsTopology)stopLinePassageAssesmentAlgo;
+                streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(stopLinePassageAssessment));
+                streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, stopLinePassageAssessment, stateChangeTopic, healthTopic));
+                streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, stopLinePassageAssessment, healthTopic));
+                algoMap.put(stopLinePassageAssessment, streamsAlgo);
             }
-            signalStateEventAssesmentAlgo.setParameters(signalStateEventAssessmenAlgoParams);
-            Runtime.getRuntime().addShutdownHook(new Thread(signalStateEventAssesmentAlgo::stop));
-            signalStateEventAssesmentAlgo.start();
+            stopLinePassageAssesmentAlgo.setParameters(stopLinePassageAssessmenAlgoParams);
+            Runtime.getRuntime().addShutdownHook(new Thread(stopLinePassageAssesmentAlgo::stop));
+            stopLinePassageAssesmentAlgo.start();
 
             // // Stop Line Stop Assessment Topology
             final String stopLineStopAssessment = "stopLineStopAssessment";
@@ -374,7 +374,7 @@ public class MonitorServiceController {
             startSpatMessageCountProgressionAlgorithm();
             
             //Bsm Message Count Progression Topology
-            // startBsmMessageCountProgressionAlgorithm(); // Disabled until ProcessedBSMs get fully integrated
+            startBsmMessageCountProgressionAlgorithm(); 
 
             // Combined Event Topology
             final String event = "event";

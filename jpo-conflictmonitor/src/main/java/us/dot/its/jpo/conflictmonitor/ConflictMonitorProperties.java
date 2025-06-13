@@ -42,8 +42,6 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationAlgorithmInterface;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.EventAlgorithmMap;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.bsm_message_count_progression.BsmMessageCountProgressionAggregationAlgorithmFactory;
@@ -108,8 +106,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatVal
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
-import us.dot.its.jpo.ode.eventlog.EventLogger;
-import us.dot.its.jpo.ode.util.CommonUtils;
 
 @Getter
 @Setter
@@ -192,9 +188,9 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    private String mapTimeChangeDetailsAlgorithm;
    private MapTimeChangeDetailsParameters mapTimeChangeDetailsParameters;
 
-   private StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
-   private String signalStateEventAssessmentAlgorithm;
-   private StopLinePassageAssessmentParameters signalStateEventAssessmentAlgorithmParameters;
+   private StopLinePassageAssessmentAlgorithmFactory stopLinePassageAssessmentAlgorithmFactory;
+   private String stopLinePassageAssessmentAlgorithm;
+   private StopLinePassageAssessmentParameters stopLinePassageAssessmentAlgorithmParameters;
 
    private StopLineStopAssessmentAlgorithmFactory stopLineStopAssessmentAlgorithmFactory;
    private String stopLineStopAssessmentAlgorithm;
@@ -601,24 +597,24 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
 
    @Autowired
-   public void setSignalStateEventAssessmentAlgorithmFactory(
-         StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory) {
-      this.signalStateEventAssessmentAlgorithmFactory = signalStateEventAssessmentAlgorithmFactory;
+   public void setStopLinePassageAssessmentAlgorithmFactory(
+         StopLinePassageAssessmentAlgorithmFactory stopLinePassageAssessmentAlgorithmFactory) {
+      this.stopLinePassageAssessmentAlgorithmFactory = stopLinePassageAssessmentAlgorithmFactory;
    }
 
  
 
    @Value("${stop.line.passage.assessment.algorithm}")
-   public void setSignalStateEventAssessmentAlgorithm(String signalStateEventAssessmentAlgorithm) {
-      this.signalStateEventAssessmentAlgorithm = signalStateEventAssessmentAlgorithm;
+   public void setStopLinePassageAssessmentAlgorithm(String stopLinePassageAssessmentAlgorithm) {
+      this.stopLinePassageAssessmentAlgorithm = stopLinePassageAssessmentAlgorithm;
    }
 
 
 
    @Autowired
-   public void setSignalStateEventAssessmentAlgorithmParameters(
-      StopLinePassageAssessmentParameters signalStateEventAssessmentAlgorithmParameters) {
-      this.signalStateEventAssessmentAlgorithmParameters = signalStateEventAssessmentAlgorithmParameters;
+   public void setStopLinePassageAssessmentAlgorithmParameters(
+      StopLinePassageAssessmentParameters stopLinePassageAssessmentAlgorithmParameters) {
+      this.stopLinePassageAssessmentAlgorithmParameters = stopLinePassageAssessmentAlgorithmParameters;
    }
 
    @Autowired
@@ -889,7 +885,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    //Vehicle Events
    private String kafkaTopicCmLaneDirectionOfTravelEvent;
    private String kafkaTopicCmConnectionOfTravelEvent;
-   private String kafkaTopicCmSignalStateEvent;
+   private String kafkaTopicCmStopLinePassageEvent;
    private String kafakTopicCmVehicleStopEvent; 
 
    @Setter(AccessLevel.NONE)
@@ -916,7 +912,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
       }
       hostId = hostname;
       logger.info("Host ID: {}", hostId);
-      EventLogger.logger.info("Initializing services on host {}", hostId);
+      logger.info("Initializing services on host {}", hostId);
 
       // No longer need a mongo DB connection for this service
       // if(dbHostIP == null){
@@ -932,7 +928,7 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       if (kafkaBrokers == null) {
 
-         String kafkaBrokers = CommonUtils.getEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
+         String kafkaBrokers = getEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
 
          logger.info("ode.kafkaBrokers property not defined. Will try KAFKA_BOOTSTRAP_SERVERS => {}", kafkaBrokers);
 
@@ -944,21 +940,21 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
 
       }
 
-      String kafkaType = CommonUtils.getEnvironmentVariable("KAFKA_TYPE");
+      String kafkaType = getEnvironmentVariable("KAFKA_TYPE");
       if (kafkaType != null) {
          confluentCloudEnabled = kafkaType.equals("CONFLUENT");
          if (confluentCloudEnabled) {
                
                System.out.println("Enabling Confluent Cloud Integration");
 
-               confluentKey = CommonUtils.getEnvironmentVariable("CONFLUENT_KEY");
-               confluentSecret = CommonUtils.getEnvironmentVariable("CONFLUENT_SECRET");
+               confluentKey = getEnvironmentVariable("CONFLUENT_KEY");
+               confluentSecret = getEnvironmentVariable("CONFLUENT_SECRET");
          }
       }
 
       // Initialize the Kafka Connect URL
       if (connectURL == null) {
-         String tempConnectURL = CommonUtils.getEnvironmentVariable("CONNECT_URL");
+         String tempConnectURL = getEnvironmentVariable("CONNECT_URL");
          if (tempConnectURL == null) {
             tempConnectURL = String.format("http://%s:%s", "localhost", DEFAULT_CONNECT_PORT);
          }
@@ -1067,6 +1063,14 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    @Override
    public void setEnvironment(Environment environment) {
       env = environment;
+   }
+
+   private static String getEnvironmentVariable(String variableName) {
+      String value = System.getenv(variableName);
+      if (value == null || value.equals("")) {
+          System.out.println("Something went wrong retrieving the environment variable " + variableName);
+      }
+      return value;
    }
 
 

@@ -38,9 +38,9 @@ public class AssessmentParameters {
     String connectionOfTravelAssessmentTopicName;
 
 
-    @ConfigData(key = "assessment.signalStateEventAssessmentTopicName", 
-        description = "The name of the topic to read Signal state Event Assessments from", 
+    @ConfigData(key = "assessment.stopLinePassageAssessmentTopicName", 
+        description = "The name of the topic to read Stop Line Passage Assessments from", 
         updateType = READ_ONLY)
-    String signalStateEventAssessmentTopicName;
+    String stopLinePassageAssessmentTopicName;
     
 }

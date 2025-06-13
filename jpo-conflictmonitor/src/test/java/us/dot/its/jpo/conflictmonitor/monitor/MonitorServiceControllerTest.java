@@ -214,9 +214,9 @@ public class MonitorServiceControllerTest {
     @Mock IntersectionEventAlgorithmFactory intersectionEventAlgorithmFactory;
     @Mock IntersectionEventStreamsAlgorithm intersectionEventAlgorithm;
     
-    @Mock StopLinePassageAssessmentAlgorithmFactory signalStateEventAssessmentAlgorithmFactory;
-    @Mock StopLinePassageAssessmentStreamsAlgorithm signalStateEventAssessmentAlgorithm;
-    StopLinePassageAssessmentParameters signalStateEventAssessmentParameters = new StopLinePassageAssessmentParameters();
+    @Mock StopLinePassageAssessmentAlgorithmFactory stopLinePassageAssessmentAlgorithmFactory;
+    @Mock StopLinePassageAssessmentStreamsAlgorithm stopLinePassageAssessmentAlgorithm;
+    StopLinePassageAssessmentParameters stopLinePassageAssessmentParameters = new StopLinePassageAssessmentParameters();
 
     @Mock LaneDirectionOfTravelAssessmentAlgorithmFactory laneDirectionOfTravelAssessmentAlgorithmFactory;
     @Mock LaneDirectionOfTravelAssessmentStreamsAlgorithm laneDirectionOfTravelAssessmentAlgorithm;
@@ -324,9 +324,9 @@ public class MonitorServiceControllerTest {
         when(conflictMonitorProperties.getSpatMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
         when(spatMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMessageCountProgressionAggregationAlgorithm);
 
-        // when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAggregationAlgorithmFactory);
-        // when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
-        // when(bsmMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAggregationAlgorithm);
+        when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAggregationAlgorithmFactory);
+        when(conflictMonitorProperties.getBsmMessageCountProgressionAggregationAlgorithm()).thenReturn(defaultAlgo);
+        when(bsmMessageCountProgressionAggregationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAggregationAlgorithm);
 
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithmFactory()).thenReturn(spatTimeChangeDetailsAlgorithmFactory);
         when(conflictMonitorProperties.getSpatTimeChangeDetailsAlgorithm()).thenReturn(defaultAlgo);
@@ -377,10 +377,10 @@ public class MonitorServiceControllerTest {
         when(conflictMonitorProperties.getIntersectionEventAlgorithm()).thenReturn(defaultAlgo);
         when(intersectionEventAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(intersectionEventAlgorithm);
         
-        when(conflictMonitorProperties.getSignalStateEventAssessmentAlgorithmFactory()).thenReturn(signalStateEventAssessmentAlgorithmFactory);
-        when(conflictMonitorProperties.getSignalStateEventAssessmentAlgorithm()).thenReturn(defaultAlgo);
-        when(signalStateEventAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(signalStateEventAssessmentAlgorithm);
-        when(conflictMonitorProperties.getSignalStateEventAssessmentAlgorithmParameters()).thenReturn(signalStateEventAssessmentParameters);
+        when(conflictMonitorProperties.getStopLinePassageAssessmentAlgorithmFactory()).thenReturn(stopLinePassageAssessmentAlgorithmFactory);
+        when(conflictMonitorProperties.getStopLinePassageAssessmentAlgorithm()).thenReturn(defaultAlgo);
+        when(stopLinePassageAssessmentAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(stopLinePassageAssessmentAlgorithm);
+        when(conflictMonitorProperties.getStopLinePassageAssessmentAlgorithmParameters()).thenReturn(stopLinePassageAssessmentParameters);
 
         when(conflictMonitorProperties.getLaneDirectionOfTravelAssessmentAlgorithmFactory()).thenReturn(laneDirectionOfTravelAssessmentAlgorithmFactory);
         when(conflictMonitorProperties.getLaneDirectionOfTravelAssessmentAlgorithm()).thenReturn(defaultAlgo);
@@ -407,10 +407,10 @@ public class MonitorServiceControllerTest {
         when(spatMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(spatMessageCountProgressionAlgorithm);
         when(conflictMonitorProperties.getSpatMessageCountProgressionAlgorithmParameters()).thenReturn(spatMessageCountProgressionParameters);
 
-        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAlgorithmFactory);
-        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
-        // when(bsmMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAlgorithm);
-        // when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmParameters()).thenReturn(bsmMessageCountProgressionParameters);
+        when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmFactory()).thenReturn(bsmMessageCountProgressionAlgorithmFactory);
+        when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithm()).thenReturn(defaultAlgo);
+        when(bsmMessageCountProgressionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(bsmMessageCountProgressionAlgorithm);
+        when(conflictMonitorProperties.getBsmMessageCountProgressionAlgorithmParameters()).thenReturn(bsmMessageCountProgressionParameters);
 
         when(conflictMonitorProperties.getEventAlgorithmFactory()).thenReturn(eventAlgorithmFactory);
         when(conflictMonitorProperties.getEventAlgorithm()).thenReturn(defaultAlgo);
@@ -436,7 +436,7 @@ public class MonitorServiceControllerTest {
         //verify(bsmEventAlgorithm, times(1)).start();
         //verify(messageIngestAlgorithm, times(1)).start();
         verify(intersectionEventAlgorithm, times(1)).start();
-        verify(signalStateEventAssessmentAlgorithm, times(1)).start();
+        verify(stopLinePassageAssessmentAlgorithm, times(1)).start();
         verify(laneDirectionOfTravelAssessmentAlgorithm, times(1)).start();
         verify(connectionOfTravelAssessmentAlgorithm, times(1)).start();
         verify(stopLineStopAssessmentAlgorithm, times(1)).start();

@@ -39,7 +39,7 @@ public class StopLinePassageAssessmentGroup {
     private int greenEvents;
     
     @JsonIgnore
-    public void addSignalStateEvent(StopLinePassageEvent event){
+    public void addStopLinePassageEvent(StopLinePassageEvent event){
         switch(event.getEventState()){
             case UNAVAILABLE:
                 this.darkEvents +=1;

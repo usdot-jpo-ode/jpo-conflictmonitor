@@ -84,7 +84,6 @@ public class LaneDirectionOfTravelAssessmentTopology
 
         KTable<String, LaneDirectionOfTravelAggregator> laneDirectionOfTravelAssessments = 
             laneDirectionOfTravelEvents.groupByKey(Grouped.with(Serdes.String(), JsonSerdes.LaneDirectionOfTravelEvent()))
-            //.windowedBy(signalStateEventJoinWindow)
             .aggregate(
                 laneDirectionOfTravelAssessmentInitializer,
                 laneDirectionOfTravelEventAggregator,
