@@ -14,7 +14,7 @@ jobs:
   dockerhub-jpo-conflictmonitor:
     uses: usdot-jpo-ode/actions/.github/workflows/dockerhub.yml@main
     with:
-      image: usdotjpoode/geojsonconverter
+      image: usdotjpoode/jpo-conflictmonitor
       context: .
       file: Dockerfile
       build-args: |
