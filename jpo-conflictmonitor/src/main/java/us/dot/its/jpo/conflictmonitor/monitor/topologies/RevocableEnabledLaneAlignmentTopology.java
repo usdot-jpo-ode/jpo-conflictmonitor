@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -57,6 +58,10 @@ public class RevocableEnabledLaneAlignmentTopology
         KStream<RsuIntersectionKey, RevocableEnabledLaneAlignmentEvent> eventStream =
             spatMapStream.map((rsuIntersectionKey, spatMap) -> {
                 var candidateEvent = new RevocableEnabledLaneAlignmentEvent();
+                candidateEvent.setIntersectionID(rsuIntersectionKey.getIntersectionId());
+                candidateEvent.setRoadRegulatorID(rsuIntersectionKey.getRegion());
+                candidateEvent.setTimestamp(SpatUtils.getTimestamp(spatMap.getSpat()));
+                candidateEvent.setSource(spatMap.getSpat().getOriginIp());
 
                 // Check the MAP for revocable lanes
                 ProcessedMap<LineString> map = spatMap.getMap();

@@ -19,7 +19,14 @@ public class RevocableEnabledLaneAlignmentEvent extends Event {
         super("RevocableEnabledLaneAlignment");
     }
 
+    /**
+     * The SPAT source (usually IP address)
+     */
     private String source;
+
+    /**
+     * The timestamp of the SPAT
+     */
     private long timestamp;
 
     /**
