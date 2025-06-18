@@ -1249,6 +1249,8 @@
                 }
                 if (event["timing"] != null && event["timing"].maxEndTime != null) {
                     const maxEndTimeMillis = Date.parse(event["timing"].maxEndTime);
+                    console.log("maxEndTimeMillis: " + maxEndTimeMillis);
+                    console.log("offsetMillis: " + offsetMillis);
                     event["timing"].maxEndTime = new Date(maxEndTimeMillis + offsetMillis).toISOString();
                 }
             }
