@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 
 
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -17,14 +16,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_e
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.RevocableEnabledLaneAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
@@ -36,8 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentConstants.DEFAULT_REVOCABLE_ENABLED_LANE_ALIGNMENT_ALGORITHM;
-import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.getLaneTypeAttributes;
-import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.isRevocableBitSet;
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.*;
 
 /**
  * Revocable/Enabled Lane Alignment Algorithm implementation.
@@ -66,16 +61,15 @@ public class RevocableEnabledLaneAlignmentTopology
                 // Check the MAP for revocable lanes
                 ProcessedMap<LineString> map = spatMap.getMap();
 
-                Map<Integer, J2735LaneTypeAttributes> allLaneAttributes
-                        = getLaneTypeAttributes(map)
-                        .entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                LaneTypeAttributesMap allLaneAttributes
+                        = getLaneTypeAttributesMap(map);
 
                 candidateEvent.setLaneTypeAttributes(allLaneAttributes);
 
                 Set<Integer> revocableLanes
                         = allLaneAttributes.entrySet().stream()
-                        .filter(entry -> isRevocableBitSet(entry.getValue()))
+                        .filter(entry -> entry.getValue() != null
+                                && entry.getValue().revocable())
                         .map(Map.Entry::getKey)
                         .collect(Collectors.toUnmodifiableSet());
 

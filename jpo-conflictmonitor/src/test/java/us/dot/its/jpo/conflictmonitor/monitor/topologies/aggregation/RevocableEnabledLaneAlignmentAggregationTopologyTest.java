@@ -1,13 +1,14 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.aggregation;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.jupiter.api.Test;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.RevocableEnabledLaneAlignmentEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.RevocableEnabledLaneAlignmentEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableLaneTypeAttributes;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.ode.plugin.j2735.J2735BitString;
@@ -117,26 +118,16 @@ public class RevocableEnabledLaneAlignmentAggregationTopologyTest
         });
     }
 
-    private Map<Integer, J2735LaneTypeAttributes> getLaneTypeAttributes() {
-
-        J2735BitString bs = new J2735BitString();
-        for (J2735LaneAttributesVehicle attribEnum : J2735LaneAttributesVehicle.values()) {
-            bs.put(attribEnum.name(), false);
-        }
-
-        J2735BitString bsRevocable = new J2735BitString();
-        bsRevocable.putAll(bs);
-        bsRevocable.put(J2735LaneAttributesVehicle.isVehicleRevocableLane.name(), true);
-
-        var attrib1 = new J2735LaneTypeAttributes();
-        var attrib2 = new J2735LaneTypeAttributes();
-        var attrib3 = new J2735LaneTypeAttributes();
-        var attrib4 = new J2735LaneTypeAttributes();
-        attrib1.setVehicle(bsRevocable);
-        attrib2.setVehicle(bsRevocable);
-        attrib3.setVehicle(bs);
-        attrib4.setVehicle(bs);
-
-        return Map.of(1, attrib1, 2, attrib2, 3, attrib3, 4, attrib4);
+    private LaneTypeAttributesMap getLaneTypeAttributes() {
+        var attrib1 = new RevocableLaneTypeAttributes("vehicle", true);
+        var attrib2 = new RevocableLaneTypeAttributes("vehicle", true);
+        var attrib3 = new RevocableLaneTypeAttributes("vehicle", false);
+        var attrib4 = new RevocableLaneTypeAttributes("vehicle", false);
+        var map = new LaneTypeAttributesMap();
+        map.put(1, attrib1);
+        map.put(2, attrib2);
+        map.put(3, attrib3);
+        map.put(4, attrib4);
+        return map;
     }
 }

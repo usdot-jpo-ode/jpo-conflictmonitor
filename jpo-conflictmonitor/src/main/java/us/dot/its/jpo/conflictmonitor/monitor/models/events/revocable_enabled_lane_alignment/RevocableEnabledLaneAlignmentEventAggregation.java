@@ -1,8 +1,9 @@
-package us.dot.its.jpo.conflictmonitor.monitor.models.events;
+package us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.Set;
