@@ -82,24 +82,33 @@ public class ProcessedMapUtils {
     public static RevocableLaneTypeAttributes getRevocableLaneTypeAttributes(J2735LaneTypeAttributes laneTypeAttributes) {
         J2735BitString bitString;
         String laneType = null;
+        String revocablePropertyName = null;
         if ((bitString = laneTypeAttributes.getBikeLane()) != null) {
-            laneType = J2735LaneAttributesBike.bikeRevocableLane.name();
+            laneType = "bikeLane";
+            revocablePropertyName = J2735LaneAttributesBike.bikeRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getCrosswalk()) != null) {
-            laneType = J2735LaneAttributesCrosswalk.crosswalkRevocableLane.name();
+            laneType = "crosswalk";
+            revocablePropertyName = J2735LaneAttributesCrosswalk.crosswalkRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getMedian()) != null) {
-            laneType = J2735LaneAttributesBarrier.medianRevocableLane.name();
+            laneType = "median";
+            revocablePropertyName = J2735LaneAttributesBarrier.medianRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getParking()) != null) {
-            laneType = J2735LaneAttributesParking.parkingRevocableLane.name();
+            laneType = "parking";
+            revocablePropertyName = J2735LaneAttributesParking.parkingRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getSidewalk()) != null) {
-            laneType = J2735LaneAttributesSidewalk.sidewalkRevocableLane.name();
+            laneType = "sidewalk";
+            revocablePropertyName = J2735LaneAttributesSidewalk.sidewalkRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getStriping()) != null) {
-            laneType = J2735LaneAttributesStriping.stripeToConnectingLanesRevocableLane.name();
+            laneType = "striping";
+            revocablePropertyName = J2735LaneAttributesStriping.stripeToConnectingLanesRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getTrackedVehicle()) != null) {
-            laneType = J2735LaneAttributesTrackedVehicle.specRevocableLane.name();
+            laneType = "trackedVehicle";
+            revocablePropertyName = J2735LaneAttributesTrackedVehicle.specRevocableLane.name();
         } else if ((bitString = laneTypeAttributes.getVehicle()) != null) {
-            laneType = J2735LaneAttributesVehicle.isVehicleRevocableLane.name();
+            laneType = "vehicle";
+            revocablePropertyName = J2735LaneAttributesVehicle.isVehicleRevocableLane.name();
         }
-        boolean revocable = (bitString != null) ? bitString.get(laneType) : false;
+        boolean revocable = (bitString != null) ? bitString.get(revocablePropertyName) : false;
         return new RevocableLaneTypeAttributes(laneType, revocable);
     }
 
