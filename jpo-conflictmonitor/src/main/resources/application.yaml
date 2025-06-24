@@ -315,12 +315,12 @@ map.validation:
 
 
 
-# BSM Repartition
-repartition:
-  algorithm: defaultRepartitionAlgorithm
-  debug: false
-  bsmInputTopicName: topic.OdeBsmJson
-  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
+## BSM Repartition
+#repartition:
+#  algorithm: defaultRepartitionAlgorithm
+#  debug: false
+#  bsmInputTopicName: topic.OdeBsmJson
+#  bsmRepartitionOutputTopicName: topic.CmBsmJsonRepartition
 
 notification:
   algorithm: defaultNotificationAlgorithm
@@ -444,7 +444,7 @@ intersection.reference.alignment.notification:
 # BSM Events
 bsm.event:
   algorithm: defaultBsmEventAlgorithm
-  inputTopic: topic.CmBsmJsonRepartition
+  inputTopic: topic.ProcessedBsm
   outputTopic: topic.CmBsmEvents
   bsmIntersectionOutputTopic: topic.CmBsmIntersection
   stateStoreName: bsm-event-state-store
@@ -576,7 +576,7 @@ event.state.progression:
     - { stateA: CAUTION_CONFLICTING_TRAFFIC, stateB: STOP_AND_REMAIN }
 
 aggregation:
-  debug: true
+  debug: false
   interval: 60
   intervalUnits: SECONDS
   checkIntervalMs: 1000
