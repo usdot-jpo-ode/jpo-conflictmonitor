@@ -14,6 +14,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -62,7 +64,10 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = SpatMessageCountProgressionEventAggregation.class,
                 name = "SpatMessageCountProgressionAggregation"),
         @JsonSubTypes.Type(value = MapMessageCountProgressionEventAggregation.class,
-                name = "MapMessageCountProgressionAggregation")
+                name = "MapMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = RevocableEnabledLaneAlignmentEvent.class, name = "RevocableEnabledLaneAlignment"),
+        @JsonSubTypes.Type(value = RevocableEnabledLaneAlignmentEventAggregation.class,
+                name = "RevocableEnabledLaneAlignmentAggregation")
 })
 @Getter
 @Setter
@@ -71,15 +76,15 @@ import lombok.Setter;
 public abstract class Event {
 
     private static final Logger logger = LoggerFactory.getLogger(Event.class);
-    
+
     private long eventGeneratedAt = ZonedDateTime.now().toInstant().toEpochMilli();
     private String eventType;
 
     private int intersectionID = -1;
     private int roadRegulatorID = -1;
-    
 
-    public Event(String eventType){
+
+    public Event(String eventType) {
         this.eventType = eventType;
     }
 
