@@ -10,6 +10,8 @@ import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
@@ -24,6 +26,8 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,7 +36,31 @@ import static org.hamcrest.Matchers.hasSize;
 
 
 @Slf4j
+@RunWith(Parameterized.class)
 public class RevocableEnabledLaneAlignmentTopologyTest {
+
+    final SpatMap spatMap;
+    final boolean expectEvent;
+
+    public RevocableEnabledLaneAlignmentTopologyTest(SpatMap spatMap, boolean expectEvent) {
+        this.spatMap = spatMap;
+        this.expectEvent = expectEvent;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> getParameters() throws JsonProcessingException {
+        var params = new ArrayList<Object[]>();
+        params.add(params("RevocableLanes_ProcessedSpat_non_revocable_enabled.json", true));
+        params.add(params("RevocableLanes_ProcessedSpat_non_existent_enabled.json", true));
+        params.add(params("RevocableLanes_ProcessedSpat_no_event_1.json", false));
+        params.add(params("RevocableLanes_ProcessedSpat_no_event_2.json", false));
+        return params;
+    }
+
+    private static Object[] params(final String spatResourceName, final boolean expectEvent)
+            throws JsonProcessingException {
+        return new Object[] { getSpatMap(spatResourceName), expectEvent};
+    }
 
     final Properties streamsProperties = new Properties();
     final String spatMapTopicName = "topic.SpatMap";
@@ -58,13 +86,23 @@ public class RevocableEnabledLaneAlignmentTopologyTest {
                     new JsonDeserializer<>(RevocableEnabledLaneAlignmentEvent.class));
 
             final var rsuKey = new RsuIntersectionKey(rsuId, intersectionId);
-            final var spatMap = getSpatMap();
+
+            log.debug("SpatMap: {}", spatMap);
+
             spatMapTopic.pipeInput(rsuKey, spatMap);
 
             List<KeyValue<RsuIntersectionKey, RevocableEnabledLaneAlignmentEvent>> events =
                 eventTopic.readKeyValuesToList();
 
-            assertThat(events, hasSize(1));
+            for (var event : events) {
+                log.debug("Event: {}", event);
+            }
+
+            if (expectEvent) {
+                assertThat(events, hasSize(1));
+            } else {
+                assertThat(events, hasSize(0));
+            }
 
         }
     }
@@ -95,24 +133,23 @@ public class RevocableEnabledLaneAlignmentTopologyTest {
         return parameters;
     }
 
-    private SpatMap getSpatMap() throws JsonProcessingException {
-        return new SpatMap(getProcessedSpat(), getProcessedMap());
+
+    private static SpatMap getSpatMap(final String spatResourceName) throws JsonProcessingException {
+        return new SpatMap(getProcessedSpat(spatResourceName), getProcessedMap());
     }
 
-    private final String RESOURCE_PATH = "/us/dot/its/jpo/conflictmonitor/monitor/topologies/";
+    private static final String RESOURCE_PATH = "/us/dot/its/jpo/conflictmonitor/monitor/topologies/";
 
-    private ProcessedSpat getProcessedSpat() throws JsonProcessingException {
-        String spatStr = ResourceUtils.loadResource(RESOURCE_PATH + "RevocableLanes_ProcessedSpat_non_revocable_enabled.json");
+    private static ProcessedSpat getProcessedSpat(final String spatResourceName) throws JsonProcessingException {
+        String spatStr = ResourceUtils.loadResource(RESOURCE_PATH + spatResourceName);
         ObjectMapper mapper = DateJsonMapper.getInstance();
-        var processedSpat = mapper.readValue(spatStr, ProcessedSpat.class);
-        return processedSpat;
+        return mapper.readValue(spatStr, ProcessedSpat.class);
     }
 
-
-    private ProcessedMap<LineString> getProcessedMap() throws JsonProcessingException {
+    @SuppressWarnings({"unchecked"})
+    private static ProcessedMap<LineString> getProcessedMap() throws JsonProcessingException {
         String mapStr = ResourceUtils.loadResource(RESOURCE_PATH + "RevocableLanes_ProcessedMap.json");
         ObjectMapper mapper = DateJsonMapper.getInstance();
-        var processedMap = mapper.readValue(mapStr, ProcessedMap.class);
-        return processedMap;
+        return (ProcessedMap<LineString>)mapper.readValue(mapStr, ProcessedMap.class);
     }
 }
