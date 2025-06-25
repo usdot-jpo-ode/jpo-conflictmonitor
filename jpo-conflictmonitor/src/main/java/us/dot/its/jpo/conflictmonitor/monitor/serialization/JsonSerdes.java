@@ -563,4 +563,12 @@ public class JsonSerdes {
                 new JsonSerializer<>(),
                 new JsonDeserializer<>(RevocableEnabledLaneAlignmentAggregationKey.class));
     }
+
+    public static Serde<RevocableEnabledLaneAlignmentNotification> RevocableEnabledLaneAlignmentNotification() {
+        return Serdes.serdeFrom(new JsonSerializer<>(), new JsonDeserializer<>(RevocableEnabledLaneAlignmentNotification.class));
+    }
+
+    public static Serde<RevocableEnabledLaneAlignmentNotificationAggregation> RevocableEnabledLaneAlignmentNotificationAggregation() {
+        return Serdes.serdeFrom(new JsonSerializer<>(), new JsonDeserializer<>(RevocableEnabledLaneAlignmentNotificationAggregation.class));
+    }
 }

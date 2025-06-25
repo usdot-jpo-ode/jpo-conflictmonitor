@@ -35,5 +35,16 @@ public class RevocableEnabledLaneAlignmentParameters {
         updateType = READ_ONLY)
     String outputTopicName;
 
+    @ConfigData(key = "revocable.enabled.lane.alignment.notificationTopicName",
+            description = "Output topic for notifications",
+            updateType = READ_ONLY
+    )
+    String notificationTopicName;
+
+    @ConfigData(key = "revocable.enabled.lane.alignment.aggNotificationTopicName",
+        description = "Output topic for aggregated event notifications",
+        updateType = READ_ONLY)
+    String aggNotificationTopicName;
+
 
 }

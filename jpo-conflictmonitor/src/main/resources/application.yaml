@@ -618,6 +618,8 @@ revocable.enabled.lane.alignment:
   debug: true
   aggregateEvents: false
   outputTopicName: topic.CmRevocableEnabledLaneAlignment
+  notificationTopicName: topic.CmRevocableEnabledLaneAlignmentNotification
+  aggNotificationTopicName: topic.CmRevocableEnabledLaneAlignmentNotificationAggregation
 
 
 

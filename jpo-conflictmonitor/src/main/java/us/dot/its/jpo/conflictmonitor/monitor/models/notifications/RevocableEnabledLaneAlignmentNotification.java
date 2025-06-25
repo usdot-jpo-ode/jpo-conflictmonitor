@@ -6,6 +6,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_la
 @Getter
 public class RevocableEnabledLaneAlignmentNotification extends Notification {
 
+    public RevocableEnabledLaneAlignmentNotification() {
+        super("RevocableEnabledLaneAlignmentNotification");
+    }
+
     private RevocableEnabledLaneAlignmentEvent event;
 
     public void setEvent(RevocableEnabledLaneAlignmentEvent event) {

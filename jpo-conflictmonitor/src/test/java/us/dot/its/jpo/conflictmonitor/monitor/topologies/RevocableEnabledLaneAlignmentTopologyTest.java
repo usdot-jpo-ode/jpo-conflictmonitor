@@ -15,6 +15,7 @@ import org.junit.runners.Parameterized;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.RevocableEnabledLaneAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 
 import us.dot.its.jpo.conflictmonitor.testutils.ResourceUtils;
@@ -65,6 +66,7 @@ public class RevocableEnabledLaneAlignmentTopologyTest {
     final Properties streamsProperties = new Properties();
     final String spatMapTopicName = "topic.SpatMap";
     final String eventTopicName = "topic.CmRevocableEnabledLaneAlignment";
+    final String notificationTopicName = "topic.CmRevocableEnabledLaneAlignmentNotification";
     final boolean debug = true;
     final boolean aggregateEvents = false;
     final String rsuId = "172.18.0.1";
@@ -85,6 +87,10 @@ public class RevocableEnabledLaneAlignmentTopologyTest {
                     new JsonDeserializer<>(RsuIntersectionKey.class),
                     new JsonDeserializer<>(RevocableEnabledLaneAlignmentEvent.class));
 
+            var notificationTopic = driver.createOutputTopic(notificationTopicName,
+                    new JsonDeserializer<>(RsuIntersectionKey.class),
+                    new JsonDeserializer<>(RevocableEnabledLaneAlignmentNotification.class));
+
             final var rsuKey = new RsuIntersectionKey(rsuId, intersectionId);
 
             log.debug("SpatMap: {}", spatMap);
@@ -99,9 +105,18 @@ public class RevocableEnabledLaneAlignmentTopologyTest {
             }
 
             if (expectEvent) {
-                assertThat(events, hasSize(1));
+                assertThat("expected 1 event",events, hasSize(1));
             } else {
-                assertThat(events, hasSize(0));
+                assertThat("expected no events", events, hasSize(0));
+            }
+
+            List<KeyValue<RsuIntersectionKey, RevocableEnabledLaneAlignmentNotification>> notifications =
+                    notificationTopic.readKeyValuesToList();
+
+            if (expectEvent) {
+                assertThat("expected 1 notification",notifications, hasSize(1));
+            } else {
+                assertThat("expected no notifications", notifications, hasSize(0));
             }
 
         }

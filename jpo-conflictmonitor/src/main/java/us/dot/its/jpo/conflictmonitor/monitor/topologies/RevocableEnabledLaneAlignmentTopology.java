@@ -3,10 +3,13 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsBuilder;
@@ -18,8 +21,13 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_
 import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.RevocableEnabledLaneAlignmentNotification;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.RevocableEnabledLaneAlignmentNotificationAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.SignalGroupAlignmentNotificationAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
+import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
@@ -130,13 +138,20 @@ public class RevocableEnabledLaneAlignmentTopology
                         newKey.setEnabledLaneList(value.getEnabledLaneList());
                 return newKey;
             });
-            aggregationAlgorithm.buildTopology(builder, aggKeyStream);
+            KStream<RevocableEnabledLaneAlignmentAggregationKey, RevocableEnabledLaneAlignmentEventAggregation> eventAggregationStream =
+                aggregationAlgorithm.buildTopology(builder, aggKeyStream);
+
+            // Notifications
+            buildNotificationAggregationTopology(eventAggregationStream);
         } else {
             // Don't aggregate events: send each
             eventStream.to(parameters.getOutputTopicName(),
                     Produced.with(
                             us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                             JsonSerdes.RevocableEnabledLaneAlignmentEvent()));
+
+            // Notifications
+            buildNotificationTopology(eventStream);
         }
     }
 
@@ -148,5 +163,57 @@ public class RevocableEnabledLaneAlignmentTopology
         } else {
             throw new IllegalArgumentException("Aggregation algorithm must be a streams algorithm");
         }
+    }
+
+    private void buildNotificationTopology(KStream<RsuIntersectionKey, RevocableEnabledLaneAlignmentEvent> eventStream) {
+        eventStream
+                .mapValues(event -> {
+                    var notification = new RevocableEnabledLaneAlignmentNotification();
+                    notification.setEvent(event);
+                    notification.setNotificationText("Revocable Lane Alignment Notification, " +
+                            "Generated because of a mismatch between MAP revocable lanes and SPAT enabled lanes.");
+                    return notification;
+                })
+                .toTable(Materialized.<
+                        RsuIntersectionKey,
+                        RevocableEnabledLaneAlignmentNotification,
+                        KeyValueStore<Bytes, byte[]>>as("RevocableEnabledLaneAlignmentNotificationAggregation")
+                            .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
+                            .withValueSerde(JsonSerdes.RevocableEnabledLaneAlignmentNotification()))
+                .toStream()
+                .to(parameters.getOutputTopicName(), Produced.with(
+                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                        JsonSerdes.RevocableEnabledLaneAlignmentNotification()
+                ));
+
+    }
+
+    private void buildNotificationAggregationTopology(
+            KStream<RevocableEnabledLaneAlignmentAggregationKey, RevocableEnabledLaneAlignmentEventAggregation> eventAggregationStream
+    ) {
+        eventAggregationStream
+                .mapValues(aggEvent -> {
+                    var aggNotification = new RevocableEnabledLaneAlignmentNotificationAggregation();
+                    aggNotification.setEventAggregation(aggEvent);
+                    aggNotification.setNotificationText("MAP-SPAT Revocable/Enabled Lane Alignment Notification Aggregation, " +
+                            "Generated because of a mismatch between MAP revocable lanes and SPAT enabled lanes.");
+                    aggNotification.setNotificationHeading("MAP-SPAT Revocable/Enabled Lane Alignment Aggregation");
+                    return aggNotification;
+                })
+                .toTable(
+                        Materialized.<RevocableEnabledLaneAlignmentAggregationKey,
+                                        RevocableEnabledLaneAlignmentNotificationAggregation,
+                                        KeyValueStore<Bytes, byte[]>>as("RevocableEnabledLaneAlignmentNotificationAggregation")
+                                .withKeySerde(JsonSerdes.RevocableEnabledLaneAlignmentAggregationKey())
+                                .withValueSerde(JsonSerdes.RevocableEnabledLaneAlignmentNotificationAggregation())
+                )
+                .toStream()
+                .to(parameters.getAggNotificationTopicName(),
+                        Produced.with(
+                                JsonSerdes.RevocableEnabledLaneAlignmentAggregationKey(),
+                                JsonSerdes.RevocableEnabledLaneAlignmentNotificationAggregation(),
+                                new IntersectionIdPartitioner<>()
+                        ));
+
     }
 }
