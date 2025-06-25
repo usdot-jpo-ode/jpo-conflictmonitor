@@ -130,9 +130,6 @@ public class ConflictMonitorPropertiesTest {
         assertThat(properties.getConnectionOfTravelAssessmentAlgorithmFactory(), notNullValue());
         assertThat(properties.getConnectionOfTravelAssessmentAlgorithm(), notNullValue());
         assertThat(properties.getConnectionOfTravelAssessmentAlgorithmParameters(), notNullValue());
-        assertThat(properties.getRepartitionAlgorithmFactory(), notNullValue());
-        assertThat(properties.getRepartitionAlgorithm(), notNullValue());
-        assertThat(properties.getRepartitionAlgorithmParameters(), notNullValue());
         assertThat(properties.getIntersectionEventAlgorithmFactory(), notNullValue());
         assertThat(properties.getIntersectionEventAlgorithm(), notNullValue());
         assertThat(properties.getKafkaStateChangeEventTopic(), notNullValue());
