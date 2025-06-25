@@ -128,7 +128,6 @@ public class RevocableEnabledLaneAlignmentTopology
                         newKey.setIntersectionId(key.getIntersectionId());
                         newKey.setRevocableLaneList(value.getRevocableLaneList());
                         newKey.setEnabledLaneList(value.getEnabledLaneList());
-                        newKey.setEventState(value.getEventState());
                 return newKey;
             });
             aggregationAlgorithm.buildTopology(builder, aggKeyStream);

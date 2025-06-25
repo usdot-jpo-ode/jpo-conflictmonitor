@@ -19,13 +19,11 @@ public class RevocableEnabledLaneAlignmentEventAggregation
         super("RevocableEnabledLaneAlignmentAggregation");
     }
 
-    private J2735MovementPhaseState eventState;
     private final Set<Integer> revocableLaneList = new TreeSet<Integer>();
     private final Set<Integer> enabledLaneList = new TreeSet<Integer>();
 
     @Override
     public void update(RevocableEnabledLaneAlignmentEvent event) {
-        eventState = event.getEventState();
         if (event.getRevocableLaneList() != null) {
             revocableLaneList.addAll(event.getRevocableLaneList());
         }

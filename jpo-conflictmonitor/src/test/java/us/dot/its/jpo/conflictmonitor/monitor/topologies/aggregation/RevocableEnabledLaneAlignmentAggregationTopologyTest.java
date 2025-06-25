@@ -34,7 +34,6 @@ public class RevocableEnabledLaneAlignmentAggregationTopologyTest
                     RevocableEnabledLaneAlignmentEventAggregation,
                     RevocableEnabledLaneAlignmentAggregationTopology>{
 
-    final J2735MovementPhaseState state = J2735MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED;
     final Set<Integer> enabledLanes = Set.of(1, 2, 3);
     final Set<Integer> revocableLanes = Set.of(1, 2);
     final long timestamp = System.currentTimeMillis();
@@ -49,7 +48,6 @@ public class RevocableEnabledLaneAlignmentAggregationTopologyTest
         assertThat(resultKey.getRsuId(), equalTo(rsuId));
         assertThat(resultKey.getIntersectionId(), equalTo(intersectionId));
         assertThat(resultKey.getRegion(), equalTo(region));
-        assertThat(resultKey.getEventState(), equalTo(state));
         var resultValue = result.value;
         assertThat(resultValue.getNumberOfEvents(), equalTo(numberOfEvents));
         assertThat(resultValue.getIntersectionID(), equalTo(intersectionId));
@@ -92,7 +90,6 @@ public class RevocableEnabledLaneAlignmentAggregationTopologyTest
         event.setSource(rsuId);
         event.setIntersectionID(intersectionId);
         event.setRoadRegulatorID(region);
-        event.setEventState(state);
         event.setEnabledLaneList(enabledLanes);
         event.setRevocableLaneList(revocableLanes);
         event.setTimestamp(timestamp);
@@ -113,7 +110,6 @@ public class RevocableEnabledLaneAlignmentAggregationTopologyTest
             newKey.setIntersectionId(key.getIntersectionId());
             newKey.setRegion(key.getRegion());
             newKey.setRsuId(key.getRsuId());
-            newKey.setEventState(value.getEventState());
             return newKey;
         });
     }

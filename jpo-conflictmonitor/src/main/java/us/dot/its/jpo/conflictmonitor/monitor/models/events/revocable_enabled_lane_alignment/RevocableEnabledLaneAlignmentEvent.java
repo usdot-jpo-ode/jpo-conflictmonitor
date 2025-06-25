@@ -44,9 +44,4 @@ public class RevocableEnabledLaneAlignmentEvent extends Event {
      */
     private Set<Integer> enabledLaneList;
 
-    /**
-     * Movement Phase State from the SPAT message
-     */
-    private J2735MovementPhaseState eventState;
-
 }
