@@ -26,62 +26,62 @@ enum TimeMarkType {
 @Generated
 public class TimeChangeDetailsEvent extends Event{
 
-    /*
+    /**
      * int representing the signal group which had an invalid time change transition
      */
     private int signalGroup;
 
-    /*
+    /**
      * long representing the utc timestamp in milliseconds of the first SPaT message 
      */
     private long firstSpatTimestamp;
 
-    /*
+    /**
      * long representing the utc timestamp in milliseconds of the second SPaT message
      */
     private long secondSpatTimestamp;
 
-    /*
+    /**
      * String representing the timeMarkType of the first conflicting timeMark
      */
     private String firstTimeMarkType;
 
-    /*
+    /**
      * String representing the timeMarkType of the second conflicting timeMark
      */
     private String secondTimeMarkType;
 
-    /*
+    /**
      * long representing the time of the first conflicting time mark
      */
     private long firstConflictingTimemark;
 
-    /*
+    /**
      * long representing the time of the second conflicting time mark
      */
     private long secondConflictingTimemark;
 
-    /*
+    /**
      * J2735MovementPhaseState representing the state of the light in the first SPaT message
      */
     private J2735MovementPhaseState firstState;
 
-    /*
+    /**
      * J2735MovementPhaseState representing the state of the light in the second SPaT message
      */
     private J2735MovementPhaseState secondState;
 
-    /*
+    /**
      * long representing the utc timestamp in milliseconds of the first conflicting timemark 
      */
     private long firstConflictingUtcTimestamp;
 
-    /*
+    /**
      * long representing the utc timestamp in milliseconds of the second conflicting timemark 
      */
     private long secondConflictingUtcTimestamp;
 
-    /*
+    /**
      * String representing the source of the event. Typically the intersection ID or RSU IP address.
      */
     private String source;

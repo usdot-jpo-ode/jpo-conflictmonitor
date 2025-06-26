@@ -19,37 +19,37 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 public class SignalStateConflictEvent extends Event{
 
     // TODO rename properties, add ingress and egress lane IDs and type attributes per new specification
-    /*
+    /**
      * long representing the utc timestamp in milliseconds of when this event is generated
      */
     private long timestamp;
 
-    /*
+    /**
      * J2735MovementPhaseState indicating what the signal state of the conflicting signal is
      */
     private J2735MovementPhaseState conflictType;
 
-    /*
+    /**
      * int representing the signal group from the SPaT message of the first overlapping signal group
      */
     private int firstConflictingSignalGroup;
 
-    /*
+    /**
      * J2735MovementPhaseState from the first signal group during the conflict
      */
     private J2735MovementPhaseState firstConflictingSignalState;
 
-    /*
+    /**
      * int representing the signal group from the SPaT message of the second overlapping signal group
      */
     private int secondConflictingSignalGroup;
 
-    /*
+    /**
      * J2735MovementPhaseState from the second signal group during the conflict
      */
     private J2735MovementPhaseState secondConflictingSignalState;
 
-    /*
+    /**
      * String representing the source of the data for this event. Typically the intersection ID or RSU ip address.
      */
     private String source;

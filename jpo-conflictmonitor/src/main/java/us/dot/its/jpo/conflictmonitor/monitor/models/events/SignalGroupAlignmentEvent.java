@@ -20,22 +20,22 @@ import java.util.Set;
 @Generated
 public class SignalGroupAlignmentEvent extends Event{
 
-    /*
+    /**
      * String representing the source of this event. Typically the Intersection ID or the IP address of the RSU unit
      */
     String source;
 
-    /*
+    /**
      * long representing the UTC timestamp in milliseconds of when the SPaT and MAP message alignment error occurred.
      */
     long timestamp;
 
-    /*
+    /**
      * Set of integer signal group IDs from the SPaT message
      */
     Set<Integer> spatSignalGroupIds;
 
-    /*
+    /**
      * Set of integer signal group IDs from the MAP message
      */
     Set<Integer> mapSignalGroupIds;
