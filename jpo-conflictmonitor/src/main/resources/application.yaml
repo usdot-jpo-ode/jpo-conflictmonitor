@@ -236,6 +236,10 @@ kafka.topics:
     - name: topic.CmRevocableEnabledLaneAlignment
       cleanupPolicy: delete
       retentionMs: 300000
+    - name: topic.CmRevocableEnabledLaneAlignmentNotification
+      cleanupPolicy: compact
+    - name: topic.CmRevocableEnabledLaneAlignmentNotificationAggregation
+      cleanupPolicy: compact
 
 
 # Connection of Travel

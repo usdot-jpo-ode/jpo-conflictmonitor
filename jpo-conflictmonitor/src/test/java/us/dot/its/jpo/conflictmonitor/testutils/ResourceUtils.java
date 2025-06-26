@@ -13,7 +13,6 @@ public class ResourceUtils {
         String str;
         try {
             str = IOUtils.resourceToString(path, StandardCharsets.UTF_8);
-            log.debug("Loaded resource: {}", str);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

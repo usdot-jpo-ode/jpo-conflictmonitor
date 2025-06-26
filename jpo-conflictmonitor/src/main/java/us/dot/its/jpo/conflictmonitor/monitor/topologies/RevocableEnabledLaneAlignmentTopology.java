@@ -181,10 +181,10 @@ public class RevocableEnabledLaneAlignmentTopology
                             .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
                             .withValueSerde(JsonSerdes.RevocableEnabledLaneAlignmentNotification()))
                 .toStream()
-                .to(parameters.getOutputTopicName(), Produced.with(
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                        JsonSerdes.RevocableEnabledLaneAlignmentNotification()
-                ));
+                .to(parameters.getNotificationTopicName(),
+                        Produced.with(
+                            us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
+                            JsonSerdes.RevocableEnabledLaneAlignmentNotification()));
 
     }
 
