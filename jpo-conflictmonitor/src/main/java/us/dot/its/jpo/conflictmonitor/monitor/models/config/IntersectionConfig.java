@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
-
+/** 
+ * An Intersection Config is a subtype of Config used for configuration variables that can only be changed at a per intersection level.
+ */
 @Setter
 @Getter
 @EqualsAndHashCode(callSuper = true)
