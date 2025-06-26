@@ -14,20 +14,58 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.io.WKTWriter;
 
+/*
+ * Intersection
+ * Intersection is an internal ConflictMonitor data structure primarily used to help parse and perform geospatial evaluation on intersections.
+ */
 @Getter
 @Setter
 public class Intersection {
     
-    
+    /**
+     * List of Lane objects representing all of the ingress lanes to this intersection
+     */
     private List<Lane> ingressLanes;
+
+    /**
+     * List of lane objects representing all of the egress lanes to this intersection
+     */
     private List<Lane> egressLanes;
+
+    /**
+     * List of IntersectionLine objects representing all of the places vehicles should stop when entering the intersection
+     */
     private List<IntersectionLine> stopLines;
+
+    /**
+     * List of IntersectionLine objects representing all of the places vehicles may resume driving when leaving the intersection
+     */
     private List<IntersectionLine> startLines;
+
+    /**
+     * Coordinate representing the central reference point of the intersection. Take from the MAP message.
+     */
     private Coordinate referencePoint;
+
+    /**
+     * Integer representing the intersectionId of the intersection
+     */
     private Integer intersectionId;
+
+    /**
+     * Integer representing the roadRegulatorID of the intersection. Will be removed in a future release
+     */
     private Integer roadRegulatorId;
+
+    /**
+     * ArrayList of LaneConnection objects describing all of the ways lanes can connect to other lanes within the ConflictMonitor System
+     */
     private ArrayList<LaneConnection> laneConnections;
 
+    /**
+     * @param map ProcessedMap<LineString> object to convert to an intersection object
+     * @returns an Intersection Object representing the processed MAP
+     */
     public static Intersection fromProcessedMap(ProcessedMap<LineString> map){
 
         Intersection intersection = new Intersection();
@@ -123,6 +161,9 @@ public class Intersection {
         
     }
 
+    /**
+     * Creates Stop Lines for this intersection based upon ingress lanes
+     */
     public void updateStopLines(){
         this.stopLines = new ArrayList<IntersectionLine>();
         for(Lane lane : this.ingressLanes){
@@ -133,6 +174,9 @@ public class Intersection {
         }
     }
 
+    /**
+     * Creates start lines for this intersection based upon egress lanes
+     */
     public void updateStartLines(){
         this.startLines = new ArrayList<IntersectionLine>();
         for(Lane lane : this.egressLanes){
@@ -143,6 +187,12 @@ public class Intersection {
         }
     }
 
+    /**
+     * 
+     * @param ingressLane
+     * @param egressLane
+     * @return LaneConnection The lane connection object associated with this intersection for the provided ingress / egress lane pairs
+     */
     public LaneConnection getLaneConnection(Lane ingressLane, Lane egressLane){
         if (ingressLane == null || egressLane == null) {
             return null;
@@ -156,6 +206,11 @@ public class Intersection {
         return null;
     }
 
+    /**
+     * 
+     * @param ingressLane
+     * @return Set<Integer> a set of all signal groups associated with the provided ingressLane
+     */
     public Set<Integer> getSignalGroupsForIngressLane(Lane ingressLane) {
 
         Set<Integer> signalGroups = new HashSet<>();
@@ -170,6 +225,11 @@ public class Intersection {
         return signalGroups;
     }
 
+    /**
+     * 
+     * @param egressLane
+     * @return Set<Integer> a set of all signal groups associated with the provided ingressLane
+     */
     public Set<Integer> getSignalGroupsForEgressLane(Lane egressLane) {
 
         Set<Integer> signalGroups = new HashSet<>();
@@ -185,7 +245,11 @@ public class Intersection {
     }
 
 
-
+    /**
+     * 
+     * @param signalGroup
+     * @return ArrayList<LaneConnection> A list of all lane connections for the provided signal group
+     */
     public ArrayList<LaneConnection> getLaneConnectionBySignalGroup(int signalGroup){
         ArrayList<LaneConnection> connections = new ArrayList<>();
         for(LaneConnection laneConnection: this.laneConnections){
@@ -197,23 +261,36 @@ public class Intersection {
     }
 
 
-
+    /**
+     * Sets the ingress lanes associated with this intersection
+     * @param ingressLanes
+     */
     public void setIngressLanes(ArrayList<Lane> ingressLanes) {
         this.ingressLanes = ingressLanes;
         this.updateStopLines(); // automatically update Stop Line Locations when new ingress Lanes are assigned.
     }
 
-
+    /**
+     * Sets the egress lanes associated with this intersection
+     * @param egressLanes
+     */
     public void setEgressLanes(ArrayList<Lane> egressLanes) {
         this.egressLanes = egressLanes;
         this.updateStartLines();
     }
 
+    /**
+     * Gets the intersectionId number
+     * @return int the intersection ID number. Returns 0 if the intersection ID is not available
+     */
     public int getIntersectionId() {
         return intersectionId != null ? intersectionId : 0;
     }
 
-
+    /**
+     * 
+     * @return String a string representing the lane geometry of this intersection as a WKT string
+     */
     public String getIntersectionAsWkt() {
         WKTWriter writer = new WKTWriter(2);
         String wtkOut = "wtk\n";
@@ -235,6 +312,9 @@ public class Intersection {
 
 }
 
+/**
+ * Helper class to store an ingress / egress lane pairing
+ */
 @Getter
 @EqualsAndHashCode
 @ToString

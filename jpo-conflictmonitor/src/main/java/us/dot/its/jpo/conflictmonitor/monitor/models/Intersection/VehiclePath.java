@@ -10,8 +10,6 @@ import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.linearref.LengthIndexedLine;
-import org.locationtech.jts.linearref.LinearLocation;
-import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.slf4j.Logger;
@@ -24,25 +22,48 @@ import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
 
+/**
+ * Represents the path of a vehicle through an intersection, constructed from a sequence of BSMs.
+ * Provides methods to analyze the path, determine ingress/egress lanes, and filter BSMs based on spatial and speed criteria.
+ */
 @Getter
 @Setter
 public class VehiclePath {
 
+    /** Logger for VehiclePath operations. */
     private static final Logger logger = LoggerFactory.getLogger(VehiclePath.class);
     
+    /** The LineString representing the vehicle's path points. */
     private LineString pathPoints;
+    /** Aggregator containing the BSMs for the vehicle. */
     private BsmAggregator bsms;
+    /** The intersection associated with this vehicle path. */
     private Intersection intersection;
+    /** GeometryFactory for creating geometric objects. */
     private GeometryFactory geometryFactory;
 
+    /** The ingress lane the vehicle entered. */
     private Lane ingressLane;
+    /** The egress lane the vehicle exited. */
     private Lane egressLane;
+    /** The BSM nearest to the ingress point. */
     private OdeBsmData ingressBsm;
+    /** The BSM nearest to the egress point. */
     private OdeBsmData egressBsm;
 
+    /** Minimum distance in feet for spatial matching. */
     private double minDistanceFeet;
+    /** Heading tolerance in degrees for matching. */
     private double headingToleranceDegrees;
 
+    /**
+     * Constructs a VehiclePath using the provided BSMs, intersection, and matching parameters.
+     *
+     * @param bsms                  Aggregator containing the vehicle's BSMs
+     * @param intersection          The intersection the vehicle is traversing
+     * @param minDistanceFeet       Minimum distance in feet for spatial matching
+     * @param headingToleranceDegrees Heading tolerance in degrees for matching
+     */
     public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet, double headingToleranceDegrees){
         this.bsms = bsms;
         this.intersection = intersection;
@@ -53,6 +74,9 @@ public class VehiclePath {
         buildVehiclePath();
     }
 
+    /**
+     * Builds the vehicle path LineString from the BSMs and sets ingress/egress information.
+     */
     public void buildVehiclePath(){
         Coordinate referencePoint = this.intersection.getReferencePoint();
 
@@ -82,6 +106,9 @@ public class VehiclePath {
         this.calculateEgress();
     }
 
+    /**
+     * Calculates and sets the ingress lane and BSM for this vehicle path.
+     */
     public void calculateIngress(){
         if (intersection.getStopLines() == null) return;
         LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStopLines(), minDistanceFeet,
@@ -92,6 +119,9 @@ public class VehiclePath {
         }
     }
 
+    /**
+     * Calculates and sets the egress lane and BSM for this vehicle path.
+     */
     public void calculateEgress(){
         if (intersection.getStartLines() == null) return;
         LineVehicleIntersection match = findLineVehicleIntersection(this.intersection.getStartLines(), minDistanceFeet,
@@ -101,7 +131,6 @@ public class VehiclePath {
             this.egressBsm = match.getBsm();
         }
     }
-
 
     /**
      * Find the stop or start line point that the vehicle path passes closest to
@@ -119,7 +148,6 @@ public class VehiclePath {
         double minDistance = Double.MAX_VALUE;
         OdeBsmData matchingBsm = null;
         IntersectionLine bestLine = null;
-
 
         for(IntersectionLine line : lines){
             if(this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)){
@@ -145,8 +173,6 @@ public class VehiclePath {
             }
         }
 
-
-
         if(bestLine != null){
             return new LineVehicleIntersection(bestLine.getLane(), matchingBsm);
         } else{
@@ -155,10 +181,11 @@ public class VehiclePath {
     }
 
     /**
-     * Find the BSMs that are in the ingress lane and within the upstream search distance
-     * @param lane - The ingress lane to search
-     * @param upstreamSearchDistanceFeet - The upstream distance along the lane to search
-     * @return List<OdeBsmData>
+     * Finds BSMs that are in the specified ingress lane and within the upstream search distance.
+     *
+     * @param lane The ingress lane to search
+     * @param upstreamSearchDistanceFeet The upstream distance along the lane to search (in feet)
+     * @return List of OdeBsmData within the lane and distance
      */
     public List<OdeBsmData> findBsmsInIngressLane(Lane lane, final double upstreamSearchDistanceFeet) {
         final double upstreamSearchDistanceCm = CoordinateConversion.feetToCM(upstreamSearchDistanceFeet);
@@ -180,8 +207,6 @@ public class VehiclePath {
         for (OdeBsmData bsm : this.bsms.getBsms()) {
             Point p = this.pathPoints.getPointN(index);
 
-            
-
             if (buffer.contains(p)) {
                 bsmsInLane.add(bsm);
             }
@@ -192,14 +217,12 @@ public class VehiclePath {
     }
 
     /**
-     * Filter the BSMs to include only those during a stoppage.
+     * Filters the provided BSMs to include only those during a stoppage.
+     * Finds the first and last BSMs below the stop speed threshold and returns all BSMs between them.
      *
-     * <p>Find the first BSM where the speed is below the threshold, and the last BSM where the speed is below the threshold,
-     * and all the BSMs between those two by time.
-     *
-     * @param bsmList
-     * @param stopSpeedThresholdMPH
-     * @return
+     * @param bsmList List of BSMs to filter
+     * @param stopSpeedThresholdMPH Speed threshold in MPH to consider a vehicle stopped
+     * @return List of OdeBsmData representing the stoppage period
      */
     public List<OdeBsmData> filterStoppedBsms(final List<OdeBsmData> bsmList, final double stopSpeedThresholdMPH) {
         List<Integer> stoppedBsmIndices = new ArrayList<>();
@@ -237,8 +260,11 @@ public class VehiclePath {
         return filteredBsmList;
     }
 
-
-    
+    /**
+     * Returns the vehicle path as a Well-Known Text (WKT) string.
+     *
+     * @return WKT representation of the vehicle path
+     */
     public String getVehiclePathAsWkt() {
         WKTWriter writer = new WKTWriter(2);
         String wtkOut = "wtk\n";
@@ -249,6 +275,11 @@ public class VehiclePath {
         return wtkOut;
     }
 
+    /**
+     * Returns a string representation of the VehiclePath.
+     *
+     * @return String describing the number of points in the path
+     */
     @Override
     public String toString(){
         return "Vehicle Path: Points: " + this.pathPoints.getNumPoints();
