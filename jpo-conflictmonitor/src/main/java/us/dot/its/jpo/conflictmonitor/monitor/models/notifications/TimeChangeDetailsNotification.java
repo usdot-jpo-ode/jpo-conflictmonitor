@@ -1,19 +1,31 @@
-
-
 package us.dot.its.jpo.conflictmonitor.monitor.models.notifications;
-
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 
+/**
+ * Notification representing a time change details event.
+ * Contains the event data and provides a unique identifier for the notification.
+ */
 public class TimeChangeDetailsNotification extends Notification {
+
+    /**
+     * Constructs a TimeChangeDetailsNotification with the notification type set.
+     */
     public TimeChangeDetailsNotification() {
         super("TimeChangeDetailsNotification");
     }
 
-    @Getter private TimeChangeDetailsEvent event;
+    /** The associated TimeChangeDetailsEvent for this notification. */
+    @Getter
+    private TimeChangeDetailsEvent event;
 
+    /**
+     * Sets the event for this notification and updates intersection and regulator IDs.
+     *
+     * @param event the TimeChangeDetailsEvent to associate with this notification
+     */
     public void setEvent(TimeChangeDetailsEvent event){
         if(event != null){
             this.event = event;
@@ -23,6 +35,11 @@ public class TimeChangeDetailsNotification extends Notification {
         }
     }
 
+    /**
+     * Returns a unique identifier for this notification, based on type, regulator ID, intersection ID, and signal group.
+     *
+     * @return unique identifier string for this notification
+     */
     @Override
     @JsonIgnore
     public String getUniqueId() {
