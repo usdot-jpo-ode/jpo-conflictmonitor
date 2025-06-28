@@ -443,7 +443,7 @@ public class MonitorServiceControllerTest {
         // Check all algorithms were started
         verify(mapValidationAlgorithm, times(1)).start();
         verify(spatValidationAlgorithm, times(1)).start();
-        verify(spatTimeChangeDetailsAlgorithm, times(1)).start();
+//        verify(spatTimeChangeDetailsAlgorithm, times(1)).start();
         verify(mapSpatMessageAssessmentAlgorithm, times(1)).start();
         //verify(bsmEventAlgorithm, times(1)).start();
         //verify(messageIngestAlgorithm, times(1)).start();

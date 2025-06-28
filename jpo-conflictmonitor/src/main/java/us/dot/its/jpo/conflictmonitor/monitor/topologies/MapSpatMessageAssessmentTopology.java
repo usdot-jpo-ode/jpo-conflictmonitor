@@ -16,6 +16,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assess
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
@@ -52,6 +54,7 @@ public class MapSpatMessageAssessmentTopology
     private SignalGroupAlignmentAggregationStreamsAlgorithm signalGroupAlignmentAggregationAlgorithm;
     private SignalStateConflictAggregationStreamsAlgorithm signalStateConflictAggregationAlgorithm;
     private RevocableEnabledLaneAlignmentStreamsAlgorithm revocableEnabledLaneAlignmentAlgorithm;
+    private SpatTimeChangeDetailsStreamsAlgorithm spatTimeChangeDetailsAlgorithm;
 
     @Override
     protected Logger getLogger() {
@@ -113,7 +116,9 @@ public class MapSpatMessageAssessmentTopology
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
-
+        // Plug in SPAT Time change details algorithm
+        // SPAT Time Change doesn't require MAP, but it can exclude revocable/enabled lanes if present
+        spatTimeChangeDetailsAlgorithm.buildTopology(builder, processedSpatStream, mapKTable);
 
 
         // For intersection reference alignment, re-key to RSU-only key to test if intersection ID and region match between
@@ -654,11 +659,21 @@ public class MapSpatMessageAssessmentTopology
 
     @Override
     public void setRevocableEnabledLaneAlignmentAlgorithm(RevocableEnabledLaneAlignmentAlgorithm revocableEnabledLaneAlignmentAlgorithm) {
-        // Enforce the algorithm being a Streamws algorithm
+        // Enforce the algorithm being a Streams algorithm
         if (revocableEnabledLaneAlignmentAlgorithm instanceof RevocableEnabledLaneAlignmentStreamsAlgorithm streamsAlgorithm) {
             this.revocableEnabledLaneAlignmentAlgorithm = streamsAlgorithm;
         } else {
             throw new IllegalArgumentException("Revocable Enabled Lane Alignment Algorithm must be a Streams algorithm");
+        }
+    }
+
+    @Override
+    public void setSpatTimeChangeDetailsAlgorithm(SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (spatTimeChangeDetailsAlgorithm instanceof SpatTimeChangeDetailsStreamsAlgorithm streamsAlgorithm) {
+            this.spatTimeChangeDetailsAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Spat Time Change Details Algorithm must be a Streams algorithm");
         }
     }
 }

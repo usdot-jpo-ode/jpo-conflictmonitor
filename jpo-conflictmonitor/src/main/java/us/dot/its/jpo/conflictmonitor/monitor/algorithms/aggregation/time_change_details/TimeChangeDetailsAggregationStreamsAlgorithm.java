@@ -4,6 +4,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.Aggregation
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEventAggregation;
 
+
 public interface TimeChangeDetailsAggregationStreamsAlgorithm
     extends
         TimeChangeDetailsAggregationAlgorithm,
@@ -11,4 +12,6 @@ public interface TimeChangeDetailsAggregationStreamsAlgorithm
                 TimeChangeDetailsAggregationKey,
                 TimeChangeDetailsEvent,
                 TimeChangeDetailsEventAggregation> {
+
+
 }

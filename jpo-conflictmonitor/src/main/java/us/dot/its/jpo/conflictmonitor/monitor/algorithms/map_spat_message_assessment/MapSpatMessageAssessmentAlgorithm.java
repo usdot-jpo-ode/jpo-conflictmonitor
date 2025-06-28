@@ -5,6 +5,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_me
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 
 public interface MapSpatMessageAssessmentAlgorithm extends Algorithm<MapSpatMessageAssessmentParameters>{
 
@@ -12,6 +13,7 @@ public interface MapSpatMessageAssessmentAlgorithm extends Algorithm<MapSpatMess
     void setSignalGroupAlignmentAggregationAlgorithm(SignalGroupAlignmentAggregationAlgorithm signalGroupAlignmentAggregationAlgorithm);
     void setSignalStateConflictAggregationAlgorithm(SignalStateConflictAggregationAlgorithm signalStateConflictAggregationAlgorithm);
     void setRevocableEnabledLaneAlignmentAlgorithm(RevocableEnabledLaneAlignmentAlgorithm revocableEnabledLaneAlignmentAlgorithm);
+    void setSpatTimeChangeDetailsAlgorithm(SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgorithm);
 }
 
 
