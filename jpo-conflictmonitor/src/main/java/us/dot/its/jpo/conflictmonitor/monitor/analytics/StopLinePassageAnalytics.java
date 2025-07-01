@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageConstants.*;
 
+import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,17 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmTimestampExtractor;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLinePassageEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_CROSSES_ALGORITHM)
 public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
@@ -41,7 +47,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         }
 
 
-        OdeBsmData bsm = path.getIngressBsm();
+        ProcessedBsm<Point> bsm = path.getIngressBsm();
 
 
         long bsmTime = BsmTimestampExtractor.getBsmTimestamp(bsm);
@@ -91,7 +97,8 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
 
         J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
-        var optCoreData = BsmUtils.getCoreData(bsm);
+        Optional<BsmProperties> optProperties = BsmUtils.getProperties(bsm);
+        CoordinateXY position = BsmUtils.getPosition(bsm);
 
         StopLinePassageEvent event = new StopLinePassageEvent();
         event.setTimestamp(bsmTime);
@@ -105,18 +112,19 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());
         }
-        if (optCoreData.isPresent()) {
-            var coreData = optCoreData.get();
-            event.setVehicleID(coreData.getId());
-            if (coreData.getPosition() != null) {
-                event.setLongitude(coreData.getPosition().getLongitude().doubleValue());
-                event.setLatitude(coreData.getPosition().getLatitude().doubleValue());
+
+        event.setLongitude(position.getX());
+        event.setLatitude(position.getY());
+
+        if (optProperties.isPresent()) {
+            BsmProperties properties = optProperties.get();
+            event.setVehicleID(properties.getId());
+
+            if (properties.getHeading() != null) {
+                event.setHeading(properties.getHeading().doubleValue());
             }
-            if (coreData.getHeading() != null) {
-                event.setHeading(coreData.getHeading().doubleValue());
-            }
-            if (coreData.getSpeed() != null) {
-                event.setSpeed(coreData.getSpeed().doubleValue());
+            if (properties.getSpeed() != null) {
+                event.setSpeed(properties.getSpeed().doubleValue());
             }
         }
         event.setSignalGroup(signalGroup);
@@ -136,7 +144,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
     private Integer getMatchingSignalGroup(Set<Integer> ingressGroups, Set<Integer> egressGroups){
         for(Integer ingressGroupID: ingressGroups){
             for(Integer egressGroupID: egressGroups){
-                if(ingressGroupID == egressGroupID){
+                if(Objects.equals(ingressGroupID, egressGroupID)){
                     return ingressGroupID;
                 }
             }

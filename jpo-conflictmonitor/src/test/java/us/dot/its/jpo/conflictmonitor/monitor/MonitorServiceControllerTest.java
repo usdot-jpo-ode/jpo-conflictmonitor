@@ -60,9 +60,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.message_ingest.MessageI
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.notification.NotificationStreamsAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionAlgorithmFactory;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionParameters;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.repartition.RepartitionStreamsAlgorithm;
+
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.event_state_progression.EventStateProgressionStreamsAlgorithm;
@@ -122,9 +120,7 @@ public class MonitorServiceControllerTest {
     ConfigInitializer configInitializer;
 
 
-    @Mock RepartitionAlgorithmFactory repartitionAlgorithmFactory;
-    @Mock RepartitionStreamsAlgorithm repartitionAlgorithm;
-    RepartitionParameters repartitionParameters = new RepartitionParameters();
+
 
     @Mock NotificationAlgorithmFactory notificationAlgorithmFactory;
     @Mock NotificationStreamsAlgorithm notificationAlgorithm;
@@ -255,12 +251,7 @@ public class MonitorServiceControllerTest {
     public void testConstructor() {
 
         final String defaultAlgo = "default";
-        
-        when(conflictMonitorProperties.getRepartitionAlgorithmFactory()).thenReturn(repartitionAlgorithmFactory);
-        when(conflictMonitorProperties.getRepartitionAlgorithm()).thenReturn(defaultAlgo);
-        when(repartitionAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(repartitionAlgorithm);
-        when(conflictMonitorProperties.getRepartitionAlgorithmParameters()).thenReturn(repartitionParameters);
-        
+
         when(conflictMonitorProperties.getNotificationAlgorithmFactory()).thenReturn(notificationAlgorithmFactory);
         when(conflictMonitorProperties.getNotificationAlgorithm()).thenReturn(defaultAlgo);
         when(notificationAlgorithmFactory.getAlgorithm(defaultAlgo)).thenReturn(notificationAlgorithm);
@@ -428,7 +419,6 @@ public class MonitorServiceControllerTest {
         assertThat(monitorServiceController, notNullValue());
 
         // Check all algorithms were started
-        verify(repartitionAlgorithm, times(1)).start();
         verify(mapValidationAlgorithm, times(1)).start();
         verify(spatValidationAlgorithm, times(1)).start();
         verify(spatTimeChangeDetailsAlgorithm, times(1)).start();

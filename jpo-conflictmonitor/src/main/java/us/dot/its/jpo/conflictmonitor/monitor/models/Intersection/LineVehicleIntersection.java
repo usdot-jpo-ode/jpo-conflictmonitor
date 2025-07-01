@@ -3,6 +3,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.ode.model.OdeBsmData;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 
 /**
  * Represents the intersection of a vehicle (via BSM) with a lane line.
@@ -18,7 +20,7 @@ public class LineVehicleIntersection {
     /**
      * The BSM nearest to the stop/start point
      */
-    private OdeBsmData bsm;
+    private ProcessedBsm<Point> bsm;
 
     /**
      * Constructs a LineVehicleIntersection with the specified lane and BSM.
@@ -26,7 +28,7 @@ public class LineVehicleIntersection {
      * @param lane the lane involved in the intersection
      * @param bsm  the BSM nearest to the stop/start point
      */
-    public LineVehicleIntersection(Lane lane, OdeBsmData bsm) {
+    public LineVehicleIntersection(Lane lane, ProcessedBsm<Point> bsm) {
         this.lane = lane;
         this.bsm = bsm;
     }

@@ -18,14 +18,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.StopLineStopEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 
 @Component(DEFAULT_SIGNAL_STATE_VEHICLE_STOPS_ALGORITHM)
 public class StopLineStopAnalytics implements StopLineStopAlgorithm {
@@ -46,14 +46,14 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
         }
 
         // Find stop events within the stopping search distance along the ingress lane.
-        List<OdeBsmData> bsmList = path.findBsmsInIngressLane(ingressLane, parameters.getUpstreamSearchDistance());
-        List<OdeBsmData> stoppedBsmList = path.filterStoppedBsms(bsmList, parameters.getStopSpeedThreshold());
+        List<ProcessedBsm<Point>> bsmList = path.findBsmsInIngressLane(ingressLane, parameters.getUpstreamSearchDistance());
+        List<ProcessedBsm<Point>> stoppedBsmList = path.filterStoppedBsms(bsmList, parameters.getStopSpeedThreshold());
         if (stoppedBsmList.size() < 2) {
             logger.info("Fewer than 2 stopped BSMs found for path {}, can't generate StopLineStop event", path);
             return null;
         }
-        OdeBsmData firstStoppedBsm = stoppedBsmList.get(0);
-        OdeBsmData lastStoppedBsm = stoppedBsmList.get(stoppedBsmList.size() - 1);
+        ProcessedBsm<Point> firstStoppedBsm = stoppedBsmList.getFirst();
+        ProcessedBsm<Point> lastStoppedBsm = stoppedBsmList.getLast();
 
         long firstTimestamp = BsmTimestampExtractor.getBsmTimestamp(firstStoppedBsm);
         logger.info("First stopped BSM timestamp {}", firstTimestamp);

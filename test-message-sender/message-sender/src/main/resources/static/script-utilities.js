@@ -138,6 +138,26 @@ class ScriptUtilities {
     }
 
     //
+    // Generates a line of text for a script ProcessedBsm message.
+    //
+    // BSM,[relative timestamp],[ODE JSON BSM message]
+    // ProcessedBsm;[RSU ID];[Log ID];[],[relative timestamp],[ProcessedSpat message]
+    //
+    buildScriptFromProcessedBsm(processedBsm) {
+        const scriptBsm = JSON.parse(JSON.stringify(processedBsm));
+        const time = this.relativeTimestamp(scriptBsm.properties.odeReceivedAt);
+        scriptBsm.properties.odeReceivedAt = this.ISO_DATE_TIME;
+        scriptBsm.properties.secMark = this.MILLI_OF_MINUTE;
+        scriptBsm.properties.id = this.TEMP_ID;
+        const strBsm = JSON.stringify(scriptBsm);
+        return "ProcessedBsm;"
+            + scriptBsm.properties.originIp + ";"
+            + scriptBsm.properties.logName + ","
+            + time + ","
+            + strBsm;
+    }
+
+    //
     // Combine an array of lines into a script file
     //
     // Input: An array of strings
