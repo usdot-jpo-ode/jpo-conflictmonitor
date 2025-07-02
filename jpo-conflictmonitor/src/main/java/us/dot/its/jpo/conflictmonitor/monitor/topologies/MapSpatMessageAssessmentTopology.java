@@ -218,8 +218,6 @@ public class MapSpatMessageAssessmentTopology
             buildIntersectionReferenceAlignmentNotificationTopology(intersectionReferenceAlignmentEventStream);
         }
 
-
-
         // Join Spats with MAP KTable on RsuIntersectionKey for the Signal Group Alignment check, and Revocable
         // Enabled Lane Alignment check, which presume that the Spat and Map are from the same intersection
         KStream<RsuIntersectionKey, SpatMap> spatJoinedMap = processedSpatStream
