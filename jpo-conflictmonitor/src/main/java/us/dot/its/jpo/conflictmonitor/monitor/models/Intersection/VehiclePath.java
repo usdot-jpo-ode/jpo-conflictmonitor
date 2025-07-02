@@ -253,8 +253,6 @@ public class VehiclePath {
                 continue;
             }
             double speed = optionalSpeed.get();
-            // logger.info("Evaluating BSM Speed:" + speed + "Stop Speed Threshold:" +
-            // stopSpeedThresholdMPH);
             if (speed <= stopSpeedThresholdMPH) {
                 stoppedBsmIndices.add(i);
             }
