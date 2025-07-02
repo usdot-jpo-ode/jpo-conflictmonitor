@@ -1,6 +1,5 @@
 package us.dot.its.jpo.conflictmonitor.monitor.processors.timestamp_deltas;
 
-import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.kafka.streams.KeyValue;

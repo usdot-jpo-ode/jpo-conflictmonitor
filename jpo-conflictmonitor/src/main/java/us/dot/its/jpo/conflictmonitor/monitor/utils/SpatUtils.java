@@ -60,7 +60,7 @@ public class SpatUtils {
     }
 
     /**
-     * Filter SPATs between two timestamps.
+     * Generate string describing SPaT timing for a given signal group across a list of SPATs.
      * @param spats - List of SPATs, assumed to be ordered by timestamp
      * @param signalGroupId - signal group to describe
      * @return A human readable string representing time timing deltas for a given spat and the provided signal group Id.

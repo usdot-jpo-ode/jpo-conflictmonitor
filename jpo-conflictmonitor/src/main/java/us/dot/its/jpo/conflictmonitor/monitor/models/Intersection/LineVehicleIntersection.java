@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 

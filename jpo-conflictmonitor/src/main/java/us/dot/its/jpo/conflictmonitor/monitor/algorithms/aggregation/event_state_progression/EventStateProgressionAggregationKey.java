@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_stat
 
 import lombok.*;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 /**

@@ -236,7 +236,7 @@ public class VehiclePath {
      * @param bsmList               List of BSMs to filter
      * @param stopSpeedThresholdMPH Speed threshold in MPH to consider a vehicle
      *                              stopped
-     * @return List of OdeBsmData representing the stoppage period
+     * @return List of ProcessedBsm<Point> representing the stoppage period
      */
     public List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> filterStoppedBsms(
             final List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> bsmList,

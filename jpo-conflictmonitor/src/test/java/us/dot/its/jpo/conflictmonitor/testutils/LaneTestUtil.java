@@ -14,7 +14,6 @@ import us.dot.its.jpo.ode.plugin.j2735.J2735NodeOffsetPointXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735NodeXY;
 import us.dot.its.jpo.ode.plugin.j2735.J2735Node_XY;
 import us.dot.its.jpo.ode.plugin.j2735.OdePosition3D;
-import us.dot.its.jpo.ode.plugin.j2735.J2735NodeXY;
 
 /**
  * Helper methods to generate lane test data.

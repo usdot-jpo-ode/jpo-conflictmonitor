@@ -23,8 +23,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -35,8 +33,6 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 @EnableConfigurationProperties(ConflictMonitorProperties.class)
 public class ConflictMonitorApplication {
-
-   private static final Logger logger = LoggerFactory.getLogger(ConflictMonitorApplication.class);
 
    static final int DEFAULT_NO_THREADS = 10;
    static final String DEFAULT_SCHEMA = "default";

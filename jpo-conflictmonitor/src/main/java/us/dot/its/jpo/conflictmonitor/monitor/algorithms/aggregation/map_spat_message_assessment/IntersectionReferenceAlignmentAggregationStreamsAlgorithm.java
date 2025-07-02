@@ -3,7 +3,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_m
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.AggregationStreamsAlgorithmInterface;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEventAggregation;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 
 public interface IntersectionReferenceAlignmentAggregationStreamsAlgorithm
     extends
