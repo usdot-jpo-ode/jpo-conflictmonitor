@@ -133,7 +133,7 @@ public class ConnectionOfTravelAggregator {
 
     /**
      * @deprecated
-     * @returns long representing the utc millisecond timestamp of this event
+     * @return long representing the utc millisecond timestamp of this event
      */
     public long getAggregatorCreationTime() {
         return aggregatorCreationTime;
@@ -149,7 +149,7 @@ public class ConnectionOfTravelAggregator {
 
     /**
      * Converts this Object to a JSON string representation
-     * @returns String representing this object
+     * @return String representing this object
      */
     @Override
     public String toString() {

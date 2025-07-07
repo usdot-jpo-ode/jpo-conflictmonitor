@@ -63,8 +63,8 @@ public class Intersection {
     private ArrayList<LaneConnection> laneConnections;
 
     /**
-     * @param map ProcessedMap<LineString> object to convert to an intersection object
-     * @returns an Intersection Object representing the processed MAP
+     * @param map {@code ProcessedMap<LineString>} object to convert to an intersection object
+     * @return an Intersection Object representing the processed MAP
      */
     public static Intersection fromProcessedMap(ProcessedMap<LineString> map){
 
@@ -209,7 +209,7 @@ public class Intersection {
     /**
      * 
      * @param ingressLane
-     * @return Set<Integer> a set of all signal groups associated with the provided ingressLane
+     * @return {@code Set<Integer>} a set of all signal groups associated with the provided ingress lane.
      */
     public Set<Integer> getSignalGroupsForIngressLane(Lane ingressLane) {
 
@@ -228,7 +228,7 @@ public class Intersection {
     /**
      * 
      * @param egressLane
-     * @return Set<Integer> a set of all signal groups associated with the provided ingressLane
+     * @return {@code Set<Integer>} a set of all signal groups associated with the provided ingress lane.
      */
     public Set<Integer> getSignalGroupsForEgressLane(Lane egressLane) {
 
@@ -248,7 +248,7 @@ public class Intersection {
     /**
      * 
      * @param signalGroup
-     * @return ArrayList<LaneConnection> A list of all lane connections for the provided signal group
+     * @return {@code ArrayList<LaneConnection>} A list of all lane connections for the provided signal group
      */
     public ArrayList<LaneConnection> getLaneConnectionBySignalGroup(int signalGroup){
         ArrayList<LaneConnection> connections = new ArrayList<>();

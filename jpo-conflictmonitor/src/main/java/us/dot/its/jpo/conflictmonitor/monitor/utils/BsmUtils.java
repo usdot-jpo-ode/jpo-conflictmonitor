@@ -36,7 +36,7 @@ public class BsmUtils {
 
     /** 
      * @param bsm OdeBsmData object to extract the heading from. If the BSM is missing a heading, no value will be populated into the optional. 
-     * @return Optional<Double> representing the heading of the vehicle from the BSM
+     * @return {@code Optional<Double>} representing the heading of the vehicle from the BSM
      */
     public static Optional<Double> getHeading(OdeBsmData bsm) {
         Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);
@@ -72,7 +72,7 @@ public class BsmUtils {
     /** 
      * This function safely extracts the J2735BsmCoreData object from the supplied OdeBsmData object.
      * @param bsm OdeBsmData object to extract the position from. 
-     * @return Optional<J2735BsmCoreData> Returns an Optional<J2735BsmCoreData> If the BSM doesn't have a defined position, this method returns an empty Optional.
+     * @return {@code Optional<J2735BsmCoreData>} Returns an {@code Optional<J2735BsmCoreData>} If the BSM doesn't have a defined position, this method returns an empty Optional.
      */
     public static Optional<J2735BsmCoreData> getCoreData(OdeBsmData bsm) {
         Optional<J2735Bsm> optionalBsm = getJ2735Bsm(bsm);
@@ -90,7 +90,7 @@ public class BsmUtils {
     /** 
      * This function extracts the speed of a BSM and converts it to Miles per Hour
      * @param bsm OdeBsmData object to extract the speed from from. 
-     * @return Optional<J2735BsmCoreData> Returns an Optional<double> where the double represents the speed. If the BSM doesn't have a defined speed, this method returns an empty Optional.
+     * @return {@code Optional<J2735BsmCoreData>} Returns an {@code Optional<double>} where the double represents the speed. If the BSM doesn't have a defined speed, this method returns an empty Optional.
      */
     public static Optional<Double> getSpeedMPH(OdeBsmData bsm) {
         Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);
@@ -109,7 +109,7 @@ public class BsmUtils {
     /** 
      * This function extracts the vehicleID of a BSM.
      * @param bsm OdeBsmData object to extract the vehicleID from from. 
-     * @return Optional<J2735BsmCoreData> Returns an Optional<String> where the string represents the vehicleID. If the BSM doesn't have a defined vehicleID, this method returns an empty Optional.
+     * @return {@code Optional<J2735BsmCoreData>} Returns an {@code Optional<String>} where the string represents the vehicleID. If the BSM doesn't have a defined vehicleID, this method returns an empty Optional.
      */
     public static String getVehicleId(OdeBsmData bsm) {
         Optional<J2735BsmCoreData> optionalCoreData = getCoreData(bsm);

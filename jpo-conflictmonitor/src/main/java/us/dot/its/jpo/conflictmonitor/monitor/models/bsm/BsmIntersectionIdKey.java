@@ -22,7 +22,7 @@ public class BsmIntersectionIdKey extends RsuIntersectionKey {
     public BsmIntersectionIdKey() {}
 
     /** 
-     * @param bsmid The vehicle ID of the BSM.
+     * @param bsmId The vehicle ID of the BSM.
      * @param rsuId The IP address of the RSU to use
      * @param intersectionId The intersection ID of a BSM inside of an intersection. Use -1 if vehicle is not inside of an intersection.
      * @param intersectionId the intersection Id the BSM was inside. Use -1 if BSM is not in an intersection
@@ -33,7 +33,7 @@ public class BsmIntersectionIdKey extends RsuIntersectionKey {
     }
 
     /** 
-     * @param bsmid The vehicle ID of the BSM.
+     * @param bsmId The vehicle ID of the BSM.
      * @param rsuId The IP address of the RSU to use
      * @param intersectionId The intersection ID of a BSM inside of an intersection. Use -1 if vehicle is not inside of an intersection.
      * @param region The region a BSM is inside of. Regions are gradually being deprecated. Use Alternate constructor without region instead.

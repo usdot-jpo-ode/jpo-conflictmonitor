@@ -6,30 +6,41 @@ import org.rocksdb.BlockBasedTableConfig;
 import org.rocksdb.CompressionType;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 
 /**
  * Bounded memory configuration for RocksDB for all topologies.
- * <p>References:
+ * 
+ * <p><strong>References:</strong></p>
  * <ul>
- *     <li><a href="https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb">Confluent: RocksDB Memory Management</a></li>
- *     <li><a href="https://docs.confluent.io/platform/current/streams/developer-guide/config-streams.html#rocksdb-config-setter">Confluent: RocksDB Config Setter</a></li>
- * </ul></p>
- * <p>Configured using environment variables:
+ *     <li><a href="https://docs.confluent.io/platform/current/streams/developer-guide/memory-mgmt.html#rocksdb">
+ *         Confluent: RocksDB Memory Management</a></li>
+ *     <li><a href="https://docs.confluent.io/platform/current/streams/developer-guide/config-streams.html#rocksdb-config-setter">
+ *         Confluent: RocksDB Config Setter</a></li>
+ * </ul>
+ * 
+ * <p><strong>Configured using environment variables:</strong></p>
  * <dl>
- *     <dt>ROCKSDB_TOTAL_OFF_HEAP_MEMORY</dt><dd>Total block cache size</dd>
- *     <dt>ROCKSDB_INDEX_FILTER_BLOCK_RATIO</dt><dd>Fraction of the block cache to use for high priority blocks (index
- *     and filter blocks).</dd>
- *     <dt>ROCKSDB_TOTAL_MEMTABLE_MEMORY</dt><dd>Write buffer size, include in block cache</dd>
- *     <dt>ROCKSDB_BLOCK_SIZE</dt><dd>{@link org.rocksdb.BlockBasedTableConfig#blockSize()}, Default 4KB</dd>
- *     <dt>ROCKSDB_N_MEMTABLES</dt><dd>{@link org.rocksdb.Options#maxWriteBufferNumber()}, Default 2</dd>
- *     <dt>ROCKSDB_MEMTABLE_SIZE</dt><dd>{@link org.rocksdb.Options#writeBufferSize()}, Default 64MB</dd>
+ *     <dt>ROCKSDB_TOTAL_OFF_HEAP_MEMORY</dt>
+ *     <dd>Total block cache size</dd>
+ *
+ *     <dt>ROCKSDB_INDEX_FILTER_BLOCK_RATIO</dt>
+ *     <dd>Fraction of the block cache to use for high priority blocks (index and filter blocks).</dd>
+ *
+ *     <dt>ROCKSDB_TOTAL_MEMTABLE_MEMORY</dt>
+ *     <dd>Write buffer size, included in block cache</dd>
+ *
+ *     <dt>ROCKSDB_BLOCK_SIZE</dt>
+ *     <dd>{@link org.rocksdb.BlockBasedTableConfig#blockSize()}, Default 4KB</dd>
+ *
+ *     <dt>ROCKSDB_N_MEMTABLES</dt>
+ *     <dd>{@link org.rocksdb.Options#maxWriteBufferNumber()}, Default 2</dd>
+ *
+ *     <dt>ROCKSDB_MEMTABLE_SIZE</dt>
+ *     <dd>{@link org.rocksdb.Options#writeBufferSize()}, Default 64MB</dd>
  * </dl>
- * </p>
  */
 @Slf4j
 public class BoundedMemoryRocksDBConfig implements RocksDBConfigSetter {

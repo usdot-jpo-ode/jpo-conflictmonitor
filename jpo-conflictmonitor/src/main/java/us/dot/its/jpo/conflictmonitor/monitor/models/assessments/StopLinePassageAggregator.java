@@ -107,7 +107,6 @@ public class StopLinePassageAggregator {
         assessment.setIntersectionID(intersectionID);
         assessment.setRoadRegulatorID(roadRegulatorID);
         assessment.setStopLinePassageAssessmentGroup(assessmentGroups);
-        assessment.setTimestamp(ZonedDateTime.now().toInstant().toEpochMilli());
 
         return assessment;
     }
@@ -122,7 +121,7 @@ public class StopLinePassageAggregator {
 
     /**
      * @deprecated
-     * @returns long representing the utc millisecond timestamp of this event
+     * @return long representing the utc millisecond timestamp of this event
      */
     public long getAggregatorCreationTime() {
         return aggregatorCreationTime;
@@ -138,7 +137,7 @@ public class StopLinePassageAggregator {
 
     /**
      * Converts this Object to a JSON string representation
-     * @returns String representing this object
+     * @return String representing this object
      */
     @Override
     public String toString() {

@@ -66,7 +66,9 @@ public abstract class Assessment{
     public Assessment(){}
 
     /**
-     * @param A string representing what type of assessment this object represents
+     * Assessments are data structures used by the conflict monitor to evaluate the state of an intersection over time. Assessments are generated from a series of vehicle events over a rolling time window.
+     * The parent Assessment class should not be created on its own, but rather should be utilized through one of the child subclasses.
+     * @param assessmentType string representing what type of assessment this object represents
      */
     public Assessment(String assessmentType){
         this.assessmentType = assessmentType;
@@ -75,7 +77,7 @@ public abstract class Assessment{
 
     /**
      * Converts this Object to a JSON string representation
-     * @returns String representing this object
+     * @return String representing this object
      */
     @Override
     public String toString() {

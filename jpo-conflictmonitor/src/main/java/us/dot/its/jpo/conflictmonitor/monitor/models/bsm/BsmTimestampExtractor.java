@@ -17,7 +17,7 @@ public class BsmTimestampExtractor implements TimestampExtractor {
     private static final Logger logger = LoggerFactory.getLogger(BsmTimestampExtractor.class);
 
     /** 
-     * @param ConsumerRecord<Object,Object> A Kafka consumer record. The value of this record should be a BSM message
+     * @param record A Kafka consumer record. The value of this record should be a BSM message
      * @param partitionTime A UTC timestamp in milliseconds of when the record was added to the Kafka partition. 
      * @return a long represting the UTC timestamp in milliseconds from the consumer record. If the record type is a BSM the BSM time used. Otherwise the partition time is used.
      */

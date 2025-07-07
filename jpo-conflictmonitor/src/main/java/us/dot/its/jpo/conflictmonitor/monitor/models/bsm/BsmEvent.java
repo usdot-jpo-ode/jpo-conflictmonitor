@@ -40,7 +40,7 @@ public class BsmEvent {
     /** 
      * Creates a new BsmEvent object with the supplied starting and ending BSMs. 
      * @param startingBsm The first BSM included in this event
-     * @param endingBSM The last BSM included in this event
+     * @param endingBsm The last BSM included in this event
      */
     public BsmEvent(OdeBsmData startingBsm, OdeBsmData endingBsm){
         this.startingBsm = startingBsm;
