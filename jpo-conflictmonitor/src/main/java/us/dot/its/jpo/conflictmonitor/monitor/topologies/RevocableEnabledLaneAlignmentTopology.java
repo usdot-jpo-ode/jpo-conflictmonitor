@@ -73,19 +73,9 @@ public class RevocableEnabledLaneAlignmentTopology
 
                 // Check the MAP for revocable lanes
                 ProcessedMap<LineString> map = spatMap.getMap();
-
-                LaneTypeAttributesMap allLaneAttributes
-                        = getLaneTypeAttributesMap(map);
-
+                LaneTypeAttributesMap allLaneAttributes = getLaneTypeAttributesMap(map);
                 candidateEvent.setLaneTypeAttributes(allLaneAttributes);
-
-                Set<Integer> revocableLanes
-                        = allLaneAttributes.entrySet().stream()
-                        .filter(entry -> entry.getValue() != null
-                                && entry.getValue().revocable())
-                        .map(Map.Entry::getKey)
-                        .collect(Collectors.toUnmodifiableSet());
-
+                Set<Integer> revocableLanes = getRevocableLanes(allLaneAttributes);
                 candidateEvent.setRevocableLaneList(revocableLanes);
 
                 // Check the SPAT for enabled lanes

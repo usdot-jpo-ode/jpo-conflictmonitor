@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +56,29 @@ public class ProcessedMapUtils {
         return zdt.toInstant().toEpochMilli();
     }
 
-    public static <T> Map<Integer, J2735LaneTypeAttributes> getLaneTypeAttributes(ProcessedMap<T> processedMap) {
+    public static <T> Set<Integer> getRevocableLanes(ProcessedMap<T> processedMap) {
+        LaneTypeAttributesMap allLaneAttributes = getLaneTypeAttributesMap(processedMap);
+        return getRevocableLanes(allLaneAttributes);
+    }
+
+    public static <T> Set<Integer> getRevocableLanes(LaneTypeAttributesMap allLaneAttributes) {
+        return allLaneAttributes.entrySet().stream()
+                .filter(entry -> entry.getValue() != null
+                        && entry.getValue().revocable())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public static <T> LaneTypeAttributesMap getLaneTypeAttributesMap(ProcessedMap<T> processedMap) {
+        Map<Integer, J2735LaneTypeAttributes> attributesMap = getLaneTypeAttributes(processedMap);
+        Map<Integer, RevocableLaneTypeAttributes> laneTypeAttributesMap =
+                attributesMap.entrySet().stream().collect(
+                        Collectors.toUnmodifiableMap(Map.Entry::getKey,
+                                entry -> getRevocableLaneTypeAttributes(entry.getValue())));
+        return new LaneTypeAttributesMap(laneTypeAttributesMap);
+    }
+
+    private static <T> Map<Integer, J2735LaneTypeAttributes> getLaneTypeAttributes(ProcessedMap<T> processedMap) {
         MapFeatureCollection<T> featureCollection = processedMap.getMapFeatureCollection();
         if (featureCollection == null) {
             log.error("ProcessedMap.processedMapFeatureCollection is null");
@@ -70,16 +93,7 @@ public class ProcessedMapUtils {
                 .collect(Collectors.toUnmodifiableMap(MapProperties::getLaneId, MapProperties::getLaneType));
     }
 
-    public static <T> LaneTypeAttributesMap getLaneTypeAttributesMap(ProcessedMap<T> processedMap) {
-        Map<Integer, J2735LaneTypeAttributes> attributesMap = getLaneTypeAttributes(processedMap);
-        Map<Integer, RevocableLaneTypeAttributes> laneTypeAttributesMap =
-                attributesMap.entrySet().stream().collect(
-                        Collectors.toUnmodifiableMap(Map.Entry::getKey,
-                                entry -> getRevocableLaneTypeAttributes(entry.getValue())));
-        return new LaneTypeAttributesMap(laneTypeAttributesMap);
-    }
-
-    public static RevocableLaneTypeAttributes getRevocableLaneTypeAttributes(J2735LaneTypeAttributes laneTypeAttributes) {
+    private static RevocableLaneTypeAttributes getRevocableLaneTypeAttributes(J2735LaneTypeAttributes laneTypeAttributes) {
         J2735BitString bitString;
         String laneType = null;
         String revocablePropertyName = null;

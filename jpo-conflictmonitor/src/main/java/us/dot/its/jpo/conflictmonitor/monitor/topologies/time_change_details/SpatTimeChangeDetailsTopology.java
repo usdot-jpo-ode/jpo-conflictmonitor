@@ -1,6 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 
+import com.google.common.collect.Sets;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -17,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.time_change_details.TimeChangeDetailsAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.models.SpatMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEventAggregation;
@@ -24,6 +27,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDet
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotificationAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -31,10 +35,15 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static java.util.Collections.emptySet;
+import static org.apache.kafka.streams.kstream.Joined.as;
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.RsuIntersectionSignalGroupKey;
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.getRevocableLanes;
 
 @Component(DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM)
 public class SpatTimeChangeDetailsTopology
@@ -42,6 +51,7 @@ public class SpatTimeChangeDetailsTopology
         implements SpatTimeChangeDetailsStreamsAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(SpatTimeChangeDetailsTopology.class);
+
     @Override
     protected Logger getLogger() {
         return logger;
@@ -55,7 +65,6 @@ public class SpatTimeChangeDetailsTopology
                               KTable<RsuIntersectionKey, ProcessedMap<LineString>> mapTable) {
 
 
-
         builder.addStateStore(
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore(parameters.getSpatTimeChangeDetailsStateStoreName()),
@@ -64,7 +73,52 @@ public class SpatTimeChangeDetailsTopology
                 )
         );
 
-        var timeChangeEventStream = spatStream
+        // Left Join SPAT stream with MAP table.
+        // If a MAP is available, join it to get the revocable lanes, otherwise fine, still process it without the MAP.
+        KStream<RsuIntersectionKey, SpatMap> spatLeftJoinedMap =
+                spatStream.leftJoin(mapTable, SpatMap::new,
+                        Joined.<RsuIntersectionKey, ProcessedSpat, ProcessedMap<LineString>>as("spat-left-join-map")
+                                .withKeySerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey())
+                                .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
+                                .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
+
+        KStream<RsuIntersectionKey, Pair<ProcessedSpat, Set<Integer>>> removedDisabledRevocable =
+            spatLeftJoinedMap.mapValues(spatMap -> {
+                final ProcessedSpat spat = spatMap.getSpat();
+                if (spatMap.getMap() == null) {
+                    // There is no MAP, pass the SPAT though unchanged and just process the spat
+                    return Pair.of(spat, emptySet());
+                }
+                // There is a MAP, get the revocable lanes
+                ProcessedMap<LineString> map = spatMap.getMap();
+                Set<Integer> revocableLanes = getRevocableLanes(map);
+                if (revocableLanes.isEmpty()) {
+                    // The MAP has no revocable lanes, pass the SPAT through unchanged
+                    return Pair.of(spat, emptySet());
+                }
+                Set<Integer> enabledLanes = Set.copyOf(spat.getEnabledLanes());
+
+                // Revocable - Enabled = Set of revocable lanes that are not enabled
+                Set<Integer> disabledRevocableLanes = Sets.difference(revocableLanes, enabledLanes);
+
+                if (disabledRevocableLanes.isEmpty()) {
+                    // There are no revocable lanes that aren't enabled, SPAT is unchanged
+                    return Pair.of(spat, emptySet());
+                }
+
+                // There are disabled revocable lanes
+                // Check if the SPAT has any signal groups that would be absent with the disabled lanes
+                // missing, ie signal groups that contain the disabled lanes and no other lanes.
+                // In other words, are there any disabled signal groups that should be ignored?
+                Set<Integer> disabledSignalGroups = new HashSet<>();
+
+                return Pair.of(spat, disabledSignalGroups);
+            });
+
+
+
+
+        KStream<RsuIntersectionSignalGroupKey, TimeChangeDetailsEvent> timeChangeEventStream = spatStream
                 .process(new SpatSequenceProcessorSupplier(parameters),
                         parameters.getSpatTimeChangeDetailsStateStoreName());
 
@@ -73,23 +127,23 @@ public class SpatTimeChangeDetailsTopology
 
             // New key includes all fields to aggregate on
             var timeChangeEventAggKeyStream = timeChangeEventStream.selectKey((key, value) -> {
-                var aggKey = new TimeChangeDetailsAggregationKey();
-                aggKey.setRsuId(key.getRsuId());
-                aggKey.setRegion(key.getRegion());
-                aggKey.setIntersectionId(key.getIntersectionId());
-                aggKey.setSignalGroup(value.getSignalGroup());
-                aggKey.setEventStateA(value.getFirstState());
-                aggKey.setEventStateB(value.getSecondState());
-                aggKey.setTimeMarkTypeA(value.getFirstTimeMarkType());
-                aggKey.setTimeMarkTypeB(value.getSecondTimeMarkType());
-                return aggKey;
-            })
-            // Use same partitioner, IntersectionIdPartitioner, so that repartition on new key will
-            // not actually change the partitions of any items
-            .repartition(
-                    Repartitioned.with(JsonSerdes.TimeChangeDetailsAggregationKey(),
-                            JsonSerdes.TimeChangeDetailsEvent())
-                            .withStreamPartitioner(new IntersectionIdPartitioner<>()));
+                        var aggKey = new TimeChangeDetailsAggregationKey();
+                        aggKey.setRsuId(key.getRsuId());
+                        aggKey.setRegion(key.getRegion());
+                        aggKey.setIntersectionId(key.getIntersectionId());
+                        aggKey.setSignalGroup(value.getSignalGroup());
+                        aggKey.setEventStateA(value.getFirstState());
+                        aggKey.setEventStateB(value.getSecondState());
+                        aggKey.setTimeMarkTypeA(value.getFirstTimeMarkType());
+                        aggKey.setTimeMarkTypeB(value.getSecondTimeMarkType());
+                        return aggKey;
+                    })
+                    // Use same partitioner, IntersectionIdPartitioner, so that repartition on new key will
+                    // not actually change the partitions of any items
+                    .repartition(
+                            Repartitioned.with(JsonSerdes.TimeChangeDetailsAggregationKey(),
+                                            JsonSerdes.TimeChangeDetailsEvent())
+                                    .withStreamPartitioner(new IntersectionIdPartitioner<>()));
 
             KStream<TimeChangeDetailsAggregationKey, TimeChangeDetailsEventAggregation> timeChangeEventAggregationStream
                     = aggregationAlgorithm.buildTopology(builder, timeChangeEventAggKeyStream);
@@ -163,13 +217,13 @@ public class SpatTimeChangeDetailsTopology
                         Materialized.<TimeChangeDetailsAggregationKey,
                                         TimeChangeDetailsNotificationAggregation,
                                         KeyValueStore<Bytes, byte[]>>as(
-                                                "IntersectionReferenceAlignmentNotificationAggregation")
-                        .withKeySerde(JsonSerdes.TimeChangeDetailsAggregationKey())
-                        .withValueSerde(JsonSerdes.TimeChangeDetailsNotificationAggregation()))
+                                        "IntersectionReferenceAlignmentNotificationAggregation")
+                                .withKeySerde(JsonSerdes.TimeChangeDetailsAggregationKey())
+                                .withValueSerde(JsonSerdes.TimeChangeDetailsNotificationAggregation()))
                 .toStream()
                 .to(parameters.getAggNotificationTopicName(),
                         Produced.with(
-                            JsonSerdes.TimeChangeDetailsAggregationKey(),
+                                JsonSerdes.TimeChangeDetailsAggregationKey(),
                                 JsonSerdes.TimeChangeDetailsNotificationAggregation(),
                                 new IntersectionIdPartitioner<>()
                         ));
