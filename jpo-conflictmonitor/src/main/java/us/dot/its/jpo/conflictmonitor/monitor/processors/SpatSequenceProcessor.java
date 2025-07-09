@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.processors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.streams.processor.api.ContextualProcessor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
@@ -10,25 +11,23 @@ import org.slf4j.LoggerFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetail;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailAggregator;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailPair;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.*;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
-
+import java.util.HashSet;
+import java.util.Set;
 
 
 // Pulls incoming spats and holds a buffer of messages.
 // Acts as a Jitter Buffer to ensure messages are properly sequenced and ensure messages are processed in order. 
 public class SpatSequenceProcessor
         extends ContextualProcessor<
-            RsuIntersectionKey,
-            ProcessedSpat,
-            RsuIntersectionSignalGroupKey,
-            TimeChangeDetailsEvent> {
+                    RsuIntersectionKey,
+                    SpatWithDisabledSignalGroups,
+                    RsuIntersectionSignalGroupKey,
+                    TimeChangeDetailsEvent> {
 
     private final static Logger logger = LoggerFactory.getLogger(SpatSequenceProcessor.class);
     private KeyValueStore<RsuIntersectionKey, SpatTimeChangeDetailAggregator> stateStore;
@@ -50,8 +49,10 @@ public class SpatSequenceProcessor
 
 
     @Override
-    public void process(Record<RsuIntersectionKey, ProcessedSpat> record) {
-        ProcessedSpat inputSpat = record.value();
+    public void process(Record<RsuIntersectionKey, SpatWithDisabledSignalGroups> record) {
+        SpatWithDisabledSignalGroups spatWithDisabledSignalGroups = record.value();
+        ProcessedSpat inputSpat = spatWithDisabledSignalGroups.processedSpat();
+        Set<Integer> disabledSignalGroups = spatWithDisabledSignalGroups.disabledSignalGroups();
 
         if (inputSpat == null) {
             logger.error("Null input spat");
@@ -75,7 +76,18 @@ public class SpatSequenceProcessor
                 
                 if(first.getStates() != null && second.getStates() != null){
                     for(SpatTimeChangeDetailState firstState: first.getStates()){
+
+                        if (disabledSignalGroups.contains(firstState.getSignalGroup())) {
+                            // Ignore signal group because it has only disabled revocable lanes
+                            continue;
+                        }
+
                         for(SpatTimeChangeDetailState secondState: second.getStates()){
+
+                            if (disabledSignalGroups.contains(secondState.getSignalGroup())) {
+                                // Ignore signal group because it has only disabled revocable lanes
+                                continue;
+                            }
 
                             // Check if its the same signal group
                             if(firstState.getSignalGroup() == secondState.getSignalGroup()){

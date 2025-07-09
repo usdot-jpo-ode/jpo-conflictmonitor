@@ -1,7 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -25,6 +25,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEve
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotificationAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatWithDisabledSignalGroups;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
@@ -34,10 +35,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Collections.emptySet;
 import static org.apache.kafka.streams.kstream.Joined.as;
@@ -82,19 +80,19 @@ public class SpatTimeChangeDetailsTopology
                                 .withValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
                                 .withOtherValueSerde(us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
 
-        KStream<RsuIntersectionKey, Pair<ProcessedSpat, Set<Integer>>> removedDisabledRevocable =
+        KStream<RsuIntersectionKey, SpatWithDisabledSignalGroups> spatsWithDisabledSignalGroups =
             spatLeftJoinedMap.mapValues(spatMap -> {
                 final ProcessedSpat spat = spatMap.getSpat();
-                if (spatMap.getMap() == null) {
+                final ProcessedMap<LineString> map = spatMap.getMap();
+                if (map == null) {
                     // There is no MAP, pass the SPAT though unchanged and just process the spat
-                    return Pair.of(spat, emptySet());
+                    return new SpatWithDisabledSignalGroups(spat, emptySet());
                 }
                 // There is a MAP, get the revocable lanes
-                ProcessedMap<LineString> map = spatMap.getMap();
                 Set<Integer> revocableLanes = getRevocableLanes(map);
                 if (revocableLanes.isEmpty()) {
                     // The MAP has no revocable lanes, pass the SPAT through unchanged
-                    return Pair.of(spat, emptySet());
+                    return new SpatWithDisabledSignalGroups(spat, emptySet());
                 }
                 Set<Integer> enabledLanes = Set.copyOf(spat.getEnabledLanes());
 
@@ -103,7 +101,7 @@ public class SpatTimeChangeDetailsTopology
 
                 if (disabledRevocableLanes.isEmpty()) {
                     // There are no revocable lanes that aren't enabled, SPAT is unchanged
-                    return Pair.of(spat, emptySet());
+                    return new SpatWithDisabledSignalGroups(spat, emptySet());
                 }
 
                 // There are disabled revocable lanes
@@ -111,14 +109,25 @@ public class SpatTimeChangeDetailsTopology
                 // missing, ie signal groups that contain the disabled lanes and no other lanes.
                 // In other words, are there any disabled signal groups that should be ignored?
                 Set<Integer> disabledSignalGroups = new HashSet<>();
+                var connectingLanes = map.getConnectingLanesFeatureCollection().getFeatures();
+                SetMultimap<Integer, Integer> mapSignalGroupToLanes = MultimapBuilder.hashKeys().hashSetValues().build();
+                Arrays.stream(connectingLanes).forEach(connection -> {
+                    final var props = connection.getProperties();
+                    mapSignalGroupToLanes.put(props.getSignalGroupId(), props.getIngressLaneId());
+                    mapSignalGroupToLanes.put(props.getSignalGroupId(), props.getEgressLaneId());
+                });
 
-                return Pair.of(spat, disabledSignalGroups);
+                for (var signalGroup : mapSignalGroupToLanes.keySet()) {
+                    Set<Integer> lanesInSignalGroup = mapSignalGroupToLanes.get(signalGroup);
+                    if (Sets.difference(lanesInSignalGroup, disabledRevocableLanes).isEmpty()) {
+                        // The signal group has no lanes that aren't disabled
+                        disabledSignalGroups.add(signalGroup);
+                    }
+                }
+                return new SpatWithDisabledSignalGroups(spat, disabledSignalGroups);
             });
 
-
-
-
-        KStream<RsuIntersectionSignalGroupKey, TimeChangeDetailsEvent> timeChangeEventStream = spatStream
+        KStream<RsuIntersectionSignalGroupKey, TimeChangeDetailsEvent> timeChangeEventStream = spatsWithDisabledSignalGroups
                 .process(new SpatSequenceProcessorSupplier(parameters),
                         parameters.getSpatTimeChangeDetailsStateStoreName());
 
