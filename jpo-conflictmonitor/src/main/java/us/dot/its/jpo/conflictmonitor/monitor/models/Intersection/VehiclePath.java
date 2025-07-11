@@ -19,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 
 @Getter
@@ -40,13 +41,16 @@ public class VehiclePath {
     private double minDistanceFeet;
     private double headingToleranceDegrees;
 
-    public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet, double headingToleranceDegrees){
+    private ProcessedSpat spat;
+
+    public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet, double headingToleranceDegrees,
+                       ProcessedSpat spat){
         this.bsms = bsms;
         this.intersection = intersection;
         this.minDistanceFeet = minDistanceFeet;
         this.headingToleranceDegrees = headingToleranceDegrees;
         this.geometryFactory = new GeometryFactory();
-         
+        this.spat = spat;
         buildVehiclePath();
     }
 
@@ -120,6 +124,17 @@ public class VehiclePath {
 
 
         for(IntersectionLine line : lines){
+
+            // If the is revocable in the map and disabled in the spat, ignore them
+            final var laneId = line.getLane().getId();
+            final var revocable = intersection.getRevocableLaneIds();
+            final var enabled = spat.getEnabledLanes();
+            if (revocable != null && revocable.contains(laneId)
+                    && (enabled == null || !enabled.contains(laneId))) {
+                // Disable revocable: skip it
+                continue;
+            }
+
             if(this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)){
                 int index =0;
                 for(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : this.bsms.getBsms()){

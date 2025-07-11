@@ -2,7 +2,6 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 
 import com.google.common.collect.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -28,7 +27,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDet
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatWithDisabledSignalGroups;
 import us.dot.its.jpo.conflictmonitor.monitor.processors.SpatSequenceProcessorSupplier;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.IntersectionIdPartitioner;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
@@ -38,7 +36,6 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import java.util.*;
 
 import static java.util.Collections.emptySet;
-import static org.apache.kafka.streams.kstream.Joined.as;
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.TimeChangeDetailsConstants.DEFAULT_SPAT_TIME_CHANGE_DETAILS_ALGORITHM;
 import static us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes.RsuIntersectionSignalGroupKey;
 import static us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils.getRevocableLanes;
@@ -120,7 +117,7 @@ public class SpatTimeChangeDetailsTopology
                 for (var signalGroup : mapSignalGroupToLanes.keySet()) {
                     Set<Integer> lanesInSignalGroup = mapSignalGroupToLanes.get(signalGroup);
                     if (Sets.difference(lanesInSignalGroup, disabledRevocableLanes).isEmpty()) {
-                        // The signal group has no lanes that aren't disabled
+                        // The signal group has no lanes that aren't disabled so add it to list to ignore
                         disabledSignalGroups.add(signalGroup);
                     }
                 }
