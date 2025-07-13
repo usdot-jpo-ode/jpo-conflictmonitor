@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -41,6 +42,7 @@ import java.util.*;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
 
+@Slf4j
 @Component(DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM)
 public class MapSpatMessageAssessmentTopology
         extends BaseStreamsTopology<MapSpatMessageAssessmentParameters>
@@ -299,9 +301,29 @@ public class MapSpatMessageAssessmentTopology
                     }
 
                     Intersection intersection = Intersection.fromProcessedMap(map);
-                    ArrayList<LaneConnection> connections = intersection.getLaneConnections();
+                    ArrayList<LaneConnection> unfilteredConnections = intersection.getLaneConnections();
 
-
+                    // Filter out lane connections involving disabled revocable lanes which should be ignored by
+                    // the Signal State Conflict check.
+                    Set<Integer> revocableLaneIds = intersection.getRevocableLaneIds();
+                    Set<Integer> enabledLanes = new HashSet<>(spat.getEnabledLanes());
+                    var connections = new ArrayList<LaneConnection>();
+                    for (LaneConnection connection : unfilteredConnections) {
+                        int ingressId = connection.getIngressLane().getId();
+                        int egressId = connection.getEgressLane().getId();
+                        boolean ingressIsRevocable = revocableLaneIds != null && revocableLaneIds.contains(ingressId);
+                        boolean egressIsRevocable = revocableLaneIds != null && revocableLaneIds.contains(egressId);
+                        boolean ingressNotEnabled = !enabledLanes.contains(ingressId);
+                        boolean egressNotEnabled = !enabledLanes.contains(egressId);
+                        boolean ingressDisabled = ingressIsRevocable && ingressNotEnabled;
+                        boolean egressDisabled = egressIsRevocable && egressNotEnabled;
+                        if (ingressDisabled || egressDisabled) {
+                            log.debug("For key: {}, Ingress and/or egress lane ids {} and {} are revocable and " +
+                                    "disabled. Not including them in Signal State Conflict check", key, ingressId, egressId);
+                        } else {
+                            connections.add(connection);
+                        }
+                    }
 
                     
                     for (int i = 0; i < connections.size(); i++) {

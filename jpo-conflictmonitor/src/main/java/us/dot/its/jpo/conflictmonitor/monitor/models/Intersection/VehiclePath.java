@@ -127,7 +127,8 @@ public class VehiclePath {
 
         for(IntersectionLine line : lines){
 
-            // If this lane is revocable in the map and disabled in the spat, ignore them
+            // If this lane is revocable in the MAP and disabled in the SPAT, ignore it: don't use it for Intersection
+            // Event algorithms.
             log.debug("IntersectionLine; {}", line);
             if (line.getLane() == null) {
                 throw new IllegalArgumentException(String.format("Line %s is null in IntersectionLine: {}", line));
