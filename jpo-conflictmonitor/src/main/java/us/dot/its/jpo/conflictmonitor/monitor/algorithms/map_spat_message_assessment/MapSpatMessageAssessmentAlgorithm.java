@@ -13,7 +13,7 @@ public interface MapSpatMessageAssessmentAlgorithm extends Algorithm<MapSpatMess
     void setSignalGroupAlignmentAggregationAlgorithm(SignalGroupAlignmentAggregationAlgorithm signalGroupAlignmentAggregationAlgorithm);
     void setSignalStateConflictAggregationAlgorithm(SignalStateConflictAggregationAlgorithm signalStateConflictAggregationAlgorithm);
     void setRevocableEnabledLaneAlignmentAlgorithm(RevocableEnabledLaneAlignmentAlgorithm revocableEnabledLaneAlignmentAlgorithm);
-    void setSpatTimeChangeDetailsAlgorithm(SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgorithm);
+
 }
 
 

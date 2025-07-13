@@ -1,19 +1,16 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies.time_change_details;
 
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.TestOutputTopic;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 import org.testng.collections.Lists;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
@@ -34,8 +31,6 @@ import java.util.List;
 public class SpatTimeChangeDetailsTopologyTest {
     String spatTimeChangeDetailsEventTopicName = "topic.CmSpatTimeChangeDetailsEvent";
     String spatTimeChangeDetailsNotificationTopicName = "topic.CmSpatTimeChangeDetailsNotification";
-
-    String mapTableTopicName = "topic.ProcessedMap";
     @Test
     public void testTopology() {
 
@@ -52,26 +47,7 @@ public class SpatTimeChangeDetailsTopologyTest {
 
         spatTopology.setParameters(parameters);
 
-        StreamsBuilder builder = new StreamsBuilder();
-
-        // SPaT Input Stream
-        KStream<RsuIntersectionKey, ProcessedSpat> processedSpatStream = builder.stream(
-                parameters.getSpatInputTopicName(),
-                Consumed.with(
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat())
-        );
-
-        // Map table keyed by RsuIntersectionKey
-        KTable<RsuIntersectionKey, ProcessedMap<LineString>> mapTable = builder.table(mapTableTopicName,
-                Materialized.with(
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
-                        us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
-
-
-        spatTopology.buildTopology(builder, processedSpatStream, mapTable);
-
-        Topology topology = builder.build();
+        Topology topology = spatTopology.buildTopology();
 
         final String rsuId = "127.0.0.1";
         final int region = 0;
@@ -104,12 +80,6 @@ public class SpatTimeChangeDetailsTopologyTest {
                     us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedSpat().serializer()
             );
 
-            var inputProcessedMapTopic = driver.createInputTopic(
-                    mapTableTopicName,
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey().serializer(),
-                    us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson().serializer()
-            );
-
             var outputEventTopic = driver.createOutputTopic(
                     parameters.getSpatTimeChangeDetailsTopicName(),
                     JsonSerdes.RsuIntersectionSignalGroupKey().deserializer(),
@@ -120,9 +90,7 @@ public class SpatTimeChangeDetailsTopologyTest {
                 spatTimeChangeDetailsNotificationTopicName, 
                 Serdes.String().deserializer(),
                 JsonSerdes.TimeChangeDetailsNotification().deserializer());
-
-            // Test with no MAP, should still work
-
+            
             inputProcessedSpatTopic.pipeInput(key, spat1, timestamp1);
             inputProcessedSpatTopic.pipeInput(key, spat2, timestamp2);
 

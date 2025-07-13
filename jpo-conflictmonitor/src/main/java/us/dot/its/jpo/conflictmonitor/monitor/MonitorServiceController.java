@@ -17,7 +17,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_message_count_progression.MapMessageCountProgressionAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.spat_message_count_progression.SpatMessageCountProgressionAggregationAlgorithm;
@@ -176,7 +175,9 @@ public class MonitorServiceController {
             // Spat Validation Topology
             startSpatValidationAlgorithm();
 
-
+            // Spat Time Change Details Assessment
+            //Sends Time Change Details Events when the time deltas in spat messages are incorrect
+            startSpatTimeChangeDetailsAlgorithm();
 
             //Map Spat Alignment Topology
             startMapSpatAlignmentAlgorithm();
@@ -436,29 +437,29 @@ public class MonitorServiceController {
         spatValidationAlgo.start();
     }
 
-//    private void startSpatTimeChangeDetailsAlgorithm() {
-//        final String spatTimeChangeDetails = "spatTimeChangeDetails";
-//        final SpatTimeChangeDetailsAlgorithmFactory spatTCDAlgoFactory = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithmFactory();
-//        final String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
-//        final SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
-//        final SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
-//        configTopology.registerConfigListeners(spatTimeChangeDetailsParams);
-//        if (spatTimeChangeDetailsAlgo instanceof StreamsTopology) {
-//            final var streamsAlgo = (StreamsTopology)spatTimeChangeDetailsAlgo;
-//            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
-//            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatTimeChangeDetails, stateChangeTopic, healthTopic));
-//            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatTimeChangeDetails, healthTopic));
-//            algoMap.put(spatTimeChangeDetails, streamsAlgo);
-//        }
-//        spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
-//
-//        // Plug in aggregation algorithm
-//        final TimeChangeDetailsAggregationAlgorithm aggAlgorithm = getTimeChangeDetailsAggregationAlgorithm();
-//        spatTimeChangeDetailsAlgo.setAggregationAlgorithm(aggAlgorithm);
-//
-//        Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
-//        spatTimeChangeDetailsAlgo.start();
-//    }
+    private void startSpatTimeChangeDetailsAlgorithm() {
+        final String spatTimeChangeDetails = "spatTimeChangeDetails";
+        final SpatTimeChangeDetailsAlgorithmFactory spatTCDAlgoFactory = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithmFactory();
+        final String spatTCDAlgo = conflictMonitorProps.getSpatTimeChangeDetailsAlgorithm();
+        final SpatTimeChangeDetailsAlgorithm spatTimeChangeDetailsAlgo = spatTCDAlgoFactory.getAlgorithm(spatTCDAlgo);
+        final SpatTimeChangeDetailsParameters spatTimeChangeDetailsParams = conflictMonitorProps.getSpatTimeChangeDetailsParameters();
+        configTopology.registerConfigListeners(spatTimeChangeDetailsParams);
+        if (spatTimeChangeDetailsAlgo instanceof StreamsTopology) {
+            final var streamsAlgo = (StreamsTopology)spatTimeChangeDetailsAlgo;
+            streamsAlgo.setStreamsProperties(conflictMonitorProps.createStreamProperties(spatTimeChangeDetails));
+            streamsAlgo.registerStateListener(new StateChangeHandler(kafkaTemplate, spatTimeChangeDetails, stateChangeTopic, healthTopic));
+            streamsAlgo.registerUncaughtExceptionHandler(new StreamsExceptionHandler(kafkaTemplate, spatTimeChangeDetails, healthTopic));
+            algoMap.put(spatTimeChangeDetails, streamsAlgo);
+        }
+        spatTimeChangeDetailsAlgo.setParameters(spatTimeChangeDetailsParams);
+
+        // Plug in aggregation algorithm
+        final TimeChangeDetailsAggregationAlgorithm aggAlgorithm = getTimeChangeDetailsAggregationAlgorithm();
+        spatTimeChangeDetailsAlgo.setAggregationAlgorithm(aggAlgorithm);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(spatTimeChangeDetailsAlgo::stop));
+        spatTimeChangeDetailsAlgo.start();
+    }
 
     private SpatTimeChangeDetailsAlgorithm getSpatTimeChangeDetailsAlgorithm() {
         final String spatTimeChangeDetails = "spatTimeChangeDetails";
@@ -509,11 +510,6 @@ public class MonitorServiceController {
         // Plug in Revocable Enabled Lane Alignment algorithm
         var revocableEnabledLaneAlignmentAlgo = getRevocableEnabledLaneAlignmentAlgorithm();
         mapSpatAlignmentAlgo.setRevocableEnabledLaneAlignmentAlgorithm(revocableEnabledLaneAlignmentAlgo);
-
-        // Spat Time Change Details Assessment
-        //Sends Time Change Details Events when the time deltas in spat messages are incorrect
-        var spatTimeChangeDetailsAlgo = getSpatTimeChangeDetailsAlgorithm();
-        mapSpatAlignmentAlgo.setSpatTimeChangeDetailsAlgorithm(spatTimeChangeDetailsAlgo);
 
         Runtime.getRuntime().addShutdownHook(new Thread(mapSpatAlignmentAlgo::stop));
         mapSpatAlignmentAlgo.start();
