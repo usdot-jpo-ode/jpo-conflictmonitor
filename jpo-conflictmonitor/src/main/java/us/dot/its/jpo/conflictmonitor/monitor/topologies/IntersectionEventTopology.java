@@ -475,9 +475,9 @@ public class IntersectionEventTopology
                     double minDistanceFeet = stopLinePassageParameters.getStopLineMinDistance(intersectionRegion);
                     double headingToleranceDegrees = stopLinePassageParameters.getHeadingTolerance(intersectionRegion);
 
-                    
+                    ProcessedSpat spat = value.getSpats().getSpats().getFirst();
                     VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), minDistanceFeet,
-                            headingToleranceDegrees);
+                            headingToleranceDegrees, spat);
 
                     
                     ArrayList<LaneDirectionOfTravelEvent> events = laneDirectionOfTravelAlgorithm.getLaneDirectionOfTravelEvents(laneDirectionOfTravelParams, path);
@@ -505,7 +505,9 @@ public class IntersectionEventTopology
             (key, value)->{
                 List<KeyValue<RsuIntersectionKey, ConnectionOfTravelEvent>> result = new ArrayList<>();
                 if(value.getBsms().getBsms().size() > 2){
-                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0);
+
+                    ProcessedSpat spat =  value.getSpats().getSpats().getFirst();
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), 15.0, 20.0, spat);
 
                     
                     ConnectionOfTravelEvent event = connectionOfTravelAlgorithm.getConnectionOfTravelEvent(connectionOfTravelParams, path);
@@ -534,7 +536,10 @@ public class IntersectionEventTopology
                 List<KeyValue<RsuIntersectionKey, StopLinePassageEvent>> result = new ArrayList<>();
 
                 if(value.getBsms().getBsms().size() > 2){
-                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance());
+
+                    ProcessedSpat spat = value.getSpats().getSpats().getFirst();
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(),
+                            stopLinePassageParameters.getStopLineMinDistance(), stopLinePassageParameters.getHeadingTolerance(), spat);
 
                     
                     StopLinePassageEvent event = signalStateVehicleCrossesAlgorithm.getStopLinePassageEvent(stopLinePassageParameters, path, value.getSpats());
@@ -563,7 +568,11 @@ public class IntersectionEventTopology
             (key, value)->{
                 List<KeyValue<RsuIntersectionKey, StopLineStopEvent>> result = new ArrayList<>();
                 if(value.getBsms().getBsms().size() >2){
-                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(), stopLinePassageParameters.getStopLineMinDistance(), stopLineStopParameters.getHeadingTolerance());
+
+                    ProcessedSpat spat = value.getSpats().getSpats().getFirst();
+                    VehiclePath path = new VehiclePath(value.getBsms(), value.getIntersection(),
+                            stopLinePassageParameters.getStopLineMinDistance(),
+                            stopLineStopParameters.getHeadingTolerance(), spat);
 
                     
                     StopLineStopEvent event = signalStateVehicleStopsAlgorithm.getStopLineStopEvent(stopLineStopParameters, path, value.getSpats());

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
@@ -19,10 +20,12 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 
 @Getter
 @Setter
+@Slf4j
 public class VehiclePath {
 
     private static final Logger logger = LoggerFactory.getLogger(VehiclePath.class);
@@ -40,13 +43,16 @@ public class VehiclePath {
     private double minDistanceFeet;
     private double headingToleranceDegrees;
 
-    public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet, double headingToleranceDegrees){
+    private ProcessedSpat spat;
+
+    public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet, double headingToleranceDegrees,
+                       ProcessedSpat spat){
         this.bsms = bsms;
         this.intersection = intersection;
         this.minDistanceFeet = minDistanceFeet;
         this.headingToleranceDegrees = headingToleranceDegrees;
         this.geometryFactory = new GeometryFactory();
-         
+        this.spat = spat;
         buildVehiclePath();
     }
 
@@ -120,6 +126,25 @@ public class VehiclePath {
 
 
         for(IntersectionLine line : lines){
+
+            // If this lane is revocable in the map and disabled in the spat, ignore them
+            log.debug("IntersectionLine; {}", line);
+            if (line.getLane() == null) {
+                throw new IllegalArgumentException(String.format("Line %s is null in IntersectionLine: {}", line));
+            } else {
+                final var laneId = line.getLane().getId();
+                final var revocable = intersection.getRevocableLaneIds();
+                log.debug("revocable lanes: {}", revocable);
+                final var enabled = spat.getEnabledLanes();
+                log.debug("enabled lanes: {}", enabled);
+                if (revocable != null && revocable.contains(laneId)
+                        && (enabled == null || !enabled.contains(laneId))) {
+                    log.debug("Lane {} is revocable but not enables; skipping it", laneId);
+                    // Disable revocable: skip it
+                    continue;
+                }
+            }
+
             if(this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)){
                 int index =0;
                 for(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : this.bsms.getBsms()){

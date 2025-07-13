@@ -5,9 +5,11 @@ import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.GeometryFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.IntersectionLine;
+import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.VehiclePath;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.testutils.BsmTestUtils;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -34,7 +36,8 @@ public class VehiclePathTest {
         var bsmAggregator = getBsms();
         var intersection = getIntersection();
         intersection.setReferencePoint(null);
-        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees);
+        var spat = new ProcessedSpat();
+        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees, spat);
 
         // Should not throw any exceptions
         vehiclePath.buildVehiclePath();
@@ -46,7 +49,8 @@ public class VehiclePathTest {
         var intersection = getIntersection();
         intersection.setStopLines(null);
         intersection.setStartLines(null);
-        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees);
+        var spat = new ProcessedSpat();
+        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees, spat);
 
         // Should not throw any exceptions
         vehiclePath.buildVehiclePath();
@@ -56,7 +60,8 @@ public class VehiclePathTest {
     public void testBuildVehiclePath() {
         var bsmAggregator = getBsms();
         var intersection = getIntersection();
-        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees);
+        var spat = new ProcessedSpat();
+        var vehiclePath = new VehiclePath(bsmAggregator, intersection, minDistanceFeet, headingToleranceDegrees, spat);
 
         // Should not throw any exceptions
         vehiclePath.buildVehiclePath();
@@ -80,10 +85,15 @@ public class VehiclePathTest {
         var intersection = new Intersection();
         intersection.setReferencePoint(new CoordinateXY(refLon, refLat));
 
-        var startLine = new IntersectionLine(factory.createPoint(new CoordinateXY(startLon, startLat)), 0.0d, null);
+        var startLane = new Lane();
+        startLane.setId(10);
+        var stopLane = new Lane();
+        stopLane.setId(20);
+
+        var startLine = new IntersectionLine(factory.createPoint(new CoordinateXY(startLon, startLat)), 0.0d, startLane);
         intersection.setStartLines(Collections.singletonList(startLine));
 
-        var stopLine = new IntersectionLine(factory.createPoint(new CoordinateXY(endLon, endLat)), 0.0d, null);
+        var stopLine = new IntersectionLine(factory.createPoint(new CoordinateXY(endLon, endLat)), 0.0d, stopLane);
         intersection.setStartLines(Collections.singletonList(stopLine));
         return intersection;
     }
