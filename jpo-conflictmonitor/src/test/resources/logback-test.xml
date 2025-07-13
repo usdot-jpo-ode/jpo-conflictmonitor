@@ -4,8 +4,8 @@
       <pattern>%msg%n</pattern>
     </encoder>
   </appender>
-  <logger name="us.dot.its.jpo.conflictmonitor" level="DEBUG"/>
-  <root level="OFF">
+  <logger name="us.dot.its.jpo.conflictmonitor" level="INFO"/>
+  <root level="OFF">g
     <appender-ref ref="CONSOLE"/>
   </root>
 </configuration>
