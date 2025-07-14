@@ -19,11 +19,11 @@ public class BsmIntersectionIdKey extends RsuIntersectionKey {
     }
 
     /**
-     * @param bsmid          The vehicle ID of the BSM.
+     * @param bsmId          The vehicle ID of the BSM.
      * @param rsuId          The IP address of the RSU to use
      * @param intersectionId The intersection ID of a BSM inside of an intersection.
      *                       Use -1 if vehicle is not inside of an intersection.
-     * @param logId          TODO: Define
+     * @param logId          The Logfile ID the BSM came from. Used for BSM's uploaded via log files.
      */
     public BsmIntersectionIdKey(String bsmId, String rsuId, int intersectionId, String logId) {
         super(rsuId, intersectionId);
@@ -32,7 +32,7 @@ public class BsmIntersectionIdKey extends RsuIntersectionKey {
     }
 
     /**
-     * @param bsmid          The vehicle ID of the BSM.
+     * @param bsmId          The vehicle ID of the BSM.
      * @param rsuId          The IP address of the RSU to use
      * @param intersectionId The intersection ID of a BSM inside of an intersection.
      *                       Use -1 if vehicle is not inside of an intersection.

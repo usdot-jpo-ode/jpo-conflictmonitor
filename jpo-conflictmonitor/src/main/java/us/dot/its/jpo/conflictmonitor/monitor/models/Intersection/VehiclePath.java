@@ -196,7 +196,7 @@ public class VehiclePath {
      * @param lane                       The ingress lane to search
      * @param upstreamSearchDistanceFeet The upstream distance along the lane to
      *                                   search (in feet)
-     * @return List of List<ProcessedBsm> within the lane and distance
+     * @return List of {@link List<ProcessedBsm>} within the lane and distance
      */
     public List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> findBsmsInIngressLane(Lane lane,
             final double upstreamSearchDistanceFeet) {
@@ -236,7 +236,7 @@ public class VehiclePath {
      * @param bsmList               List of BSMs to filter
      * @param stopSpeedThresholdMPH Speed threshold in MPH to consider a vehicle
      *                              stopped
-     * @return List of ProcessedBsm<Point> representing the stoppage period
+     * @return List of {@link ProcessedBsm<Point>} representing the stoppage period
      */
     public List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> filterStoppedBsms(
             final List<ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> bsmList,

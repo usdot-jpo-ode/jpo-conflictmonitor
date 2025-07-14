@@ -14,9 +14,9 @@ import java.time.format.DateTimeFormatter;
 public class BsmTimestampExtractor implements TimestampExtractor {
 
     /**
-     * @param ConsumerRecord<Object,Object> A Kafka consumer record. The value of
+     * @param record A Kafka consumer record. The value of
      *                                      this record should be a BSM message
-     * @param partitionTime                 A UTC timestamp in milliseconds of when
+     * @param partitionTime A UTC timestamp in milliseconds of when
      *                                      the record was added to the Kafka
      *                                      partition.
      * @return a long represting the UTC timestamp in milliseconds from the consumer
