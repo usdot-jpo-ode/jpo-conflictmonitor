@@ -73,3 +73,19 @@ ENTRYPOINT ["java", \
 #    "-XX:MaxRAMPercentage=50.0", \
 #    "-jar", \
 #	"/home/jpo-conflictmonitor.jar"]
+
+# Remote debug entrypoint
+#ENTRYPOINT ["java", \
+#    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:10090", \
+#	"-Dlogback.configurationFile=/home/logback.xml", \
+#    "-XX:+UseG1GC", \
+#    "-XX:MaxGCPauseMillis=20", \
+#    "-XX:InitiatingHeapOccupancyPercent=35", \
+#    "-XX:MetaspaceSize=96m", \
+#    "-XX:MinMetaspaceFreeRatio=50", \
+#    "-XX:MaxMetaspaceFreeRatio=80", \
+#    "-XX:+ExplicitGCInvokesConcurrent", \
+#    "-XX:InitialRAMPercentage=5.0", \
+#    "-XX:MaxRAMPercentage=50.0", \
+#	"-jar", \
+#	"/home/jpo-conflictmonitor.jar"]

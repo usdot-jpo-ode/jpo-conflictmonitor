@@ -23,7 +23,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLineStopAgg
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmAggregator;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmIntersectionIdKey;
-import us.dot.its.jpo.conflictmonitor.monitor.models.bsm.BsmRsuIdKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.DefaultConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
@@ -49,21 +48,14 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Rsu
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.SpatMovementStateTransition;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.deserialization.GenericJsonDeserializer;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIdKey;
 import us.dot.its.jpo.geojsonconverter.serialization.deserializers.JsonDeserializer;
 import us.dot.its.jpo.geojsonconverter.serialization.serializers.JsonSerializer;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.SpatBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.broadcast_rate.MapBroadcastRateNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.Assessment;
-import us.dot.its.jpo.ode.model.OdeBsmData;
+
 
 public class JsonSerdes {
-   
-    public static Serde<OdeBsmData> OdeBsm() {
-        return Serdes.serdeFrom(
-            new JsonSerializer<OdeBsmData>(), 
-            new JsonDeserializer<>(OdeBsmData.class));
-    }
 
     public static Serde<BsmAggregator> BsmDataAggregator() {
         return Serdes.serdeFrom(
@@ -239,14 +231,6 @@ public class JsonSerdes {
             new JsonSerializer<ConnectionOfTravelAggregator>(),
             new JsonDeserializer<>(ConnectionOfTravelAggregator.class));
     }
-
-    public static Serde<BsmRsuIdKey> BsmRsuIdKey() {
-        return Serdes.serdeFrom(
-            new JsonSerializer<BsmRsuIdKey>(),
-            new JsonDeserializer<>(BsmRsuIdKey.class));
-    }
-
-
 
     public static Serde<BsmIntersectionIdKey> BsmIntersectionIdKey() {
         return Serdes.serdeFrom(

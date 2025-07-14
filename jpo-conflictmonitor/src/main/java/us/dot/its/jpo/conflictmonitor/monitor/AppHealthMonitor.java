@@ -48,9 +48,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.topologies.IntersectionEventTopolo
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.model.OdeBsmData;
 
 import javax.ws.rs.Produces;
 
@@ -447,22 +448,22 @@ public class AppHealthMonitor {
                 Instant startTime = key.window().startTime();
                 Instant endTime = key.window().endTime();
                 BsmIntersectionIdKey theKey= key.key();
-                OdeBsmData value = kvp.value;
+                ProcessedBsm<Point> value = kvp.value;
                 // Integer intersectionId = value.();
                 String vehicleId = BsmUtils.getVehicleId(value);
-                TreeMap<String, TreeMap<String, OdeBsmData>> bsms = null;
+                TreeMap<String, TreeMap<String, ProcessedBsm<Point>>> bsms = null;
                 if (intersectionMap.containsKey(vehicleId)) {
                     bsms = intersectionMap.get(vehicleId);
                 } else {
-                    bsms = new TreeMap<String, TreeMap<String, OdeBsmData>>();
+                    bsms = new TreeMap<>();
                     intersectionMap.put(vehicleId, bsms);
                 }
                 String window = String.format("%s / %s", formatter.format(startTime.atZone(ZoneOffset.UTC)), formatter.format(endTime.atZone(ZoneOffset.UTC)));
-                TreeMap<String, OdeBsmData> bsmList = null;
+                TreeMap<String, ProcessedBsm<Point>> bsmList = null;
                 if (bsms.containsKey(window)) {
                     bsmList = bsms.get(window);
                 } else {
-                    bsmList = new TreeMap<String, OdeBsmData>();
+                    bsmList = new TreeMap<>();
                     bsms.put(window, bsmList);
                 }
                 bsmList.put(theKey.toString(), value);
@@ -572,9 +573,7 @@ public class AppHealthMonitor {
 
     /** Nested map structure for SPaT window store: intersectionId -> window -> key -> ProcessedSpat. */
     public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, TreeMap<String, ProcessedSpat>>> {}
-
-    /** Nested map structure for BSM window store: vehicleId -> window -> key -> OdeBsmData. */
-    public class IntersectionBsm extends TreeMap<String, TreeMap<String, TreeMap<String, OdeBsmData>>> {}
+    public class IntersectionBsm extends TreeMap<String, TreeMap<String, TreeMap<String, ProcessedBsm<Point>>>> {}
 
     /**
      * Record containing URLs for topology details and simple DOT graph.

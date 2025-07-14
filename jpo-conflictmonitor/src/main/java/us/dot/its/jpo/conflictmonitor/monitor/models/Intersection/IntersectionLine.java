@@ -31,7 +31,7 @@ public class IntersectionLine {
     /**
      * 
      * @param lane
-     * @return IntersectionLine returns an instance of a IntersectionLine based calculated from the lane geometry.
+     * @return IntersectionLine returns an instance of a IntersectionLine calculated from the lane geometry.
      */
     public static IntersectionLine fromLane(Lane lane){
         LineString points = lane.getPoints();

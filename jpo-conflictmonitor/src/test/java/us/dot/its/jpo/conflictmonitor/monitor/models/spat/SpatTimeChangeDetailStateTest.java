@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -14,7 +13,6 @@ import org.junit.runners.Parameterized.Parameters;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementEvent;
 import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import static org.hamcrest.MatcherAssert.assertThat;

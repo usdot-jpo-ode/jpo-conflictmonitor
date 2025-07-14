@@ -7,7 +7,6 @@ import lombok.Generated;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigData;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.ConfigDataClass;
 import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UpdateType.*;
-import static us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum.*;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

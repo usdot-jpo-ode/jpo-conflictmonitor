@@ -26,20 +26,21 @@ import us.dot.its.jpo.conflictmonitor.monitor.topologies.BsmEventTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.MathTransformPair;
-import us.dot.its.jpo.ode.model.OdeBsmData;
-import us.dot.its.jpo.ode.model.OdeBsmMetadata;
-import us.dot.its.jpo.ode.model.OdeBsmPayload;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Bsm;
-import us.dot.its.jpo.ode.plugin.j2735.J2735BsmCoreData;
+import us.dot.its.jpo.geojsonconverter.partitioner.RsuLogKey;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmData, BsmIntersectionIdKey, Object> {
-
-
+public class BsmEventProcessor
+        extends ContextualProcessor<
+            RsuLogKey,
+            ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>,
+            BsmIntersectionIdKey,
+            Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(BsmEventProcessor.class);
     private final String fStoreName = "bsm-event-state-store";
@@ -88,9 +89,9 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
     }
 
     @Override
-    public void process(Record<BsmRsuIdKey, OdeBsmData> inputRecord) {
-        BsmRsuIdKey key = inputRecord.key();
-        OdeBsmData value = inputRecord.value();
+    public void process(Record<RsuLogKey, ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point>> inputRecord) {
+        RsuLogKey key = inputRecord.key();
+        ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value = inputRecord.value();
         long timestamp = inputRecord.timestamp();
 
         if(!validateBSM(value)){
@@ -115,8 +116,8 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
                 for (IntersectionRegion ir : newIntersections) {
                     int intersectionId = ir.getIntersectionId();
                     int region = ir.getRegion();
-                    var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region);
-                    //var record = new Record<BsmIntersectionIdKey, OdeBsmData>(bsmIntersectionIdKey, value, timestamp);
+                    var bsmIntersectionIdKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), intersectionId, region, key.getLogId());
+
                     var intersectionRecord = inputRecord.withKey(bsmIntersectionIdKey);
                     context().forward(intersectionRecord, BsmEventTopology.PARTITIONED_BSM_SINK);
                 }
@@ -199,7 +200,13 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
         }
     }
 
-    private void extendEvent(BsmIntersectionIdKey eventKey, BsmEvent event, Coordinate newCoord, OdeBsmData value, long timestamp) throws ParseException{
+    private void extendEvent(
+            BsmIntersectionIdKey eventKey,
+            BsmEvent event,
+            Coordinate newCoord,
+            ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value,
+            long timestamp) throws ParseException{
+
         String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
         event.setWktPath(wktPath);
 
@@ -222,7 +229,10 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
-    private void newEvents(OdeBsmData value, BsmRsuIdKey key, List<MapBoundingBox> mapsContainingNewBsm, long timestamp) throws ParseException {
+    private void newEvents(
+            ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value,
+            RsuLogKey key,
+            List<MapBoundingBox> mapsContainingNewBsm, long timestamp) throws ParseException {
         if (mapsContainingNewBsm.isEmpty()) {
             // Not in any map.
             // Only create one.
@@ -234,23 +244,27 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
         }
     }
 
-    private void newEvent(OdeBsmData value, BsmRsuIdKey key, long timestamp, MapBoundingBox map) throws ParseException {
+    private void newEvent(
+            ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value,
+            RsuLogKey key, long timestamp,
+            MapBoundingBox map) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, true);
         event.setWktMapBoundingBox(map.getBoundingPolygonWkt());
         event.setIntersectionID(map.getIntersectionId());
-        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), map.getIntersectionId(), map.getRegion());
+        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), map.getIntersectionId(), map.getRegion(), key.getLogId());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
-    private void newEvent(OdeBsmData value, BsmRsuIdKey key, long timestamp) throws ParseException {
+    private void newEvent(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value, RsuLogKey key, long timestamp) throws ParseException {
         BsmEvent event = getNewEvent(value, timestamp, false);
-        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), 0);
+        var eventKey = new BsmIntersectionIdKey(key.getBsmId(), key.getRsuId(), -1, key.getLogId());
         stateStore.put(eventKey, ValueAndTimestamp.make(event, timestamp));
     }
 
 
 
-    private BsmEvent getNewEvent(OdeBsmData value, long timestamp, boolean inMapBoundingBox) throws ParseException {
+    private BsmEvent getNewEvent(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> value, long timestamp, boolean inMapBoundingBox)
+            throws ParseException {
         BsmEvent event = new BsmEvent(value);
         CoordinateXY newCoord = BsmUtils.getPosition(value);
         String wktPath = addPointToPath(event.getWktPath(), newCoord, simplifyPath, simplifyPathToleranceMeters);
@@ -287,102 +301,61 @@ public class BsmEventProcessor extends ContextualProcessor<BsmRsuIdKey, OdeBsmDa
         }
     }
 
-    public static boolean validateBSM(OdeBsmData bsm){
+    public static boolean validateBSM(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm){
         if (bsm == null) {
             logger.error("Null BSM");
             return false;
         }
 
-        if (bsm.getPayload() == null) {
-            logger.error("BSM missing payload {}", bsm);
+        if (bsm.getGeometry() instanceof us.dot.its.jpo.geojsonconverter.pojos.geojson.Point pointGeom) {
+            double[] coords = pointGeom.getCoordinates();
+            if (coords == null) {
+                logger.error("BSM coordinates missing {}", bsm);
+                return false;
+            }
+            if (coords.length < 2) {
+                logger.error("BSM coords array too small. {}", bsm);
+                return false;
+            }
+        } else {
+            logger.error("ProcessedBsm geometry is not us.dot.its.jpo.geojsonconverter.pojos.geojson.Point, {}",
+                    bsm.getGeometry());
             return false;
         }
 
-        if (!(bsm.getPayload() instanceof OdeBsmPayload)) {
-            logger.error("BSM payload is wrong type {}", bsm);
-            return false;
-        }
+        BsmProperties props = bsm.getProperties();
 
-        if (bsm.getMetadata() == null) {
-            logger.error("BSM missing metadata {}", bsm);
-            return false;
-        }
-
-        if (!(bsm.getMetadata() instanceof OdeBsmMetadata)) {
-            logger.error("BSM metadata is wrong type {}", bsm);
-            return false;
-        }
-
-        if (bsm.getPayload().getData() == null) {
-            logger.error("BSM payload.data missing {}", bsm);
-            return false;
-        }
-
-        if (!(bsm.getPayload().getData() instanceof J2735Bsm)) {
-            logger.error("BSM payload.data is wrong type {}", bsm);
-            return false;
-        }
-
-
-        J2735BsmCoreData core = ((J2735Bsm)bsm.getPayload().getData()).getCoreData();
-        if (core == null) {
-            logger.error("BSM coreData missing {}", bsm);
-            return false;
-        }
-
-        OdeBsmMetadata metadata = (OdeBsmMetadata)bsm.getMetadata();
-
-        if (core.getPosition() == null) {
-            logger.error("BSM position missing {}", bsm);
-            return false;
-        }
-
-        if(core.getPosition().getLongitude() == null){
-            logger.error("BSM longitude missing {}", bsm);
-            return false;
-        }
-
-        if(core.getPosition().getLatitude() == null){
-            logger.error("BSM latitude missing {}", bsm);
-            return false;
-        }
-
-        if(core.getId() == null){
+        if(props.getId() == null){
             logger.error("BSM id missing {}", bsm);
             return false;
         }
 
-        if(core.getSecMark() == null){
+        if(props.getSecMark() == null){
             logger.error("BSM secMark missing {}", bsm);
             return false;
         }
 
-        if(core.getSpeed() == null){
+        if(props.getSpeed() == null){
             logger.error("BSM speed missing {}", bsm);
             return false;
         }
 
-        if(core.getHeading() == null){
+        if(props.getHeading() == null){
             logger.error("BSM heading missing {}", bsm);
             return false;
         }
 
-        if(metadata.getBsmSource() == null){
-            logger.error("BSM source missing {}", bsm);
+        if(props.getLogName() == null && props.getOriginIp() == null){
+            logger.error("BSM source (log name or origin IP) missing {}", bsm);
             return false;
         }
 
-        if(metadata.getOriginIp() == null){
-            logger.error("BSM originIp missing {}", bsm);
+        if (props.getTimeStamp() == null){
+            logger.error("BSM timestamp missing {}", bsm);
             return false;
         }
 
-        if (metadata.getRecordGeneratedAt() == null){
-            logger.error("BSM recordGeneratedAt missing {}", bsm);
-            return false;
-        }
-
-        if (metadata.getOdeReceivedAt() == null) {
+        if (props.getOdeReceivedAt() == null) {
             logger.error("BSM odeReceivedAt missing {}", bsm);
             return false;
         }

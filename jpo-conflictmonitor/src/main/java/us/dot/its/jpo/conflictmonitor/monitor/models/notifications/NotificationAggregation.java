@@ -5,7 +5,6 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventAggregation;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.ProcessingTimePeriod;
 
 @Getter
 @Setter
