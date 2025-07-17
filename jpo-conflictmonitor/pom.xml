@@ -34,6 +34,8 @@
     <sonar.language>java</sonar.language>
     <!-- Allow override of github organization when publishing artifacts to github -->
     <github_organization>usdot-jpo-ode</github_organization>
+
+    <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
   </properties>
   <dependencies>
     <!-- Spring Boot Dependencies -->
@@ -242,6 +244,11 @@
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.11.2</version>
+      </plugin>
+      <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
         <version>3.10.0.2594</version>
@@ -346,6 +353,21 @@
                 <id>repackage</id>
                 <phase>none</phase>
               </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>3.1.2</version>
+            <configuration>
+                <configLocation>checkstyle.xml</configLocation>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
             </executions>
           </plugin>
         </plugins>

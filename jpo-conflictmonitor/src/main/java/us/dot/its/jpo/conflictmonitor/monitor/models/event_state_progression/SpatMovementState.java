@@ -21,22 +21,53 @@ import static us.dot.its.jpo.conflictmonitor.monitor.utils.DateTimeUtils.toMilli
 public class SpatMovementState {
 
     // Fields from ProcessedSpat
+
+    /**
+     * long representing the UTC time in milliseconds when the ODE received the SPaT message.
+     */
     long odeReceivedAt;
+
+    /**
+     * long representing the UTC time in milliseconds when the SPaT message was broadcast. This field is generated based upon the time fields of the SPaT message in conjunction with the ODE received at time. 
+     */
     long utcTimeStamp;
+
+    /**
+     * int representing the revision number of the SPaT message. Breaking changes to the SPaT message data structure will cause an increment to this value.
+     */
     int revision;
 
     // Fields from MovementState
+    /**
+     * int representing the signal group associated with the SPaT message movement state
+     */
     int signalGroup;
 
-    // Fields from the first MovementEvent of the MovementState (additional MovementEvents representing the future are
-    // ignored)
+    /**
+     * A J2735MovementPhaseState representing the first MovementEvent of the MovementState. Additional Movement events representing the future are ignored.
+     */
     J2735MovementPhaseState phaseState;
 
     // Fields from TimeChangeDetails
+    /**
+     * long representing the UTC time in milliseconds when this phaseState will begin
+     */
     long startTime;
+
+    /**
+     * long representing the UTC time in milliseconds representing the earliest time when the phaseState will end
+     */
     long minEndTime;
+
+    /**
+     * long representing the UTC time in milliseconds representing the latest time when the phaseState will end
+     */
     long maxEndTime;
 
+
+    /**
+     * Helper function to create SpatMovementState objects from the ProcessedSpat message. 
+     */
     public static List<SpatMovementState> fromProcessedSpat(ProcessedSpat spat) {
         List<SpatMovementState> stateList = new ArrayList<>();
         if (spat.getStates() == null) return stateList;

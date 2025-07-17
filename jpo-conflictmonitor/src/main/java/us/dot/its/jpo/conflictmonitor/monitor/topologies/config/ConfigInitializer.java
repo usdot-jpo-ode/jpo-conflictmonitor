@@ -18,7 +18,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Pha
 
 import java.lang.reflect.Field;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 @Component
 @Profile("!test")

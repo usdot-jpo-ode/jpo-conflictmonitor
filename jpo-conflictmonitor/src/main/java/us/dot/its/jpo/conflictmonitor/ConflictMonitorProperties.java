@@ -818,8 +818,6 @@ public class ConflictMonitorProperties implements EnvironmentAware  {
    
    @Setter(AccessLevel.NONE)
    private String kafkaBrokers = null;
-
-   private static final String DEFAULT_KAFKA_PORT = "9092";
    
    @Setter(AccessLevel.NONE)
    private String hostId;

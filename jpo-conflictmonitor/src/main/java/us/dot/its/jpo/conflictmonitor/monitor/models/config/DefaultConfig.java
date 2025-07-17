@@ -5,6 +5,9 @@ import org.springframework.data.annotation.Id;
 
 import lombok.EqualsAndHashCode;
 
+/** 
+ * A default Config is a subtype of Config used for configuration variables that can only be changed at a global level.
+ */
 @EqualsAndHashCode(callSuper=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DefaultConfig<T> extends Config<T>{

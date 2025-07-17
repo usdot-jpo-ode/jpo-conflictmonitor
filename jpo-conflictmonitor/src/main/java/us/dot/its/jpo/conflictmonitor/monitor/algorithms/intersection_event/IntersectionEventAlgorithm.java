@@ -12,7 +12,11 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopL
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 
-
+/**
+ * Interface for Intersection Event algorithms.
+ * <p>
+ * Extends the base {@link ExecutableAlgorithm} interface for intersection event validation parameters.
+ */
 public interface IntersectionEventAlgorithm extends ExecutableAlgorithm { 
     
     ConflictMonitorProperties getConflictMonitorProperties();

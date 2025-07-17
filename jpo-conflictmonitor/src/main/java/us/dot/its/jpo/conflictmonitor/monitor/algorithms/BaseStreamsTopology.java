@@ -64,6 +64,10 @@ public abstract class BaseStreamsTopology<TParams> {
         }
     }
 
+    /**
+     * Get the Kafka Streams topology from the supplied topology subcomponents
+     * @return {@link Topology} for this streams topology
+     */
     public abstract Topology buildTopology();
 
 

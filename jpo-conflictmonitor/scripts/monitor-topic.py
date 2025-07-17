@@ -5,10 +5,11 @@ bootstrap_servers = '172.250.250.130:9092'
 #topic = "topic.OdeRawEncodedBSMJson"
 #topic = "topic.OdeMapJson"
 #topic = "topic.ProcessedMap"
+#topic = "topic.ProcessedSpat"
 #topic = "topic.DeduplicatedProcessedMap"
 #topic = "topic.DeduplicatedOdeMapJson"
 #topic = "topic.OdeTimJson"
-#topic = "topic.OdeRawEncodedTIMJson"
+topic = "topic.OdeRawEncodedTIMJson"
 #topic = "topic.OdeRawEncodedTIMJson"
 #topic = "topic.DeduplicatedOdeTimJson"
 #topic = "topic.ProcessedSpat"
@@ -19,13 +20,15 @@ bootstrap_servers = '172.250.250.130:9092'
 #topic = "topic.Asn1DecoderInput"
 #topic = "topic.Asn1DecoderOutput"
 #topic = "topic.OdeTimJson"
-topic = "topic.DeduplicatedOdeBsmJson"
+#topic = "topic.DeduplicatedOdeBsmJson"
+#topic = "topic.OdeMapJson"
 #topic = "topic.OdeTimJson"
 #topic = "topic.OdeBsmJson"
 #topic = "topic.OdePsmJson"
 #topic = "topic.OdeSsmJson"
 #topic = "topic.OdeSrmJson"
-
+#topic = "topic.ProcessedMapWKT"
+#topic = "topic.ProcessedBsm"
 consumer = KafkaConsumer(bootstrap_servers=bootstrap_servers)
 consumer.subscribe(topic)
 count = 0

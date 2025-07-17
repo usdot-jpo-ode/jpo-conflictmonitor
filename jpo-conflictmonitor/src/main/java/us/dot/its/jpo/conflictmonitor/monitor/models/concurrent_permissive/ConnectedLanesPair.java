@@ -19,14 +19,37 @@ import java.util.Set;
 @ToString
 public class ConnectedLanesPair {
 
+    /** 
+     * An integer representing the intersectionID of the lane pair. This value should correspond the intersectionID of the MAP message
+     */
     Integer intersectionID;
+
+    /** 
+     * An integer representing the roadRegulatorID of the lane pair. This value corresponds to the region of the MAP message. Since MAP message regions are going away this field is deprecated. Set to -1 if unknown.
+     */
+    @Deprecated
     Integer roadRegulatorID;
 
+    /** 
+     * A Connecting Lane object representing the first pair of connecting lanes in the message
+     */
     ConnectedLanes first;
+
+    /** 
+     * A Connecting Lane object representing the second pair of connecting lanes in the message
+     */
     ConnectedLanes second;
 
     public ConnectedLanesPair() {}
 
+    /** 
+     * @param intersectionID integer representing the ID of the intersection from the MAP message
+     * @param roadRegulatorID integer representing the region of the intersection from the MAP message. Use -1 if unknown.
+     * @param firstIngressLaneId int representing the lane id of the first ingress lane
+     * @param firstEgressLaneId int representing the lane id of the first egress lane
+     * @param secondIngressLaneId int representing the lane id of the second ingress lane
+     * @param secondEgressLaneId int representing the lane id of the second egress lane
+     */
     public ConnectedLanesPair(Integer intersectionID, Integer roadRegulatorID, int firstIngressLaneId, int firstEgressLaneId,
         int secondIngressLaneId, int secondEgressLaneId) {
         this.intersectionID = intersectionID;
@@ -35,6 +58,9 @@ public class ConnectedLanesPair {
         this.second = new ConnectedLanes(secondIngressLaneId, secondEgressLaneId);
     }
 
+    /** 
+     * @return a Set of Connecting Lanes containing all of the unique connecting lane objects generated from the first and second variables.
+     */
     public Set<ConnectedLanes> connectedLanesSet() {
         var setBuilder = ImmutableSet.<ConnectedLanes>builder();
         if (first != null) setBuilder.add(first);
@@ -42,6 +68,9 @@ public class ConnectedLanesPair {
         return setBuilder.build();
     }
 
+    /** 
+     * @return IntersectionRegion object containing the intersectionID and region from this connected lane pair.
+     */
     public IntersectionRegion intersectionRegion() {
         return new IntersectionRegion(intersectionID, roadRegulatorID);
     }

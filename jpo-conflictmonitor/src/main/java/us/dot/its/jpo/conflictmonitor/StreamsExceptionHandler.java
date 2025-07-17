@@ -1,7 +1,6 @@
 package us.dot.its.jpo.conflictmonitor;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +15,10 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.app_health.Ka
 
 /**
  * Handler for unhandled exceptions thrown from Streams topologies that
- *  logs the exception to a topic, and allows choosing the shutdown behavior.
- * 
- * See {@link https://cwiki.apache.org/confluence/display/KAFKA/KIP-671%3A+Introduce+Kafka+Streams+Specific+Uncaught+Exception+Handler}
+ * logs the exception to a topic, and allows choosing the shutdown behavior.
+ * <p>
+ * See <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-671%3A+Introduce+Kafka+Streams+Specific+Uncaught+Exception+Handler">
+ * KIP-671: Introduce Kafka Streams Specific Uncaught Exception Handler</a>
  * for a description of the options.
  */
 public class StreamsExceptionHandler implements StreamsUncaughtExceptionHandler {
