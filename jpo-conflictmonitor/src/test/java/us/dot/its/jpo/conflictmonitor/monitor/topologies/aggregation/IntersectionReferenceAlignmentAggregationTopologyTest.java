@@ -9,9 +9,7 @@ import org.junit.Test;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEventAggregation;
-import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
-import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
 import java.util.List;
 import java.util.Set;

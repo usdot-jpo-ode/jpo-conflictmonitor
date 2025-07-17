@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * This class represents a unique identifier for a combination of an intersectionID and roadRegulatorId (region)
+ */
 @Getter
 @Setter
 @EqualsAndHashCode()

@@ -6,7 +6,6 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KafkaStreams.StateListener;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.slf4j.Logger;
 
 /**
  * General interface for an algorithm implemented as a Kafka Streams
@@ -27,13 +26,13 @@ public interface StreamsTopology {
 
    /**
     * Register a callback method that receives notifications when the KafkaStreams state changes
-    * @param stateListener
+    * @param stateListener A callback listener
     */
     void registerStateListener(StateListener stateListener);
 
     /**
      * Register exception handler for exceptions thrown from streams processes.
-     * @param exceptionHandler
+     * @param exceptionHandler an exception handler to catch the error in the streams
      */
     void registerUncaughtExceptionHandler(StreamsUncaughtExceptionHandler exceptionHandler);
 

@@ -19,7 +19,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResu
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanes;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPair;
 import us.dot.its.jpo.conflictmonitor.monitor.models.concurrent_permissive.ConnectedLanesPairList;
-import us.dot.its.jpo.conflictmonitor.monitor.models.config.Config;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfig;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.IntersectionConfigKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.UnitsEnum;

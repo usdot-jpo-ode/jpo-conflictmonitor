@@ -6,18 +6,33 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.assessments.StopLinePassageAssessment;
 
-
+/**
+ * Notification representing a passage event at a stop line.
+ * Contains the associated assessment and provides a unique identifier for the notification.
+ */
 @Getter
 @Setter
 public class StopLinePassageNotification extends Notification {
+
+    /**
+     * Constructs a StopLinePassageNotification with the notification type set.
+     */
     public StopLinePassageNotification() {
         super("StopLinePassageNotification");
     }
 
+    /** The signal group associated with this passage notification. */
     private int signalGroup;
 
-    @Getter private StopLinePassageAssessment assessment;
+    /** The assessment associated with this passage notification. */
+    @Getter
+    private StopLinePassageAssessment assessment;
     
+    /**
+     * Sets the assessment for this notification and updates intersection and regulator IDs.
+     *
+     * @param assessment the StopLinePassageAssessment to associate with this notification
+     */
     public void setAssessment(StopLinePassageAssessment assessment){
         if(assessment != null){
             this.assessment = assessment;
@@ -27,7 +42,11 @@ public class StopLinePassageNotification extends Notification {
         }
     }
 
-
+    /**
+     * Returns a unique identifier for this notification, based on type, intersection ID, regulator ID, and signal group.
+     *
+     * @return unique identifier string for this notification
+     */
     @Override
     @JsonIgnore
     public String getUniqueId() {

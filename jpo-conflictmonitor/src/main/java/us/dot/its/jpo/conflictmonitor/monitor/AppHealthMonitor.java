@@ -55,7 +55,12 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import javax.ws.rs.Produces;
 
-
+/**
+ * REST controller providing health and configuration endpoints for the Conflict Monitor application.
+ * <p>
+ * Exposes endpoints for monitoring Kafka topics, streams, topologies, configuration, spatial indexes,
+ * and window stores for SPaT and BSM data. Also provides links to connectors and application properties.
+ */
 @Getter
 @Setter
 @RestController
@@ -64,8 +69,10 @@ import javax.ws.rs.Produces;
 @Profile("!test && !testConfig")
 public class AppHealthMonitor {
 
+    /** Jackson ObjectMapper for JSON serialization. */
     private static final ObjectMapper mapper;
 
+    /** Logger for AppHealthMonitor operations. */
     private static final Logger logger = LoggerFactory.getLogger(AppHealthMonitor.class);
 
     static {
@@ -84,7 +91,12 @@ public class AppHealthMonitor {
     @Autowired MapIndex mapIndex;
     @Autowired IntersectionEventTopology intersectionEventTopology;
 
-  
+    /**
+     * Returns a list of configuration and algorithm parameter objects.
+     * Used for reporting application properties.
+     *
+     * @return list of configuration and parameter objects
+     */
     public List<Object> parameterObjects() {
         List<Object> paramObjects = new ArrayList<Object>();
         paramObjects.add(configParams);
@@ -96,6 +108,11 @@ public class AppHealthMonitor {
         return paramObjects;
     }
 
+    /**
+     * Returns a summary of available health endpoints as a map of links.
+     *
+     * @return response entity containing a map of endpoint names to URLs
+     */
     @GetMapping
     public @ResponseBody ResponseEntity<Object> summary() {
 
@@ -117,6 +134,12 @@ public class AppHealthMonitor {
 
     }
 
+    /**
+     * Adds endpoint links to the provided map.
+     *
+     * @param map   the map to populate
+     * @param paths endpoint paths to add
+     */
     private void addLinks(Map<String, String> map, String... paths) {
         for (String path : paths) {
             var link = String.format("%s/health/%s", baseUrl(), path);
@@ -124,6 +147,11 @@ public class AppHealthMonitor {
         }
     }
 
+    /**
+     * Lists the default configuration map.
+     *
+     * @return response entity containing the default configuration map
+     */
     @GetMapping(value = "/config/default")
     public @ResponseBody ResponseEntity<DefaultConfigMap> listDefaultConfig() {
 
@@ -131,14 +159,20 @@ public class AppHealthMonitor {
 
     }
 
+    /**
+     * Lists the intersection-specific configuration map.
+     *
+     * @return response entity containing the intersection configuration map
+     */
     @GetMapping(value = "/config/intersection")
     public @ResponseBody ResponseEntity<IntersectionConfigMap> listIntersectionConfig() {
         return getResponse(configTopology.mapIntersectionConfigs());
     }
     
-
     /**
-     * @return JSON map of kafka topics created by this app that currently exist
+     * Lists Kafka topics created by this application that currently exist.
+     *
+     * @return response entity containing a map of topic names to descriptions
      */
     @GetMapping(value = "/topics")
     public @ResponseBody ResponseEntity<TreeMap<String, String>> listTopics() {
@@ -160,6 +194,11 @@ public class AppHealthMonitor {
 
     }
 
+    /**
+     * Lists application configuration and algorithm properties.
+     *
+     * @return response entity containing a map of property names to values
+     */
     @GetMapping(value = "/properties")
     public @ResponseBody ResponseEntity<TreeMap<String, Object>> listProperties() {
         var propMap = new TreeMap<String, Object>();
@@ -171,8 +210,11 @@ public class AppHealthMonitor {
         return getResponse(propMap);
     }
 
-
-
+    /**
+     * Lists all Kafka Streams topologies and their states.
+     *
+     * @return response entity containing a map of stream names to stream info
+     */
     @GetMapping(value = "/streams")
     public @ResponseBody ResponseEntity<StreamsInfoMap> listStreams() {
         var streamsMap = getKafkaStreamsMap();
@@ -195,6 +237,11 @@ public class AppHealthMonitor {
         return getResponse(result);
     }
 
+    /**
+     * Lists all Kafka Streams topologies and provides links to their details and DOT graph representations.
+     *
+     * @return response entity containing a map of topology names to info links
+     */
     @GetMapping(value = "/topologies")
     public @ResponseBody ResponseEntity<TreeMap<String, TopologyInfoLinks>> listTopologies() {
         var topoMap = getTopologies();
@@ -211,6 +258,12 @@ public class AppHealthMonitor {
         return getResponse(result);
     }
 
+    /**
+     * Returns the detailed description of a specific topology.
+     *
+     * @param name the name of the topology
+     * @return response entity containing the topology description as plain text
+     */
     @GetMapping(value = "/topologies/detail/{name}")
     @Produces(MediaType.TEXT_PLAIN_VALUE)
     public @ResponseBody ResponseEntity<String> topologyDetails(@PathVariable String name) {
@@ -223,6 +276,12 @@ public class AppHealthMonitor {
         return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(description.toString());
     }
 
+    /**
+     * Returns a DOT graph representation of a specific topology or all topologies.
+     *
+     * @param name the name of the topology or "all" for all topologies
+     * @return response entity containing the DOT graph as plain text
+     */
     @GetMapping(value = "/topologies/simple/{name}")
     @Produces(MediaType.TEXT_PLAIN_VALUE)
     public @ResponseBody ResponseEntity<String> topologySimpleGraph(@PathVariable String name) {
@@ -243,8 +302,12 @@ public class AppHealthMonitor {
                 .body(graph.exportDOT());
     }
 
-
-
+    /**
+     * Returns metrics for a named Kafka Streams instance.
+     *
+     * @param name the name of the streams instance
+     * @return response entity containing a map of metrics grouped by metric group
+     */
     @GetMapping(value = "/streams/{name}")
     public @ResponseBody ResponseEntity<MetricsGroupMap> namedStreams(@PathVariable String name) {
 
@@ -278,6 +341,11 @@ public class AppHealthMonitor {
        
     }
 
+    /**
+     * Returns the status of Kafka Connect connectors.
+     *
+     * @return response entity containing the connectors' status as a JSON string
+     */
     @GetMapping(value = "/connectors")
     public @ResponseBody ResponseEntity<String> connectors() {
         final var restTemplate = new RestTemplate();
@@ -287,6 +355,11 @@ public class AppHealthMonitor {
         return response;
     }
 
+    /**
+     * Returns all items in the spatial index (quadtree).
+     *
+     * @return response entity containing a list of all spatial index items
+     */
     @GetMapping(value = "/spatial-indexes")
     public @ResponseBody ResponseEntity<List> spatial() {
         if (mapIndex == null) {
@@ -298,6 +371,11 @@ public class AppHealthMonitor {
         return getResponse(allItems);
     }
 
+    /**
+     * Returns the contents of the MAP store.
+     *
+     * @return response entity containing a map of intersection keys to processed MAPs
+     */
     @GetMapping(value = "/map-store")
     public @ResponseBody ResponseEntity<TreeMap<String, ProcessedMap<LineString>>> mapStore() {
         var mapStore = intersectionEventTopology.getMapStore();
@@ -313,6 +391,11 @@ public class AppHealthMonitor {
         return getResponse(mapMap);
     }
 
+    /**
+     * Returns the contents of the SPaT window store, grouped by intersection and window.
+     *
+     * @return response entity containing a nested map of intersection IDs, windows, and processed SPaTs
+     */
     @GetMapping(value = "/spat-window-store")
     public @ResponseBody ResponseEntity<IntersectionSpatMap> spatWindowStore() {
         var spatWindowStore = intersectionEventTopology.getSpatWindowStore();
@@ -348,6 +431,11 @@ public class AppHealthMonitor {
        return getResponse(intersectionMap);
     }
 
+    /**
+     * Returns the contents of the BSM window store, grouped by vehicle and window.
+     *
+     * @return response entity containing a nested map of vehicle IDs, windows, and BSM data
+     */
    @GetMapping(value = "/bsm-window-store")
    public @ResponseBody ResponseEntity<IntersectionBsm> bsmWindowStore() {
         var bsmWindowStore = intersectionEventTopology.getBsmWindowStore();
@@ -384,9 +472,13 @@ public class AppHealthMonitor {
         return getResponse(intersectionMap);
    }
 
+    /**
+     * Returns a map of Kafka Streams instances keyed by algorithm name.
+     *
+     * @return map of stream names to KafkaStreams instances
+     */
     private Map<String, KafkaStreams> getKafkaStreamsMap() {
 
-        
         var streamsMap = new TreeMap<String, KafkaStreams>();
 
         // Algorithm streams
@@ -400,6 +492,11 @@ public class AppHealthMonitor {
         return streamsMap;
     }
 
+    /**
+     * Returns a map of Kafka Streams topologies keyed by algorithm name.
+     *
+     * @return map of topology names to Topology objects
+     */
     private Map<String, Topology> getTopologies() {
         var topoMap = new TreeMap<String, Topology>();
         for (Map.Entry<String, StreamsTopology> algoEntry : monitorServiceController.getAlgoMap().entrySet()) {
@@ -415,15 +512,24 @@ public class AppHealthMonitor {
         return topoMap;
     }
 
-
-
-
-
-
+    /**
+     * Helper method to create a ResponseEntity with HTTP 200 and JSON content type.
+     *
+     * @param message the response body
+     * @param <T>     the type of the response body
+     * @return ResponseEntity with the given message
+     */
     private <T> ResponseEntity<T> getResponse(T message) {
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(message);
     }
 
+    /**
+     * Exception handler for all exceptions, returning a JSON error message.
+     *
+     * @param request the HTTP request
+     * @param ex      the exception thrown
+     * @return ResponseEntity with error message and HTTP 500
+     */
     @ExceptionHandler(Exception.class)
     private ResponseEntity<String> getErrorJson(HttpServletRequest request, Exception ex) {
         try {
@@ -437,9 +543,12 @@ public class AppHealthMonitor {
         
     }
 
+    /** Map of stream names to StreamsInfo objects. */
     public class StreamsInfoMap extends TreeMap<String, StreamsInfo> {}
-    
 
+    /**
+     * Information about a Kafka Streams instance, including state and details URL.
+     */
     @Getter
     @Setter
     public class StreamsInfo {
@@ -447,20 +556,31 @@ public class AppHealthMonitor {
         String detailsUrl;      
     }
 
-    
-
+    /** Map of metric group names to MetricsGroup objects. */
     public class MetricsGroupMap extends TreeMap<String, MetricsGroup> { }
 
+    /** Map of metric names to metric values for a given group. */
     public class MetricsGroup extends TreeMap<String, Object> { }
 
+    /**
+     * Returns the base URL for the current servlet context.
+     *
+     * @return base URL as a string
+     */
     private String baseUrl() {
         return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }
 
+    /** Nested map structure for SPaT window store: intersectionId -> window -> key -> ProcessedSpat. */
     public class IntersectionSpatMap extends TreeMap<Integer, TreeMap<String, TreeMap<String, ProcessedSpat>>> {}
     public class IntersectionBsm extends TreeMap<String, TreeMap<String, TreeMap<String, ProcessedBsm<Point>>>> {}
 
-
+    /**
+     * Record containing URLs for topology details and simple DOT graph.
+     *
+     * @param detailsUrl     URL for topology details
+     * @param simpleGraphUrl URL for DOT graph
+     */
     public record TopologyInfoLinks(String detailsUrl, String simpleGraphUrl) {}
 
 }

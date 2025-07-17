@@ -3,14 +3,11 @@ package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 import java.util.Collection;
 import java.util.Properties;
 
-import kafka.security.auth.Read;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.junit.Test;
 
@@ -25,10 +22,7 @@ import static us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.config.ConfigUpdateResult;
 import us.dot.its.jpo.conflictmonitor.monitor.models.config.*;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -37,8 +31,6 @@ import us.dot.its.jpo.conflictmonitor.testutils.ConfigTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigTopologyTest {
-
-    private static final Logger logger = LoggerFactory.getLogger(ConfigTopologyTest.class);
 
 
 

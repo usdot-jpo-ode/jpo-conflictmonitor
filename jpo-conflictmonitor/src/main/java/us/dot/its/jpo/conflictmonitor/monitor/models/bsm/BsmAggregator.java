@@ -18,7 +18,22 @@ public class BsmAggregator {
     @Setter
     private ArrayList<ProcessedBsm<Point>> bsms = new ArrayList<>();
 
+    /**
+     * In-line class definition of a comparator used for sorting ProcessedBsm<Point>
+     * objects by time.
+     */
     private Comparator<ProcessedBsm<Point>> bsmComparator = new Comparator<>() {
+
+        /**
+         * This is a comparison function which can be used to sort BSM's based upon the
+         * timestamp in the BSMs.
+         * 
+         * @param bsm1 the first BSM to compare
+         * @param bsm2 the second BSM to compare
+         * @return -1, 1, 0 - Returns 1 if the timestamp of bsm 2 is less than the
+         *         timestamp of bsm 1. Returns 0 if the timestamps are the same. Returns
+         *         -1 if the timestamp of BSM 2 is greater than the timestamp of bsm 1
+         */
         @Override
         public int compare(ProcessedBsm<Point> bsm1, ProcessedBsm<Point> bsm2) {
             long t1 = BsmTimestampExtractor.getBsmTimestamp(bsm1);
@@ -33,27 +48,35 @@ public class BsmAggregator {
         }
     };
 
-    
+    /**
+     * @param newBsm the BSM to add to the aggregation
+     * @return BsmAggregator returns this instance of the BSMAggregator
+     */
     public BsmAggregator add(ProcessedBsm<Point> newBsm) {
         bsms.add(newBsm);
         return this;
     }
 
-    public void sort(){
+    /**
+     * Sorts the BSMs in this BSM aggregator by time.
+     */
+    public void sort() {
         this.bsms.sort(bsmComparator);
     }
 
-    public BsmAggregator addWithoutDeletion(ProcessedBsm<Point> newBsm){
+    /**
+     * @param newBsm the BSM to add to the aggregation
+     * @return BsmAggregator returns this instance of the BSMAggregator
+     */
+    public BsmAggregator addWithoutDeletion(ProcessedBsm<Point> newBsm) {
         bsms.add(newBsm);
         return this;
     }
 
-    public BsmAggregator subtract(ProcessedBsm<Point> newBsm){
-        return this;
-    }
-
-
-
+    /**
+     * @return a JSON string representing the contents of this BSM aggregation
+     *         object.
+     */
     @Override
     public String toString() {
         ObjectMapper mapper = DateJsonMapper.getInstance();
@@ -66,5 +89,3 @@ public class BsmAggregator {
         return testReturn;
     }
 }
-
-

@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.Event;
 
+/**
+ * Abstract class to hold data for Timestamp Delta Events. 
+ */
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)

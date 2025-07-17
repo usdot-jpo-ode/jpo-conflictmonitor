@@ -11,6 +11,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConnectedLanes {
+
+    /** 
+     * An integer representing the lane ID of the ingress Lane
+     */
     int ingressLaneID;
+
+    /** 
+     * An integer representing the lane ID of the egress Lane
+     */
     int egressLaneID;
 }

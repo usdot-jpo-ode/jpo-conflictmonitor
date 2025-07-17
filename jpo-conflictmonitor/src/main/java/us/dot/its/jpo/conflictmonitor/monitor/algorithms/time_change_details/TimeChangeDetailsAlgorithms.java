@@ -11,7 +11,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spa
 
 
 /**
- * Configuration defining {@link FactoryBeans}s for locating Broadcast Rate algorithms.
+ * Configuration defining {@link org.springframework.beans.factory.FactoryBean}s for locating Broadcast Rate algorithms.
  */
 @Configuration
 public class TimeChangeDetailsAlgorithms {
