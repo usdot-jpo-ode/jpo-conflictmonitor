@@ -621,7 +621,7 @@ revocable.enabled.lane.alignment:
   algorithm: defaultRevocableEnabledLaneAlignmentAlgorithm
   debug: true
   aggregateEvents: false
-  outputTopicName: topic.CmRevocableEnabledLaneAlignment
+  outputTopicName: topic.CmRevocableEnabledLaneAlignmentEvent
   notificationTopicName: topic.CmRevocableEnabledLaneAlignmentNotification
   aggNotificationTopicName: topic.CmRevocableEnabledLaneAlignmentNotificationAggregation
 
