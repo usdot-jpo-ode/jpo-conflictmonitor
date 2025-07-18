@@ -233,7 +233,7 @@ kafka.topics:
     - name: topic.CmRevocableEnabledLaneAlignmentEventAggregation
       cleanupPolicy: delete
       retentionMs: 300000
-    - name: topic.CmRevocableEnabledLaneAlignment
+    - name: topic.CmRevocableEnabledLaneAlignmentEvent
       cleanupPolicy: delete
       retentionMs: 300000
     - name: topic.CmRevocableEnabledLaneAlignmentNotification
