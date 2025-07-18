@@ -36,7 +36,6 @@ public class RevocableEnabledLaneAlignmentAggregationTopology
         aggEvent.setSource(event.getSource());
         aggEvent.setIntersectionID(event.getIntersectionID());
         aggEvent.setRoadRegulatorID(event.getRoadRegulatorID());
-        // TODO fill in
         return aggEvent;
     }
 
