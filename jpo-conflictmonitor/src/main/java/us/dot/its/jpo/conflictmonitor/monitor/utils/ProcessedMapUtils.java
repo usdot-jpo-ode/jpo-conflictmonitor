@@ -1,10 +1,18 @@
 package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapSharedProperties;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableLaneTypeAttributes;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.BaseFeature;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.*;
+import us.dot.its.jpo.ode.plugin.j2735.*;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Methods to get properties from ProcessedMaps with null checks
@@ -46,6 +54,76 @@ public class ProcessedMapUtils {
             return 0L;
         }
         return zdt.toInstant().toEpochMilli();
+    }
+
+    public static <T> Set<Integer> getRevocableLanes(ProcessedMap<T> processedMap) {
+        LaneTypeAttributesMap allLaneAttributes = getLaneTypeAttributesMap(processedMap);
+        return getRevocableLanes(allLaneAttributes);
+    }
+
+    public static <T> Set<Integer> getRevocableLanes(LaneTypeAttributesMap allLaneAttributes) {
+        return allLaneAttributes.entrySet().stream()
+                .filter(entry -> entry.getValue() != null
+                        && entry.getValue().revocable())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public static <T> LaneTypeAttributesMap getLaneTypeAttributesMap(ProcessedMap<T> processedMap) {
+        Map<Integer, J2735LaneTypeAttributes> attributesMap = getLaneTypeAttributes(processedMap);
+        Map<Integer, RevocableLaneTypeAttributes> laneTypeAttributesMap =
+                attributesMap.entrySet().stream().collect(
+                        Collectors.toUnmodifiableMap(Map.Entry::getKey,
+                                entry -> getRevocableLaneTypeAttributes(entry.getValue())));
+        return new LaneTypeAttributesMap(laneTypeAttributesMap);
+    }
+
+    private static <T> Map<Integer, J2735LaneTypeAttributes> getLaneTypeAttributes(ProcessedMap<T> processedMap) {
+        MapFeatureCollection<T> featureCollection = processedMap.getMapFeatureCollection();
+        if (featureCollection == null) {
+            log.error("ProcessedMap.processedMapFeatureCollection is null");
+            return Map.of();
+        }
+        MapFeature<T>[] features = featureCollection.getFeatures();
+        return Arrays.stream(features)
+                .map(BaseFeature::getProperties)
+                .filter(properties -> properties != null
+                        && properties.getLaneId() != null
+                        && properties.getLaneType() != null)
+                .collect(Collectors.toUnmodifiableMap(MapProperties::getLaneId, MapProperties::getLaneType));
+    }
+
+    private static RevocableLaneTypeAttributes getRevocableLaneTypeAttributes(J2735LaneTypeAttributes laneTypeAttributes) {
+        J2735BitString bitString;
+        String laneType = null;
+        String revocablePropertyName = null;
+        if ((bitString = laneTypeAttributes.getBikeLane()) != null) {
+            laneType = "bikeLane";
+            revocablePropertyName = J2735LaneAttributesBike.bikeRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getCrosswalk()) != null) {
+            laneType = "crosswalk";
+            revocablePropertyName = J2735LaneAttributesCrosswalk.crosswalkRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getMedian()) != null) {
+            laneType = "median";
+            revocablePropertyName = J2735LaneAttributesBarrier.medianRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getParking()) != null) {
+            laneType = "parking";
+            revocablePropertyName = J2735LaneAttributesParking.parkingRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getSidewalk()) != null) {
+            laneType = "sidewalk";
+            revocablePropertyName = J2735LaneAttributesSidewalk.sidewalkRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getStriping()) != null) {
+            laneType = "striping";
+            revocablePropertyName = J2735LaneAttributesStriping.stripeToConnectingLanesRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getTrackedVehicle()) != null) {
+            laneType = "trackedVehicle";
+            revocablePropertyName = J2735LaneAttributesTrackedVehicle.specRevocableLane.name();
+        } else if ((bitString = laneTypeAttributes.getVehicle()) != null) {
+            laneType = "vehicle";
+            revocablePropertyName = J2735LaneAttributesVehicle.isVehicleRevocableLane.name();
+        }
+        boolean revocable = (bitString != null) ? bitString.get(revocablePropertyName) : false;
+        return new RevocableLaneTypeAttributes(laneType, revocable);
     }
 
 

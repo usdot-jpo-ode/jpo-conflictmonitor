@@ -4,6 +4,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.Algorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.IntersectionReferenceAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalGroupAlignmentAggregationAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsAlgorithm;
 
 /**
  * Interface for MAP SPaT message assessment Algorithm validation algorithms.
@@ -32,6 +34,7 @@ public interface MapSpatMessageAssessmentAlgorithm extends Algorithm<MapSpatMess
      * @param signalStateConflictAggregationAlgorithm the signal state conflict aggregation algorithm to set
      */
     void setSignalStateConflictAggregationAlgorithm(SignalStateConflictAggregationAlgorithm signalStateConflictAggregationAlgorithm);
+    void setRevocableEnabledLaneAlignmentAlgorithm(RevocableEnabledLaneAlignmentAlgorithm revocableEnabledLaneAlignmentAlgorithm);
 
 }
 

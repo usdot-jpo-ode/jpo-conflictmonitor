@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 import java.util.*;
 
 import lombok.*;
+import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
@@ -61,6 +62,7 @@ public class Intersection {
      * ArrayList of LaneConnection objects describing all of the ways lanes can connect to other lanes within the ConflictMonitor System
      */
     private ArrayList<LaneConnection> laneConnections;
+    private Set<Integer> revocableLaneIds;
 
     /**
      * @param map {@code ProcessedMap<LineString>} object to convert to an intersection object
@@ -73,6 +75,9 @@ public class Intersection {
         ArrayList<Lane> egressLanes = new ArrayList<>();
         ArrayList<LaneConnection> laneConnections = new ArrayList<>();
         HashMap<Integer, Lane> laneLookup = new HashMap<>();
+
+        // Get revocable lanes.
+        intersection.revocableLaneIds = ProcessedMapUtils.getRevocableLanes(map);
 
         if (map.getProperties() == null) return intersection;
 

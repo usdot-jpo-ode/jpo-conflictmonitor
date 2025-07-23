@@ -1,0 +1,109 @@
+{
+  "schemaVersion": -1,
+  "messageType": "SPAT",
+  "odeReceivedAt": "2025-06-19T00:34:35.966Z",
+  "originIp": "172.18.0.1",
+  "name": "IA5S",
+  "intersectionId": 3416,
+  "cti4501Conformant": true,
+  "validationMessages": [],
+  "revision": 2,
+  "status": {
+    "manualControlIsEnabled": false,
+    "stopTimeIsActivated": false,
+    "failureFlash": false,
+    "preemptIsActive": false,
+    "signalPriorityIsActive": false,
+    "fixedTimeOperation": false,
+    "trafficDependentOperation": false,
+    "standbyOperation": false,
+    "failureMode": false,
+    "off": false,
+    "recentMAPmessageUpdate": false,
+    "recentChangeInMAPassignedLanesIDsUsed": false,
+    "noValidMAPisAvailableAtThisTime": false,
+    "noValidSPATisAvailableAtThisTime": false
+  },
+  "utcTimeStamp": "2025-06-27T17:14:18.202Z",
+  "enabledLanes": [
+    17,
+    81,
+    82,
+    83,
+    84
+  ],
+  "states": [
+    {
+      "signalGroup": 1,
+      "stateTimeSpeed": [
+        {
+          "eventState": "PROTECTED_MOVEMENT_ALLOWED",
+          "timing": {
+            "minEndTime": "2025-06-18T17:00:01Z",
+            "maxEndTime": "2025-06-18T17:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "signalGroup": 2,
+      "stateTimeSpeed": [
+        {
+          "eventState": "STOP_AND_REMAIN",
+          "timing": {
+            "minEndTime": "2025-06-18T17:00:01Z",
+            "maxEndTime": "2025-06-18T17:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "signalGroup": 3,
+      "stateTimeSpeed": [
+        {
+          "eventState": "PERMISSIVE_MOVEMENT_ALLOWED",
+          "timing": {
+            "minEndTime": "2025-06-18T17:00:01Z",
+            "maxEndTime": "2025-06-18T17:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "signalGroup": 4,
+      "stateTimeSpeed": [
+        {
+          "eventState": "PERMISSIVE_MOVEMENT_ALLOWED",
+          "timing": {
+            "minEndTime": "2025-06-18T17:00:01Z",
+            "maxEndTime": "2025-06-18T17:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "signalGroup": 5,
+      "stateTimeSpeed": [
+        {
+          "eventState": "STOP_AND_REMAIN",
+          "timing": {
+            "minEndTime": "2025-06-18T17:00:01Z",
+            "maxEndTime": "2025-06-18T17:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "signalGroup": 6,
+      "stateTimeSpeed": [
+        {
+          "eventState": "PROTECTED_MOVEMENT_ALLOWED",
+          "timing": {
+            "minEndTime": "2025-06-18T17:00:01Z",
+            "maxEndTime": "2025-06-18T17:00:01Z"
+          }
+        }
+      ]
+    }
+  ]
+}

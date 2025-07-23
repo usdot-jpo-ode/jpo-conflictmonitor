@@ -1,0 +1,4101 @@
+{
+  "mapFeatureCollection": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": 57,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615682,
+              40.0598891
+            ],
+            [
+              -82.9614552,
+              40.0598847
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2092,
+                -1207
+              ]
+            },
+            {
+              "delta": [
+                961,
+                -49
+              ]
+            }
+          ],
+          "laneId": 57,
+          "laneName": "EB T3",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 56,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615658,
+              40.0599164
+            ],
+            [
+              -82.9614549,
+              40.0599114
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2112,
+                -903
+              ]
+            },
+            {
+              "delta": [
+                943,
+                -56
+              ]
+            }
+          ],
+          "laneId": 56,
+          "laneName": "EB T2",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 52,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615346,
+              40.0600233
+            ],
+            [
+              -82.9597269,
+              40.059942
+            ],
+            [
+              -82.9579854,
+              40.0598641
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2378,
+                284
+              ]
+            },
+            {
+              "delta": [
+                15373,
+                -903
+              ]
+            },
+            {
+              "delta": [
+                14810,
+                -865
+              ]
+            }
+          ],
+          "laneId": 52,
+          "laneName": "WB T2",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 119,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 2
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 51,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.961531,
+              40.0600559
+            ],
+            [
+              -82.9597285,
+              40.0599747
+            ],
+            [
+              -82.9579822,
+              40.0598958
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2408,
+                647
+              ]
+            },
+            {
+              "delta": [
+                15329,
+                -902
+              ]
+            },
+            {
+              "delta": [
+                14851,
+                -877
+              ]
+            }
+          ],
+          "laneId": 51,
+          "laneName": "WB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 120,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 2
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 50,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615312,
+              40.0600837
+            ],
+            [
+              -82.9597271,
+              40.0600038
+            ],
+            [
+              -82.9579788,
+              40.0599236
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2407,
+                956
+              ]
+            },
+            {
+              "delta": [
+                15342,
+                -888
+              ]
+            },
+            {
+              "delta": [
+                14868,
+                -891
+              ]
+            }
+          ],
+          "laneId": 50,
+          "laneName": "WB TR1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": true,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 20,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": true,
+                  "caution": false
+                }
+              },
+              "signalGroup": 2
+            },
+            {
+              "connectingLane": {
+                "lane": 121,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 2
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 49,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615276,
+              40.0601044
+            ],
+            [
+              -82.9597256,
+              40.060027
+            ],
+            [
+              -82.9579797,
+              40.0599464
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2437,
+                1186
+              ],
+              "dwidth": -183
+            },
+            {
+              "delta": [
+                15324,
+                -860
+              ]
+            },
+            {
+              "delta": [
+                14847,
+                -895
+              ]
+            }
+          ],
+          "laneId": 49,
+          "laneName": "WB B1",
+          "laneType": {
+            "bikeLane": {
+              "bikeRevocableLane": false,
+              "pedestrianUseAllowed": false,
+              "fixedCycleTime": false,
+              "isolatedByBarrier": false,
+              "biDirectionalCycleTimes": false,
+              "unsignalizedSegmentsPresent": false,
+              "isBikeFlyOverLane": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": true,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 20,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": true,
+                  "caution": false
+                }
+              },
+              "signalGroup": 2
+            },
+            {
+              "connectingLane": {
+                "lane": 122,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 2
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 53,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615388,
+              40.0599796
+            ],
+            [
+              -82.9613389,
+              40.059972
+            ],
+            [
+              -82.9612705,
+              40.0599752
+            ],
+            [
+              -82.9612122,
+              40.0599808
+            ],
+            [
+              -82.9611344,
+              40.0599781
+            ],
+            [
+              -82.9599105,
+              40.0599209
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2342,
+                -201
+              ]
+            },
+            {
+              "delta": [
+                1700,
+                -84
+              ]
+            },
+            {
+              "delta": [
+                582,
+                36
+              ]
+            },
+            {
+              "delta": [
+                496,
+                62
+              ]
+            },
+            {
+              "delta": [
+                662,
+                -30
+              ]
+            },
+            {
+              "delta": [
+                10408,
+                -635
+              ]
+            }
+          ],
+          "laneId": 53,
+          "laneName": "WB L1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": true,
+            "maneuverUTurnAllowed": true,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 84,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": true,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 6
+            },
+            {
+              "connectingLane": {
+                "lane": 55,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": true,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 6
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 55,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615633,
+              40.0599472
+            ],
+            [
+              -82.9614535,
+              40.0599457
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2134,
+                -561
+              ]
+            },
+            {
+              "delta": [
+                934,
+                -17
+              ]
+            }
+          ],
+          "laneId": 55,
+          "laneName": "EB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 117,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621153,
+              40.0600175
+            ],
+            [
+              -82.9623228,
+              40.0600252
+            ],
+            [
+              -82.9623827,
+              40.0600238
+            ],
+            [
+              -82.9624395,
+              40.06002
+            ],
+            [
+              -82.9624924,
+              40.0600186
+            ],
+            [
+              -82.9625748,
+              40.060023
+            ],
+            [
+              -82.962655,
+              40.0600269
+            ],
+            [
+              -82.9632524,
+              40.0600569
+            ],
+            [
+              -82.9633079,
+              40.0600547
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2561,
+                220
+              ]
+            },
+            {
+              "delta": [
+                -1765,
+                85
+              ]
+            },
+            {
+              "delta": [
+                -509,
+                -16
+              ]
+            },
+            {
+              "delta": [
+                -483,
+                -42
+              ]
+            },
+            {
+              "delta": [
+                -450,
+                -16
+              ]
+            },
+            {
+              "delta": [
+                -701,
+                49
+              ]
+            },
+            {
+              "delta": [
+                -682,
+                43
+              ]
+            },
+            {
+              "delta": [
+                -5080,
+                333
+              ]
+            },
+            {
+              "delta": [
+                -472,
+                -24
+              ]
+            }
+          ],
+          "laneId": 117,
+          "laneName": "EB L1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": true,
+            "maneuverUTurnAllowed": true,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 20,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": true,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 1
+            },
+            {
+              "connectingLane": {
+                "lane": 119,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": true,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 1
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 119,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9620911,
+              40.06005
+            ],
+            [
+              -82.9621774,
+              40.0600521
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2355,
+                581
+              ]
+            },
+            {
+              "delta": [
+                -734,
+                23
+              ],
+              "delevation": -320
+            }
+          ],
+          "laneId": 119,
+          "laneName": "WB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 120,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9620884,
+              40.0600797
+            ],
+            [
+              -82.9621735,
+              40.0600832
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2332,
+                911
+              ]
+            },
+            {
+              "delta": [
+                -724,
+                39
+              ]
+            }
+          ],
+          "laneId": 120,
+          "laneName": "WB T2",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 122,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.962083,
+              40.0601299
+            ],
+            [
+              -82.9621678,
+              40.060134
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2286,
+                1469
+              ]
+            },
+            {
+              "delta": [
+                -721,
+                46
+              ]
+            }
+          ],
+          "laneId": 122,
+          "laneName": "WB B1",
+          "laneType": {
+            "bikeLane": {
+              "bikeRevocableLane": false,
+              "pedestrianUseAllowed": false,
+              "fixedCycleTime": false,
+              "isolatedByBarrier": false,
+              "biDirectionalCycleTimes": false,
+              "unsignalizedSegmentsPresent": false,
+              "isBikeFlyOverLane": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 19,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618044,
+              40.0602101
+            ],
+            [
+              -82.9617109,
+              40.061312
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                83,
+                2360
+              ]
+            },
+            {
+              "delta": [
+                795,
+                12243
+              ]
+            }
+          ],
+          "laneId": 19,
+          "laneName": "SB L1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": true,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 55,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": true,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 4
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 121,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9620861,
+              40.0601087
+            ],
+            [
+              -82.9621722,
+              40.0601132
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2312,
+                1233
+              ]
+            },
+            {
+              "delta": [
+                -732,
+                50
+              ]
+            }
+          ],
+          "laneId": 121,
+          "laneName": "WB T3",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 20,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617623,
+              40.06019
+            ],
+            [
+              -82.9617612,
+              40.06024
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                441,
+                2137
+              ]
+            },
+            {
+              "delta": [
+                9,
+                556
+              ]
+            }
+          ],
+          "laneId": 20,
+          "laneName": "NB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 18,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618458,
+              40.0602133
+            ],
+            [
+              -82.9617966,
+              40.0608221
+            ],
+            [
+              -82.9617502,
+              40.0613142
+            ],
+            [
+              -82.9617167,
+              40.061611
+            ],
+            [
+              -82.9617075,
+              40.0617273
+            ],
+            [
+              -82.9616933,
+              40.0618357
+            ],
+            [
+              -82.961646,
+              40.0619777
+            ],
+            [
+              -82.9615486,
+              40.062146
+            ],
+            [
+              -82.9613951,
+              40.0623059
+            ],
+            [
+              -82.9603309,
+              40.0630869
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -269,
+                2395
+              ]
+            },
+            {
+              "delta": [
+                418,
+                6764
+              ]
+            },
+            {
+              "delta": [
+                395,
+                5468
+              ]
+            },
+            {
+              "delta": [
+                285,
+                3298
+              ],
+              "dwidth": 122
+            },
+            {
+              "delta": [
+                78,
+                1292
+              ],
+              "dwidth": -122
+            },
+            {
+              "delta": [
+                121,
+                1204
+              ]
+            },
+            {
+              "delta": [
+                402,
+                1578
+              ]
+            },
+            {
+              "delta": [
+                828,
+                1870
+              ]
+            },
+            {
+              "delta": [
+                1305,
+                1777
+              ]
+            },
+            {
+              "delta": [
+                9050,
+                8678
+              ]
+            }
+          ],
+          "laneId": 18,
+          "laneName": "SB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 84,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 4
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 16,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618866,
+              40.0602155
+            ],
+            [
+              -82.9618322,
+              40.060872
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -616,
+                2420
+              ]
+            },
+            {
+              "delta": [
+                463,
+                7294
+              ]
+            }
+          ],
+          "laneId": 16,
+          "laneName": "SB R1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": true,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": true,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 122,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": true,
+                  "caution": false
+                }
+              },
+              "signalGroup": 4
+            },
+            {
+              "connectingLane": {
+                "lane": 121,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": true,
+                  "caution": false
+                }
+              },
+              "signalGroup": 4
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 17,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618866,
+              40.0602155
+            ],
+            [
+              -82.9618322,
+              40.060872
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -616,
+                2420
+              ]
+            },
+            {
+              "delta": [
+                463,
+                7294
+              ]
+            }
+          ],
+          "laneId": 17,
+          "laneName": "SB R1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": true,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 122,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 4
+            },
+            {
+              "connectingLane": {
+                "lane": 121,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 4
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 81,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617482,
+              40.0597839
+            ],
+            [
+              -82.9617647,
+              40.0595751
+            ],
+            [
+              -82.9617678,
+              40.0595519
+            ],
+            [
+              -82.9617754,
+              40.0595026
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                561,
+                -2375
+              ]
+            },
+            {
+              "delta": [
+                -140,
+                -2320
+              ]
+            },
+            {
+              "delta": [
+                -26,
+                -258
+              ]
+            },
+            {
+              "delta": [
+                -65,
+                -548
+              ]
+            }
+          ],
+          "laneId": 81,
+          "laneName": "NB R1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": true,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 58,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 3
+            },
+            {
+              "connectingLane": {
+                "lane": 57,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 3
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 80,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617482,
+              40.0597839
+            ],
+            [
+              -82.9617647,
+              40.0595751
+            ],
+            [
+              -82.9617678,
+              40.0595519
+            ],
+            [
+              -82.9617754,
+              40.0595026
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                561,
+                -2375
+              ]
+            },
+            {
+              "delta": [
+                -140,
+                -2320
+              ]
+            },
+            {
+              "delta": [
+                -26,
+                -258
+              ]
+            },
+            {
+              "delta": [
+                -65,
+                -548
+              ]
+            }
+          ],
+          "laneId": 80,
+          "laneName": "NB R1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": true,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": true,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 58,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": true,
+                  "caution": false
+                }
+              },
+              "signalGroup": 3
+            },
+            {
+              "connectingLane": {
+                "lane": 57,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": true,
+                  "caution": false
+                }
+              },
+              "signalGroup": 3
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 82,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617856,
+              40.0597862
+            ],
+            [
+              -82.9618002,
+              40.0595765
+            ],
+            [
+              -82.9618063,
+              40.0593675
+            ],
+            [
+              -82.9618342,
+              40.0590466
+            ],
+            [
+              -82.9618806,
+              40.0584504
+            ],
+            [
+              -82.9618935,
+              40.058221
+            ],
+            [
+              -82.9619424,
+              40.057957
+            ],
+            [
+              -82.9620197,
+              40.0577817
+            ],
+            [
+              -82.9622069,
+              40.0574953
+            ],
+            [
+              -82.9623699,
+              40.0571891
+            ],
+            [
+              -82.9624467,
+              40.0568835
+            ],
+            [
+              -82.9624641,
+              40.056744
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                243,
+                -2350
+              ]
+            },
+            {
+              "delta": [
+                -124,
+                -2330
+              ]
+            },
+            {
+              "delta": [
+                -52,
+                -2322
+              ]
+            },
+            {
+              "delta": [
+                -237,
+                -3566
+              ]
+            },
+            {
+              "delta": [
+                -395,
+                -6624
+              ]
+            },
+            {
+              "delta": [
+                -110,
+                -2549
+              ]
+            },
+            {
+              "delta": [
+                -416,
+                -2933
+              ]
+            },
+            {
+              "delta": [
+                -657,
+                -1948
+              ]
+            },
+            {
+              "delta": [
+                -1592,
+                -3182
+              ]
+            },
+            {
+              "delta": [
+                -1386,
+                -3402
+              ]
+            },
+            {
+              "delta": [
+                -653,
+                -3395
+              ]
+            },
+            {
+              "delta": [
+                -148,
+                -1550
+              ]
+            }
+          ],
+          "laneId": 82,
+          "laneName": "NB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 20,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 3
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 84,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618643,
+              40.0598062
+            ],
+            [
+              -82.961871,
+              40.0597518
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -426,
+                -2128
+              ]
+            },
+            {
+              "delta": [
+                -57,
+                -604
+              ]
+            }
+          ],
+          "laneId": 84,
+          "laneName": "SB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 83,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618229,
+              40.0597873
+            ],
+            [
+              -82.9618356,
+              40.0595774
+            ],
+            [
+              -82.9618368,
+              40.0595499
+            ],
+            [
+              -82.9618364,
+              40.0595045
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -74,
+                -2338
+              ]
+            },
+            {
+              "delta": [
+                -108,
+                -2332
+              ]
+            },
+            {
+              "delta": [
+                -10,
+                -306
+              ]
+            },
+            {
+              "delta": [
+                3,
+                -504
+              ]
+            }
+          ],
+          "laneId": 83,
+          "laneName": "NB L1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": false,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": true,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 119,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": true,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 3
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 58,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.961571,
+              40.0598705
+            ],
+            [
+              -82.9614568,
+              40.0598628
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2068,
+                -1413
+              ]
+            },
+            {
+              "delta": [
+                971,
+                -85
+              ]
+            }
+          ],
+          "laneId": 58,
+          "laneName": "EB B1",
+          "laneType": {
+            "bikeLane": {
+              "bikeRevocableLane": false,
+              "pedestrianUseAllowed": false,
+              "fixedCycleTime": false,
+              "isolatedByBarrier": false,
+              "biDirectionalCycleTimes": false,
+              "unsignalizedSegmentsPresent": false,
+              "isBikeFlyOverLane": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 113,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621282,
+              40.0598951
+            ],
+            [
+              -82.9634974,
+              40.0599546
+            ],
+            [
+              -82.9661135,
+              40.0600714
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2670,
+                -1140
+              ],
+              "dwidth": -183
+            },
+            {
+              "delta": [
+                -11644,
+                661
+              ]
+            },
+            {
+              "delta": [
+                -22248,
+                1298
+              ]
+            }
+          ],
+          "laneId": 113,
+          "laneName": "EB B1",
+          "laneType": {
+            "bikeLane": {
+              "bikeRevocableLane": false,
+              "pedestrianUseAllowed": false,
+              "fixedCycleTime": false,
+              "isolatedByBarrier": false,
+              "biDirectionalCycleTimes": false,
+              "unsignalizedSegmentsPresent": false,
+              "isBikeFlyOverLane": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 84,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 5
+            },
+            {
+              "connectingLane": {
+                "lane": 58,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 5
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 114,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621252,
+              40.0599145
+            ],
+            [
+              -82.9634931,
+              40.0599758
+            ],
+            [
+              -82.9661132,
+              40.0600956
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2645,
+                -924
+              ]
+            },
+            {
+              "delta": [
+                -11633,
+                681
+              ]
+            },
+            {
+              "delta": [
+                -22282,
+                1331
+              ]
+            }
+          ],
+          "laneId": 114,
+          "laneName": "EB TR1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": true,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 84,
+                "maneuver": {
+                  "maneuverStraightAllowed": false,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": true,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 5
+            },
+            {
+              "connectingLane": {
+                "lane": 57,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 5
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 116,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621193,
+              40.0599741
+            ],
+            [
+              -82.9634842,
+              40.0600408
+            ],
+            [
+              -82.9661094,
+              40.0601511
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2595,
+                -262
+              ]
+            },
+            {
+              "delta": [
+                -11607,
+                741
+              ]
+            },
+            {
+              "delta": [
+                -22325,
+                1226
+              ]
+            }
+          ],
+          "laneId": 116,
+          "laneName": "EB T2",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 55,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 5
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 115,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621217,
+              40.0599446
+            ],
+            [
+              -82.9634888,
+              40.0600081
+            ],
+            [
+              -82.9661114,
+              40.0601231
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2615,
+                -590
+              ]
+            },
+            {
+              "delta": [
+                -11626,
+                705
+              ]
+            },
+            {
+              "delta": [
+                -22303,
+                1278
+              ]
+            }
+          ],
+          "laneId": 115,
+          "laneName": "EB T1",
+          "laneType": {
+            "vehicle": {
+              "isVehicleRevocableLane": false,
+              "isVehicleFlyOverLane": false,
+              "permissionOnRequest": false,
+              "hasIRbeaconCoverage": false,
+              "restrictedToBusUse": false,
+              "restrictedToTaxiUse": false,
+              "restrictedFromPublicUse": false,
+              "hovLaneUseOnly": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": true,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": true,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": true,
+            "otherNonMotorizedTrafficTypes": true,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": true,
+          "egressPath": false,
+          "maneuvers": {
+            "maneuverStraightAllowed": true,
+            "maneuverNoStoppingAllowed": false,
+            "goWithHalt": false,
+            "maneuverLeftAllowed": false,
+            "maneuverUTurnAllowed": false,
+            "maneuverLeftTurnOnRedAllowed": false,
+            "reserved1": false,
+            "maneuverRightAllowed": false,
+            "maneuverLaneChangeAllowed": false,
+            "yieldAllwaysRequired": false,
+            "maneuverRightTurnOnRedAllowed": false,
+            "caution": false
+          },
+          "connectsTo": [
+            {
+              "connectingLane": {
+                "lane": 56,
+                "maneuver": {
+                  "maneuverStraightAllowed": true,
+                  "maneuverNoStoppingAllowed": false,
+                  "goWithHalt": false,
+                  "maneuverLeftAllowed": false,
+                  "maneuverUTurnAllowed": false,
+                  "maneuverLeftTurnOnRedAllowed": false,
+                  "reserved1": false,
+                  "maneuverRightAllowed": false,
+                  "maneuverLaneChangeAllowed": false,
+                  "yieldAllwaysRequired": false,
+                  "maneuverRightTurnOnRedAllowed": false,
+                  "caution": false
+                }
+              },
+              "signalGroup": 5
+            }
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 60,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615691,
+              40.0601128
+            ],
+            [
+              -82.9615913,
+              40.0598643
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                2084,
+                1279
+              ],
+              "dwidth": -61
+            },
+            {
+              "delta": [
+                -189,
+                -2761
+              ]
+            }
+          ],
+          "laneId": 60,
+          "laneName": "E XW",
+          "laneType": {
+            "crosswalk": {
+              "fixedCycleTime": false,
+              "biDirectionalCycleTimes": false,
+              "rfSignalRequestPresent": false,
+              "hasPushToWalkButton": false,
+              "bicyleUseAllowed": false,
+              "isXwalkFlyOverLane": false,
+              "crosswalkRevocableLane": false,
+              "unsignalizedSegmentsPresent": false,
+              "audioSupport": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": false
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 21,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9619372,
+              40.0601776
+            ],
+            [
+              -82.9617211,
+              40.0601653
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -1046,
+                1999
+              ],
+              "dwidth": 305
+            },
+            {
+              "delta": [
+                1838,
+                -137
+              ]
+            }
+          ],
+          "laneId": 21,
+          "laneName": "N XW",
+          "laneType": {
+            "crosswalk": {
+              "fixedCycleTime": false,
+              "biDirectionalCycleTimes": false,
+              "rfSignalRequestPresent": false,
+              "hasPushToWalkButton": false,
+              "bicyleUseAllowed": false,
+              "isXwalkFlyOverLane": false,
+              "crosswalkRevocableLane": false,
+              "unsignalizedSegmentsPresent": false,
+              "audioSupport": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": false
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 85,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617055,
+              40.0598268
+            ],
+            [
+              -82.9619237,
+              40.0598384
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                924,
+                -1899
+              ],
+              "dwidth": 244
+            },
+            {
+              "delta": [
+                -1856,
+                129
+              ]
+            }
+          ],
+          "laneId": 85,
+          "laneName": "S XW",
+          "laneType": {
+            "crosswalk": {
+              "fixedCycleTime": false,
+              "biDirectionalCycleTimes": false,
+              "rfSignalRequestPresent": false,
+              "hasPushToWalkButton": false,
+              "bicyleUseAllowed": false,
+              "isXwalkFlyOverLane": false,
+              "crosswalkRevocableLane": false,
+              "unsignalizedSegmentsPresent": false,
+              "audioSupport": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": false
+        }
+      },
+      {
+        "type": "Feature",
+        "id": 124,
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.962082,
+              40.059886
+            ],
+            [
+              -82.9620622,
+              40.0601349
+            ]
+          ]
+        },
+        "properties": {
+          "nodes": [
+            {
+              "delta": [
+                -2277,
+                -1241
+              ],
+              "dwidth": -61
+            },
+            {
+              "delta": [
+                168,
+                2766
+              ]
+            }
+          ],
+          "laneId": 124,
+          "laneName": "W XW",
+          "laneType": {
+            "crosswalk": {
+              "fixedCycleTime": false,
+              "biDirectionalCycleTimes": false,
+              "rfSignalRequestPresent": false,
+              "hasPushToWalkButton": false,
+              "bicyleUseAllowed": false,
+              "isXwalkFlyOverLane": false,
+              "crosswalkRevocableLane": false,
+              "unsignalizedSegmentsPresent": false,
+              "audioSupport": false
+            }
+          },
+          "sharedWith": {
+            "busVehicleTraffic": false,
+            "trackedVehicleTraffic": false,
+            "individualMotorizedVehicleTraffic": false,
+            "taxiVehicleTraffic": false,
+            "overlappingLaneDescriptionProvided": false,
+            "cyclistVehicleTraffic": false,
+            "otherNonMotorizedTrafficTypes": false,
+            "multipleLanesTreatedAsOneLane": false,
+            "pedestrianTraffic": false,
+            "pedestriansTraffic": false
+          },
+          "egressApproach": 0,
+          "ingressApproach": 0,
+          "ingressPath": false,
+          "egressPath": false
+        }
+      }
+    ]
+  },
+  "connectingLanesFeatureCollection": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": "52-119",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615346,
+              40.0600233
+            ],
+            [
+              -82.9620911,
+              40.06005
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 2,
+          "ingressLaneId": 52,
+          "egressLaneId": 119
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "51-120",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.961531,
+              40.0600559
+            ],
+            [
+              -82.9620884,
+              40.0600797
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 2,
+          "ingressLaneId": 51,
+          "egressLaneId": 120
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "50-20",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615312,
+              40.0600837
+            ],
+            [
+              -82.9617623,
+              40.06019
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 2,
+          "ingressLaneId": 50,
+          "egressLaneId": 20
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "50-121",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615312,
+              40.0600837
+            ],
+            [
+              -82.9620861,
+              40.0601087
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 2,
+          "ingressLaneId": 50,
+          "egressLaneId": 121
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "49-20",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615276,
+              40.0601044
+            ],
+            [
+              -82.9617623,
+              40.06019
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 2,
+          "ingressLaneId": 49,
+          "egressLaneId": 20
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "49-122",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615276,
+              40.0601044
+            ],
+            [
+              -82.962083,
+              40.0601299
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 2,
+          "ingressLaneId": 49,
+          "egressLaneId": 122
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "53-84",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615388,
+              40.0599796
+            ],
+            [
+              -82.9618643,
+              40.0598062
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 6,
+          "ingressLaneId": 53,
+          "egressLaneId": 84
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "53-55",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9615388,
+              40.0599796
+            ],
+            [
+              -82.9615633,
+              40.0599472
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 6,
+          "ingressLaneId": 53,
+          "egressLaneId": 55
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "117-20",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621153,
+              40.0600175
+            ],
+            [
+              -82.9617623,
+              40.06019
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 1,
+          "ingressLaneId": 117,
+          "egressLaneId": 20
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "117-119",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621153,
+              40.0600175
+            ],
+            [
+              -82.9620911,
+              40.06005
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 1,
+          "ingressLaneId": 117,
+          "egressLaneId": 119
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "19-55",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618044,
+              40.0602101
+            ],
+            [
+              -82.9615633,
+              40.0599472
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 4,
+          "ingressLaneId": 19,
+          "egressLaneId": 55
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "18-84",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618458,
+              40.0602133
+            ],
+            [
+              -82.9618643,
+              40.0598062
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 4,
+          "ingressLaneId": 18,
+          "egressLaneId": 84
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "16-122",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618866,
+              40.0602155
+            ],
+            [
+              -82.962083,
+              40.0601299
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 4,
+          "ingressLaneId": 16,
+          "egressLaneId": 122
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "16-121",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618866,
+              40.0602155
+            ],
+            [
+              -82.9620861,
+              40.0601087
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 4,
+          "ingressLaneId": 16,
+          "egressLaneId": 121
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "17-122",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618866,
+              40.0602155
+            ],
+            [
+              -82.962083,
+              40.0601299
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 4,
+          "ingressLaneId": 17,
+          "egressLaneId": 122
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "17-121",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618866,
+              40.0602155
+            ],
+            [
+              -82.9620861,
+              40.0601087
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 4,
+          "ingressLaneId": 17,
+          "egressLaneId": 121
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "81-58",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617482,
+              40.0597839
+            ],
+            [
+              -82.961571,
+              40.0598705
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 3,
+          "ingressLaneId": 81,
+          "egressLaneId": 58
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "81-57",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617482,
+              40.0597839
+            ],
+            [
+              -82.9615682,
+              40.0598891
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 3,
+          "ingressLaneId": 81,
+          "egressLaneId": 57
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "80-58",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617482,
+              40.0597839
+            ],
+            [
+              -82.961571,
+              40.0598705
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 3,
+          "ingressLaneId": 80,
+          "egressLaneId": 58
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "80-57",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617482,
+              40.0597839
+            ],
+            [
+              -82.9615682,
+              40.0598891
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 3,
+          "ingressLaneId": 80,
+          "egressLaneId": 57
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "82-20",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9617856,
+              40.0597862
+            ],
+            [
+              -82.9617623,
+              40.06019
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 3,
+          "ingressLaneId": 82,
+          "egressLaneId": 20
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "83-119",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9618229,
+              40.0597873
+            ],
+            [
+              -82.9620911,
+              40.06005
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 3,
+          "ingressLaneId": 83,
+          "egressLaneId": 119
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "113-84",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621282,
+              40.0598951
+            ],
+            [
+              -82.9618643,
+              40.0598062
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 5,
+          "ingressLaneId": 113,
+          "egressLaneId": 84
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "113-58",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621282,
+              40.0598951
+            ],
+            [
+              -82.961571,
+              40.0598705
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 5,
+          "ingressLaneId": 113,
+          "egressLaneId": 58
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "114-84",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621252,
+              40.0599145
+            ],
+            [
+              -82.9618643,
+              40.0598062
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 5,
+          "ingressLaneId": 114,
+          "egressLaneId": 84
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "114-57",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621252,
+              40.0599145
+            ],
+            [
+              -82.9615682,
+              40.0598891
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 5,
+          "ingressLaneId": 114,
+          "egressLaneId": 57
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "116-55",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621193,
+              40.0599741
+            ],
+            [
+              -82.9615633,
+              40.0599472
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 5,
+          "ingressLaneId": 116,
+          "egressLaneId": 55
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "115-56",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -82.9621217,
+              40.0599446
+            ],
+            [
+              -82.9615658,
+              40.0599164
+            ]
+          ]
+        },
+        "properties": {
+          "signalGroupId": 5,
+          "ingressLaneId": 115,
+          "egressLaneId": 56
+        }
+      }
+    ]
+  },
+  "properties": {
+    "schemaVersion": 1,
+    "messageType": "MAP",
+    "odeReceivedAt": "2025-06-05T23:49:42.421Z",
+    "originIp": "172.18.0.1",
+    "intersectionId": 3416,
+    "msgIssueRevision": 0,
+    "revision": 0,
+    "refPoint": {
+      "latitude": 40.0599977,
+      "longitude": -82.9618142,
+      "elevation": 269.0
+    },
+    "cti4501Conformant": false,
+    "validationMessages": [
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].id.region: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].id",
+        "schemaPath": "#/$defs/J2735IntersectionReferenceID/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[0].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[0]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[0].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[0]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[1].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[1]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[1].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[1]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[7].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[7]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[7].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[7]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[9].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[9]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[9].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[9]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[10].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[10]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[10].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[10]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[11].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[11]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[11].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[11]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[13].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[13]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[13].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[13]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[14].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[14]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[14].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[14]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[21].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[21]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[21].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[21]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[23].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[23]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[23].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[23]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[28].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[28]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[28].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[28]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[29].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[29]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[29].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[29]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[30].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[30]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[30].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[30]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[31].maneuvers: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[31]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[31].connectsTo: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0].laneSet.GenericLane[31]",
+        "schemaPath": "#/$defs/J2735GenericLane/required"
+      },
+      {
+        "message": "$.payload.data.intersections.intersectionGeometry[0].speedLimits: is missing but it is required",
+        "jsonPath": "$.payload.data.intersections.intersectionGeometry[0]",
+        "schemaPath": "#/$defs/J2735IntersectionGeometry/required"
+      }
+    ],
+    "laneWidth": 366,
+    "mapSource": "RSU",
+    "timeStamp": "2025-06-05T23:49:42.421Z"
+  }
+}

@@ -50,7 +50,9 @@ import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
         @JsonSubTypes.Type(value = IntersectionReferenceAlignmentNotificationAggregation.class, name = "IntersectionReferenceAlignmentNotificationAggregation"),
         @JsonSubTypes.Type(value = SignalGroupAlignmentNotificationAggregation.class, name = "SignalGroupAlignmentNotificationAggregation"),
         @JsonSubTypes.Type(value = SignalStateConflictNotificationAggregation.class, name = "SignalStateConflictNotificationAggregation"),
-        @JsonSubTypes.Type(value = TimeChangeDetailsNotificationAggregation.class, name = "TimeChangeDetailsNotificationAggregation")
+        @JsonSubTypes.Type(value = TimeChangeDetailsNotificationAggregation.class, name = "TimeChangeDetailsNotificationAggregation"),
+        @JsonSubTypes.Type(value = RevocableEnabledLaneAlignmentNotification.class, name = "RevocableEnabledLaneAlignmentNotification"),
+        @JsonSubTypes.Type(value = RevocableEnabledLaneAlignmentNotificationAggregation.class, name = "RevocableEnabledLaneAlignmentNotificationAggregation")
 })
 @Getter
 @Setter

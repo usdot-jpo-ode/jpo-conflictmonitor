@@ -14,6 +14,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMini
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.MapMinimumDataEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.minimum_data.SpatMinimumDataEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEvent;
+import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.MapTimestampDeltaEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.timestamp_delta.SpatTimestampDeltaEvent;
 import us.dot.its.jpo.geojsonconverter.DateJsonMapper;
@@ -65,7 +67,10 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = SpatMessageCountProgressionEventAggregation.class,
                 name = "SpatMessageCountProgressionAggregation"),
         @JsonSubTypes.Type(value = MapMessageCountProgressionEventAggregation.class,
-                name = "MapMessageCountProgressionAggregation")
+                name = "MapMessageCountProgressionAggregation"),
+        @JsonSubTypes.Type(value = RevocableEnabledLaneAlignmentEvent.class, name = "RevocableEnabledLaneAlignment"),
+        @JsonSubTypes.Type(value = RevocableEnabledLaneAlignmentEventAggregation.class,
+                name = "RevocableEnabledLaneAlignmentAggregation")
 })
 @Getter
 @Setter
@@ -74,7 +79,7 @@ import lombok.Setter;
 public abstract class Event {
 
     private static final Logger logger = LoggerFactory.getLogger(Event.class);
-    
+
     /**
      * long representing the utc timestamp in milliseconds when this event was generated. This value is automatically created by the event when the object is generated. It doesn't represent the time that the actual data occurred. 
      * It is recommended to use this value for indexing and data retrieval as it is common among all events. In general this timestamp is within 1 - 2 seconds of the actual time at which an event occurred depending on the event. 
@@ -96,9 +101,9 @@ public abstract class Event {
      * int representing the roadRegulatorID of the intersection where this event occurred. Generally set to -1, roadRegulator is in the process of being deprecated and shouldn't be used. 
      */
     private int roadRegulatorID = -1;
-    
 
-    public Event(String eventType){
+
+    public Event(String eventType) {
         this.eventType = eventType;
     }
 

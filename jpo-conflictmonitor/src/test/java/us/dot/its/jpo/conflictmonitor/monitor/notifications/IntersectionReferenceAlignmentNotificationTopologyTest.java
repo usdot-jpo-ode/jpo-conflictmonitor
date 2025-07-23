@@ -8,6 +8,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.MockRevocableEnabledLaneAlignmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.IntersectionReferenceAlignmentEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.IntersectionReferenceAlignmentNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
@@ -51,6 +52,8 @@ public class IntersectionReferenceAlignmentNotificationTopologyTest {
         parameters.setSignalStateConflictNotificationTopicName(kafkaTopicSignalStateConflictNotificationTopicName);
 
         mapSpat.setParameters(parameters);
+
+        mapSpat.setRevocableEnabledLaneAlignmentAlgorithm(new MockRevocableEnabledLaneAlignmentStreamsAlgorithm());
 
         Topology topology = mapSpat.buildTopology();
         

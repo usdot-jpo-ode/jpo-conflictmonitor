@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.io.WKTWriter;
@@ -19,6 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.CoordinateConversion;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 /**
  * Represents the path of a vehicle through an intersection, constructed from a
@@ -28,6 +30,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
  */
 @Getter
 @Setter
+@Slf4j
 public class VehiclePath {
 
     /** Logger for VehiclePath operations. */
@@ -56,6 +59,8 @@ public class VehiclePath {
     /** Heading tolerance in degrees for matching. */
     private double headingToleranceDegrees;
 
+    private ProcessedSpat spat;
+
     /**
      * Constructs a VehiclePath using the provided BSMs, intersection, and matching
      * parameters.
@@ -64,15 +69,17 @@ public class VehiclePath {
      * @param intersection            The intersection the vehicle is traversing
      * @param minDistanceFeet         Minimum distance in feet for spatial matching
      * @param headingToleranceDegrees Heading tolerance in degrees for matching
+     * @param spat                    The ProcessedSpat in effect at the start of the path
      */
-    public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet,
-            double headingToleranceDegrees) {
+
+    public VehiclePath(BsmAggregator bsms, Intersection intersection, double minDistanceFeet, double headingToleranceDegrees,
+                       ProcessedSpat spat){
         this.bsms = bsms;
         this.intersection = intersection;
         this.minDistanceFeet = minDistanceFeet;
         this.headingToleranceDegrees = headingToleranceDegrees;
         this.geometryFactory = new GeometryFactory();
-
+        this.spat = spat;
         buildVehiclePath();
     }
 
@@ -157,10 +164,31 @@ public class VehiclePath {
         ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> matchingBsm = null;
         IntersectionLine bestLine = null;
 
-        for (IntersectionLine line : lines) {
-            if (this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)) {
-                int index = 0;
-                for (ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : this.bsms.getBsms()) {
+
+        for(IntersectionLine line : lines){
+
+            // If this lane is revocable in the MAP and disabled in the SPAT, ignore it: don't use it for Intersection
+            // Event algorithms.
+            log.debug("IntersectionLine; {}", line);
+            if (line.getLane() == null) {
+                throw new IllegalArgumentException(String.format("Line %s is null in IntersectionLine: {}", line));
+            } else {
+                final var laneId = line.getLane().getId();
+                final var revocable = intersection.getRevocableLaneIds();
+                log.debug("revocable lanes: {}", revocable);
+                final var enabled = spat.getEnabledLanes();
+                log.debug("enabled lanes: {}", enabled);
+                if (revocable != null && revocable.contains(laneId)
+                        && (enabled == null || !enabled.contains(laneId))) {
+                    log.debug("Lane {} is revocable but not enables; skipping it", laneId);
+                    // Disable revocable: skip it
+                    continue;
+                }
+            }
+
+            if(this.pathPoints.isWithinDistance(line.getStopLinePoint(), minDistanceCM)){
+                int index =0;
+                for(ProcessedBsm<us.dot.its.jpo.geojsonconverter.pojos.geojson.Point> bsm : this.bsms.getBsms()){
                     Point p = this.pathPoints.getPointN(index);
                     var optionalHeading = BsmUtils.getHeading(bsm);
                     if (optionalHeading.isEmpty()) {

@@ -2,6 +2,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
@@ -11,6 +13,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.CircleMath;
  */
 @Getter
 @Setter
+@ToString
+@Slf4j
 public class IntersectionLine {
     
     /**
@@ -34,6 +38,7 @@ public class IntersectionLine {
      * @return IntersectionLine returns an instance of a IntersectionLine calculated from the lane geometry.
      */
     public static IntersectionLine fromLane(Lane lane){
+        log.debug("construct IntersectionLine from Lane: {}", lane);
         LineString points = lane.getPoints();
 
         if(points.getNumPoints() >=2){
@@ -55,13 +60,11 @@ public class IntersectionLine {
      * @param lane
      */
     public IntersectionLine(Point stopLinePoint, double heading, Lane lane){
+        log.debug("construct IntersectionLine from stopLinePoint: {}, heading: {}, Lane: {}", stopLinePoint, heading, lane);
         this.stopLinePoint = stopLinePoint;
         this.heading = heading;
         this.lane = lane;
     }
 
-    @Override
-    public String toString(){
-        return "StopLine - StopLinePoint: (" + this.stopLinePoint.getX() + "," + this.stopLinePoint.getY() + ") Heading: " + this.heading + " deg";
-    }
+
 }

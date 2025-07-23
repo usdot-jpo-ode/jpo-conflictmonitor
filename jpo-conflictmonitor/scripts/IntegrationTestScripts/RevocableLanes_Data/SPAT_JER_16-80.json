@@ -1,0 +1,98 @@
+{
+  "messageId": 19,
+  "value": {
+    "SPAT": {
+      "timeStamp": 336511,
+      "intersections": [
+        {
+          "name": "IA5S",
+          "id": {
+            "id": 3416
+          },
+          "revision": 34,
+          "status": "0000",
+          "moy": 255914,
+          "timeStamp": 18202,
+          "enabledLanes": [
+            16,
+            80
+          ],
+          "states": [
+            {
+              "signalGroup": 1,
+              "state-time-speed": [
+                {
+                  "eventState": "protected-Movement-Allowed",
+                  "timing": {
+                    "minEndTime": 10,
+                    "maxEndTime": 10
+                  }
+                }
+              ]
+            },
+            {
+              "signalGroup": 2,
+              "state-time-speed": [
+                {
+                  "eventState": "stop-And-Remain",
+                  "timing": {
+                    "minEndTime": 10,
+                    "maxEndTime": 10
+                  }
+                }
+              ]
+            },
+            {
+              "signalGroup": 3,
+              "state-time-speed": [
+                {
+                  "eventState": "protected-Movement-Allowed",
+                  "timing": {
+                    "minEndTime": 10,
+                    "maxEndTime": 10
+                  }
+                }
+              ]
+            },
+            {
+              "signalGroup": 4,
+              "state-time-speed": [
+                {
+                  "eventState": "stop-And-Remain",
+                  "timing": {
+                    "minEndTime": 10,
+                    "maxEndTime": 10
+                  }
+                }
+              ]
+            },
+            {
+              "signalGroup": 5,
+              "state-time-speed": [
+                {
+                  "eventState": "permissive-Movement-Allowed",
+                  "timing": {
+                    "minEndTime": 10,
+                    "maxEndTime": 10
+                  }
+                }
+              ]
+            },
+            {
+              "signalGroup": 6,
+              "state-time-speed": [
+                {
+                  "eventState": "stop-And-Remain",
+                  "timing": {
+                    "minEndTime": 10,
+                    "maxEndTime": 10
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

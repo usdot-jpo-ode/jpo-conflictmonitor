@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.topologies;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -14,6 +15,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.*;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentStreamsAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentAlgorithm;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.revocable_enabled_lane_alignment.RevocableEnabledLaneAlignmentStreamsAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Intersection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.LaneConnection;
 import us.dot.its.jpo.conflictmonitor.monitor.models.RegulatorIntersectionId;
@@ -39,6 +42,7 @@ import java.util.*;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
 
+@Slf4j
 @Component(DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM)
 public class MapSpatMessageAssessmentTopology
         extends BaseStreamsTopology<MapSpatMessageAssessmentParameters>
@@ -49,6 +53,7 @@ public class MapSpatMessageAssessmentTopology
     private IntersectionReferenceAlignmentAggregationStreamsAlgorithm intersectionReferenceAlignmentAggregationAlgorithm;
     private SignalGroupAlignmentAggregationStreamsAlgorithm signalGroupAlignmentAggregationAlgorithm;
     private SignalStateConflictAggregationStreamsAlgorithm signalStateConflictAggregationAlgorithm;
+    private RevocableEnabledLaneAlignmentStreamsAlgorithm revocableEnabledLaneAlignmentAlgorithm;
 
     @Override
     protected Logger getLogger() {
@@ -109,9 +114,6 @@ public class MapSpatMessageAssessmentTopology
                 Materialized.with(
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.RsuIntersectionKey(),
                         us.dot.its.jpo.geojsonconverter.serialization.JsonSerdes.ProcessedMapGeoJson()));
-
-
-
 
         // For intersection reference alignment, re-key to RSU-only key to test if intersection ID and region match between
         // MAP and SPaTs from the same RSU
@@ -210,10 +212,8 @@ public class MapSpatMessageAssessmentTopology
             buildIntersectionReferenceAlignmentNotificationTopology(intersectionReferenceAlignmentEventStream);
         }
 
-
-
-        // Join Spats with MAP KTable, RsuIntersectionKey for the Signal Group Alignment check which presume
-        // that the Spat and Map are from the same intersection
+        // Join Spats with MAP KTable on RsuIntersectionKey for the Signal Group Alignment check, and Revocable
+        // Enabled Lane Alignment check, which presume that the Spat and Map are from the same intersection
         KStream<RsuIntersectionKey, SpatMap> spatJoinedMap = processedSpatStream
                 .join(mapKTable, (spat, map) -> new SpatMap(spat, map),
                         Joined.<RsuIntersectionKey, ProcessedSpat, ProcessedMap<LineString>>as("spat-maps-joined")
@@ -301,9 +301,29 @@ public class MapSpatMessageAssessmentTopology
                     }
 
                     Intersection intersection = Intersection.fromProcessedMap(map);
-                    ArrayList<LaneConnection> connections = intersection.getLaneConnections();
+                    ArrayList<LaneConnection> unfilteredConnections = intersection.getLaneConnections();
 
-
+                    // Filter out lane connections involving disabled revocable lanes which should be ignored by
+                    // the Signal State Conflict check.
+                    Set<Integer> revocableLaneIds = intersection.getRevocableLaneIds();
+                    Set<Integer> enabledLanes = new HashSet<>(spat.getEnabledLanes());
+                    var connections = new ArrayList<LaneConnection>();
+                    for (LaneConnection connection : unfilteredConnections) {
+                        int ingressId = connection.getIngressLane().getId();
+                        int egressId = connection.getEgressLane().getId();
+                        boolean ingressIsRevocable = revocableLaneIds != null && revocableLaneIds.contains(ingressId);
+                        boolean egressIsRevocable = revocableLaneIds != null && revocableLaneIds.contains(egressId);
+                        boolean ingressNotEnabled = !enabledLanes.contains(ingressId);
+                        boolean egressNotEnabled = !enabledLanes.contains(egressId);
+                        boolean ingressDisabled = ingressIsRevocable && ingressNotEnabled;
+                        boolean egressDisabled = egressIsRevocable && egressNotEnabled;
+                        if (ingressDisabled || egressDisabled) {
+                            log.debug("For key: {}, Ingress and/or egress lane ids {} and {} are revocable and " +
+                                    "disabled. Not including them in Signal State Conflict check", key, ingressId, egressId);
+                        } else {
+                            connections.add(connection);
+                        }
+                    }
 
                     
                     for (int i = 0; i < connections.size(); i++) {
@@ -361,6 +381,9 @@ public class MapSpatMessageAssessmentTopology
 
                     return events;
                 });
+
+        // Revocable Enabled Lane Alignment Algorithm uses the joined Spat/Map stream
+        revocableEnabledLaneAlignmentAlgorithm.buildTopology(builder, spatJoinedMap);
 
         if (parameters.isAggregateSignalStateConflictEvents()) {
             // Aggregate Signal State Conflict events
@@ -645,4 +668,15 @@ public class MapSpatMessageAssessmentTopology
             throw new IllegalArgumentException("Signal State Conflict Aggregation algorithm must be a Streams algorithm");
         }
     }
+
+    @Override
+    public void setRevocableEnabledLaneAlignmentAlgorithm(RevocableEnabledLaneAlignmentAlgorithm revocableEnabledLaneAlignmentAlgorithm) {
+        // Enforce the algorithm being a Streams algorithm
+        if (revocableEnabledLaneAlignmentAlgorithm instanceof RevocableEnabledLaneAlignmentStreamsAlgorithm streamsAlgorithm) {
+            this.revocableEnabledLaneAlignmentAlgorithm = streamsAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Revocable Enabled Lane Alignment Algorithm must be a Streams algorithm");
+        }
+    }
+
 }

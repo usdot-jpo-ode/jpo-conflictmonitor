@@ -230,6 +230,16 @@ kafka.topics:
       cleanupPolicy: compact
     - name: topic.CmEventStateProgressionNotificationAggregation
       cleanupPolicy: compact
+    - name: topic.CmRevocableEnabledLaneAlignmentEventAggregation
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmRevocableEnabledLaneAlignmentEvent
+      cleanupPolicy: delete
+      retentionMs: 300000
+    - name: topic.CmRevocableEnabledLaneAlignmentNotification
+      cleanupPolicy: compact
+    - name: topic.CmRevocableEnabledLaneAlignmentNotificationAggregation
+      cleanupPolicy: compact
 
 
 # Connection of Travel
@@ -592,6 +602,7 @@ aggregation:
     BsmMessageCountProgressionAggregation: topic.CmBsmMessageCountProgressionEventAggregation
     MapMessageCountProgressionAggregation: topic.CmMapMessageCountProgressionEventAggregation
     SpatMessageCountProgressionAggregation: topic.CmSpatMessageCountProgressionEventAggregation
+    RevocableEnabledLaneAlignmentAggregation: topic.CmRevocableEnabledLaneAlignmentEventAggregation
   eventAlgorithmMap:
     SpatMinimumDataAggregation: defaultSpatMinimumDataAggregationAlgorithm
     MapMinimumDataAggregation: defaultMapMinimumDataAggregationAlgorithm
@@ -603,9 +614,16 @@ aggregation:
     BsmMessageCountProgressionAggregation: defaultBsmMessageCountProgressionAggregationAlgorithm
     MapMessageCountProgressionAggregation: defaultMapMessageCountProgressionAggregationAlgorithm
     SpatMessageCountProgressionAggregation: defaultSpatMessageCountProgressionAggregationAlgorithm
+    RevocableEnabledLaneAlignmentAggregation: defaultRevocableEnabledLaneAlignmentAggregationAlgorithm
 
 
-
+revocable.enabled.lane.alignment:
+  algorithm: defaultRevocableEnabledLaneAlignmentAlgorithm
+  debug: true
+  aggregateEvents: false
+  outputTopicName: topic.CmRevocableEnabledLaneAlignmentEvent
+  notificationTopicName: topic.CmRevocableEnabledLaneAlignmentNotification
+  aggNotificationTopicName: topic.CmRevocableEnabledLaneAlignmentNotificationAggregation
 
 
 
