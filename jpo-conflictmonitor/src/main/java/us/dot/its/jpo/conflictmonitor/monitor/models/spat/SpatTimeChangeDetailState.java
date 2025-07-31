@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 
 @EqualsAndHashCode
 @ToString
@@ -16,19 +17,19 @@ public class SpatTimeChangeDetailState {
     private long minEndTime;
     private long maxEndTime;
     private int signalGroup;
-    private J2735MovementPhaseState eventState;
+    private MovementPhaseState eventState;
 
     @JsonIgnore
-    public static SpatTimeChangeDetailState fromMovementState(MovementState state){
+    public static SpatTimeChangeDetailState fromMovementState(ProcessedMovementState state){
         SpatTimeChangeDetailState newState = new SpatTimeChangeDetailState();
         if (state.getSignalGroup() != null) {
             newState.setSignalGroup(state.getSignalGroup());
         }
 
-        List<MovementEvent> events =  state.getStateTimeSpeed();
+        List<ProcessedMovementEvent> events =  state.getStateTimeSpeed();
 
-        if(events != null && events.size() > 0){
-            var event = events.get(0);
+        if(events != null && !events.isEmpty()){
+            var event = events.getFirst();
             if (event.getTiming() != null) {
                 var timing = event.getTiming();
                 if (timing.getMaxEndTime() != null) {
@@ -83,10 +84,10 @@ public class SpatTimeChangeDetailState {
         this.signalGroup = signalGroup;
     }
 
-    public J2735MovementPhaseState getEventState() {
+    public MovementPhaseState getEventState() {
         return eventState;
     }
-    public void setEventState(J2735MovementPhaseState eventState) {
+    public void setEventState(MovementPhaseState eventState) {
         this.eventState = eventState;
     }
     

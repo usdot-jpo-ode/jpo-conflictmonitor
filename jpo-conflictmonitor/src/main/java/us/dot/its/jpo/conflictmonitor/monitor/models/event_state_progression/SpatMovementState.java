@@ -2,12 +2,12 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression;
 
 import lombok.Data;
 
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class SpatMovementState {
     /**
      * A J2735MovementPhaseState representing the first MovementEvent of the MovementState. Additional Movement events representing the future are ignored.
      */
-    J2735MovementPhaseState phaseState;
+    MovementPhaseState phaseState;
 
     // Fields from TimeChangeDetails
     /**
@@ -73,7 +73,7 @@ public class SpatMovementState {
         if (spat.getStates() == null) return stateList;
         final long ingestTime = SpatUtils.getOdeReceivedAt(spat);
         final long eventTime = SpatUtils.getTimestamp(spat);
-        for (MovementState state : spat.getStates()) {
+        for (ProcessedMovementState state : spat.getStates()) {
             var sms = new SpatMovementState();
             sms.setOdeReceivedAt(ingestTime);
             sms.setUtcTimeStamp(eventTime);
@@ -81,15 +81,20 @@ public class SpatMovementState {
             sms.setRevision(revision);
             int signalGroup = state.getSignalGroup() != null ? state.getSignalGroup() : -1;
             sms.setSignalGroup(signalGroup);
-            List<MovementEvent> movementEventList = state.getStateTimeSpeed();
-            MovementEvent firstMovementEvent =
+            List<ProcessedMovementEvent> movementEventList = state.getStateTimeSpeed();
+            ProcessedMovementEvent firstMovementEvent =
                     movementEventList != null && !movementEventList.isEmpty() ? movementEventList.getFirst() : null;
-            sms.setPhaseState(firstMovementEvent.getEventState());
-            TimingChangeDetails timing = firstMovementEvent.getTiming();
-            sms.setStartTime(toMillis(timing.getStartTime()));
-            sms.setMaxEndTime(toMillis(timing.getMaxEndTime()));
-            sms.setMinEndTime(toMillis(timing.getMinEndTime()));
+            if  (firstMovementEvent != null) {
+                sms.setPhaseState(firstMovementEvent.getEventState());
+                TimingChangeDetails timing = firstMovementEvent.getTiming();
+                if (timing != null) {
+                    sms.setStartTime(toMillis(timing.getStartTime()));
+                    sms.setMaxEndTime(toMillis(timing.getMaxEndTime()));
+                    sms.setMinEndTime(toMillis(timing.getMinEndTime()));
+                }
+            }
             stateList.add(sms);
+
         }
         return stateList;
     }

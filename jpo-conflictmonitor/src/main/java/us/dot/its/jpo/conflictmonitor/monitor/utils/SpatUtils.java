@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -32,10 +32,10 @@ public class SpatUtils {
      * @param signalGroup - which signal group to use
      * @return J2735MovementPhaseState corresponding to the given signalGroup in the spat message. Returns null if the signalGroup is not present in the SPaT message.
      */
-    public static J2735MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
-        for(MovementState state: spat.getStates()){
-            if(state.getSignalGroup() == signalGroup && state.getStateTimeSpeed().size() > 0){
-                return state.getStateTimeSpeed().get(0).getEventState();
+    public static MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
+        for(ProcessedMovementState state: spat.getStates()){
+            if(state.getSignalGroup() == signalGroup && !state.getStateTimeSpeed().isEmpty()){
+                return state.getStateTimeSpeed().getFirst().getEventState();
             }
         }
         return null;
@@ -93,7 +93,7 @@ public class SpatUtils {
 
         for (ProcessedSpat spat : spats) {
             long timestamp = SpatTimestampExtractor.getSpatTimestamp(spat);
-            J2735MovementPhaseState state = getSignalGroupState(spat, signalGroupId);
+            MovementPhaseState state = getSignalGroupState(spat, signalGroupId);
             var spatTiming = new SpatTiming(timestamp, state);
             timingList.add(spatTiming);
         }
@@ -168,7 +168,7 @@ public class SpatUtils {
         /**
          * The State of the Light.
          */
-        private J2735MovementPhaseState state;
+        private MovementPhaseState state;
 
         /**
          * The number of milliseconds the light was in this state.
@@ -178,10 +178,10 @@ public class SpatUtils {
 
         /**
          * Creates a SPaT timing object with the given timestamp and state.
-         * @param timestamp
-         * @param state
+         * @param timestamp The timestamp
+         * @param state the phase state
          */
-        public SpatTiming(long timestamp, J2735MovementPhaseState state) {
+        public SpatTiming(long timestamp, MovementPhaseState state) {
             this.timestamp = timestamp;
             this.state = state;
         }
