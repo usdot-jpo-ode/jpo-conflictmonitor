@@ -3,6 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.Intersection;
 import java.util.*;
 
 import lombok.*;
+import us.dot.its.jpo.asn.j2735.r2024.MapData.Connection;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
@@ -10,7 +11,6 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.io.WKTWriter;
@@ -119,9 +119,9 @@ public class Intersection {
 
         for(MapFeature<LineString> feature: features.getFeatures()){
             if(feature.getProperties().getConnectsTo() != null){
-                for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
+                for(Connection laneConnection: feature.getProperties().getConnectsTo()){
                     Lane ingressLane = laneLookup.get(feature.getId());
-                    Lane egressLane = laneLookup.get(laneConnection.getConnectingLane().getLane());
+                    Lane egressLane = laneLookup.get((int)laneConnection.getConnectingLane().getLane().getValue());
                     int connectionId = -1;
                     int signalGroup = -1;
                     Integer ingressLaneId = null;
@@ -141,7 +141,7 @@ public class Intersection {
                     }
 
                     if(laneConnection.getSignalGroup() != null){
-                        signalGroup = laneConnection.getSignalGroup();
+                        signalGroup = (int)laneConnection.getSignalGroup().getValue();
                     }
 
                     LaneConnection connection = new LaneConnection(ingressLane, egressLane, connectionId, signalGroup);

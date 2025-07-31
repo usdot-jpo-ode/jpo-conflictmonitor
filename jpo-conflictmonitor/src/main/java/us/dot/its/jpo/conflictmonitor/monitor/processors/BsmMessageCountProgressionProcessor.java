@@ -106,8 +106,8 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
                         BsmProperties previousProperties = previousState.getProperties();
                         BsmProperties currentProperties = thisState.getProperties();
 
-                        int previousMessageCount = previousProperties.getMsgCnt();
-                        int currentMessageCount = currentProperties.getMsgCnt();
+                        int previousMessageCount = Math.toIntExact(previousProperties.getMsgCnt());
+                        int currentMessageCount = Math.toIntExact(currentProperties.getMsgCnt());
 
                         if (previousHash == currentHash && previousMessageCount == currentMessageCount) {
                             // No change
@@ -135,13 +135,13 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
         bsmData.getProperties().setOdeReceivedAt(null);
 
         // Save original msgCnt value and set them to 0
-        final int originalMsgCnt = bsmData.getProperties().getMsgCnt();
-        bsmData.getProperties().setMsgCnt(0);
+        final int originalMsgCnt = Math.toIntExact(bsmData.getProperties().getMsgCnt());
+        bsmData.getProperties().setMsgCnt(0L);
 
         int hash = bsmData.hashCode();
     
         // Restore original msgCnt values
-        bsmData.getProperties().setMsgCnt(originalMsgCnt);
+        bsmData.getProperties().setMsgCnt((long) originalMsgCnt);
         bsmData.getProperties().setTimeStamp(timeStamp);
         bsmData.getProperties().setOdeReceivedAt(odeReceivedAt);
         return hash;
@@ -153,10 +153,10 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
 
         BsmMessageCountProgressionEvent event = new BsmMessageCountProgressionEvent();
         event.setMessageType("BSM");
-        event.setMessageCountA(previousProperties.getMsgCnt());
+        event.setMessageCountA(Math.toIntExact(previousProperties.getMsgCnt()));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         event.setTimestampA(previousState.getProperties().getTimeStamp().format(formatter));
-        event.setMessageCountB(currentProperties.getMsgCnt());
+        event.setMessageCountB(Math.toIntExact(currentProperties.getMsgCnt()));
         event.setTimestampB(thisState.getProperties().getTimeStamp().format(formatter));
         if (thisState.getProperties().getId() != null) {
             event.setVehicleId(thisState.getProperties().getId());

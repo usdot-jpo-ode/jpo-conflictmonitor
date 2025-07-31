@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
@@ -21,7 +22,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.List;
 import java.util.Optional;
@@ -136,8 +136,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
         if (signalGroup > -1) {
             event.setSignalGroup(signalGroup);
-            J2735MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
-            J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
+            MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
+            MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
             event.setInitialEventState(firstSignalState);
             event.setFinalEventState(lastSignalState);
             event.setConnectionID(connectionId);

@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 
 /**
  * StopLineStopEvent - StopLineStopEvents are generated each time a vehicle drives up to the stop line of an intersection. 
@@ -39,9 +39,9 @@ public class StopLineStopEvent extends Event{
     private int connectionID;
 
     /**
-     * J2735MovementPhaseState describing the state of the light when the vehicle first stopped at the stop bar
+     * MovementPhaseState describing the state of the light when the vehicle first stopped at the stop bar
      */
-    private J2735MovementPhaseState initialEventState;
+    private MovementPhaseState initialEventState;
 
     /**
      * long representing the utc timestamp in milliseconds when the vehicle stopped.
@@ -49,9 +49,9 @@ public class StopLineStopEvent extends Event{
     private long initialTimestamp;
 
     /**
-     * J2735MovementPhaseState showing the final state of the light when the vehicle was no longer considered stopped
+     * MovementPhaseState showing the final state of the light when the vehicle was no longer considered stopped
      */
-    private J2735MovementPhaseState finalEventState;
+    private MovementPhaseState finalEventState;
 
     /**
      * long representing the utc timestamp in milliseconds when the vehicle was no longer considered stopped

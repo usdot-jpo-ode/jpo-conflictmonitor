@@ -3,7 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 
 /**
  * EventStateProgressionEvent - This event is generated when the light phase states in two sequential SPaT messages do not follow the allowable transition pattern (red -> green -> yellow -> red).
@@ -28,9 +28,9 @@ public class EventStateProgressionEvent extends Event {
     int signalGroupID;
 
     /**
-    *  J2735MovementPhaseState of the first signal state 
+    *  MovementPhaseState of the first signal state
     */
-    J2735MovementPhaseState eventStateA;
+    MovementPhaseState eventStateA;
 
     /**
     *  long representing the utc timestamp in milliseconds when the first signal state took place
@@ -38,9 +38,9 @@ public class EventStateProgressionEvent extends Event {
     long timestampA;
 
     /**
-    *  J2735MovementPhaseState of the second signal state 
+    *  MovementPhaseState of the second signal state
     */
-    J2735MovementPhaseState eventStateB;
+    MovementPhaseState eventStateB;
 
     /**
     *  long representing the utc timestamp in milliseconds when the second signal state took place

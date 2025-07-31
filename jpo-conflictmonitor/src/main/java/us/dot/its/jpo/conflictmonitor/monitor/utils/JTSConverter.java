@@ -1,5 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -23,20 +24,23 @@ public class JTSConverter {
     }
 
     public static LineString convertFromJTS(org.locationtech.jts.geom.LineString lineString) {
-        return new LineString(convert(lineString.getCoordinates()));
+        Double[][] coords = convert(lineString.getCoordinates());
+
+        return new LineString(coords);
     }
 
     public static Point convertFromJTS(org.locationtech.jts.geom.Point point) {
         return new Point(convert(point.getCoordinate()));
     }
 
-    private static Coordinate convert(double[] c) {
+
+    private static Coordinate convert(Double[] c) {
         return (c.length == 2)
                 ? new Coordinate(c[0], c[1])
                 : new Coordinate(c[0], c[1], c[2]);
     }
 
-    private static Coordinate[] convert(double[][] ca) {
+    private static Coordinate[] convert(Double[][] ca) {
         Coordinate[] coordinates = new Coordinate[ca.length];
         for (int i = 0; i < ca.length; i++) {
             coordinates[i] = convert(ca[i]);
@@ -44,14 +48,14 @@ public class JTSConverter {
         return coordinates;
     }
 
-    private static double[] convert(Coordinate coordinate) {
+    private static Double[] convert(Coordinate coordinate) {
         return Double.isNaN( coordinate.getZ() )
-                ? new double[] { coordinate.x, coordinate.y }
-                : new double[] { coordinate.x, coordinate.y, coordinate.getZ() };
+                ? new Double[] { coordinate.x, coordinate.y }
+                : new Double[] { coordinate.x, coordinate.y, coordinate.getZ() };
     }
 
-    private static double[][] convert(Coordinate[] coordinates) {
-        double[][] array = new double[coordinates.length][];
+    private static Double[][] convert(Coordinate[] coordinates) {
+        Double[][] array = new Double[coordinates.length][];
         for (int i = 0; i < coordinates.length; i++) {
             array[i] = convert(coordinates[i]);
         }

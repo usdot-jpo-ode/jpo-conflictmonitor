@@ -308,7 +308,7 @@ public class BsmEventProcessor
         }
 
         if (bsm.getGeometry() instanceof us.dot.its.jpo.geojsonconverter.pojos.geojson.Point pointGeom) {
-            double[] coords = pointGeom.getCoordinates();
+            Double[] coords = pointGeom.getCoordinates();
             if (coords == null) {
                 logger.error("BSM coordinates missing {}", bsm);
                 return false;

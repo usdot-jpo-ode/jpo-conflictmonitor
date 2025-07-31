@@ -44,7 +44,7 @@ public class SpatMovementState {
     int signalGroup;
 
     /**
-     * A J2735MovementPhaseState representing the first MovementEvent of the MovementState. Additional Movement events representing the future are ignored.
+     * A MovementPhaseState representing the first MovementEvent of the MovementState. Additional Movement events representing the future are ignored.
      */
     MovementPhaseState phaseState;
 

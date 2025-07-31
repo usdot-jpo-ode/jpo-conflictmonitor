@@ -30,7 +30,7 @@ public class SpatUtils {
      * Returns the state of a given signal group within the Processed Spat Message.
      * @param spat - The Processed Spat Message
      * @param signalGroup - which signal group to use
-     * @return J2735MovementPhaseState corresponding to the given signalGroup in the spat message. Returns null if the signalGroup is not present in the SPaT message.
+     * @return MovementPhaseState corresponding to the given signalGroup in the spat message. Returns null if the signalGroup is not present in the SPaT message.
      */
     public static MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
         for(ProcessedMovementState state: spat.getStates()){

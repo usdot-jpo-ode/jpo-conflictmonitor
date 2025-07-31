@@ -40,7 +40,7 @@ public class BsmTimestampExtractor implements TimestampExtractor {
             ZonedDateTime time = ZonedDateTime.parse(bsm.getProperties().getOdeReceivedAt(),
                     DateTimeFormatter.ISO_ZONED_DATE_TIME);
             BsmProperties properties = BsmUtils.getProperties(bsm).orElseThrow();
-            final int secMark = properties.getSecMark();
+            final int secMark = Math.toIntExact(properties.getSecMark());
             final ZonedDateTime refTime = getRefTime(secMark, time);
             return refTime.toInstant().toEpochMilli();
         } catch (Exception e) {

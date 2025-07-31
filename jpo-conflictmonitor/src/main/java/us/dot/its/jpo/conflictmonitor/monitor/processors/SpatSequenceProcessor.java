@@ -7,6 +7,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
@@ -16,7 +17,6 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailPa
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimeChangeDetailState;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 
 
@@ -194,8 +194,8 @@ public class SpatSequenceProcessor
         context().forward(new Record<>(outputKey, event, event.getFirstSpatTimestamp()));
     }
 
-    public boolean isStateClearance(J2735MovementPhaseState state){
-        return state.equals(J2735MovementPhaseState.PERMISSIVE_CLEARANCE) || state.equals(J2735MovementPhaseState.PROTECTED_CLEARANCE);
+    public boolean isStateClearance(MovementPhaseState state){
+        return state.equals(MovementPhaseState.PERMISSIVE_CLEARANCE) || state.equals(MovementPhaseState.PROTECTED_CLEARANCE);
     }
 
     public long timeMarkFromUtc(long utcTimeMillis){
