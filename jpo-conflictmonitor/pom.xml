@@ -105,17 +105,17 @@
     <dependency>
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-ode-core</artifactId>
-      <version>4.1.1</version>
+      <version>5.0.2</version>
     </dependency>
     <dependency>
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-ode-plugins</artifactId>
-      <version>4.1.1</version>
+      <version>5.0.2</version>
     </dependency>
     <dependency>
       <groupId>usdot.jpo.ode</groupId>
       <artifactId>jpo-geojsonconverter</artifactId>
-      <version>2.1.1</version>
+      <version>3.0.0</version>
       <!-- Allow using newer streams version than geojsonconverter -->
       <exclusions>
         <exclusion>
