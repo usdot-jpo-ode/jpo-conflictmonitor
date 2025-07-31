@@ -5,12 +5,12 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KStream;
 import org.junit.Test;
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEventAggregation;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.List;
 
@@ -29,8 +29,8 @@ public class EventStateProgressionAggregationTopologyTest
                 EventStateProgressionAggregationTopology>{
 
     final int signalGroup = 6;
-    final J2735MovementPhaseState eventStateA = J2735MovementPhaseState.STOP_THEN_PROCEED;
-    final J2735MovementPhaseState eventStateB = J2735MovementPhaseState.PERMISSIVE_CLEARANCE;
+    final MovementPhaseState eventStateA = MovementPhaseState.STOP_THEN_PROCEED;
+    final MovementPhaseState eventStateB = MovementPhaseState.PERMISSIVE_CLEARANCE;
 
     @Test
     public void testTopology() {
@@ -65,8 +65,8 @@ public class EventStateProgressionAggregationTopologyTest
         event.setSignalGroupID(signalGroup);
         event.setTimestampA(initialWallClock.toEpochMilli() + 1);
         event.setTimestampB(initialWallClock.toEpochMilli() + 10);
-        event.setEventStateA(J2735MovementPhaseState.STOP_THEN_PROCEED);
-        event.setEventStateB(J2735MovementPhaseState.PERMISSIVE_CLEARANCE);
+        event.setEventStateA(MovementPhaseState.STOP_THEN_PROCEED);
+        event.setEventStateB(MovementPhaseState.PERMISSIVE_CLEARANCE);
         return event;
     }
 

@@ -7,15 +7,15 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.Test;
 import org.testng.collections.Lists;
+import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.notifications.TimeChangeDetailsNotification;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.time_change_details.spat.SpatTimeChangeDetailsParameters;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 
 import static org.junit.Assert.assertNotNull;
@@ -53,7 +53,7 @@ public class SpatTimeChangeDetailsTopologyTest {
         final int region = 0;
         final int intersectionId = 12109;
         final int signalGroup = 5;
-        final J2735MovementPhaseState phaseState = J2735MovementPhaseState.STOP_AND_REMAIN;
+        final MovementPhaseState phaseState = MovementPhaseState.STOP_AND_REMAIN;
         final long timestamp1 = 1732215600000L; // Top of the hour
         final long timestamp2 = timestamp1 + 10L;
         final long timeMark1 = 5;
@@ -134,7 +134,7 @@ public class SpatTimeChangeDetailsTopologyTest {
             final int region,
             final int intersectionId,
             final int signalGroup,
-            final J2735MovementPhaseState phaseState,
+            final MovementPhaseState phaseState,
             final long minEndTime) {
 
         final var spat1 = new ProcessedSpat();
@@ -142,10 +142,10 @@ public class SpatTimeChangeDetailsTopologyTest {
         spat1.setRegion(region);
         spat1.setIntersectionId(intersectionId);
 
-        final var state1 = new MovementState();
+        final var state1 = new ProcessedMovementState();
         state1.setSignalGroup(signalGroup);
 
-        final var event1 = new MovementEvent();
+        final var event1 = new ProcessedMovementEvent();
         event1.setEventState(phaseState);
 
         final var timing1 = new TimingChangeDetails();
