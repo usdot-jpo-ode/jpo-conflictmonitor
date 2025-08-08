@@ -3,7 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 
 
 @Getter
@@ -19,8 +19,8 @@ public class TimeChangeDetailsEventAggregation
     private int signalGroupID;
     private String timeMarkTypeA;
     private String timeMarkTypeB;
-    private MovementPhaseState eventStateA;
-    private MovementPhaseState eventStateB;
+    private SpatMovementPhaseState eventStateA;
+    private SpatMovementPhaseState eventStateB;
 
     @Override
     public void update(TimeChangeDetailsEvent event) {

@@ -1,6 +1,7 @@
 package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageConstants.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
             event.setIntersectionID(path.getIntersection().getIntersectionId());
         }
         event.setConnectionID(connectionId);
-        event.setEventState(signalState);
+        event.setEventState(phaseStateEnum(signalState));
         event.setIngressLane(ingressLane.getId());
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());

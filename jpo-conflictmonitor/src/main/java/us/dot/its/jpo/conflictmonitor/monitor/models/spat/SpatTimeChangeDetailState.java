@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
+
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 @EqualsAndHashCode
 @ToString
@@ -17,7 +18,7 @@ public class SpatTimeChangeDetailState {
     private long minEndTime;
     private long maxEndTime;
     private int signalGroup;
-    private MovementPhaseState eventState;
+    private SpatMovementPhaseState eventState;
 
     @JsonIgnore
     public static SpatTimeChangeDetailState fromMovementState(ProcessedMovementState state){
@@ -54,7 +55,7 @@ public class SpatTimeChangeDetailState {
                     newState.setMinEndTime(-1);
                 }
             }
-            newState.setEventState(event.getEventState());
+            newState.setEventState(phaseStateEnum(event.getEventState()));
         }
         
         return newState;
@@ -84,10 +85,10 @@ public class SpatTimeChangeDetailState {
         this.signalGroup = signalGroup;
     }
 
-    public MovementPhaseState getEventState() {
+    public SpatMovementPhaseState getEventState() {
         return eventState;
     }
-    public void setEventState(MovementPhaseState eventState) {
+    public void setEventState(SpatMovementPhaseState eventState) {
         this.eventState = eventState;
     }
     

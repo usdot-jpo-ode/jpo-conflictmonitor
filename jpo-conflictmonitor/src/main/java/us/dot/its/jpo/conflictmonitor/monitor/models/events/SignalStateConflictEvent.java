@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 
 
 /*
@@ -27,7 +27,7 @@ public class SignalStateConflictEvent extends Event{
     /**
      * MovementPhaseState indicating what the signal state of the conflicting signal is
      */
-    private MovementPhaseState conflictType;
+    private SpatMovementPhaseState conflictType;
 
     /**
      * int representing the signal group from the SPaT message of the first overlapping signal group
@@ -37,7 +37,7 @@ public class SignalStateConflictEvent extends Event{
     /**
      * MovementPhaseState from the first signal group during the conflict
      */
-    private MovementPhaseState firstConflictingSignalState;
+    private SpatMovementPhaseState firstConflictingSignalState;
 
     /**
      * int representing the signal group from the SPaT message of the second overlapping signal group
@@ -47,7 +47,7 @@ public class SignalStateConflictEvent extends Event{
     /**
      * MovementPhaseState from the second signal group during the conflict
      */
-    private MovementPhaseState secondConflictingSignalState;
+    private SpatMovementPhaseState secondConflictingSignalState;
 
     /**
      * String representing the source of the data for this event. Typically the intersection ID or RSU ip address.

@@ -2,12 +2,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression;
 
 import lombok.Data;
 
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +42,7 @@ public class SpatMovementState {
     /**
      * A MovementPhaseState representing the first MovementEvent of the MovementState. Additional Movement events representing the future are ignored.
      */
-    MovementPhaseState phaseState;
+    ProcessedMovementPhaseState phaseState;
 
     // Fields from TimeChangeDetails
     /**

@@ -17,6 +17,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 /**
  * Unit tests for {@link SpatTimeChangeDetailState}
@@ -92,7 +93,7 @@ public class SpatTimeChangeDetailStateTest {
             expectedResult.setMinEndTime(-1);
         }
 
-        expectedResult.setEventState(eventState);
+        expectedResult.setEventState(phaseStateEnum(eventState));
         System.out.println(expectedResult);
         return new Object[] { state, expectedResult};
     }

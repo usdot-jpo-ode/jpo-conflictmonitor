@@ -5,9 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
-
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 
 
 /**
@@ -49,7 +47,7 @@ public class StopLinePassageEvent extends Event {
      * The event state of the signal group at the time the vehicle is considered
      * to have passed the stop line.
      */
-    private MovementPhaseState eventState;
+    private SpatMovementPhaseState eventState;
 
     /**
      * The vehicle id of the vehicle from the BSM.

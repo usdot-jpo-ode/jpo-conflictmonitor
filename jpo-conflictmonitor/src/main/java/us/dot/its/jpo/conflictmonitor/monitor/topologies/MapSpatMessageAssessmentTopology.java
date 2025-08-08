@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 @Slf4j
 @Component(DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM)
@@ -365,15 +366,15 @@ public class MapSpatMessageAssessmentTopology
                                     event.setIntersectionID(intersection.getIntersectionId());
                                     event.setFirstConflictingSignalGroup(firstConnection.getSignalGroup());
                                     event.setSecondConflictingSignalGroup(secondConnection.getSignalGroup());
-                                    event.setFirstConflictingSignalState(firstState);
-                                    event.setSecondConflictingSignalState(secondState);
+                                    event.setFirstConflictingSignalState(phaseStateEnum(firstState));
+                                    event.setSecondConflictingSignalState(phaseStateEnum(secondState));
                                     event.setSource(key.toString());
 
                                     if (firstState.equals(MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
                                             || firstState.equals(MovementPhaseState.PROTECTED_CLEARANCE)) {
-                                        event.setConflictType(secondState);
+                                        event.setConflictType(phaseStateEnum(secondState));
                                     } else {
-                                        event.setConflictType(firstState);
+                                        event.setConflictType(phaseStateEnum(firstState));
                                     }
 
                                     events.add(new KeyValue<>(key, event));

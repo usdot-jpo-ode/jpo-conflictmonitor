@@ -160,14 +160,14 @@ public class RevocableEnabledLaneAlignmentTopologyTest {
 
     private static ProcessedSpat getProcessedSpat(final String spatResourceName) throws JsonProcessingException {
         String spatStr = ResourceUtils.loadResource(RESOURCE_PATH + spatResourceName);
-        ObjectMapper mapper = DateJsonMapper.getInstance();
+        ObjectMapper mapper = DateJsonMapper.getOdeInstance();
         return mapper.readValue(spatStr, ProcessedSpat.class);
     }
 
     @SuppressWarnings({"unchecked"})
     private static ProcessedMap<LineString> getProcessedMap() throws JsonProcessingException {
         String mapStr = ResourceUtils.loadResource(RESOURCE_PATH + "RevocableLanes_ProcessedMap.json");
-        ObjectMapper mapper = DateJsonMapper.getInstance();
+        ObjectMapper mapper = DateJsonMapper.getOdeInstance();
         return (ProcessedMap<LineString>)mapper.readValue(mapStr, ProcessedMap.class);
     }
 }

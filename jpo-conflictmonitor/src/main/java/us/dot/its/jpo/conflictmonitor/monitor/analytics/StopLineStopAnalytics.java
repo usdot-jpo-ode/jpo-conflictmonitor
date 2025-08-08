@@ -2,6 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopConstants.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.getSignalGroupState;
+import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
@@ -138,8 +139,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
             event.setSignalGroup(signalGroup);
             MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
             MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
-            event.setInitialEventState(firstSignalState);
-            event.setFinalEventState(lastSignalState);
+            event.setInitialEventState(phaseStateEnum(firstSignalState));
+            event.setFinalEventState(phaseStateEnum(lastSignalState));
             event.setConnectionID(connectionId);
 
 

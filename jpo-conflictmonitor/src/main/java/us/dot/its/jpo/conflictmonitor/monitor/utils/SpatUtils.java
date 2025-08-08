@@ -6,7 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
@@ -32,7 +34,7 @@ public class SpatUtils {
      * @param signalGroup - which signal group to use
      * @return MovementPhaseState corresponding to the given signalGroup in the spat message. Returns null if the signalGroup is not present in the SPaT message.
      */
-    public static MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
+    public static ProcessedMovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
         for(ProcessedMovementState state: spat.getStates()){
             if(state.getSignalGroup() == signalGroup && !state.getStateTimeSpeed().isEmpty()){
                 return state.getStateTimeSpeed().getFirst().getEventState();
@@ -263,5 +265,7 @@ public class SpatUtils {
             return 0L;
         }
     }
+
+
 
 }

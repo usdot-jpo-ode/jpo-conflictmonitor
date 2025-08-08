@@ -1,8 +1,8 @@
 package us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression;
 
 import lombok.*;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 
 /**
  * Key to aggregate/deduplicate unique values for {@link us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent}s
@@ -14,7 +14,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Rsu
 public class EventStateProgressionAggregationKey
     extends RsuIntersectionSignalGroupKey {
 
-    MovementPhaseState eventStateA;
-    MovementPhaseState eventStateB;
+    SpatMovementPhaseState eventStateA;
+    SpatMovementPhaseState eventStateB;
 
 }

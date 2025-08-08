@@ -3,7 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 
 @Getter
 @Setter
@@ -16,8 +16,8 @@ public class EventStateProgressionEventAggregation
     }
 
     int signalGroupID;
-    MovementPhaseState eventStateA;
-    MovementPhaseState eventStateB;
+    SpatMovementPhaseState eventStateA;
+    SpatMovementPhaseState eventStateB;
 
     @Override
     public void update(EventStateProgressionEvent event) {

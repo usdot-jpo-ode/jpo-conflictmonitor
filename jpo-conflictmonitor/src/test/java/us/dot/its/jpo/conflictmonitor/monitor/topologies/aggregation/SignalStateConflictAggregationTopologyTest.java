@@ -6,10 +6,11 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KStream;
 
 import org.junit.Test;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
+
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.SignalStateConflictAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.SignalStateConflictEventAggregation;
+import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
 
@@ -31,8 +32,8 @@ public class SignalStateConflictAggregationTopologyTest
 
     final int signalGroupA = 5;
     final int signalGroupB = 10;
-    final MovementPhaseState stateA = MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED;
-    final MovementPhaseState stateB = MovementPhaseState.STOP_AND_REMAIN;
+    final SpatMovementPhaseState stateA = SpatMovementPhaseState.PROTECTED_MOVEMENT_ALLOWED;
+    final SpatMovementPhaseState stateB = SpatMovementPhaseState.STOP_AND_REMAIN;
 
     @Test
     public void testTopology() {
