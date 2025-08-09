@@ -4,8 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 /**
  * Key to aggregate/deduplicate unique values for
@@ -19,9 +19,9 @@ public class SignalStateConflictAggregationKey
     extends RsuIntersectionKey {
 
     int conflictingSignalGroupA;
-    SpatMovementPhaseState eventStateA;
+    ProcessedMovementPhaseState eventStateA;
     int conflictingSignalGroupB;
-    SpatMovementPhaseState eventStateB;
+    ProcessedMovementPhaseState eventStateB;
     // TODO Add ingress and egress lane IDs and type attributes per new specification
 
 }

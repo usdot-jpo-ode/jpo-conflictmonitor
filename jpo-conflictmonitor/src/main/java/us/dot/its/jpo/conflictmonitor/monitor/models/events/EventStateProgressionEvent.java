@@ -3,7 +3,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
+
 
 /**
  * EventStateProgressionEvent - This event is generated when the light phase states in two sequential SPaT messages do not follow the allowable transition pattern (red -> green -> yellow -> red).
@@ -30,7 +31,7 @@ public class EventStateProgressionEvent extends Event {
     /**
     *  MovementPhaseState of the first signal state
     */
-    SpatMovementPhaseState eventStateA;
+    ProcessedMovementPhaseState eventStateA;
 
     /**
     *  long representing the utc timestamp in milliseconds when the first signal state took place
@@ -40,7 +41,7 @@ public class EventStateProgressionEvent extends Event {
     /**
     *  MovementPhaseState of the second signal state
     */
-    SpatMovementPhaseState eventStateB;
+    ProcessedMovementPhaseState eventStateB;
 
     /**
     *  long representing the utc timestamp in milliseconds when the second signal state took place

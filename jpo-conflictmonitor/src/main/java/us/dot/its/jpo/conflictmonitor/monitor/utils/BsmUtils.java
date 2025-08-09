@@ -24,7 +24,7 @@ public class BsmUtils {
         Optional<Point> optionalPoint = getGeometry(processedBsm);
         if (optionalPoint.isEmpty()) return position;
         Point point = optionalPoint.get();
-        Double[] coordinates = point.getCoordinates();
+        double[] coordinates = point.getCoordinates();
         if (coordinates == null || coordinates.length < 2) return position;
         position.setX(coordinates[0]);
         position.setY(coordinates[1]);

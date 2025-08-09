@@ -5,6 +5,7 @@ import us.dot.its.jpo.asn.j2735.r2024.MapData.LaneTypeAttributes;
 import us.dot.its.jpo.asn.runtime.types.Asn1Bitstring;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableLaneTypeAttributes;
+import us.dot.its.jpo.geojsonconverter.pojos.ProcessedBitstring;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.BaseFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.*;
 
@@ -71,7 +72,7 @@ public class ProcessedMapUtils {
     }
 
     public static <T> LaneTypeAttributesMap getLaneTypeAttributesMap(ProcessedMap<T> processedMap) {
-        Map<Integer, LaneTypeAttributes> attributesMap = getLaneTypeAttributes(processedMap);
+        Map<Integer, ProcessedLaneTypeAttributes> attributesMap = getLaneTypeAttributes(processedMap);
         Map<Integer, RevocableLaneTypeAttributes> laneTypeAttributesMap =
                 attributesMap.entrySet().stream().collect(
                         Collectors.toUnmodifiableMap(Map.Entry::getKey,
@@ -79,7 +80,7 @@ public class ProcessedMapUtils {
         return new LaneTypeAttributesMap(laneTypeAttributesMap);
     }
 
-    private static <T> Map<Integer, LaneTypeAttributes> getLaneTypeAttributes(ProcessedMap<T> processedMap) {
+    private static <T> Map<Integer, ProcessedLaneTypeAttributes> getLaneTypeAttributes(ProcessedMap<T> processedMap) {
         MapFeatureCollection<T> featureCollection = processedMap.getMapFeatureCollection();
         if (featureCollection == null) {
             log.error("ProcessedMap.processedMapFeatureCollection is null");
@@ -94,8 +95,8 @@ public class ProcessedMapUtils {
                 .collect(Collectors.toUnmodifiableMap(MapProperties::getLaneId, MapProperties::getLaneType));
     }
 
-    private static RevocableLaneTypeAttributes getRevocableLaneTypeAttributes(LaneTypeAttributes laneTypeAttributes) {
-        Asn1Bitstring bitString = null;
+    private static RevocableLaneTypeAttributes getRevocableLaneTypeAttributes(ProcessedLaneTypeAttributes laneTypeAttributes) {
+        ProcessedBitstring bitString = null;
         String laneType = null;
         if ((bitString = laneTypeAttributes.getBikeLane()) != null) {
             laneType = "bikeLane";

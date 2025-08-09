@@ -80,7 +80,7 @@ public class RevocableEnabledLaneAlignmentTopology
 
                 // Check the SPAT for enabled lanes
                 ProcessedSpat spat = spatMap.getSpat();
-                List<Integer> enabledLanes = spat.getEnabledLanes().stream().map(x -> (int)x.getValue()).toList();
+                List<Integer> enabledLanes = spat.getEnabledLanes();
                 candidateEvent.setEnabledLaneList(Set.copyOf(enabledLanes));
 
 

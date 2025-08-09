@@ -2,14 +2,12 @@ package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopConstants.*;
 import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.getSignalGroupState;
-import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_stop.StopLineStopParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
@@ -22,6 +20,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 import java.util.List;
@@ -137,10 +136,10 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
         if (signalGroup > -1) {
             event.setSignalGroup(signalGroup);
-            MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
-            MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
-            event.setInitialEventState(phaseStateEnum(firstSignalState));
-            event.setFinalEventState(phaseStateEnum(lastSignalState));
+            ProcessedMovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
+            ProcessedMovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
+            event.setInitialEventState(firstSignalState);
+            event.setFinalEventState(lastSignalState);
             event.setConnectionID(connectionId);
 
 

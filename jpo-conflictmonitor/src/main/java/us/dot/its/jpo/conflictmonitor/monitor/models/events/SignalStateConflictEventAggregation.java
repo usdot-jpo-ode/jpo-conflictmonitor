@@ -3,7 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 // TODO Update this and SignalStateConflictEvent to new definition supporting crosswalks/sidewalks
 @Getter
@@ -17,9 +17,9 @@ public class SignalStateConflictEventAggregation
     }
 
     private int conflictingSignalGroupA;
-    private SpatMovementPhaseState eventStateA;
+    private ProcessedMovementPhaseState eventStateA;
     private int conflictingSignalGroupB;
-    private SpatMovementPhaseState eventStateB;
+    private ProcessedMovementPhaseState eventStateB;
     // TODO Add ingress and egress lane IDs and type attributes per new specification
 
     @Override

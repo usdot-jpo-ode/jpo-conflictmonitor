@@ -23,7 +23,7 @@ public class JTSConverter {
     }
 
     public static LineString convertFromJTS(org.locationtech.jts.geom.LineString lineString) {
-        return new LineString(convertPrimitive(lineString.getCoordinates()));
+        return new LineString(convert(lineString.getCoordinates()));
     }
 
     public static Point convertFromJTS(org.locationtech.jts.geom.Point point) {
@@ -31,7 +31,7 @@ public class JTSConverter {
     }
 
 
-    private static Coordinate convert(Double[] c) {
+    private static Coordinate convert(double[] c) {
         return (c.length == 2)
                 ? new Coordinate(c[0], c[1])
                 : new Coordinate(c[0], c[1], c[2]);
@@ -40,36 +40,23 @@ public class JTSConverter {
     private static Coordinate[] convert(double[][] ca) {
         Coordinate[] coordinates = new Coordinate[ca.length];
         for (int i = 0; i < ca.length; i++) {
-            coordinates[i] = convertPrimitive(ca[i]);
+            coordinates[i] = convert(ca[i]);
         }
         return coordinates;
     }
 
-    private static Double[] convert(Coordinate coordinate) {
-        return Double.isNaN( coordinate.getZ() )
-                ? new Double[] { coordinate.x, coordinate.y }
-                : new Double[] { coordinate.x, coordinate.y, coordinate.getZ() };
-    }
-
-
-
-    private static Coordinate convertPrimitive(double[] c) {
-        return (c.length == 2)
-                ? new Coordinate(c[0], c[1])
-                : new Coordinate(c[0], c[1], c[2]);
-    }
-
-    private static double[] convertPrimitive(Coordinate coordinate) {
+    private static double[] convert(Coordinate coordinate) {
         return Double.isNaN( coordinate.getZ() )
                 ? new double[] { coordinate.x, coordinate.y }
                 : new double[] { coordinate.x, coordinate.y, coordinate.getZ() };
     }
 
-    private static double[][] convertPrimitive(Coordinate[] coordinates) {
+    private static double[][] convert(Coordinate[] coordinates) {
         double[][] array = new double[coordinates.length][];
         for (int i = 0; i < coordinates.length; i++) {
-            array[i] = convertPrimitive(coordinates[i]);
+            array[i] = convert(coordinates[i]);
         }
         return array;
     }
+
 }

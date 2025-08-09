@@ -11,8 +11,6 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import us.dot.its.jpo.asn.j2735.r2024.Common.LaneID;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.BaseStreamsTopology;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.map_spat_message_assessment.*;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentParameters;
@@ -36,6 +34,7 @@ import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
@@ -44,7 +43,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.map_spat_message_assessment.MapSpatMessageAssessmentConstants.DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM;
-import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 @Slf4j
 @Component(DEFAULT_MAP_SPAT_MESSAGE_ASSESSMENT_ALGORITHM)
@@ -64,7 +62,7 @@ public class MapSpatMessageAssessmentTopology
         return logger;
     }
 
-    private MovementPhaseState getSpatEventStateBySignalGroup(ProcessedSpat spat, int signalGroup) {
+    private ProcessedMovementPhaseState getSpatEventStateBySignalGroup(ProcessedSpat spat, int signalGroup) {
         for (ProcessedMovementState state : spat.getStates()) {
             if (state.getSignalGroup() == signalGroup) {
                 List<ProcessedMovementEvent> movementEvents = state.getStateTimeSpeed();
@@ -80,18 +78,18 @@ public class MapSpatMessageAssessmentTopology
 //        return intersectionID + "_" + ingressOne + "_" + ingressTwo + "_" + egressOne + "_" + egressTwo;
 //    }
 
-    private boolean doStatesConflict(MovementPhaseState a, MovementPhaseState b) {
-        return a.equals(MovementPhaseState.PROTECTED_CLEARANCE)
-                        && !b.equals(MovementPhaseState.STOP_AND_REMAIN)
+    private boolean doStatesConflict(ProcessedMovementPhaseState a, ProcessedMovementPhaseState b) {
+        return a.equals(ProcessedMovementPhaseState.PROTECTED_CLEARANCE)
+                        && !b.equals(ProcessedMovementPhaseState.STOP_AND_REMAIN)
                 ||
-                a.equals(MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
-                        && !b.equals(MovementPhaseState.STOP_AND_REMAIN)
+                a.equals(ProcessedMovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
+                        && !b.equals(ProcessedMovementPhaseState.STOP_AND_REMAIN)
                 ||
-                b.equals(MovementPhaseState.PROTECTED_CLEARANCE)
-                        && !a.equals(MovementPhaseState.STOP_AND_REMAIN)
+                b.equals(ProcessedMovementPhaseState.PROTECTED_CLEARANCE)
+                        && !a.equals(ProcessedMovementPhaseState.STOP_AND_REMAIN)
                 ||
-                b.equals(MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
-                        && !a.equals(MovementPhaseState.STOP_AND_REMAIN);
+                b.equals(ProcessedMovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
+                        && !a.equals(ProcessedMovementPhaseState.STOP_AND_REMAIN);
     }
 
     public Topology buildTopology() {
@@ -310,8 +308,7 @@ public class MapSpatMessageAssessmentTopology
                     // Filter out lane connections involving disabled revocable lanes which should be ignored by
                     // the Signal State Conflict check.
                     Set<Integer> revocableLaneIds = intersection.getRevocableLaneIds();
-                    Set<Integer> enabledLanes = spat.getEnabledLanes().stream()
-                            .map(x -> (int)x.getValue()).collect(Collectors.toSet());
+                    Set<Integer> enabledLanes = new HashSet<>(spat.getEnabledLanes());
                     var connections = new ArrayList<LaneConnection>();
                     for (LaneConnection connection : unfilteredConnections) {
                         int ingressId = connection.getIngressLane().getId();
@@ -349,9 +346,9 @@ public class MapSpatMessageAssessmentTopology
                             
                             if (firstConnection.crosses(secondConnection) && firstConnection.getIngressLane() != secondConnection.getIngressLane()) {
 
-                                MovementPhaseState firstState = getSpatEventStateBySignalGroup(spat,
+                                ProcessedMovementPhaseState firstState = getSpatEventStateBySignalGroup(spat,
                                         firstConnection.getSignalGroup());
-                                MovementPhaseState secondState = getSpatEventStateBySignalGroup(spat,
+                                ProcessedMovementPhaseState secondState = getSpatEventStateBySignalGroup(spat,
                                         secondConnection.getSignalGroup());
 
                                 if (firstState == null || secondState == null) {
@@ -366,15 +363,15 @@ public class MapSpatMessageAssessmentTopology
                                     event.setIntersectionID(intersection.getIntersectionId());
                                     event.setFirstConflictingSignalGroup(firstConnection.getSignalGroup());
                                     event.setSecondConflictingSignalGroup(secondConnection.getSignalGroup());
-                                    event.setFirstConflictingSignalState(phaseStateEnum(firstState));
-                                    event.setSecondConflictingSignalState(phaseStateEnum(secondState));
+                                    event.setFirstConflictingSignalState(firstState);
+                                    event.setSecondConflictingSignalState(secondState);
                                     event.setSource(key.toString());
 
-                                    if (firstState.equals(MovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
-                                            || firstState.equals(MovementPhaseState.PROTECTED_CLEARANCE)) {
-                                        event.setConflictType(phaseStateEnum(secondState));
+                                    if (firstState.equals(ProcessedMovementPhaseState.PROTECTED_MOVEMENT_ALLOWED)
+                                            || firstState.equals(ProcessedMovementPhaseState.PROTECTED_CLEARANCE)) {
+                                        event.setConflictType(secondState);
                                     } else {
-                                        event.setConflictType(phaseStateEnum(firstState));
+                                        event.setConflictType(firstState);
                                     }
 
                                     events.add(new KeyValue<>(key, event));

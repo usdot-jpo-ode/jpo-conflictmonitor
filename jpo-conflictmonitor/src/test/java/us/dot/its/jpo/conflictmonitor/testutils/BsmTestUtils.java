@@ -28,7 +28,7 @@ public class BsmTestUtils {
         bsm.getProperties().setOdeReceivedAt(strDateTime);
         bsm.getProperties().setTimeStamp(zdt);
         BsmProperties props = bsm.getProperties();
-        props.setSecMark((long)milliOfMinute(instant));
+        props.setSecMark(milliOfMinute(instant));
         props.setId(id);
         return bsm;
     }
@@ -45,7 +45,7 @@ public class BsmTestUtils {
         final Point geometry = new Point(-105d, 40.0d);
         final BsmProperties properties = new BsmProperties();
         properties.setId("id");
-        properties.setSecMark(1000L);
+        properties.setSecMark(1000);
         properties.setSpeed(BigDecimal.valueOf(50).doubleValue());
         properties.setHeading(BigDecimal.valueOf(90).doubleValue());
         properties.setOriginIp("127.0.0.1");

@@ -9,9 +9,9 @@ import org.junit.Test;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.aggregation.event_state_progression.EventStateProgressionAggregationKey;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.EventStateProgressionEventAggregation;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.serialization.JsonSerdes;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 import java.util.List;
 
@@ -30,8 +30,8 @@ public class EventStateProgressionAggregationTopologyTest
                 EventStateProgressionAggregationTopology>{
 
     final int signalGroup = 6;
-    final SpatMovementPhaseState eventStateA = SpatMovementPhaseState.STOP_THEN_PROCEED;
-    final SpatMovementPhaseState eventStateB = SpatMovementPhaseState.PERMISSIVE_CLEARANCE;
+    final ProcessedMovementPhaseState eventStateA = ProcessedMovementPhaseState.STOP_THEN_PROCEED;
+    final ProcessedMovementPhaseState eventStateB = ProcessedMovementPhaseState.PERMISSIVE_CLEARANCE;
 
     @Test
     public void testTopology() {
@@ -66,8 +66,8 @@ public class EventStateProgressionAggregationTopologyTest
         event.setSignalGroupID(signalGroup);
         event.setTimestampA(initialWallClock.toEpochMilli() + 1);
         event.setTimestampB(initialWallClock.toEpochMilli() + 10);
-        event.setEventStateA(SpatMovementPhaseState.STOP_THEN_PROCEED);
-        event.setEventStateB(SpatMovementPhaseState.PERMISSIVE_CLEARANCE);
+        event.setEventStateA(ProcessedMovementPhaseState.STOP_THEN_PROCEED);
+        event.setEventStateB(ProcessedMovementPhaseState.PERMISSIVE_CLEARANCE);
         return event;
     }
 

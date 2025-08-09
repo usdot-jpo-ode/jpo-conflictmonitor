@@ -136,12 +136,12 @@ public class BsmMessageCountProgressionProcessor<Point> extends ContextualProces
 
         // Save original msgCnt value and set them to 0
         final int originalMsgCnt = Math.toIntExact(bsmData.getProperties().getMsgCnt());
-        bsmData.getProperties().setMsgCnt(0L);
+        bsmData.getProperties().setMsgCnt(0);
 
         int hash = bsmData.hashCode();
     
         // Restore original msgCnt values
-        bsmData.getProperties().setMsgCnt((long) originalMsgCnt);
+        bsmData.getProperties().setMsgCnt(originalMsgCnt);
         bsmData.getProperties().setTimeStamp(timeStamp);
         bsmData.getProperties().setOdeReceivedAt(odeReceivedAt);
         return hash;

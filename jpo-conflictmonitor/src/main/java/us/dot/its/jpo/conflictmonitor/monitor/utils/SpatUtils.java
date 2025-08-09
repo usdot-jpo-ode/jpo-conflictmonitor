@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatTimestampExtractor;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
@@ -95,7 +93,7 @@ public class SpatUtils {
 
         for (ProcessedSpat spat : spats) {
             long timestamp = SpatTimestampExtractor.getSpatTimestamp(spat);
-            MovementPhaseState state = getSignalGroupState(spat, signalGroupId);
+            ProcessedMovementPhaseState state = getSignalGroupState(spat, signalGroupId);
             var spatTiming = new SpatTiming(timestamp, state);
             timingList.add(spatTiming);
         }
@@ -170,7 +168,7 @@ public class SpatUtils {
         /**
          * The State of the Light.
          */
-        private MovementPhaseState state;
+        private ProcessedMovementPhaseState state;
 
         /**
          * The number of milliseconds the light was in this state.
@@ -183,7 +181,7 @@ public class SpatUtils {
          * @param timestamp The timestamp
          * @param state the phase state
          */
-        public SpatTiming(long timestamp, MovementPhaseState state) {
+        public SpatTiming(long timestamp, ProcessedMovementPhaseState state) {
             this.timestamp = timestamp;
             this.state = state;
         }

@@ -10,14 +10,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 /**
  * Unit tests for {@link SpatTimeChangeDetailState}
@@ -29,7 +28,7 @@ public class SpatTimeChangeDetailStateTest {
     SpatTimeChangeDetailState expectedResult;
     final static ZonedDateTime MAX_TIME = ZonedDateTime.parse("2023-03-13T00:00:30.999Z");
     final static ZonedDateTime MIN_TIME = ZonedDateTime.parse("2023-03-13T00:00:15.555Z");
-    final static MovementPhaseState EVENT_STATE = MovementPhaseState.PERMISSIVE_MOVEMENT_ALLOWED;
+    final static ProcessedMovementPhaseState EVENT_STATE = ProcessedMovementPhaseState.PERMISSIVE_MOVEMENT_ALLOWED;
     final static Integer SIGNAL_GROUP = 10;
 
     public SpatTimeChangeDetailStateTest(ProcessedMovementState inputState, SpatTimeChangeDetailState expectedResult) {
@@ -50,7 +49,7 @@ public class SpatTimeChangeDetailStateTest {
     }
 
     public static Object[] state(ZonedDateTime maxTime, ZonedDateTime minTime,
-                                 MovementPhaseState eventState, Integer signalGroup) {
+                                 ProcessedMovementPhaseState eventState, Integer signalGroup) {
 
         // Construct MovementState
         ProcessedMovementState state = new ProcessedMovementState();
@@ -93,7 +92,7 @@ public class SpatTimeChangeDetailStateTest {
             expectedResult.setMinEndTime(-1);
         }
 
-        expectedResult.setEventState(phaseStateEnum(eventState));
+        expectedResult.setEventState(eventState);
         System.out.println(expectedResult);
         return new Object[] { state, expectedResult};
     }

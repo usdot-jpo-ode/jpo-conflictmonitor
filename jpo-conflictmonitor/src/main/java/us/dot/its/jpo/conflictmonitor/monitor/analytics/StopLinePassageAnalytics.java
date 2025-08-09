@@ -1,14 +1,12 @@
 package us.dot.its.jpo.conflictmonitor.monitor.analytics;
 
 import static us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageConstants.*;
-import static us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils.phaseStateEnum;
 
 import org.locationtech.jts.geom.CoordinateXY;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import us.dot.its.jpo.asn.j2735.r2024.SPAT.MovementPhaseState;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageAlgorithm;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.stop_line_passage.StopLinePassageParameters;
 import us.dot.its.jpo.conflictmonitor.monitor.models.Intersection.Lane;
@@ -21,6 +19,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
@@ -96,7 +95,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         }
 
 
-        MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
+        ProcessedMovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
         Optional<BsmProperties> optProperties = BsmUtils.getProperties(bsm);
         CoordinateXY position = BsmUtils.getPosition(bsm);
@@ -108,7 +107,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
             event.setIntersectionID(path.getIntersection().getIntersectionId());
         }
         event.setConnectionID(connectionId);
-        event.setEventState(phaseStateEnum(signalState));
+        event.setEventState(signalState);
         event.setIngressLane(ingressLane.getId());
         if (egressLane != null) {
             event.setEgressLane(egressLane.getId());
@@ -133,7 +132,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         return event;
     }
 
-    public MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
+    public ProcessedMovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
         for(ProcessedMovementState state: spat.getStates()){
             if(state.getSignalGroup() == signalGroup && !state.getStateTimeSpeed().isEmpty()){
                 return state.getStateTimeSpeed().getFirst().getEventState();

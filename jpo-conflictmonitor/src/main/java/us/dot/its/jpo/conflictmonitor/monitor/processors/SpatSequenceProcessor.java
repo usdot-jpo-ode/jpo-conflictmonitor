@@ -12,6 +12,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.Rsu
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.TimeChangeDetailsEvent;
 import us.dot.its.jpo.conflictmonitor.monitor.models.spat.*;
 import us.dot.its.jpo.geojsonconverter.partitioner.RsuIntersectionKey;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 
@@ -189,8 +190,8 @@ public class SpatSequenceProcessor
         context().forward(new Record<>(outputKey, event, event.getFirstSpatTimestamp()));
     }
 
-    public boolean isStateClearance(SpatMovementPhaseState state){
-        return state.equals(SpatMovementPhaseState.PERMISSIVE_CLEARANCE) || state.equals(SpatMovementPhaseState.PROTECTED_CLEARANCE);
+    public boolean isStateClearance(ProcessedMovementPhaseState state){
+        return state.equals(ProcessedMovementPhaseState.PERMISSIVE_CLEARANCE) || state.equals(ProcessedMovementPhaseState.PROTECTED_CLEARANCE);
     }
 
     public long timeMarkFromUtc(long utcTimeMillis){

@@ -2,7 +2,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression;
 
 import lombok.Data;
 import lombok.Generated;
-import us.dot.its.jpo.conflictmonitor.monitor.models.spat.SpatMovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 @Data
 @Generated
@@ -11,12 +11,12 @@ public class PhaseStateTransition {
     /**
      * The state before the transition
      */
-    SpatMovementPhaseState stateA;
+    ProcessedMovementPhaseState stateA;
 
     /**
      * The state after the transition
      */
-    SpatMovementPhaseState stateB;
+    ProcessedMovementPhaseState stateB;
 
     @Override
     public String toString() {
