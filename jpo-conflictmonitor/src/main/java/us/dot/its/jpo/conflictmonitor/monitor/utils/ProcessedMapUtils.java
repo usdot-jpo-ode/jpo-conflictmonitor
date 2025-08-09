@@ -1,8 +1,6 @@
 package us.dot.its.jpo.conflictmonitor.monitor.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import us.dot.its.jpo.asn.j2735.r2024.MapData.LaneTypeAttributes;
-import us.dot.its.jpo.asn.runtime.types.Asn1Bitstring;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.LaneTypeAttributesMap;
 import us.dot.its.jpo.conflictmonitor.monitor.models.events.revocable_enabled_lane_alignment.RevocableLaneTypeAttributes;
 import us.dot.its.jpo.geojsonconverter.pojos.ProcessedBitstring;
