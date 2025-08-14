@@ -5,11 +5,18 @@ const { createReadStream } = require('node:fs');
 
 const { createInterface } = require('node:readline');
 const convert_bsm = fs.readFileSync('./convert-bsm.jsonata', 'utf8');
+const convert_spat = fs.readFileSync('./convert-spat.jsonata', 'utf8');
 const bsmExpression = jsonata(convert_bsm);
+const spatExpression = jsonata(convert_spat);
 
 
 async function convertBsm(bsm) {
     const result = await bsmExpression.evaluate(JSON.parse(bsm));
+    return JSON.stringify(result);
+}
+
+async function convertSpat(spat) {
+    const result = await spatExpression.evaluate(JSON.parse(spat));
     return JSON.stringify(result);
 }
 
@@ -36,10 +43,23 @@ const outfile = process.argv[3];
         const i1 = line.indexOf(",");
         const i2 = line.indexOf(",", i1 + 1);
         const type = line.substring(0, i1);
-        const timestamp = line.substring(i1+1, i2);
-        const msg = line.substring(i2+1);
-        const convertedMsg = await convertBsm(msg);
-        outStr += type + "," + timestamp + "," + convertedMsg + '\n';
+
+        if (type === 'BSM' || type === 'SPAT' || type === 'MAP') {
+            const timestamp = line.substring(i1 + 1, i2);
+            const msg = line.substring(i2 + 1);
+            let convertedMsg;
+            if (type === 'BSM') {
+                convertedMsg = await convertBsm(msg);
+            } else if (type === 'SPAT') {
+                convertedMsg = await convertSpat(msg);
+            } else if (type === 'MAP') {
+                throw "MAP conversion not implemented";
+            }
+            outStr += type + "," + timestamp + "," + convertedMsg + '\n';
+        } else {
+            // Processed types: don't need be converted
+            outStr += line + '\n';
+        }
     }
 
     fs.writeFileSync(outfile, outStr);
