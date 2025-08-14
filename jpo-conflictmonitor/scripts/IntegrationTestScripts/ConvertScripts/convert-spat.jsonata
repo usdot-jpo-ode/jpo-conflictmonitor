@@ -15,7 +15,14 @@
     $merge([$, {
         "metadata":
             $merge([metadata, {
-                "payloadType": "us.dot.its.jpo.ode.model.OdeMessageFramePayload"
+                "receivedMessageDetails":  {
+                    "locationData": metadata.receivedMessageDetails.locationData ?: undefined,
+                    "rxSource": metadata.receivedMessageDetails.rxSource
+                },
+                "payloadType": "us.dot.its.jpo.ode.model.OdeMessageFramePayload",
+                "schemaVersion": 9,
+                "source": "RSU",
+                "asn1": "00130000"
             }]),
         "payload":
             $merge([payload, {
