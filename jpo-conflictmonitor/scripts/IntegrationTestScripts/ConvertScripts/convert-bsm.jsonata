@@ -1,0 +1,56 @@
+(
+    $lonLat := function($x) {( $round($x/1e-7) )};
+    $elev := function($x) {( $round($x/1e-1) )};
+    $accelLonLat := function($x) {( $round($x/0.01) )};
+    $accelVert := function($x) {( $round($x/0.02) )};
+    $accelYaw := function($x) {( $round($x/0.01))};
+    $semiMajorMinor := function($x) {( $round($x/0.05))};
+    $orientation := function($x) {( $round($x/0.0054932479) )};
+    $angle := function($x) {( $round($x/1.5) )};
+    $heading := function($x) {( $round($x/0.0125) )};
+    $speed := function($x) {( $round($x/0.02))};
+    $coreData := payload.data.coreData;
+    $pos := $coreData.position;
+    $accelSet := $coreData.accelSet;
+    $merge([$, {
+        "metadata":
+            $merge([metadata, {
+                "payloadType": "us.dot.its.jpo.ode.model.OdeMessageFramePayload"
+            }]),
+        "payload":
+            $merge([payload, {
+                "data": {
+                    "messageId": 20,
+                    "value": {
+                        "BasicSafetyMessage": {
+                            "coreData":
+                                {
+                                    "msgCnt": $coreData.msgCnt,
+                                    "id": $coreData.id,
+                                    "secMark": $coreData.secMark,
+                                    "lat": $lonLat($pos.latitude),
+                                    "long": $lonLat($pos.longitude),
+                                    "elev": $elev($pos.elevation),
+                                    "accuracy": $coreData.accuracy,
+                                    "transmission": $lowercase(payload.data.coreData.transmission),
+                                    "speed": $speed($coreData.speed),
+                                    "heading": $heading($coreData.heading),
+                                    "angle": $coreData.angle ?: 0,
+                                    "accelSet": {
+                                        "long": $accelLonLat($accelSet.accelLong) ?: 0,
+                                        "lat": $accelLonLat($accelSet.accelLat) ?: 0,
+                                        "vert": $accelVert($accelSet.accelVert) ?: 0,
+                                        "yaw": $accelYaw($accelSet.accelYaw) ?: 0
+                                    },
+                                    "brakes": $merge([$coreData.brakes, {
+                                        "wheelBrakes": "80"
+                                    }]),
+                                    "size": $coreData.size
+                                }
+                        }
+                    }
+                },
+                "dataType": "us.dot.its.jpo.asn.j2735.r2024.BasicSafetyMessage.BasicSafetyMessageMessageFrame"
+            }])
+    }])
+)

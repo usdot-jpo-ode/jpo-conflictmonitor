@@ -10,14 +10,16 @@
 
 	<logger name="us.dot.its.jpo.conflictmonitor.eventlog.EventLogger" level="ERROR" />
 	
-	<logger name="org.springframework.web" level="INFO" />
+	<logger name="org.springframework.web" level="ERROR" />
 
 	<!-- Uncomment to enable detailed debugging info for event aggregation -->
 	<!--<logger name="us.dot.its.jpo.conflictmonitor.monitor.processors.aggregation" level="DEBUG"/>-->
 
-	<logger name="us.dot.its.jpo.conflictmonitor.monitor.topologies.validation" level="WARN"/>
+	<logger name="us.dot.its.jpo.conflictmonitor.monitor.topologies.validation" level="ERROR"/>
 
-	<logger name="us.dot.its.jpo.conflictmonitor" level="INFO" />
+	<logger name="us.dot.its.jpo.conflictmonitor.monitor.processors" level="WARN"/>
+
+	<logger name="us.dot.its.jpo.conflictmonitor" level="ERROR" />
 
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />
