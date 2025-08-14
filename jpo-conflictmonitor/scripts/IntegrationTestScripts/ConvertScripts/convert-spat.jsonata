@@ -1,14 +1,18 @@
 (
     $asnEnumCase := function($x) {(
-        $parts := $split($x, "_");
-        $caseParts := $map($parts, function($part) { (
-            $firstLetter := $substring($part, 0, 1);
-            $remainder := $lowercase($substring($part, 1));
-            $join([$firstLetter, $remainder])
-        ) });
-        $result := $join($caseParts, '-');
-        $first := $lowercase($substring($result, 0, 1));
-        $join([$first, $substring($result, 1)])
+        $x = 'PERMISSIVE_CLEARANCE' or $x = 'PROTECTED_CLEARANCE' ? (
+            $lowercase($x) ~> $replace('_', '-')
+        ): (
+            $caseParts := $split($x, "_") ~>
+                $map(function($part) { (
+                    $firstLetter := $substring($part, 0, 1);
+                    $remainder := $lowercase($substring($part, 1));
+                    $firstLetter & $remainder
+                ) });
+            $result := $join($caseParts, '-');
+            $first := $lowercase($substring($result, 0, 1));
+            $first & $substring($result, 1)
+        )
     )};
     $intersections := payload.data.intersectionStateList.intersectionStatelist;
     $intersection := $intersections[0];
