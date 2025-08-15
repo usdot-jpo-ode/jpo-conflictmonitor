@@ -1,0 +1,91 @@
+(
+    $lonLat := function($x) {( $round($x/1e-7) )};
+    $elev := function($x) {( $round($x/1e-1) )};
+    $asnEnumCase := function($x) {(
+        $x = 'PERMISSIVE_CLEARANCE' or $x = 'PROTECTED_CLEARANCE' ? (
+            $lowercase($x) ~> $replace('_', '-')
+        ): (
+            $result :=
+                $split($x, "_") ~>
+                $map(function($part) { (
+                    $firstLetter := $substring($part, 0, 1);
+                    $remainder := $lowercase($substring($part, 1));
+                    $firstLetter & $remainder
+                ) }) ~>
+                $join('-');
+            $lowercase($substring($result, 0, 1)) & $substring($result, 1)
+        )
+    )};
+    $mapData := payload.data;
+    $intersections := $mapData.intersections.intersectionGeometry;
+    $intersection := $intersections;
+    $refPoint := $intersection.refPoint;
+    $lanes := $intersection.laneSet.GenericLane;
+    $directionalUse := function($x) {(
+        $x
+    )};
+    $convertAttributes := function($x) {(
+        $x
+    )};
+    $merge([$, {
+        "metadata":
+            $merge([metadata, {
+                "receivedMessageDetails":  {
+                    "locationData": metadata.receivedMessageDetails.locationData ?: undefined,
+                    "rxSource": metadata.receivedMessageDetails.rxSource
+                },
+                "payloadType": "us.dot.its.jpo.ode.model.OdeMessageFramePayload",
+                "schemaVersion": 9,
+                "source": "RSU",
+                "asn1": "00130000"
+            }]),
+        "payload":
+            $merge([payload, {
+                "data": {
+                    "messageId": 18,
+                    "value": {
+                        "MapData": {
+                            "timeStamp": $mapData.timeStamp ?: undefined,
+                            "msgIssueRevision": $mapData.msgIssueRevision,
+                            "layerType": $mapData.layerType,
+                            "layerID": $mapData.layerID,
+                            "intersections": [
+                                {
+                                    "id": {
+                                        "region": $intersection.id.region ?: undefined,
+                                        "id": $intersection.id.id
+                                    },
+                                    "revision": $intersection.revision,
+                                    "refPoint": {
+                                        "lat": $lonLat($refPoint.latitude),
+                                        "long": $lonLat($refPoint.longitude),
+                                        "elev": $elev($refPoint.elevation)
+                                    },
+                                    "laneWidth": $intersection.laneWidth,
+                                    "speedLimits": $map(
+                                        $intersection.speedLimits.speedLimits,
+                                        function($s) {
+                                            {
+                                                "type": $s.type,
+                                                "speed": $s.speed
+                                            }
+                                        }),
+                                    "laneSet": $map(
+                                        $lanes,
+                                        function($l) {
+                                            {
+                                                "laneID": $l.laneID,
+                                                "ingressApproach": $l.ingressApproach ?: undefined,
+                                                "laneAttributes": $convertAttributes($l.laneAttributes)
+                                            }
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    }
+                },
+                "dataType": "us.dot.its.jpo.asn.j2735.r2024.SPAT.SPATMessageFrame"
+            }])
+    }])
+)
