@@ -6,9 +6,10 @@ const { createReadStream } = require('node:fs');
 const { createInterface } = require('node:readline');
 const convert_bsm = fs.readFileSync('./convert-bsm.jsonata', 'utf8');
 const convert_spat = fs.readFileSync('./convert-spat.jsonata', 'utf8');
+const convert_map = fs.readFileSync('./convert-map.jsonata', 'utf8');
 const bsmExpression = jsonata(convert_bsm);
 const spatExpression = jsonata(convert_spat);
-
+const mapExpression = jsonata(convert_map);
 
 async function convertBsm(bsm) {
     const result = await bsmExpression.evaluate(JSON.parse(bsm));
@@ -17,6 +18,11 @@ async function convertBsm(bsm) {
 
 async function convertSpat(spat) {
     const result = await spatExpression.evaluate(JSON.parse(spat));
+    return JSON.stringify(result);
+}
+
+async function convertMap(map) {
+    const result = await mapExpression.evaluate(JSON.parse(map));
     return JSON.stringify(result);
 }
 
@@ -53,7 +59,7 @@ const outfile = process.argv[3];
             } else if (type === 'SPAT') {
                 convertedMsg = await convertSpat(msg);
             } else if (type === 'MAP') {
-                throw "MAP conversion not implemented";
+                convertedMsg = await convertMap(msg);
             }
             outStr += type + "," + timestamp + "," + convertedMsg + '\n';
         } else {

@@ -1,31 +1,64 @@
 (
     $lonLat := function($x) {( $round($x/1e-7) )};
     $elev := function($x) {( $round($x/1e-1) )};
-    $asnEnumCase := function($x) {(
-        $x = 'PERMISSIVE_CLEARANCE' or $x = 'PROTECTED_CLEARANCE' ? (
-            $lowercase($x) ~> $replace('_', '-')
-        ): (
-            $result :=
-                $split($x, "_") ~>
-                $map(function($part) { (
-                    $firstLetter := $substring($part, 0, 1);
-                    $remainder := $lowercase($substring($part, 1));
-                    $firstLetter & $remainder
-                ) }) ~>
-                $join('-');
-            $lowercase($substring($result, 0, 1)) & $substring($result, 1)
-        )
-    )};
     $mapData := payload.data;
     $intersections := $mapData.intersections.intersectionGeometry;
     $intersection := $intersections;
     $refPoint := $intersection.refPoint;
     $lanes := $intersection.laneSet.GenericLane;
     $directionalUse := function($x) {(
-        $x
+        $x.ingressPath and $x.egressPath ? 'C0' :
+            ($x.ingressPath ? '80' : ($x.egressPath ? '40' : '00'));
+    )};
+    $laneType := function($x) {(
+        $x.vehicle ? {
+            "vehicle" : {
+                "value": $x.vehicle.isVehicleRevocableLane ? "80" : "00",
+                "length": 8
+            }
+        } : $x.crosswalk ? {
+            "crosswalk": "0000"
+        } : $x.sidewalk ? {
+            "sidewalk": "0000"
+        }
     )};
     $convertAttributes := function($x) {(
-        $x
+        {
+            "directionalUse": $directionalUse($x.directionalUse),
+            "sharedWith": "1C00",
+            "laneType": $laneType($x.laneType)
+        }
+    )};
+    $convertNode := function($x) {(
+        {
+            "delta": ($x.delta.nodeXY1 ? {
+                "node-XY1": $x.delta.nodeXY1
+            } : $x.delta.nodeXY6 ? {
+                "node-XY6": $x.delta.nodeXY6
+            } : $x.delta.nodeXY2 ? {
+                "node-XY2": $x.delta.nodeXY2
+            } : $x.delta.nodeXY3 ? {
+                "node-XY3": $x.delta.nodeXY3
+            } : $x.delta.nodeXY4 ? {
+                "node-XY4": $x.delta.nodeXY4
+            } : $x.delta.nodeXY5 ? {
+                "node-XY5": $x.delta.nodeXY5
+            } : $x.delta.nodeLatLon ? {
+                "node-LatLon": $x.delta.nodeLatLon
+            } : {}),
+            "attributes": ($x.attributes.dElevation ? {
+                "dElevation": $x.attributes.dElevation
+            } : undefined)
+        }
+    )};
+    $convertConnect := function($x) {(
+        {
+            "connectingLane": {
+                "lane": $x.connectingLane.lane
+            },
+            "signalGroup": $x.signalGroup ?: undefined,
+            "connectionID": $x.connectionID ?: undefined
+        }
     )};
     $merge([$, {
         "metadata":
@@ -59,7 +92,7 @@
                                     "refPoint": {
                                         "lat": $lonLat($refPoint.latitude),
                                         "long": $lonLat($refPoint.longitude),
-                                        "elev": $elev($refPoint.elevation)
+                                        "elevation": $elev($refPoint.elevation)
                                     },
                                     "laneWidth": $intersection.laneWidth,
                                     "speedLimits": $map(
@@ -76,7 +109,17 @@
                                             {
                                                 "laneID": $l.laneID,
                                                 "ingressApproach": $l.ingressApproach ?: undefined,
-                                                "laneAttributes": $convertAttributes($l.laneAttributes)
+                                                "egressApproach": $l.egressApproach ?: undefined,
+                                                "laneAttributes": $convertAttributes($l.laneAttributes),
+                                                "maneuvers": "8000",
+                                                "nodeList": {
+                                                    "nodes": $map($l.nodeList.nodes, function($n) {
+                                                        $convertNode($n)
+                                                    })
+                                                },
+                                                "connectsTo": [$map($l.connectsTo.connectsTo, function($c) {
+                                                    $convertConnect($c)
+                                                })]
                                             }
                                         }
                                     )
