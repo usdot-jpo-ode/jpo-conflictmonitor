@@ -63,7 +63,7 @@ const outfile = process.argv[3];
             }
             outStr += type + "," + timestamp + "," + convertedMsg + '\n';
         } else {
-            // Processed types: don't need be converted
+            // Processed types: don't need to be converted
             outStr += line + '\n';
         }
     }

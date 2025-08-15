@@ -128,7 +128,7 @@
                         }
                     }
                 },
-                "dataType": "us.dot.its.jpo.asn.j2735.r2024.SPAT.SPATMessageFrame"
+                "dataType": "us.dot.its.jpo.asn.j2735.r2024.MapData.MapDataMessageFrame"
             }])
     }])
 )
