@@ -1,0 +1,1 @@
+This folder contains test scripts with the old MAP, SPAT or BSM JSON format for ODE versions before 5.0.0.
