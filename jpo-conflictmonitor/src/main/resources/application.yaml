@@ -442,7 +442,7 @@ spat.validation:
   gracePeriodMilliseconds: 5000
   lowerBound: 90
   upperBound: 110
-  debug: true
+  debug: false
   aggregateMinimumDataEvents: ${ENABLE_AGGREGATE_SPAT_MINIMUM_DATA_EVENTS:false}
 
 
