@@ -42,12 +42,12 @@ public class BsmTestUtils {
     }
 
     public static ProcessedBsm<Point> validProcessedBsm() {
-        final Point geometry = new Point(-105, 40.0);
+        final Point geometry = new Point(-105d, 40.0d);
         final BsmProperties properties = new BsmProperties();
         properties.setId("id");
         properties.setSecMark(1000);
-        properties.setSpeed(BigDecimal.valueOf(50));
-        properties.setHeading(BigDecimal.valueOf(90));
+        properties.setSpeed(BigDecimal.valueOf(50).doubleValue());
+        properties.setHeading(BigDecimal.valueOf(90).doubleValue());
         properties.setOriginIp("127.0.0.1");
         properties.setTimeStamp(ZonedDateTime.parse("2020-01-01T00:00:00.000Z"));
         properties.setOdeReceivedAt("2020-01-01T00:00:25.123Z");

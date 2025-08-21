@@ -19,9 +19,9 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.BsmProperties;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -95,7 +95,7 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         }
 
 
-        J2735MovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
+        ProcessedMovementPhaseState signalState = getSignalGroupState(matchingSpat, signalGroup);
 
         Optional<BsmProperties> optProperties = BsmUtils.getProperties(bsm);
         CoordinateXY position = BsmUtils.getPosition(bsm);
@@ -132,10 +132,10 @@ public class StopLinePassageAnalytics implements StopLinePassageAlgorithm {
         return event;
     }
 
-    public J2735MovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
-        for(MovementState state: spat.getStates()){
-            if(state.getSignalGroup() == signalGroup && state.getStateTimeSpeed().size() > 0){
-                return state.getStateTimeSpeed().get(0).getEventState();
+    public ProcessedMovementPhaseState getSignalGroupState(ProcessedSpat spat, int signalGroup){
+        for(ProcessedMovementState state: spat.getStates()){
+            if(state.getSignalGroup() == signalGroup && !state.getStateTimeSpeed().isEmpty()){
+                return state.getStateTimeSpeed().getFirst().getEventState();
             }
         }
         return null;

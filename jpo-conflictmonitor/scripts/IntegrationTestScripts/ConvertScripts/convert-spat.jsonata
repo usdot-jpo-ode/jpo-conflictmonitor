@@ -1,0 +1,80 @@
+(
+    $asnEnumCase := function($x) {(
+        $x = 'PERMISSIVE_CLEARANCE' or $x = 'PROTECTED_CLEARANCE' ? (
+            $lowercase($x) ~> $replace('_', '-')
+        ): (
+            $result :=
+                $split($x, "_") ~>
+                $map(function($part) { (
+                    $firstLetter := $substring($part, 0, 1);
+                    $remainder := $lowercase($substring($part, 1));
+                    $firstLetter & $remainder
+                ) }) ~>
+                $join('-');
+            $lowercase($substring($result, 0, 1)) & $substring($result, 1)
+        )
+    )};
+    $intersections := payload.data.intersectionStateList.intersectionStatelist;
+    $intersection := $intersections[0];
+    $merge([$, {
+        "metadata":
+            $merge([metadata, {
+                "receivedMessageDetails":  {
+                    "locationData": metadata.receivedMessageDetails.locationData ?: undefined,
+                    "rxSource": metadata.receivedMessageDetails.rxSource
+                },
+                "payloadType": "us.dot.its.jpo.ode.model.OdeMessageFramePayload",
+                "schemaVersion": 9,
+                "source": "RSU",
+                "asn1": "00130000"
+            }]),
+        "payload":
+            $merge([payload, {
+                "data": {
+                    "messageId": 19,
+                    "value": {
+                        "SPAT": {
+                            "timeStamp": payload.data.timeStamp,
+                            "intersections": [
+                                {
+                                    "id": {
+                                        "region": $intersection.id.region ?: undefined,
+                                        "id": $intersection.id.id
+                                    },
+                                    "revision": $intersection.revision,
+                                    "status": "0000",
+                                    "moy": $intersection.moy,
+                                    "timeStamp": $intersection.timeStamp,
+                                    "states": $map(
+                                        $intersection.states.movementList,
+                                        function($s) {
+                                            {
+                                                "signalGroup": $s.signalGroup,
+                                                "state-time-speed": [
+                                                    (
+                                                        $event := $s.state_time_speed.movementEventList[0];
+                                                        $timing := $event.timing;
+                                                        {
+                                                            "eventState": $asnEnumCase($event.eventState),
+                                                            "timing": {
+                                                                "startTime": $timing.startTime ?: undefined,
+                                                                "minEndTime": $timing.minEndTime ?: undefined,
+                                                                "maxEndTime": $timing.maxEndTime ?: undefined,
+                                                                "likelyTime": $timing.likelyTime ?: undefined,
+                                                                "confidence": $timing.confidence ?: undefined
+                                                            }
+                                                        }
+                                                    )
+                                                ]
+                                            }
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    }
+                },
+                "dataType": "us.dot.its.jpo.asn.j2735.r2024.SPAT.SPATMessageFrame"
+            }])
+    }])
+)

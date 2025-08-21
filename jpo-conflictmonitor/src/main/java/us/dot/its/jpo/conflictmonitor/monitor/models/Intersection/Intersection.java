@@ -6,11 +6,7 @@ import lombok.*;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.ProcessedMapUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.LineString;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.connectinglanes.ConnectingLanesFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeature;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapFeatureCollection;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.MapProperties;
-import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.ProcessedMap;
-import us.dot.its.jpo.ode.plugin.j2735.J2735Connection;
+import us.dot.its.jpo.geojsonconverter.pojos.geojson.map.*;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.io.WKTWriter;
@@ -119,7 +115,7 @@ public class Intersection {
 
         for(MapFeature<LineString> feature: features.getFeatures()){
             if(feature.getProperties().getConnectsTo() != null){
-                for(J2735Connection laneConnection: feature.getProperties().getConnectsTo()){
+                for(ProcessedConnection laneConnection: feature.getProperties().getConnectsTo()){
                     Lane ingressLane = laneLookup.get(feature.getId());
                     Lane egressLane = laneLookup.get(laneConnection.getConnectingLane().getLane());
                     int connectionId = -1;

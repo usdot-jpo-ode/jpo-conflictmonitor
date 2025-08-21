@@ -23,8 +23,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub JPO Conflict Monitor</name>
-<!--                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/*</url>-->
-                    <url>https://maven.pkg.github.com/usdot-jpo-ode/jpo-ode</url>
+                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/*</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>

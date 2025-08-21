@@ -3,7 +3,7 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 @Getter
 @Setter
@@ -18,8 +18,8 @@ public class TimeChangeDetailsEventAggregation
     private int signalGroupID;
     private String timeMarkTypeA;
     private String timeMarkTypeB;
-    private J2735MovementPhaseState eventStateA;
-    private J2735MovementPhaseState eventStateB;
+    private ProcessedMovementPhaseState eventStateA;
+    private ProcessedMovementPhaseState eventStateB;
 
     @Override
     public void update(TimeChangeDetailsEvent event) {

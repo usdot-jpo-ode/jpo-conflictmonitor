@@ -10,10 +10,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementEvent;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementEvent;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.TimingChangeDetails;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -24,14 +24,14 @@ import static org.hamcrest.Matchers.*;
 @RunWith(Parameterized.class)
 public class SpatTimeChangeDetailStateTest {
 
-    MovementState inputState;
+    ProcessedMovementState inputState;
     SpatTimeChangeDetailState expectedResult;
     final static ZonedDateTime MAX_TIME = ZonedDateTime.parse("2023-03-13T00:00:30.999Z");
     final static ZonedDateTime MIN_TIME = ZonedDateTime.parse("2023-03-13T00:00:15.555Z");
-    final static J2735MovementPhaseState EVENT_STATE = J2735MovementPhaseState.PERMISSIVE_MOVEMENT_ALLOWED;
+    final static ProcessedMovementPhaseState EVENT_STATE = ProcessedMovementPhaseState.PERMISSIVE_MOVEMENT_ALLOWED;
     final static Integer SIGNAL_GROUP = 10;
 
-    public SpatTimeChangeDetailStateTest(MovementState inputState, SpatTimeChangeDetailState expectedResult) {
+    public SpatTimeChangeDetailStateTest(ProcessedMovementState inputState, SpatTimeChangeDetailState expectedResult) {
         this.inputState = inputState;
         this.expectedResult = expectedResult;
     }
@@ -49,12 +49,12 @@ public class SpatTimeChangeDetailStateTest {
     }
 
     public static Object[] state(ZonedDateTime maxTime, ZonedDateTime minTime,
-            J2735MovementPhaseState eventState, Integer signalGroup) {
+                                 ProcessedMovementPhaseState eventState, Integer signalGroup) {
 
         // Construct MovementState
-        MovementState state = new MovementState();
+        ProcessedMovementState state = new ProcessedMovementState();
         state.setSignalGroup(signalGroup);
-        MovementEvent event = new MovementEvent();
+        ProcessedMovementEvent event = new ProcessedMovementEvent();
         
         TimingChangeDetails timing = new TimingChangeDetails();
         timing.setMaxEndTime(maxTime);
@@ -67,7 +67,7 @@ public class SpatTimeChangeDetailStateTest {
         // Construct expected SpatTimeChangeDetailState
         SpatTimeChangeDetailState expectedResult = new SpatTimeChangeDetailState();
         if (signalGroup != null) {
-            expectedResult.setSignalGroup(signalGroup.intValue());
+            expectedResult.setSignalGroup(signalGroup);
         }
         if (maxTime != null) {
             long millis = maxTime.toInstant().toEpochMilli();
@@ -100,7 +100,7 @@ public class SpatTimeChangeDetailStateTest {
    
     
     /**
-     * Test that {@link SpatTimeChangeDetailState#fromMovementState(MovementState)} can deal with nulls
+     * Test that {@link SpatTimeChangeDetailState#fromMovementState(ProcessedMovementState)} can deal with nulls
      */
     @Test
     public void testFromMovementState() {

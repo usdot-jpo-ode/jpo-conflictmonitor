@@ -112,7 +112,7 @@ public class SpatValidationTopology
 
         // Extract validation info for Minimum Data events
         var minimumDataEventStream = processedSpatStream
-                .filter((key, value) -> value != null && !value.getCti4501Conformant())
+                .filter((key, value) -> value != null && !value.isCti4501Conformant())
                 .map((key, value) -> {
                     var minDataEvent = new SpatMinimumDataEvent();
                     var valMsgList = value.getValidationMessages();

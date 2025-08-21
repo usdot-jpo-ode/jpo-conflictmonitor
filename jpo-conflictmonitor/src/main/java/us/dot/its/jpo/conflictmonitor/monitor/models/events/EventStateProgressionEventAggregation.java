@@ -3,7 +3,8 @@ package us.dot.its.jpo.conflictmonitor.monitor.models.events;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
+
 
 @Getter
 @Setter
@@ -16,8 +17,8 @@ public class EventStateProgressionEventAggregation
     }
 
     int signalGroupID;
-    J2735MovementPhaseState eventStateA;
-    J2735MovementPhaseState eventStateB;
+    ProcessedMovementPhaseState eventStateA;
+    ProcessedMovementPhaseState eventStateB;
 
     @Override
     public void update(EventStateProgressionEvent event) {

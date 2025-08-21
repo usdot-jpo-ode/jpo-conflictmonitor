@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 enum TimeMarkType {
     MIN_END_TIME,
@@ -58,14 +58,14 @@ public class TimeChangeDetailsEvent extends Event{
     private long secondConflictingTimemark;
 
     /**
-     * J2735MovementPhaseState representing the state of the light in the first SPaT message
+     * MovementPhaseState representing the state of the light in the first SPaT message
      */
-    private J2735MovementPhaseState firstState;
+    private ProcessedMovementPhaseState firstState;
 
     /**
-     * J2735MovementPhaseState representing the state of the light in the second SPaT message
+     * MovementPhaseState representing the state of the light in the second SPaT message
      */
-    private J2735MovementPhaseState secondState;
+    private ProcessedMovementPhaseState secondState;
 
     /**
      * long representing the utc timestamp in milliseconds of the first conflicting timemark 

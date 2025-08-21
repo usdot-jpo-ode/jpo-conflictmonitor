@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import us.dot.its.jpo.conflictmonitor.monitor.models.event_state_progression.RsuIntersectionSignalGroupKey;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 
 /**
  * Key to aggregate/deduplicate unique values for
@@ -20,7 +20,7 @@ public class TimeChangeDetailsAggregationKey
 
     String timeMarkTypeA;
     String timeMarkTypeB;
-    J2735MovementPhaseState eventStateA;
-    J2735MovementPhaseState eventStateB;
+    ProcessedMovementPhaseState eventStateA;
+    ProcessedMovementPhaseState eventStateB;
 
 }

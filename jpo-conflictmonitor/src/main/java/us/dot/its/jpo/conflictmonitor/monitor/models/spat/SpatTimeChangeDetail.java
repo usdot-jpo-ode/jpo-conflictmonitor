@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import us.dot.its.jpo.geojsonconverter.pojos.spat.MovementState;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
 
 public class SpatTimeChangeDetail {
@@ -37,7 +37,7 @@ public class SpatTimeChangeDetail {
 
         spatTimeChange.setTimestamp(SpatTimestampExtractor.getSpatTimestamp(spat));
         ArrayList<SpatTimeChangeDetailState> states = new ArrayList<>();
-        for(MovementState state: spat.getStates()){
+        for(ProcessedMovementState state: spat.getStates()){
             states.add(SpatTimeChangeDetailState.fromMovementState(state));
         }
         spatTimeChange.setStates(states);

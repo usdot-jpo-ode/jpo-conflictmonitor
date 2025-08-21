@@ -30,6 +30,7 @@ public class JTSConverter {
         return new Point(convert(point.getCoordinate()));
     }
 
+
     private static Coordinate convert(double[] c) {
         return (c.length == 2)
                 ? new Coordinate(c[0], c[1])
@@ -57,4 +58,5 @@ public class JTSConverter {
         }
         return array;
     }
+
 }

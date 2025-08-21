@@ -20,8 +20,8 @@ import us.dot.its.jpo.conflictmonitor.monitor.utils.BsmUtils;
 import us.dot.its.jpo.conflictmonitor.monitor.utils.SpatUtils;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.Point;
 import us.dot.its.jpo.geojsonconverter.pojos.geojson.bsm.ProcessedBsm;
+import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedMovementPhaseState;
 import us.dot.its.jpo.geojsonconverter.pojos.spat.ProcessedSpat;
-import us.dot.its.jpo.ode.plugin.j2735.J2735MovementPhaseState;
 
 import java.util.List;
 import java.util.Optional;
@@ -136,8 +136,8 @@ public class StopLineStopAnalytics implements StopLineStopAlgorithm {
 
         if (signalGroup > -1) {
             event.setSignalGroup(signalGroup);
-            J2735MovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
-            J2735MovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
+            ProcessedMovementPhaseState firstSignalState = getSignalGroupState(firstSpat, signalGroup);
+            ProcessedMovementPhaseState lastSignalState = getSignalGroupState(lastSpat, signalGroup);
             event.setInitialEventState(firstSignalState);
             event.setFinalEventState(lastSignalState);
             event.setConnectionID(connectionId);
