@@ -35,7 +35,6 @@
     <!-- Allow override of github organization when publishing artifacts to github -->
     <github_organization>usdot-jpo-ode</github_organization>
 
-    <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
   </properties>
   <dependencies>
     <!-- Spring Boot Dependencies -->
@@ -351,21 +350,6 @@
                 <id>repackage</id>
                 <phase>none</phase>
               </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.1.2</version>
-            <configuration>
-                <configLocation>checkstyle.xml</configLocation>
-            </configuration>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>check</goal>
-                    </goals>
-                </execution>
             </executions>
           </plugin>
         </plugins>
