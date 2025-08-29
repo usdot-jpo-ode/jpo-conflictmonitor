@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.map.MapValidationAlgorithmFactory;
+import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.rtcm.RtcmValidationAlgorithmFactory;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.validation.spat.SpatValidationStreamsAlgorithmFactory;
 
 /**
@@ -28,6 +29,12 @@ public class ValidationAlgorithms {
         return factoryBean;
     }
 
+    @Bean
+    public FactoryBean<?> rtcmServiceLocatorFactoryBean() {
+        var factoryBean = new ServiceLocatorFactoryBean();
+        factoryBean.setServiceLocatorInterface(RtcmValidationAlgorithmFactory.class);
+        return factoryBean;
+    }
    
 
 }

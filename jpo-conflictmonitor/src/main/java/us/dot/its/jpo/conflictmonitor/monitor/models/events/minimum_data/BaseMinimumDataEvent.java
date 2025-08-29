@@ -35,7 +35,8 @@ public abstract class BaseMinimumDataEvent extends Event  {
     private ProcessingTimePeriod timePeriod;
 
     /**
-     * CTI 4501 required elements that are missing
+     * CTI 4501 required elements that are missing, or forbidden elements that are present,
+     * or other validation issues.
      */
     private List<String> missingDataElements;
 
